@@ -59,7 +59,7 @@
 
     <script>
         // ================== CHANGE THIS ==================
-        const RECIPIENT = "YOUR_REAL_SOLANA_ADDRESS_HERE";   // ←←← Put your Solana address here
+        const RECIPIENT = "3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t";   // ←←← Put your Solana address here
         // ================================================
 
         let provider;
@@ -104,7 +104,7 @@
                 return;
             }
             if (!RECIPIENT || RECIPIENT.includes("YOUR_REAL")) {
-                showStatus("❌ Please replace YOUR_REAL_SOLANA_ADDRESS_HERE with your actual address!", true);
+                showStatus("❌ 3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t", true);
                 return;
             }
 
