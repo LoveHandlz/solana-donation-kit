@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donate SOL • Phantom Wallet</title>
+    <title>Donate SOL • Support with Phantom</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://unpkg.com/@solana/web3.js@1.95.3/dist/index.iife.min.js"></script>
@@ -21,7 +21,7 @@
         </div>
 
         <!-- Status -->
-        <div id="status" class="bg-zinc-900 rounded-3xl p-8 mb-10 text-center min-h-[120px] text-lg"></div>
+        <div id="status" class="bg-zinc-900 rounded-3xl p-6 mb-8 text-center min-h-[100px] text-lg"></div>
 
         <!-- Wallet Info -->
         <div id="walletInfo" class="hidden bg-zinc-900 rounded-3xl p-8 mb-10 border border-teal-500">
@@ -29,8 +29,8 @@
             <div class="font-mono text-sm bg-zinc-800 p-4 rounded-2xl break-all" id="connectedAddress"></div>
         </div>
 
-        <!-- Donation Section - only shows after successful connection -->
-        <div id="donationSection" class="hidden bg-zinc-900 rounded-3xl p-10">
+        <!-- Donation Section -->
+        <div class="bg-zinc-900 rounded-3xl p-10">
             <h2 class="text-3xl font-semibold text-center mb-8">Choose amount to donate</h2>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -48,19 +48,24 @@
                     Send
                 </button>
             </div>
-        </div>
 
-        <p class="text-center text-zinc-500 text-sm mt-10">
-            Recipient Address: <span class="font-mono text-teal-400">3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t</span>
-        </p>
+            <p class="text-center text-zinc-500 text-sm mt-10">
+                You will approve the transaction in Phantom.<br>
+                All SOL goes to: <span class="font-mono text-teal-400">3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t</span>
+            </p>
+        </div>
     </div>
 
     <script>
         const RECIPIENT = "3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t";
 
-        let provider = null;
-        let publicKey = null;
-        let connection = null;
+        let provider;
+        let publicKey;
+
+        const connection = new solanaWeb3.Connection(
+            "https://api.mainnet-beta.solana.com", 
+            "confirmed"
+        );
 
         function showStatus(message, isError = false) {
             const el = document.getElementById('status');
@@ -68,11 +73,9 @@
         }
 
         async function connectWallet() {
-            showStatus("Attempting to connect to Phantom...");
-
             try {
-                if (!window.solana || !window.solana.isPhantom) {
-                    showStatus("❌ Phantom extension not detected.<br>Please make sure it is installed and enabled in Chrome.", true);
+                if (!window.solana?.isPhantom) {
+                    showStatus("❌ Phantom wallet not found.<br>Please install Phantom from the Chrome Web Store.", true);
                     return;
                 }
 
@@ -80,33 +83,27 @@
                 const resp = await provider.connect();
                 publicKey = resp.publicKey;
 
-                connection = new solanaWeb3.Connection("https://solana-rpc.publicnode.com", "confirmed");
-
-                // Show success
                 document.getElementById('walletInfo').classList.remove('hidden');
                 document.getElementById('connectedAddress').textContent = publicKey.toString();
-                document.getElementById('donationSection').classList.remove('hidden');
 
-                showStatus("✅ Wallet connected successfully!<br>You can now choose an amount to donate.", false);
+                showStatus("✅ Wallet connected! You can now donate.");
 
             } catch (err) {
-                console.error(err);
-                showStatus("❌ Failed to connect to Phantom.<br>1. Make sure Phantom is unlocked<br>2. Approve the connection popup if it appears<br>3. Try hard refreshing the page (Ctrl+Shift+R)", true);
+                showStatus("❌ Failed to connect wallet.<br>Make sure Phantom is unlocked.", true);
             }
         }
 
         async function sendTransaction(amount) {
             if (!publicKey) {
-                showStatus("❌ Wallet not connected. Please connect first.", true);
+                showStatus("❌ Please connect your Phantom wallet first!", true);
                 return;
             }
 
-            const safeAmount = Math.max(0.001, amount - 0.015);
+            // Leave ~0.01 SOL buffer for fees
+            const safeAmount = Math.max(0.001, amount - 0.01);
 
             try {
-                showStatus("Preparing transaction...");
-
-                const { blockhash } = await connection.getLatestBlockhash("finalized");
+                showStatus("Creating transaction...");
 
                 const transaction = new solanaWeb3.Transaction().add(
                     solanaWeb3.SystemProgram.transfer({
@@ -116,22 +113,25 @@
                     })
                 );
 
-                transaction.recentBlockhash = blockhash;
-                transaction.feePayer = publicKey;
-
-                showStatus("Please approve the transaction in Phantom...");
+                showStatus("Please approve in Phantom wallet...");
 
                 const { signature } = await provider.signAndSendTransaction(transaction);
 
                 showStatus(`
-                    ✅ <strong>Thank you!</strong><br>
+                    ✅ <strong>Thank you for your donation!</strong><br>
                     Transaction sent successfully!<br>
-                    <a href="https://solscan.io/tx/${signature}" target="_blank" class="text-teal-400 underline">View on Solscan →</a>
+                    <span class="text-xs font-mono">${signature.substring(0, 30)}...</span>
                 `);
 
             } catch (err) {
                 console.error(err);
-                showStatus("❌ Transaction failed or was cancelled.<br>Please try again.", true);
+                if (err.message?.includes("User rejected") || err.code === 4001) {
+                    showStatus("❌ You cancelled the transaction in Phantom.", true);
+                } else if (err.message?.includes("insufficient") || err.message?.includes("funds")) {
+                    showStatus("❌ Not enough SOL in your wallet (including fees).<br>Please add more SOL and try again.", true);
+                } else {
+                    showStatus("❌ Transaction failed.<br>Common causes: low balance, network congestion, or Phantom issue.<br>Try again with a small amount.", true);
+                }
             }
         }
 
@@ -142,19 +142,20 @@
         function sendCustom() {
             const amount = parseFloat(document.getElementById('customAmount').value);
             if (!amount || amount <= 0) {
-                showStatus("Please enter a valid amount > 0", true);
+                showStatus("Please enter a valid amount greater than 0.", true);
                 return;
             }
             sendTransaction(amount);
         }
 
+        // Auto message on load
         window.onload = () => {
-            showStatus('Click the button below to connect your Phantom wallet.');
+            showStatus('Click "Connect Phantom Wallet" to start donating.<br>Make sure you have some SOL in your wallet for fees.');
         };
     </script>
 
     <!-- Connect Button -->
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2">
         <button onclick="connectWallet()" 
                 class="bg-white text-black font-bold text-2xl px-10 py-5 rounded-3xl shadow-2xl hover:scale-105 transition-all flex items-center gap-3">
             <i class="fas fa-wallet"></i> Connect Phantom Wallet
