@@ -17,11 +17,11 @@
         <div class="text-center mb-12">
             <div class="text-7xl mb-4">🪙</div>
             <h1 class="text-5xl font-bold tracking-tight">Donate with Solana</h1>
-            <p class="text-teal-400 text-xl mt-2">Advanced Phantom Integration</p>
+            <p class="text-teal-400 text-xl mt-2">Powered by Phantom Wallet</p>
         </div>
 
         <!-- Status -->
-        <div id="status" class="bg-zinc-900 rounded-3xl p-6 mb-8 text-center min-h-[120px] text-lg"></div>
+        <div id="status" class="bg-zinc-900 rounded-3xl p-8 mb-10 text-center min-h-[120px] text-lg"></div>
 
         <!-- Wallet Info -->
         <div id="walletInfo" class="hidden bg-zinc-900 rounded-3xl p-8 mb-10 border border-teal-500">
@@ -29,44 +29,35 @@
             <div class="font-mono text-sm bg-zinc-800 p-4 rounded-2xl break-all" id="connectedAddress"></div>
         </div>
 
-        <!-- Normal Donation Section (shows when connected) -->
-        <div id="normalDonation" class="hidden bg-zinc-900 rounded-3xl p-10">
+        <!-- Donation Section - only shows after successful connection -->
+        <div id="donationSection" class="hidden bg-zinc-900 rounded-3xl p-10">
             <h2 class="text-3xl font-semibold text-center mb-8">Choose amount to donate</h2>
+            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                <button onclick="quickDonate(0.1)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl">0.1 SOL</button>
-                <button onclick="quickDonate(0.5)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl">0.5 SOL</button>
-                <button onclick="quickDonate(1)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl">1 SOL</button>
-                <button onclick="quickDonate(5)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl">5 SOL</button>
+                <button onclick="quickDonate(0.1)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl transition-colors">0.1 SOL</button>
+                <button onclick="quickDonate(0.5)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl transition-colors">0.5 SOL</button>
+                <button onclick="quickDonate(1)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl transition-colors">1 SOL</button>
+                <button onclick="quickDonate(5)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl transition-colors">5 SOL</button>
             </div>
-            <div class="flex gap-4">
-                <input id="customAmount" type="number" step="0.01" min="0.01" placeholder="Custom amount (SOL)" class="flex-1 bg-zinc-800 px-6 py-5 rounded-2xl text-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
-                <button onclick="sendCustom()" class="bg-teal-500 hover:bg-teal-600 px-12 py-5 rounded-2xl font-bold text-xl transition-all">Send</button>
-            </div>
-        </div>
 
-        <!-- Deep Link Fallback (shows when connect fails) -->
-        <div id="deepLinkSection" class="hidden bg-zinc-900 rounded-3xl p-10">
-            <h2 class="text-3xl font-semibold text-center mb-4 text-amber-400">🔗 Phantom Deep Link Mode</h2>
-            <p class="text-center text-zinc-400 mb-8">Normal connection failed. Use these buttons to open Phantom directly.</p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                <button onclick="sendDeepLink(0.1)" class="bg-amber-600 hover:bg-amber-500 py-6 rounded-2xl font-bold text-xl">0.1 SOL</button>
-                <button onclick="sendDeepLink(0.5)" class="bg-amber-600 hover:bg-amber-500 py-6 rounded-2xl font-bold text-xl">0.5 SOL</button>
-                <button onclick="sendDeepLink(1)" class="bg-amber-600 hover:bg-amber-500 py-6 rounded-2xl font-bold text-xl">1 SOL</button>
-                <button onclick="sendDeepLink(5)" class="bg-amber-600 hover:bg-amber-500 py-6 rounded-2xl font-bold text-xl">5 SOL</button>
-            </div>
             <div class="flex gap-4">
-                <input id="customDeepAmount" type="number" step="0.01" min="0.01" placeholder="Custom amount (SOL)" class="flex-1 bg-zinc-800 px-6 py-5 rounded-2xl text-xl">
-                <button onclick="sendCustomDeepLink()" class="bg-amber-500 hover:bg-amber-400 px-12 py-5 rounded-2xl font-bold text-xl transition-all">Send</button>
+                <input id="customAmount" type="number" step="0.01" min="0.01" placeholder="Custom amount (SOL)" 
+                       class="flex-1 bg-zinc-800 px-6 py-5 rounded-2xl text-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <button onclick="sendCustom()" 
+                        class="bg-teal-500 hover:bg-teal-600 px-12 py-5 rounded-2xl font-bold text-xl transition-all">
+                    Send
+                </button>
             </div>
         </div>
 
         <p class="text-center text-zinc-500 text-sm mt-10">
-            Recipient: <span class="font-mono text-teal-400">3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t</span>
+            Recipient Address: <span class="font-mono text-teal-400">3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t</span>
         </p>
     </div>
 
     <script>
         const RECIPIENT = "3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t";
+
         let provider = null;
         let publicKey = null;
         let connection = null;
@@ -74,16 +65,14 @@
         function showStatus(message, isError = false) {
             const el = document.getElementById('status');
             el.innerHTML = `<span class="${isError ? 'text-red-400' : 'text-teal-400'}">${message}</span>`;
-            console.log('%c[STATUS]', 'color:#14b8a6', message); // debug log
         }
 
-        // Try normal connect first
         async function connectWallet() {
-            console.log('%c[CONNECT ATTEMPT]', 'color:#14b8a6', 'Starting normal Phantom connect...');
+            showStatus("Attempting to connect to Phantom...");
+
             try {
                 if (!window.solana || !window.solana.isPhantom) {
-                    showStatus("❌ Phantom extension not detected.", true);
-                    showDeepLinkSection();
+                    showStatus("❌ Phantom extension not detected.<br>Please make sure it is installed and enabled in Chrome.", true);
                     return;
                 }
 
@@ -93,81 +82,79 @@
 
                 connection = new solanaWeb3.Connection("https://solana-rpc.publicnode.com", "confirmed");
 
+                // Show success
                 document.getElementById('walletInfo').classList.remove('hidden');
                 document.getElementById('connectedAddress').textContent = publicKey.toString();
-                document.getElementById('normalDonation').classList.remove('hidden');
+                document.getElementById('donationSection').classList.remove('hidden');
 
-                showStatus("✅ Wallet connected! Use the buttons below.", false);
-                console.log('%c[CONNECT SUCCESS]', 'color:#14b8a6', publicKey.toString());
+                showStatus("✅ Wallet connected successfully!<br>You can now choose an amount to donate.", false);
 
             } catch (err) {
-                console.error('[CONNECT ERROR]', err);
-                showStatus("❌ Normal connect failed.<br>Switching to Deep Link mode...", true);
-                showDeepLinkSection();
+                console.error(err);
+                showStatus("❌ Failed to connect to Phantom.<br>1. Make sure Phantom is unlocked<br>2. Approve the connection popup if it appears<br>3. Try hard refreshing the page (Ctrl+Shift+R)", true);
             }
         }
 
-        function showDeepLinkSection() {
-            document.getElementById('deepLinkSection').classList.remove('hidden');
-        }
-
-        // Deep link send (most reliable when connect fails)
-        function sendDeepLink(amount) {
-            const url = `https://phantom.app/ul/v1/send?recipient=${encodeURIComponent(RECIPIENT)}&amount=${amount}&label=Donation`;
-            showStatus(`Opening Phantom for ${amount} SOL...`, false);
-            window.open(url, '_blank');
-        }
-
-        function sendCustomDeepLink() {
-            const amount = parseFloat(document.getElementById('customDeepAmount').value);
-            if (!amount || amount <= 0) {
-                showStatus("Enter a valid amount", true);
+        async function sendTransaction(amount) {
+            if (!publicKey) {
+                showStatus("❌ Wallet not connected. Please connect first.", true);
                 return;
             }
-            sendDeepLink(amount);
-        }
 
-        // Normal send (only works after successful connect)
-        async function sendTransaction(amount) {
-            if (!publicKey) return;
             const safeAmount = Math.max(0.001, amount - 0.015);
+
             try {
                 showStatus("Preparing transaction...");
+
                 const { blockhash } = await connection.getLatestBlockhash("finalized");
-                const tx = new solanaWeb3.Transaction().add(
+
+                const transaction = new solanaWeb3.Transaction().add(
                     solanaWeb3.SystemProgram.transfer({
                         fromPubkey: publicKey,
                         toPubkey: new solanaWeb3.PublicKey(RECIPIENT),
                         lamports: Math.floor(safeAmount * solanaWeb3.LAMPORTS_PER_SOL)
                     })
                 );
-                tx.recentBlockhash = blockhash;
-                tx.feePayer = publicKey;
 
-                showStatus("Approve in Phantom...");
-                const { signature } = await provider.signAndSendTransaction(tx);
+                transaction.recentBlockhash = blockhash;
+                transaction.feePayer = publicKey;
 
-                showStatus(`✅ Sent! <a href="https://solscan.io/tx/${signature}" target="_blank" class="underline">View on Solscan</a>`);
+                showStatus("Please approve the transaction in Phantom...");
+
+                const { signature } = await provider.signAndSendTransaction(transaction);
+
+                showStatus(`
+                    ✅ <strong>Thank you!</strong><br>
+                    Transaction sent successfully!<br>
+                    <a href="https://solscan.io/tx/${signature}" target="_blank" class="text-teal-400 underline">View on Solscan →</a>
+                `);
+
             } catch (err) {
                 console.error(err);
-                showStatus("❌ Transaction failed or cancelled.", true);
+                showStatus("❌ Transaction failed or was cancelled.<br>Please try again.", true);
             }
         }
 
-        function quickDonate(amount) { sendTransaction(amount); }
+        function quickDonate(amount) {
+            sendTransaction(amount);
+        }
+
         function sendCustom() {
             const amount = parseFloat(document.getElementById('customAmount').value);
-            if (!amount || amount <= 0) return showStatus("Enter valid amount", true);
+            if (!amount || amount <= 0) {
+                showStatus("Please enter a valid amount > 0", true);
+                return;
+            }
             sendTransaction(amount);
         }
 
         window.onload = () => {
-            showStatus('Click "Connect Phantom Wallet" to begin.<br>If it fails, deep link buttons will appear.');
+            showStatus('Click the button below to connect your Phantom wallet.');
         };
     </script>
 
-    <!-- Main Connect Button -->
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2">
+    <!-- Connect Button -->
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
         <button onclick="connectWallet()" 
                 class="bg-white text-black font-bold text-2xl px-10 py-5 rounded-3xl shadow-2xl hover:scale-105 transition-all flex items-center gap-3">
             <i class="fas fa-wallet"></i> Connect Phantom Wallet
