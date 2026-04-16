@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donate SOL • Support with Phantom</title>
+    <title>Donate SOL • Phantom Wallet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://unpkg.com/@solana/web3.js@1.95.3/dist/index.iife.min.js"></script>
@@ -70,8 +70,8 @@
 
         async function connectWallet() {
             try {
-                if (!window.solana?.isPhantom) {
-                    showStatus("❌ Phantom wallet not found.<br>Please install Phantom from the Chrome Web Store and refresh.", true);
+                if (!window.solana || !window.solana.isPhantom) {
+                    showStatus("❌ Phantom wallet not found.<br>Please install the Phantom extension from the Chrome Web Store and refresh the page.", true);
                     return;
                 }
 
@@ -79,17 +79,16 @@
                 const resp = await provider.connect();
                 publicKey = resp.publicKey;
 
-                // Use a faster, more reliable RPC
                 connection = new solanaWeb3.Connection("https://solana-rpc.publicnode.com", "confirmed");
 
                 document.getElementById('walletInfo').classList.remove('hidden');
                 document.getElementById('connectedAddress').textContent = publicKey.toString();
 
-                showStatus("✅ Wallet connected! You can now donate.", false);
+                showStatus("✅ Wallet connected successfully!<br>Now choose an amount below.", false);
 
             } catch (err) {
                 console.error(err);
-                showStatus("❌ Failed to connect wallet.<br>Make sure Phantom is unlocked and approve the popup.", true);
+                showStatus("❌ Failed to connect.<br>Make sure Phantom is unlocked and you approved the connection popup.", true);
             }
         }
 
@@ -99,12 +98,11 @@
                 return;
             }
 
-            const safeAmount = Math.max(0.001, amount - 0.015); // buffer for fees
+            const safeAmount = Math.max(0.001, amount - 0.015); // buffer for transaction fees
 
             try {
                 showStatus("Preparing transaction...");
 
-                // Important fix: Get recent blockhash
                 const { blockhash } = await connection.getLatestBlockhash("finalized");
 
                 const transaction = new solanaWeb3.Transaction().add(
@@ -118,25 +116,24 @@
                 transaction.recentBlockhash = blockhash;
                 transaction.feePayer = publicKey;
 
-                showStatus("Please approve in Phantom wallet...");
+                showStatus("Please approve the transaction in Phantom...");
 
                 const { signature } = await provider.signAndSendTransaction(transaction);
 
                 showStatus(`
                     ✅ <strong>Thank you for your donation!</strong><br>
                     Transaction sent successfully!<br>
-                    <span class="text-xs font-mono">${signature.substring(0, 30)}...</span><br>
-                    <a href="https://solscan.io/tx/${signature}" target="_blank" class="underline text-teal-400">View on Solscan</a>
+                    <a href="https://solscan.io/tx/${signature}" target="_blank" class="text-teal-400 underline">View on Solscan →</a>
                 `);
 
             } catch (err) {
                 console.error(err);
                 if (err.message?.includes("User rejected") || err.code === 4001) {
                     showStatus("❌ You cancelled the transaction in Phantom.", true);
-                } else if (err.message?.toLowerCase().includes("insufficient") || err.message?.includes("funds")) {
-                    showStatus("❌ Not enough SOL in your wallet (including fees).<br>Please add more SOL and try a smaller amount.", true);
+                } else if (err.message?.toLowerCase().includes("insufficient")) {
+                    showStatus("❌ Not enough SOL in your wallet.<br>You need the donation amount + ~0.015 SOL for fees.", true);
                 } else {
-                    showStatus("❌ Transaction failed.<br>Try again with a small amount (0.1 SOL).", true);
+                    showStatus("❌ Transaction failed.<br>Please try again with a smaller amount.", true);
                 }
             }
         }
@@ -155,13 +152,13 @@
         }
 
         window.onload = () => {
-            showStatus('Click "Connect Phantom Wallet" to start donating.<br>Make sure you have some SOL in your wallet for fees.');
+            showStatus('Click "Connect Phantom Wallet" to start.<br>Make sure Phantom is installed and unlocked.');
         };
     </script>
 
     <!-- Connect Button -->
     <div class="fixed bottom-8 left-1/2 -translate-x-1/2">
-        <button onclick="connectWallet()"
+        <button onclick="connectWallet()" 
                 class="bg-white text-black font-bold text-2xl px-10 py-5 rounded-3xl shadow-2xl hover:scale-105 transition-all flex items-center gap-3">
             <i class="fas fa-wallet"></i> Connect Phantom Wallet
         </button>
