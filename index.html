@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donate SOL • Support with Phantom</title>
+    <title>Donate SOL • Phantom Wallet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://unpkg.com/@solana/web3.js@1.95.3/dist/index.iife.min.js"></script>
@@ -17,7 +17,7 @@
         <div class="text-center mb-12">
             <div class="text-7xl mb-4">🪙</div>
             <h1 class="text-5xl font-bold tracking-tight">Donate SOL</h1>
-            <p class="text-teal-400 text-xl mt-2">Send directly from your Phantom wallet</p>
+            <p class="text-teal-400 text-xl mt-2">Send from your Phantom Wallet</p>
         </div>
 
         <!-- Status -->
@@ -25,7 +25,7 @@
 
         <!-- Wallet Info -->
         <div id="walletInfo" class="hidden bg-zinc-900 rounded-3xl p-8 mb-10 border border-teal-500">
-            <p class="text-sm text-zinc-400 mb-3">Your Connected Wallet (Donor)</p>
+            <p class="text-sm text-zinc-400 mb-3">Connected Wallet</p>
             <div class="font-mono text-sm bg-zinc-800 p-4 rounded-2xl break-all mb-4" id="connectedAddress"></div>
             
             <div class="flex justify-between items-center">
@@ -39,7 +39,7 @@
 
         <!-- Donation Section -->
         <div class="bg-zinc-900 rounded-3xl p-10">
-            <h2 class="text-3xl font-semibold text-center mb-8">Send to Donation Wallet</h2>
+            <h2 class="text-3xl font-semibold text-center mb-8">Choose Amount to Send</h2>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                 <button onclick="quickDonate(0.01)" class="bg-zinc-800 hover:bg-teal-600 py-6 rounded-2xl font-bold text-xl transition-colors">Test 0.01 SOL</button>
@@ -49,7 +49,7 @@
             </div>
 
             <div class="flex gap-4">
-                <input id="customAmount" type="number" step="0.01" min="0.01" placeholder="Custom amount (SOL)" 
+                <input id="customAmount" type="number" step="0.01" min="0.01" placeholder="Custom amount in SOL" 
                        class="flex-1 bg-zinc-800 px-6 py-5 rounded-2xl text-xl focus:outline-none focus:ring-2 focus:ring-teal-500">
                 <button onclick="sendCustom()" 
                         class="bg-teal-500 hover:bg-teal-600 px-12 py-5 rounded-2xl font-bold text-xl transition-all">
@@ -58,7 +58,7 @@
             </div>
 
             <p class="text-center text-zinc-500 text-sm mt-10">
-                Recipient (Donation Wallet):<br>
+                Recipient Address:<br>
                 <span class="font-mono text-teal-400 break-all">3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t</span>
             </p>
         </div>
@@ -67,9 +67,9 @@
     <script>
         const RECIPIENT = "3L3KmAx7ZgL5H6W3jQZQyh6Ycps11twXz1XfEjf23M1t";
 
-        let provider;
-        let publicKey;
-        let connection;
+        let provider = null;
+        let publicKey = null;
+        let connection = null;
 
         function showStatus(message, isError = false) {
             const el = document.getElementById('status');
@@ -78,26 +78,29 @@
 
         async function connectWallet() {
             try {
-                if (!window.solana?.isPhantom) {
-                    showStatus("❌ Phantom wallet not detected.<br>Please install the official Phantom extension and refresh.", true);
+                if (!window.solana || !window.solana.isPhantom) {
+                    showStatus("❌ Phantom extension not detected.<br>Please install Phantom from the Chrome Web Store and refresh the page.", true);
                     return;
                 }
 
                 provider = window.solana;
+                
+                // Simple and reliable connect
                 const resp = await provider.connect();
                 publicKey = resp.publicKey;
 
-                // Use a faster, more reliable public RPC
+                // Use reliable RPC
                 connection = new solanaWeb3.Connection("https://solana-rpc.publicnode.com", "confirmed");
 
                 document.getElementById('walletInfo').classList.remove('hidden');
                 document.getElementById('connectedAddress').textContent = publicKey.toString();
 
                 await refreshBalance();
-                showStatus("✅ Wallet connected!<br>Now choose an amount to send.", false);
+                showStatus("✅ Wallet connected successfully!<br>You can now send SOL.", false);
 
             } catch (err) {
-                showStatus("❌ Could not connect to Phantom.<br>Make sure it is unlocked and try again.", true);
+                console.error(err);
+                showStatus("❌ Failed to connect.<br>Make sure Phantom is unlocked and try again.", true);
             }
         }
 
@@ -108,27 +111,21 @@
                 const balanceSOL = (balanceLamports / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
                 document.getElementById('balance').textContent = balanceSOL;
             } catch (e) {
-                document.getElementById('balance').textContent = "Error";
+                document.getElementById('balance').textContent = "—";
             }
         }
 
         async function sendTransaction(amount) {
-            if (!publicKey) {
+            if (!publicKey || !provider) {
                 showStatus("❌ Please connect your Phantom wallet first!", true);
                 return;
             }
-            if (!connection) {
-                showStatus("❌ Connection not ready. Please reconnect wallet.", true);
-                return;
-            }
 
-            // Safety: always leave a tiny buffer for fees
-            const safeAmount = Math.max(0.001, amount - 0.015);
+            const safeAmount = Math.max(0.001, amount - 0.015); // buffer for fees
 
             try {
-                showStatus("Getting latest network info...");
+                showStatus("Preparing transaction...");
 
-                // === THIS IS THE IMPORTANT FIX ===
                 const { blockhash } = await connection.getLatestBlockhash("finalized");
 
                 const transaction = new solanaWeb3.Transaction().add(
@@ -142,28 +139,27 @@
                 transaction.recentBlockhash = blockhash;
                 transaction.feePayer = publicKey;
 
-                showStatus("Please approve the transaction in Phantom...");
+                showStatus("Please approve in Phantom...");
 
                 const { signature } = await provider.signAndSendTransaction(transaction);
 
                 showStatus(`
-                    ✅ <strong>Transaction sent successfully!</strong><br>
-                    Thank you for your donation!<br>
+                    ✅ <strong>Thank you!</strong><br>
+                    Transaction sent successfully!<br>
                     <span class="text-xs font-mono">${signature.substring(0, 28)}...</span><br>
-                    <a href="https://solscan.io/tx/${signature}" target="_blank" class="text-teal-400 underline">View on Solscan</a>
+                    <a href="https://solscan.io/tx/${signature}" target="_blank" class="text-teal-400 underline">View on Solscan →</a>
                 `);
 
-                // Refresh balance after send
-                setTimeout(refreshBalance, 3000);
+                setTimeout(refreshBalance, 4000);
 
             } catch (err) {
                 console.error(err);
                 if (err.message?.includes("User rejected") || err.code === 4001) {
-                    showStatus("❌ You cancelled the transaction in Phantom.", true);
-                } else if (err.message?.includes("insufficient") || err.message?.includes("funds")) {
-                    showStatus("❌ Not enough SOL in your wallet.<br>You need the amount + ~0.015 SOL for fees.", true);
+                    showStatus("❌ Transaction was cancelled in Phantom.", true);
+                } else if (err.message?.toLowerCase().includes("insufficient")) {
+                    showStatus("❌ Not enough SOL in your wallet (remember fees ~0.015 SOL).", true);
                 } else {
-                    showStatus(`❌ Transaction failed.<br>Error: ${err.message || "Unknown"}<br>Try the 0.01 SOL test button or check your balance.`, true);
+                    showStatus("❌ Transaction failed.<br>" + (err.message || "Unknown error") + "<br>Try the 0.01 SOL test button.", true);
                 }
             }
         }
@@ -173,21 +169,22 @@
         }
 
         function sendCustom() {
-            const amount = parseFloat(document.getElementById('customAmount').value);
-            if (!amount || amount <= 0) {
+            const val = parseFloat(document.getElementById('customAmount').value);
+            if (!val || val <= 0) {
                 showStatus("Please enter a valid amount.", true);
                 return;
             }
-            sendTransaction(amount);
+            sendTransaction(val);
         }
 
+        // Initial message
         window.onload = () => {
-            showStatus('Click the button below to connect your Phantom wallet and start sending SOL.');
+            showStatus('Click the button below to connect Phantom and send SOL.<br>Make sure the Phantom extension is installed and unlocked.');
         };
     </script>
 
     <!-- Connect Button -->
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2">
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
         <button onclick="connectWallet()" 
                 class="bg-white text-black font-bold text-2xl px-10 py-5 rounded-3xl shadow-2xl hover:scale-105 transition-all flex items-center gap-3">
             <i class="fas fa-wallet"></i> Connect Phantom Wallet
