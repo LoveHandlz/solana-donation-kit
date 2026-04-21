@@ -11,7 +11,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
     :root {
@@ -150,6 +149,7 @@
     }
     .heart-btn.liked { transform: scale(1.35); color: #ff2d55; }
 
+    /* Yellow Donation Button */
     .donate-btn {
       background: linear-gradient(135deg, #ffd700, #ffcc00);
       color: #000;
@@ -176,6 +176,7 @@
       background: rgba(10,19,47,0.6);
     }
 
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -249,7 +250,7 @@
           <li><a href="#">Builder</a></li>
           <li><a href="#">Shop</a></li>
           <li><a href="#">Metazine</a></li>
-          <li><a href="https://solana-donation-kit.vercel.app/#">Videos</a></li>
+          <li><a href="#">Discord</a></li>
           <li><a href="#" style="color:var(--accent-cyan); font-weight:700;">💸 Donate Now</a></li>
         </ul>
       </nav>
@@ -486,11 +487,6 @@
         const signedTx = await provider.signTransaction(tx);
         const rawTx = signedTx.serialize();
         const signature = await conn.sendRawTransaction(rawTx, { skipPreflight: true });
-
-        // Confetti
-        setTimeout(() => {
-          confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-        }, 500);
 
         alert(`✅ ${amount} SOL sent successfully on Mainnet!\n\nTransaction: ${signature}`);
         closeModal();
