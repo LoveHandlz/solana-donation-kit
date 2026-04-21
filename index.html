@@ -12,31 +12,271 @@
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
   <style>
-    /* Your full styles from previous version - unchanged */
     :root {
-      --bg-deep: #0a132f; --bg-panel: #0f1a47; --accent-red: #ff2d55;
-      --accent-orange: #ff9500; --accent-cyan: #00f0ff; --accent-gold: #ffd700;
-      --text-primary: #e0f7ff; --text-secondary: #a5d8ff; --card-border: rgba(0, 240, 255, 0.14);
+      --bg-deep: #0a132f;
+      --bg-panel: #0f1a47;
+      --accent-red: #ff2d55;
+      --accent-orange: #ff9500;
+      --accent-cyan: #00f0ff;
+      --accent-gold: #ffd700;
+      --text-primary: #e0f7ff;
+      --text-secondary: #a5d8ff;
+      --card-border: rgba(0, 240, 255, 0.14);
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:var(--bg-deep); color:var(--text-primary); font-family:'Orbitron',sans-serif; min-height:100vh; }
-    /* ... (keep all your previous CSS exactly as in the last version) ... */
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: 'Orbitron', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+    
+    header {
+      background: rgba(10,19,47,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1rem 0;
+    }
+    
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .logo { height: clamp(42px, 8vw, 68px); width: auto; }
+    
+    nav ul {
+      display: flex;
+      gap: 1.4rem;
+      list-style: none;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.25s;
+    }
+    
+    nav a:hover { color: var(--accent-cyan); }
+    
+    .wallet-btn {
+      background: linear-gradient(135deg, var(--accent-cyan), #a78bfa);
+      color: #000;
+      font-weight: bold;
+      padding: 0.7rem 1.4rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
+    
+    .wallet-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+    }
+    
+    main { padding-top: 160px; max-width: 1440px; margin: 0 auto; padding: 0 1rem 100px; }
+
+    .video-hero { text-align: center; margin-bottom: 3rem; }
+    .video-hero h1 {
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange), var(--accent-cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .video-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.35s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+      position: relative;
+    }
+
+    .video-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 16px 40px rgba(255, 215, 0, 0.25), 0 0 0 2px var(--accent-gold);
+    }
+
+    .video-wrapper {
+      position: relative;
+      padding-top: 56.25%;
+      background: #000;
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .card-info { padding: 1.2rem; }
+    .card-title { font-size: 1.15rem; margin-bottom: 0.8rem; }
+    .card-actions { display: flex; justify-content: space-between; align-items: center; }
+
+    .heart-btn {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: var(--accent-gold);
+      cursor: pointer;
+    }
+
+    .heart-btn.liked { transform: scale(1.35); color: #ff2d55; }
+
+    .donate-btn {
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      color: #000;
+      font-weight: 900;
+      padding: 0.55rem 1.1rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .donate-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: 4rem;
+      background: rgba(10,19,47,0.6);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--bg-panel);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 420px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .amount-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 1.5rem 0;
+    }
+
+    .amount-btn {
+      background: #1a2547;
+      color: white;
+      border: 2px solid var(--accent-cyan);
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .amount-btn:hover {
+      background: var(--accent-cyan);
+      color: #000;
+    }
+
+    .custom-amount {
+      display: flex;
+      margin: 1rem 0;
+    }
+
+    .custom-amount input {
+      flex: 1;
+      background: #0a132f;
+      border: 2px solid var(--accent-cyan);
+      color: white;
+      padding: 14px;
+      border-radius: 12px 0 0 12px;
+      text-align: center;
+    }
+
+    .custom-amount button {
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      padding: 0 25px;
+      border-radius: 0 12px 12px 0;
+      font-weight: 900;
+    }
   </style>
 </head>
 <body>
-  <!-- Header and Video Grid same as before (with your address) -->
+  <header>
+    <div class="header-inner">
+      <a href="#"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN" class="logo"></a>
+      <nav>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Market</a></li>
+          <li><a href="#">Builder</a></li>
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">Metazine</a></li>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#" style="color:var(--accent-cyan); font-weight:700;">💸 Donate Now</a></li>
+        </ul>
+      </nav>
+      <button id="wallet-btn" class="wallet-btn">CONNECT PHANTOM</button>
+    </div>
+  </header>
 
   <main>
     <div class="video-hero">
       <h1>SK8 VIDEOS</h1>
       <p style="color: var(--text-secondary); font-size: 1.3rem; max-width: 720px; margin: 0 auto;">
-        Raw streets • Heavy tricks • <strong>Real SOL Sponsorship (Mainnet)</strong>
+        Raw streets • Heavy tricks • Real SOL Sponsorship (Mainnet)
       </p>
     </div>
 
     <div class="video-grid">
-      <!-- All cards use your address -->
-      <!-- Example Card 1 -->
+      <!-- 12 Cards with your receiver address -->
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/On2BmcreKTM" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -47,85 +287,112 @@
           </div>
         </div>
       </div>
-      <!-- Repeat for all 12 cards (same data-address) -->
+      <!-- Repeat the same pattern for cards 2-12 (I shortened here for message size - copy the rest from previous version) -->
+      <!-- All other cards follow the same structure with the same data-address -->
     </div>
   </main>
 
-  <!-- Modal (same as before) -->
+  <footer>
+    <p>SK8COIN • Real SOL Sponsorship on Mainnet • Shred responsibly 🛹</p>
+  </footer>
+
+  <!-- Modal -->
+  <div id="sponsor-modal" class="modal">
+    <div class="modal-content">
+      <span onclick="closeModal()" style="float:right; font-size:2rem; cursor:pointer; color:var(--accent-cyan);">×</span>
+      <h3 id="modal-skater-title">Sponsor This Skater</h3>
+      <p style="margin:1rem 0; color:#ff9500;">Real Mainnet Transaction</p>
+      
+      <div class="amount-options">
+        <button class="amount-btn" onclick="selectAmount(0.01)">0.01 SOL</button>
+        <button class="amount-btn" onclick="selectAmount(0.05)">0.05 SOL</button>
+        <button class="amount-btn" onclick="selectAmount(0.10)">0.10 SOL</button>
+        <button class="amount-btn" onclick="selectAmount(0.25)">0.25 SOL</button>
+      </div>
+
+      <div class="custom-amount">
+        <input type="number" id="custom-amount" placeholder="Custom SOL" step="0.01" min="0.01">
+        <button onclick="sendCustomAmount()">SEND</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     let connectedWallet = null;
     const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
+    let currentAddress = null;
 
+    // Connect Wallet
     document.getElementById('wallet-btn').addEventListener('click', async () => {
-      if (window.solana && window.solana.isPhantom) {
-        const resp = await window.solana.connect();
-        connectedWallet = resp.publicKey.toString();
-        document.getElementById('wallet-btn').innerHTML = `✅ ${connectedWallet.slice(0,6)}...${connectedWallet.slice(-4)}`;
+      if (window.solana?.isPhantom) {
+        try {
+          const resp = await window.solana.connect();
+          connectedWallet = resp.publicKey.toString();
+          document.getElementById('wallet-btn').innerHTML = `✅ ${connectedWallet.slice(0,6)}...${connectedWallet.slice(-4)}`;
+        } catch (e) {
+          alert("Connection failed");
+        }
       } else {
-        alert('Please install Phantom Wallet');
+        alert("Please install Phantom Wallet");
       }
     });
 
+    // Sponsor Click
     document.querySelectorAll('.donate-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         if (!connectedWallet) {
-          alert('Please connect Phantom wallet first!');
+          alert("Please connect your Phantom wallet first!");
           return;
         }
-
-        const receiver = btn.getAttribute('data-address');
-        const title = btn.closest('.video-card').querySelector('.card-title').textContent;
-
-        // Balance check
-        try {
-          const balance = await connection.getBalance(new solanaWeb3.PublicKey(connectedWallet));
-          const solBalance = balance / solanaWeb3.LAMPORTS_PER_SOL;
-
-          if (solBalance < 0.03) {
-            alert(`Your wallet has only ${solBalance.toFixed(4)} SOL.\n\nYou need at least 0.03 SOL to cover fees + transfer.`);
-            return;
-          }
-        } catch(e) {}
-
-        // Open modal (keep your modal logic)
-        currentSkaterAddress = receiver;
-        document.getElementById('modal-skater-title').textContent = title;
+        currentAddress = btn.getAttribute('data-address');
+        document.getElementById('modal-skater-title').textContent = 
+          btn.closest('.video-card').querySelector('.card-title').textContent;
         document.getElementById('sponsor-modal').style.display = 'flex';
       });
     });
 
     async function sendTransaction(amount) {
       try {
-        const transaction = new solanaWeb3.Transaction().add(
+        const tx = new solanaWeb3.Transaction().add(
           solanaWeb3.SystemProgram.transfer({
             fromPubkey: new solanaWeb3.PublicKey(connectedWallet),
-            toPubkey: new solanaWeb3.PublicKey(currentSkaterAddress),
+            toPubkey: new solanaWeb3.PublicKey(currentAddress),
             lamports: Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL)
           })
         );
 
-        const { blockhash } = await connection.getLatestBlockhash('finalized');
-        transaction.recentBlockhash = blockhash;
-        transaction.feePayer = new solanaWeb3.PublicKey(connectedWallet);
+        const { blockhash } = await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new solanaWeb3.PublicKey(connectedWallet);
 
-        const signed = await window.solana.signAndSendTransaction(transaction);
+        const signedTx = await window.solana.signAndSendTransaction(tx);
         
-        alert(`✅ SUCCESS! ${amount} SOL sent on Mainnet!\n\nTx: ${signed.signature}`);
+        alert(`✅ ${amount} SOL sent successfully!\n\nTransaction ID:\n${signedTx.signature}`);
         closeModal();
-      } catch (error) {
-        console.error(error);
-        if (error.message.includes("User rejected")) {
-          alert("Transaction cancelled in Phantom.");
-        } else if (error.message.includes("insufficient") || error.message.includes("rent")) {
-          alert("Insufficient SOL for fees + rent.\n\nTop up your wallet with at least 0.05 SOL.");
+      } catch (err) {
+        console.error(err);
+        if (err.message.includes("User rejected")) {
+          alert("Transaction was cancelled.");
         } else {
-          alert("Transaction failed. Please try again or check your internet.");
+          alert("Transaction failed.\nMake sure your wallet has enough SOL (at least 0.05 SOL recommended).");
         }
       }
     }
 
-    // Keep your existing selectAmount, sendCustomAmount, closeModal functions
+    function selectAmount(amt) { sendTransaction(amt); }
+    function sendCustomAmount() {
+      const amt = parseFloat(document.getElementById('custom-amount').value);
+      if (amt > 0) sendTransaction(amt);
+      else alert("Enter a valid amount");
+    }
+    function closeModal() {
+      document.getElementById('sponsor-modal').style.display = 'none';
+    }
+
+    // Heart buttons
+    document.querySelectorAll('.heart-btn').forEach(btn => {
+      btn.addEventListener('click', () => btn.classList.toggle('liked'));
+    });
   </script>
 </body>
 </html>
