@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&display=swap" rel="stylesheet">
 
-  <!-- Working Solana Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 
@@ -150,8 +149,9 @@
     }
     .heart-btn.liked { transform: scale(1.35); color: #ff2d55; }
 
+    /* Yellow Donation Button */
     .donate-btn {
-      background: linear-gradient(135deg, #00ff88, #00cc66);
+      background: linear-gradient(135deg, #ffd700, #ffcc00);
       color: #000;
       font-weight: 900;
       padding: 0.55rem 1.1rem;
@@ -159,6 +159,11 @@
       border: none;
       cursor: pointer;
       transition: all 0.3s;
+    }
+
+    .donate-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
     }
 
     footer {
@@ -235,10 +240,12 @@
 <body>
   <header>
     <div class="header-inner">
-      <a href="#"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN Logo" class="logo"></a>
+      <a href="https://www.sk8coin.com" class="logo-link">
+        <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN Logo" class="logo">
+      </a>
       <nav>
         <ul>
-          <li><a href="#">Home</a></li>
+          <li><a href="https://www.sk8coin.com">Home</a></li>
           <li><a href="#">Market</a></li>
           <li><a href="#">Builder</a></li>
           <li><a href="#">Shop</a></li>
@@ -430,7 +437,6 @@
 
     const RPC_URL = "https://solana-rpc.publicnode.com";
 
-    // Connect Wallet
     document.getElementById('wallet-btn').addEventListener('click', async () => {
       provider = window.phantom?.solana;
       if (!provider) {
@@ -446,7 +452,6 @@
       }
     });
 
-    // Open Sponsor Modal
     document.querySelectorAll('.donate-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         if (!publicKey) {
@@ -505,7 +510,6 @@
       document.getElementById('sponsor-modal').style.display = 'none';
     }
 
-    // Heart buttons
     document.querySelectorAll('.heart-btn').forEach(btn => {
       btn.addEventListener('click', () => btn.classList.toggle('liked'));
     });
