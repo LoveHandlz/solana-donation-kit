@@ -487,7 +487,7 @@
         const rawTx = signedTx.serialize();
         const signature = await conn.sendRawTransaction(rawTx, { skipPreflight: true });
 
-        // Confetti after successful donation
+        // Confetti
         setTimeout(() => {
           confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
         }, 500);
