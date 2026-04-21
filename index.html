@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&display=swap" rel="stylesheet">
 
-  <!-- Solana Web3.js -->
+  <!-- Solana Web3.js - EXACT same script and method as before -->
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.js"></script>
 
   <style>
@@ -228,7 +228,7 @@
       background: rgba(10,19,47,0.6);
     }
 
-    /* SPONSOR MODAL */
+    /* SPONSOR MODAL - clean rectangle buttons */
     .modal {
       display: none;
       position: fixed;
@@ -531,12 +531,13 @@
   </div>
 
   <script>
+    /* EXACT same Solana script and method as previous version */
     let connectedWallet = null;
     const connection = new solanaWeb3.Connection("https://api.devnet.solana.com", "confirmed");
     let currentSkaterAddress = null;
     let currentSkaterTitle = null;
 
-    // Connect Phantom Wallet
+    // Connect Phantom Wallet - identical to before
     document.getElementById('wallet-btn').addEventListener('click', async () => {
       if (window.solana && window.solana.isPhantom) {
         try {
