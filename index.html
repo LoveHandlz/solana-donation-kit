@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+ 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:;">
-  
+ 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&display=swap" rel="stylesheet">
-
   <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-
   <style>
     :root {
       --bg-deep: #0a132f;
@@ -24,9 +22,9 @@
       --text-secondary: #a5d8ff;
       --card-border: rgba(0, 240, 255, 0.14);
     }
-    
+   
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+   
     body {
       background: var(--bg-deep);
       color: var(--text-primary);
@@ -35,7 +33,7 @@
       overflow-x: hidden;
       line-height: 1.5;
     }
-    
+   
     header {
       background: rgba(10,19,47,0.95);
       backdrop-filter: blur(12px);
@@ -45,7 +43,7 @@
       z-index: 100;
       padding: 1rem 0;
     }
-    
+   
     .header-inner {
       max-width: 1440px;
       margin: 0 auto;
@@ -56,9 +54,9 @@
       flex-wrap: wrap;
       gap: 1rem;
     }
-    
+   
     .logo { height: clamp(42px, 8vw, 68px); width: auto; }
-    
+   
     nav ul {
       display: flex;
       gap: 1.4rem;
@@ -66,7 +64,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    
+   
     nav a {
       color: var(--text-secondary);
       text-decoration: none;
@@ -74,9 +72,9 @@
       font-size: 1rem;
       transition: color 0.25s;
     }
-    
+   
     nav a:hover { color: var(--accent-cyan); }
-    
+   
     .wallet-btn {
       background: linear-gradient(135deg, var(--accent-cyan), #a78bfa);
       color: #000;
@@ -89,14 +87,13 @@
       white-space: nowrap;
       transition: all 0.3s;
     }
-    
+   
     .wallet-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
     }
-    
+   
     main { padding-top: 160px; max-width: 1440px; margin: 0 auto; padding: 0 1rem 100px; }
-
     .video-hero { text-align: center; margin-bottom: 3rem; }
     .video-hero h1 {
       font-size: clamp(2.8rem, 8vw, 5.5rem);
@@ -105,13 +102,11 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-
     .video-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1.8rem;
     }
-
     .video-card {
       background: var(--bg-panel);
       border: 1px solid var(--card-border);
@@ -121,12 +116,10 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.45);
       position: relative;
     }
-
     .video-card:hover {
       transform: translateY(-10px);
       box-shadow: 0 16px 40px rgba(255, 215, 0, 0.25), 0 0 0 2px var(--accent-gold);
     }
-
     .video-card:hover::after {
       content: '';
       position: absolute;
@@ -136,19 +129,23 @@
       border-radius: 16px;
       z-index: 2;
     }
-
     .video-wrapper { position: relative; padding-top: 56.25%; background: #000; }
     .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
     .card-info { padding: 1.2rem; }
     .card-title { font-size: 1.15rem; margin-bottom: 0.8rem; }
     .card-actions { display: flex; justify-content: space-between; align-items: center; }
-
     .heart-btn {
-      background: none; border: none; font-size: 1.8rem; color: var(--accent-gold); cursor: pointer;
+      background: none; 
+      border: none; 
+      font-size: 1.8rem; 
+      color: var(--accent-gold); 
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .heart-btn.liked { transform: scale(1.35); color: #ff2d55; }
-
+    .heart-btn:hover, .heart-btn.liked { 
+      transform: scale(1.35); 
+      color: #ff2d55; 
+    }
     /* Yellow Donation Button */
     .donate-btn {
       background: linear-gradient(135deg, #ffd700, #ffcc00);
@@ -160,12 +157,29 @@
       cursor: pointer;
       transition: all 0.3s;
     }
-
     .donate-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
     }
-
+    /* Load More Button */
+    .load-more {
+      display: block;
+      margin: 3.5rem auto 2rem;
+      background: linear-gradient(135deg, var(--accent-cyan), #00b8ff);
+      color: #000;
+      font-weight: 900;
+      padding: 1rem 2.5rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+    }
+    .load-more:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 25px rgba(0, 240, 255, 0.5);
+    }
     footer {
       text-align: center;
       padding: 2.5rem 1rem;
@@ -175,7 +189,6 @@
       margin-top: 4rem;
       background: rgba(10,19,47,0.6);
     }
-
     /* Modal */
     .modal {
       display: none;
@@ -186,7 +199,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .modal-content {
       background: var(--bg-panel);
       border: 2px solid var(--accent-cyan);
@@ -196,7 +208,6 @@
       padding: 2rem;
       text-align: center;
     }
-
     .amount-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.5rem; }
     .amount-btn {
       background: #1a2547;
@@ -208,7 +219,6 @@
       cursor: pointer;
     }
     .amount-btn:hover { background: var(--accent-cyan); color: #000; }
-
     .custom-amount { display: flex; margin-bottom: 1.5rem; }
     .custom-amount input {
       flex: 1;
@@ -227,7 +237,6 @@
       border-radius: 0 12px 12px 0;
       font-weight: 900;
     }
-
     .close-modal {
       position: absolute;
       top: 15px; right: 20px;
@@ -257,7 +266,6 @@
       <button id="wallet-btn" class="wallet-btn">CONNECT PHANTOM</button>
     </div>
   </header>
-
   <main>
     <div class="video-hero">
       <h1>SK8 VIDEOS</h1>
@@ -265,8 +273,7 @@
         Raw streets • Heavy tricks • Community sessions • <strong>Real SOL Sponsorship (Mainnet)</strong>
       </p>
     </div>
-
-    <div class="video-grid">
+    <div class="video-grid" id="video-grid">
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/On2BmcreKTM" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -277,7 +284,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -288,7 +294,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/9bZkp7q19f0" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -299,7 +304,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/kXYiU_JCYtU" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -310,7 +314,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Wg_jwgmwt-U" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -321,7 +324,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/MFSx4jWmDfY" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -332,7 +334,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/qqPjQpTe9W4" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -343,7 +344,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Zq3kl6z_aEM" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -354,7 +354,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/0zM3nApSvMg" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -365,7 +364,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/5qap5aO7j6k" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -376,7 +374,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/8tPn3v7zq0c" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -387,7 +384,6 @@
           </div>
         </div>
       </div>
-
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/t7_98X1NjNw" allowfullscreen></iframe></div>
         <div class="card-info">
@@ -399,44 +395,40 @@
         </div>
       </div>
     </div>
+    <button class="load-more" onclick="loadMoreVideos()">LOAD MORE SESSIONS 🔥</button>
   </main>
-
   <footer>
     <p>SK8COIN • Community Powered • Real SOL Sponsorship on Mainnet • All videos belong to their respective creators • Shred responsibly 🛹</p>
   </footer>
-
   <!-- Sponsor Modal -->
   <div id="sponsor-modal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">×</span>
       <h3 id="modal-skater-title">Sponsor This Skater</h3>
       <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Choose amount in SOL (Mainnet)</p>
-      
+     
       <div class="amount-options">
         <button class="amount-btn" onclick="selectAmount(0.01)">0.01 SOL</button>
         <button class="amount-btn" onclick="selectAmount(0.05)">0.05 SOL</button>
         <button class="amount-btn" onclick="selectAmount(0.10)">0.10 SOL</button>
         <button class="amount-btn" onclick="selectAmount(0.25)">0.25 SOL</button>
       </div>
-
       <div class="custom-amount">
         <input type="number" id="custom-amount" placeholder="Custom" step="0.01" min="0.01">
         <button onclick="sendCustomAmount()">SEND</button>
       </div>
     </div>
   </div>
-
   <script>
     if (typeof window.Buffer === 'undefined') {
       window.Buffer = window.buffer.Buffer;
     }
-
     let publicKey = null;
     let provider = null;
     let currentSkaterAddress = null;
-
     const RPC_URL = "https://solana-rpc.publicnode.com";
 
+    // Wallet connection
     document.getElementById('wallet-btn').addEventListener('click', async () => {
       provider = window.phantom?.solana;
       if (!provider) {
@@ -452,27 +444,41 @@
       }
     });
 
-    document.querySelectorAll('.donate-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+    // Event delegation for hearts + donate buttons (works with load-more too)
+    document.addEventListener('click', (e) => {
+      // Heart button
+      if (e.target.classList.contains('heart-btn')) {
+        e.target.classList.toggle('liked');
+      }
+      
+      // Donate / Sponsor button
+      if (e.target.classList.contains('donate-btn')) {
         if (!publicKey) {
           alert("Please connect your Phantom wallet first!");
           return;
         }
-        currentSkaterAddress = btn.getAttribute('data-address');
-        document.getElementById('modal-skater-title').textContent = 
-          btn.closest('.video-card').querySelector('.card-title').textContent;
+        currentSkaterAddress = e.target.getAttribute('data-address');
+        document.getElementById('modal-skater-title').textContent =
+          e.target.closest('.video-card').querySelector('.card-title').textContent;
         document.getElementById('sponsor-modal').style.display = 'flex';
-      });
+      }
     });
 
+    // Load More (duplicates cards for demo - same as original)
+    function loadMoreVideos() {
+      const grid = document.getElementById('video-grid');
+      const currentCards = grid.innerHTML;
+      grid.innerHTML += currentCards;
+      window.scrollBy({ top: 600, behavior: 'smooth' });
+    }
+
+    // Transaction logic (same web3.js code from second version)
     async function sendTransaction(amount) {
       try {
         const conn = new solanaWeb3.Connection(RPC_URL, 'confirmed');
         const fromPubkey = new solanaWeb3.PublicKey(publicKey);
         const toPubkey = new solanaWeb3.PublicKey(currentSkaterAddress);
-
         const { blockhash, lastValidBlockHeight } = await conn.getLatestBlockhash();
-
         const tx = new solanaWeb3.Transaction().add(
           solanaWeb3.SystemProgram.transfer({
             fromPubkey: fromPubkey,
@@ -480,14 +486,11 @@
             lamports: Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL)
           })
         );
-
         tx.recentBlockhash = blockhash;
         tx.feePayer = fromPubkey;
-
         const signedTx = await provider.signTransaction(tx);
         const rawTx = signedTx.serialize();
         const signature = await conn.sendRawTransaction(rawTx, { skipPreflight: true });
-
         alert(`✅ ${amount} SOL sent successfully on Mainnet!\n\nTransaction: ${signature}`);
         closeModal();
       } catch (err) {
@@ -500,19 +503,19 @@
       }
     }
 
-    function selectAmount(amount) { sendTransaction(amount); }
+    function selectAmount(amount) { 
+      sendTransaction(amount); 
+    }
+    
     function sendCustomAmount() {
       const amount = parseFloat(document.getElementById('custom-amount').value);
       if (amount > 0) sendTransaction(amount);
       else alert("Enter a valid amount");
     }
+    
     function closeModal() {
       document.getElementById('sponsor-modal').style.display = 'none';
     }
-
-    document.querySelectorAll('.heart-btn').forEach(btn => {
-      btn.addEventListener('click', () => btn.classList.toggle('liked'));
-    });
   </script>
 </body>
 </html>
