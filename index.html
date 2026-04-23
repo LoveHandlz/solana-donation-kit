@@ -20,7 +20,7 @@
   --accent-red:#ff2d55;
   --accent-orange:#ff9500;
   --accent-cyan:#00f0ff;
-  --accent-gold:#ffd700;
+  --accent-gold:#ffd700; /* Yellow Accent */
   --text-primary:#e0f7ff;
   --text-secondary:#a5d8ff;
   --card-border:rgba(0,240,255,0.14);
@@ -57,12 +57,11 @@ header{
 .logo{height:50px;}
 
 nav ul{display:flex;gap:1.4rem;list-style:none;}
-
-nav a{color:var(--text-secondary);text-decoration:none;font-weight:bold;transition:0.3s;}
-nav a:hover{color:var(--accent-cyan);}
+nav a{color:var(--text-secondary);text-decoration:none;font-weight:bold;transition:0.3s;font-size:0.9rem;}
+nav a:hover{color:var(--accent-gold);}
 
 .wallet-btn{
-  background:linear-gradient(135deg,var(--accent-cyan),#a78bfa);
+  background:linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
   border:none;
   padding:.7rem 1.4rem;
   border-radius:50px;
@@ -78,50 +77,60 @@ main {
   margin: auto;
   padding-left: 20px;
   padding-right: 20px;
+  padding-bottom: 100px;
 }
 
-/* HOME SECTION */
-#home-content h1 {
-  font-size: 4rem;
-  text-align: center;
-  margin-bottom: 2rem;
-  background: linear-gradient(to bottom, #fff, var(--accent-cyan));
+/* --- HOME HERO & STATS --- */
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero h1 { 
+  font-size: 5rem; 
+  background: linear-gradient(to bottom, #fff, var(--accent-gold));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
 }
 
-.menu-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:1.8rem;
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 2rem;
 }
+.stat { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; }
+.stat-value { display: block; font-size: 2rem; color: var(--accent-gold); font-weight: 900; }
 
-.menu-item{
-  background:var(--bg-panel);
-  border:1px solid var(--card-border);
-  border-radius:16px;
-  padding:3rem 2rem;
-  text-align:center;
-  font-size:1.5rem;
-  cursor:pointer;
+/* --- MENU GRID --- */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+.menu-item {
+  background: var(--bg-panel);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 2rem;
+  cursor: pointer;
   transition: 0.3s;
+  display: flex;
+  flex-direction: column;
 }
 .menu-item:hover {
-  border-color: var(--accent-cyan);
-  transform: scale(1.02);
-  box-shadow: 0 0 20px rgba(0,240,255,0.2);
+  border-color: var(--accent-gold);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
 }
+.menu-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.menu-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
+.menu-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-/* VIDEO GRID - THE FIX */
-.video-hero { text-align: center; margin-bottom: 3rem; }
-
+/* --- VIDEO GRID (YELLOW ACCENTS) --- */
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 Columns */
+  grid-template-columns: repeat(4, 1fr); /* FORCED 4 COLS */
   gap: 1.5rem;
-  margin-bottom: 50px;
 }
-
 .video-card {
   background: var(--bg-panel);
   border: 1px solid var(--card-border);
@@ -129,83 +138,36 @@ main {
   overflow: hidden;
   transition: 0.3s;
 }
-
-.video-card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); }
-
-.video-wrapper {
-  position: relative;
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  height: 0;
-}
-
-.video-wrapper iframe {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  border: none;
-}
-
+.video-card:hover { border-color: var(--accent-gold); transform: scale(1.02); }
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+.video-wrapper iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; }
 .card-info { padding: 1rem; }
-.card-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.8rem; height: 40px; overflow: hidden; }
-
-.card-actions { display: flex; justify-content: space-between; align-items: center; }
-
-.heart-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; filter: grayscale(1); }
-.heart-btn.liked { filter: grayscale(0); }
+.card-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.8rem; height: 35px; overflow: hidden; }
 
 .donate-btn {
-  background: var(--accent-cyan);
+  background: var(--accent-gold);
   color: #000;
   border: none;
-  padding: 5px 12px;
+  padding: 6px 15px;
   border-radius: 4px;
   font-family: 'Orbitron';
-  font-weight: bold;
+  font-weight: 900;
   font-size: 0.7rem;
   cursor: pointer;
 }
 
-/* DONATE PAGE */
-.donation-card {
-  background: var(--bg-panel);
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 20px;
-  border: 1px solid var(--card-border);
-}
-
-.address-box {
-  background: #000;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  margin: 1rem 0;
-}
-
-.preset-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 1.5rem 0; }
-.preset-group { text-align: center; }
-.donation-type-label { font-size: 0.6rem; color: var(--accent-cyan); margin-bottom: 5px; }
-.preset-btn { width: 100%; padding: 10px; background: #0b1a3d; border: 1px solid #222; color: #fff; cursor: pointer; }
-
-input, textarea {
-  width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; margin: 10px 0; border-radius: 5px;
-}
-
-/* MODAL STYLES */
+/* --- MODALS --- */
 .modal-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
-  background:rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center;
+  background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;
 }
 .modal-content {
-  background:var(--bg-panel); padding:2rem; border-radius:20px; border:1px solid var(--accent-cyan); width:90%; max-width:400px;
+  background:var(--bg-panel); padding:2.5rem; border-radius:20px; border:1px solid var(--accent-gold); width:90%; max-width:450px;
 }
 
 /* RESPONSIVE */
-@media (max-width: 1100px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .video-grid { grid-template-columns: 1fr; } .header-inner { flex-direction: column; gap: 10px; } }
+@media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
 
 </style>
 </head>
@@ -218,7 +180,7 @@ input, textarea {
       <ul>
         <li><a href="javascript:void(0)" onclick="navigateTo('home')">HOME</a></li>
         <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
-        <li><a href="javascript:void(0)" onclick="navigateTo('donate')">DONATE</a></li>
+        <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
       </ul>
     </nav>
     <button id="connect-wallet-btn" class="wallet-btn" onclick="connectWallet()">CONNECT WALLET</button>
@@ -228,156 +190,137 @@ input, textarea {
 <main>
 
   <div id="home-content">
-      <section class="hero">
-        <h1>SKATE2EARN</h1>
-        <p style="font-size: 1.5rem; margin: 1.2rem 0 2.2rem; color: var(--text-secondary); max-width: 720px; margin-left: auto; margin-right: auto;">
-          Collect, build & earn on-chain — tokenized GameFi meets street culture.
-        </p>
-        <div class="stats-row">
-          <div class="stat"><span class="stat-value">1.1k</span> Collectors</div>
-          <div class="stat"><span class="stat-value">37.9k+</span> NFTs Minted</div>
-          <div class="stat"><span class="stat-value">20k</span> Volume</div>
-        </div>
-      </section>
-      <div class="menu-grid">
-        <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/blends', '_blank')">
-          <div class="card-content">
-            <div class="menu-icon">🛠️</div>
-            <div class="menu-title">BUILD & MINT</div>
-            <div class="menu-desc">Craft complete boards from parts — mint legendary NFTs & earn rewards</div>
-          </div>
-        </div>
-        <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/drops', '_blank')">
-          <div class="card-content">
-            <div class="menu-icon">🛒</div>
-            <div class="menu-title">PARTS MARKET</div>
-            <div class="menu-desc">Buy, sell & trade rare decks, wheels, trucks, bearings</div>
-          </div>
-        </div>
-        <div class="menu-item" onclick="alert('you are now entering the skate shop...')">
-          <div class="card-content">
-            <div class="menu-icon">🛹</div>
-            <div class="menu-title">SKATE SHOP</div>
-            <div class="menu-desc">Real merch & gear — pay with $SKATE for exclusive perks</div>
-          </div>
-        </div>
-        <div class="menu-item" onclick="window.open('https://solana-donation-kit.vercel.app/#', '_blank')">
-          <div class="card-content">
-            <div class="menu-icon">📺</div>
-            <div class="menu-title">Videos</div>
-            <div class="menu-desc">Watch videos, sponsor skaters by supporting them directly from the video.</div>
-          </div>
-        </div>
-        <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
-          <div class="card-content">
-            <div class="menu-icon">📖</div>
-            <div class="menu-title">METAZINE</div>
-            <div class="menu-desc">Exclusive NFT-gated skate stories, interviews & creator drops</div>
-          </div>
-        </div>
-        <div class="menu-item" onclick="window.open('https://discord.gg/hgWMGpRTaK', '_blank')">
-          <div class="card-content">
-            <div class="menu-icon"><i class="fab fa-discord"></i></div>
-            <div class="menu-title">DISCORD</div>
-            <div class="menu-desc">Wallet-linked roles, alerts, battles & giveaways</div>
-          </div>
-        </div>
-        
-        <!-- NEW VIDEO CARD -->
-        <div class="menu-item" onclick="openWhitePaper()">
-          <div class="card-content">
-            <div class="menu-icon" style="color: var(--accent-gold);">📜</div>
-            <div class="menu-title" style="color: var(--accent-gold);">WHITE PAPER</div>
-            <div class="menu-desc">Interactive SK8COIN Project Overview — Vision, Tokenomics, Roadmap & Skate2Earn mechanics</div>
-          </div>
-        </div>
+    <section class="hero">
+      <h1>SKATE2EARN</h1>
+      <p style="font-size: 1.5rem; margin: 1.2rem 0 2.2rem; color: var(--text-secondary); max-width: 720px; margin-left: auto; margin-right: auto;">
+        Collect, build & earn on-chain — tokenized GameFi meets street culture.
+      </p>
+      <div class="stats-row">
+        <div class="stat"><span class="stat-value">1.1k</span> Collectors</div>
+        <div class="stat"><span class="stat-value">37.9k+</span> NFTs Minted</div>
+        <div class="stat"><span class="stat-value">20k</span> Volume</div>
+      </div>
+    </section>
 
-        <!-- NEW DONATE CARD -->
-        <div class="menu-item" onclick="navigateTo('donate')">
-          <div class="card-content">
-            <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
-            <div class="menu-title" style="color: var(--accent-gold);">SUPPORT THE MOVEMENT</div>
-            <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
-          </div>
-        </div>
+    <div class="menu-grid">
+      <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/blends', '_blank')">
+        <div class="menu-icon">🛠️</div>
+        <div class="menu-title">BUILD & MINT</div>
+        <div class="menu-desc">Craft complete boards from parts — mint legendary NFTs & earn rewards</div>
+      </div>
+
+      <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/drops', '_blank')">
+        <div class="menu-icon">🛒</div>
+        <div class="menu-title">PARTS MARKET</div>
+        <div class="menu-desc">Buy, sell & trade rare decks, wheels, trucks, bearings</div>
+      </div>
+
+      <div class="menu-item" onclick="alert('you are now entering the skate shop...')">
+        <div class="menu-icon">🛹</div>
+        <div class="menu-title">SKATE SHOP</div>
+        <div class="menu-desc">Real merch & gear — pay with $SKATE for exclusive perks</div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('video')">
+        <div class="menu-icon">📺</div>
+        <div class="menu-title">VIDEOS</div>
+        <div class="menu-desc">Watch clips & sponsor skaters directly via Solana Mainnet</div>
+      </div>
+
+      <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
+        <div class="menu-icon">📖</div>
+        <div class="menu-title">METAZINE</div>
+        <div class="menu-desc">Exclusive NFT-gated skate stories, interviews & creator drops</div>
+      </div>
+
+      <div class="menu-item" onclick="window.open('https://discord.gg/hgWMGpRTaK', '_blank')">
+        <div class="menu-icon"><i class="fab fa-discord" style="color:#5865F2"></i></div>
+        <div class="menu-title">DISCORD</div>
+        <div class="menu-desc">Wallet-linked roles, alerts, battles & giveaways</div>
+      </div>
+
+      <div class="menu-item" onclick="openWhitePaper()">
+        <div class="menu-icon" style="color: var(--accent-gold);">📜</div>
+        <div class="menu-title" style="color: var(--accent-gold);">WHITE PAPER</div>
+        <div class="menu-desc">Interactive Project Overview — Vision, Tokenomics & Roadmap</div>
+      </div>
+
+      <div class="menu-item" onclick="navigateTo('donate')">
+        <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
+        <div class="menu-title" style="color: var(--accent-gold);">SUPPORT MOVEMENT</div>
+        <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
       </div>
     </div>
+  </div>
 
   <div id="video-content" style="display:none;">
-    <div class="video-hero">
-      <h1>SK8 VIDEOS</h1>
-      <p style="color: var(--text-secondary);">Raw streets • Heavy tricks • Community sessions</p>
+    <div class="hero">
+      <h1 style="font-size:3rem;">SK8 CLIPS</h1>
+      <p style="color:var(--accent-gold); font-weight:bold;">SOLANA MAINNET SPONSORSHIP ACTIVE</p>
     </div>
     
     <div class="video-grid">
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/On2BmcreKTM"></iframe></div>
-        <div class="card-info"><div class="card-title">Late Night LA Session 🔥</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Late Night LA Session</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ"></iframe></div>
-        <div class="card-info"><div class="card-title">Tre Flip Over the Gap</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Tre Flip Over the Gap</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/9bZkp7q19f0"></iframe></div>
-        <div class="card-info"><div class="card-title">Manuals in the Rain</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Manuals in the Rain</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/kXYiU_JCYtU"></iframe></div>
-        <div class="card-info"><div class="card-title">Big Ollie at the Park</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Big Ollie at the Park</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Wg_jwgmwt-U"></iframe></div>
-        <div class="card-info"><div class="card-title">Epic Skate Clips 2025</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Epic Skate Clips 2025</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/MFSx4jWmDfY"></iframe></div>
-        <div class="card-info"><div class="card-title">Best Skate Videos Year</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Best Skate Videos Year</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/qqPjQpTe9W4"></iframe></div>
-        <div class="card-info"><div class="card-title">Jonny Giger Street Part</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Jonny Giger Street Part</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Zq3kl6z_aEM"></iframe></div>
-        <div class="card-info"><div class="card-title">Independent Skateboard Co.</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Independent Skateboard Co</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/0zM3nApSvMg"></iframe></div>
-        <div class="card-info"><div class="card-title">Heel Flip Over Rail</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Heel Flip Over Rail</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/5qap5aO7j6k"></iframe></div>
-        <div class="card-info"><div class="card-title">Skatepark Night Session</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Skatepark Night Session</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/8tPn3v7zq0c"></iframe></div>
-        <div class="card-info"><div class="card-title">Nollie 180 Kickflip</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Nollie 180 Kickflip</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/t7_98X1NjNw"></iframe></div>
-        <div class="card-info"><div class="card-title">Thrasher Weekend Philly</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+        <div class="card-info"><div class="card-title">Thrasher Weekend Philly</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
     </div>
   </div>
 
   <div id="donate-content" style="display:none;">
-    <div class="donation-card">
-      <h2 style="text-align:center;">SK8 Community Treasury</h2>
-      <div class="address-box">
-        <span id="treasury-address">5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
-        <button onclick="copyTreasuryAddress()" style="background:var(--accent-cyan); border:none; padding:5px 10px; cursor:pointer;">COPY</button>
+    <div class="hero"><h1>TREASURY</h1></div>
+    <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold);">
+      <p style="text-align:center; margin-bottom:1rem;">Support the SK8COIN ecosystem</p>
+      <div style="background:#000; padding:15px; border-radius:10px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+        <span>5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
+        <button onclick="copyTreasuryAddress()" style="background:var(--accent-gold); border:none; padding:5px; cursor:pointer;">COPY</button>
       </div>
-      <div id="donate-wallet-info" style="text-align:center; font-size:0.8rem; margin:10px 0;"></div>
-      <div class="preset-buttons">
-        <div class="preset-group"><div class="donation-type-label">FLOW</div><button class="preset-btn" onclick="setPresetAmount(0.01)">0.01 SOL</button></div>
-        <div class="preset-group"><div class="donation-type-label">AM</div><button class="preset-btn" onclick="setPresetAmount(0.05)">0.05 SOL</button></div>
-        <div class="preset-group"><div class="donation-type-label">PRO</div><button class="preset-btn" onclick="setPresetAmount(0.10)">0.10 SOL</button></div>
-      </div>
-      <label>Custom Amount (SOL)</label>
-      <input id="donate-amount" type="number" value="0.01" step="0.01">
-      <textarea id="donate-message" placeholder="Message for the skater..." rows="3"></textarea>
-      <button onclick="sendDonation()" style="width:100%; background:var(--accent-red); color:#fff; padding:15px; border:none; border-radius:50px; font-weight:bold; cursor:pointer; margin-top:10px;">SEND VIA PHANTOM</button>
+      <input type="number" id="donate-amount" value="0.1" step="0.1" style="width:100%; padding:15px; margin-top:20px; background:#000; border:1px solid #333; color:#fff;">
+      <button onclick="sendDonation()" style="width:100%; padding:20px; margin-top:10px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:10px; cursor:pointer;">SEND SOL TO TREASURY</button>
     </div>
   </div>
 
@@ -385,20 +328,19 @@ input, textarea {
 
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
-    <h3 id="modal-skater-title">Sponsor</h3>
-    <p style="margin:10px 0; font-size:0.8rem;">Support this clip on-chain:</p>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-      <button onclick="selectAmount(0.01)" style="padding:10px; background:#000; color:#fff; border:1px solid var(--accent-cyan); cursor:pointer;">0.01 SOL</button>
-      <button onclick="selectAmount(0.05)" style="padding:10px; background:#000; color:#fff; border:1px solid var(--accent-cyan); cursor:pointer;">0.05 SOL</button>
+    <h3 id="modal-skater-title" style="color:var(--accent-gold)">Sponsor Clip</h3>
+    <p style="margin:15px 0; font-size:0.9rem;">Direct peer-to-peer sponsorship via Solana.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+      <button onclick="selectAmount(0.01)" style="padding:12px; background:#000; color:var(--accent-gold); border:1px solid var(--accent-gold); cursor:pointer; font-weight:bold;">0.01 SOL</button>
+      <button onclick="selectAmount(0.05)" style="padding:12px; background:#000; color:var(--accent-gold); border:1px solid var(--accent-gold); cursor:pointer; font-weight:bold;">0.05 SOL</button>
     </div>
-    <input type="number" id="custom-modal-amount" placeholder="Custom SOL" step="0.01">
-    <button onclick="sendCustomModalAmount()" style="width:100%; padding:12px; background:var(--accent-cyan); border:none; font-weight:bold; cursor:pointer;">SEND SOL</button>
-    <button onclick="closeModal()" style="width:100%; margin-top:10px; background:transparent; color:#888; border:none; cursor:pointer;">Cancel</button>
+    <input type="number" id="custom-modal-amount" placeholder="Custom SOL Amount" step="0.01" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff;">
+    <button onclick="sendCustomModalAmount()" style="width:100%; padding:15px; margin-top:10px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; cursor:pointer;">CONFIRM SPONSORSHIP</button>
+    <button onclick="closeModal()" style="width:100%; margin-top:10px; background:transparent; color:#888; border:none; cursor:pointer;">Close</button>
   </div>
 </div>
 
 <script>
-// WALLET LOGIC
 let publicKey = null;
 let provider = null;
 const RPC_URL = "https://solana-rpc.publicnode.com";
@@ -415,7 +357,6 @@ async function connectWallet() {
     const resp = await provider.connect();
     publicKey = resp.publicKey.toString();
     document.getElementById("connect-wallet-btn").innerText = publicKey.slice(0,4)+"..."+publicKey.slice(-4);
-    updateWalletUI();
   } catch (err) { console.error(err); }
 }
 
@@ -423,12 +364,7 @@ function navigateTo(page) {
   document.getElementById("home-content").style.display = (page === 'home' ? 'block' : 'none');
   document.getElementById("video-content").style.display = (page === 'video' ? 'block' : 'none');
   document.getElementById("donate-content").style.display = (page === 'donate' ? 'block' : 'none');
-  updateWalletUI();
-}
-
-function updateWalletUI() {
-  const info = document.getElementById("donate-wallet-info");
-  if (info) info.innerHTML = publicKey ? `🟢 Connected: ${publicKey.slice(0,6)}...` : `<span style="color:orange;">⚠️ Connect Wallet</span>`;
+  window.scrollTo(0,0);
 }
 
 // SPONSORING LOGIC
@@ -438,20 +374,18 @@ document.querySelectorAll('.donate-btn').forEach(btn => {
   btn.onclick = () => {
     if(!publicKey) { alert("Connect Wallet First"); return; }
     currentSkaterTarget = btn.dataset.address;
-    document.getElementById("modal-skater-title").innerText = btn.closest('.video-card').querySelector('.card-title').innerText;
+    document.getElementById("modal-skater-title").innerText = "Sponsoring: " + btn.closest('.video-card').querySelector('.card-title').innerText;
     document.getElementById("sponsor-modal").style.display = "flex";
   };
 });
 
 function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
-
 function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
 function sendCustomModalAmount() {
   const val = parseFloat(document.getElementById("custom-modal-amount").value);
   if (val > 0) sendSOL(val, currentSkaterTarget);
 }
 
-// THE ACTUAL SEND FUNCTION
 async function sendSOL(amount, destination) {
   try {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
@@ -474,16 +408,13 @@ async function sendSOL(amount, destination) {
     const signature = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(signature);
     
-    alert("Success! TX: " + signature);
+    alert("Sponsorship Sent! Signature: " + signature);
     closeModal();
   } catch (err) {
-    console.error(err);
     alert("Transaction Failed");
   }
 }
 
-// TREASURY DONATE
-function setPresetAmount(amt) { document.getElementById("donate-amount").value = amt; }
 function sendDonation() {
   const amt = parseFloat(document.getElementById("donate-amount").value);
   const treasury = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
@@ -495,10 +426,9 @@ function copyTreasuryAddress() {
   alert("Copied!");
 }
 
-// LIKES
-document.querySelectorAll('.heart-btn').forEach(btn => {
-  btn.onclick = () => btn.classList.toggle('liked');
-});
+function openWhitePaper() {
+  window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank');
+}
 </script>
 
 </body>
