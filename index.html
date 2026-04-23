@@ -20,7 +20,7 @@
   --accent-red:#ff2d55;
   --accent-orange:#ff9500;
   --accent-cyan:#00f0ff;
-  --accent-gold:#ffd700; /* Yellow Accent */
+  --accent-gold:#ffd700; 
   --text-primary:#e0f7ff;
   --text-secondary:#a5d8ff;
   --card-border:rgba(0,240,255,0.14);
@@ -60,15 +60,26 @@ nav ul{display:flex;gap:1.4rem;list-style:none;}
 nav a{color:var(--text-secondary);text-decoration:none;font-weight:bold;transition:0.3s;font-size:0.9rem;}
 nav a:hover{color:var(--accent-gold);}
 
-.wallet-btn{
-  background:linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
-  border:none;
-  padding:.7rem 1.4rem;
-  border-radius:50px;
-  cursor:pointer;
-  font-family:'Orbitron';
-  font-weight:bold;
-  color:#000;
+.wallet-btn {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+  border: none;
+  padding: .7rem 1.4rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: 'Orbitron';
+  font-weight: bold;
+  color: #000;
+  transition: 0.3s;
+}
+
+#sol-balance {
+  background: rgba(0,0,0,0.3);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-gold);
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  font-weight: 900;
 }
 
 main {
@@ -110,11 +121,9 @@ main {
   background: var(--bg-panel);
   border: 1px solid var(--card-border);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 2.5rem;
   cursor: pointer;
   transition: 0.3s;
-  display: flex;
-  flex-direction: column;
 }
 .menu-item:hover {
   border-color: var(--accent-gold);
@@ -125,10 +134,10 @@ main {
 .menu-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
 .menu-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-/* --- VIDEO GRID (YELLOW ACCENTS) --- */
+/* --- VIDEO GRID --- */
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* FORCED 4 COLS */
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
 .video-card {
@@ -148,12 +157,13 @@ main {
   background: var(--accent-gold);
   color: #000;
   border: none;
-  padding: 6px 15px;
+  padding: 8px 15px;
   border-radius: 4px;
   font-family: 'Orbitron';
   font-weight: 900;
   font-size: 0.7rem;
   cursor: pointer;
+  width: 100%;
 }
 
 /* --- MODALS --- */
@@ -165,7 +175,6 @@ main {
   background:var(--bg-panel); padding:2.5rem; border-radius:20px; border:1px solid var(--accent-gold); width:90%; max-width:450px;
 }
 
-/* RESPONSIVE */
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
 
@@ -183,7 +192,10 @@ main {
         <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
       </ul>
     </nav>
-    <button id="connect-wallet-btn" class="wallet-btn" onclick="connectWallet()">CONNECT WALLET</button>
+    <div id="wallet-ui" style="display: flex; align-items: center; gap: 10px;">
+        <span id="sol-balance" style="display: none;">0.00 SOL</span>
+        <button id="connect-wallet-btn" class="wallet-btn" onclick="handleWalletAction()">CONNECT WALLET</button>
+    </div>
   </div>
 </header>
 
@@ -191,15 +203,15 @@ main {
 
   <div id="home-content">
     <section class="hero">
-      <h1>SKATE2EARN</h1>
-      <p style="font-size: 1.5rem; margin: 1.2rem 0 2.2rem; color: var(--text-secondary); max-width: 720px; margin-left: auto; margin-right: auto;">
-        Collect, build & earn on-chain — tokenized GameFi meets street culture.
-      </p>
-      <div class="stats-row">
-        <div class="stat"><span class="stat-value">1.1k</span> Collectors</div>
-        <div class="stat"><span class="stat-value">37.9k+</span> NFTs Minted</div>
-        <div class="stat"><span class="stat-value">20k</span> Volume</div>
-      </div>
+        <h1>SKATE2EARN</h1>
+        <p style="font-size: 1.5rem; margin: 1.2rem 0 2.2rem; color: var(--text-secondary); max-width: 720px; margin-left: auto; margin-right: auto;">
+          Collect, build & earn on-chain — tokenized GameFi meets street culture.
+        </p>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-value">1.1k</span> Collectors</div>
+          <div class="stat"><span class="stat-value">37.9k+</span> NFTs Minted</div>
+          <div class="stat"><span class="stat-value">20k</span> Volume</div>
+        </div>
     </section>
 
     <div class="menu-grid">
@@ -208,46 +220,39 @@ main {
         <div class="menu-title">BUILD & MINT</div>
         <div class="menu-desc">Craft complete boards from parts — mint legendary NFTs & earn rewards</div>
       </div>
-
       <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/drops', '_blank')">
         <div class="menu-icon">🛒</div>
         <div class="menu-title">PARTS MARKET</div>
         <div class="menu-desc">Buy, sell & trade rare decks, wheels, trucks, bearings</div>
       </div>
-
       <div class="menu-item" onclick="alert('you are now entering the skate shop...')">
         <div class="menu-icon">🛹</div>
         <div class="menu-title">SKATE SHOP</div>
         <div class="menu-desc">Real merch & gear — pay with $SKATE for exclusive perks</div>
       </div>
-
       <div class="menu-item" onclick="navigateTo('video')">
         <div class="menu-icon">📺</div>
         <div class="menu-title">VIDEOS</div>
-        <div class="menu-desc">Watch clips & sponsor skaters directly via Solana Mainnet</div>
+        <div class="menu-desc">Watch videos, sponsor skaters by supporting them directly on-chain.</div>
       </div>
-
       <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
         <div class="menu-icon">📖</div>
         <div class="menu-title">METAZINE</div>
         <div class="menu-desc">Exclusive NFT-gated skate stories, interviews & creator drops</div>
       </div>
-
       <div class="menu-item" onclick="window.open('https://discord.gg/hgWMGpRTaK', '_blank')">
-        <div class="menu-icon"><i class="fab fa-discord" style="color:#5865F2"></i></div>
+        <div class="menu-icon"><i class="fab fa-discord" style="color:#5865f2;"></i></div>
         <div class="menu-title">DISCORD</div>
         <div class="menu-desc">Wallet-linked roles, alerts, battles & giveaways</div>
       </div>
-
-      <div class="menu-item" onclick="openWhitePaper()">
+      <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
         <div class="menu-icon" style="color: var(--accent-gold);">📜</div>
         <div class="menu-title" style="color: var(--accent-gold);">WHITE PAPER</div>
-        <div class="menu-desc">Interactive Project Overview — Vision, Tokenomics & Roadmap</div>
+        <div class="menu-desc">Project Overview — Vision, Tokenomics, Roadmap & Skate2Earn mechanics</div>
       </div>
-
       <div class="menu-item" onclick="navigateTo('donate')">
         <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
-        <div class="menu-title" style="color: var(--accent-gold);">SUPPORT MOVEMENT</div>
+        <div class="menu-title" style="color: var(--accent-gold);">SUPPORT THE MOVEMENT</div>
         <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
       </div>
     </div>
@@ -255,14 +260,13 @@ main {
 
   <div id="video-content" style="display:none;">
     <div class="hero">
-      <h1 style="font-size:3rem;">SK8 CLIPS</h1>
-      <p style="color:var(--accent-gold); font-weight:bold;">SOLANA MAINNET SPONSORSHIP ACTIVE</p>
+        <h1 style="font-size:3rem;">SK8 VIDEOS</h1>
+        <p style="color: var(--accent-gold); font-weight:bold;">PEER-TO-PEER SPONSORSHIP ACTIVE</p>
     </div>
-    
     <div class="video-grid">
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/On2BmcreKTM"></iframe></div>
-        <div class="card-info"><div class="card-title">Late Night LA Session</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
+        <div class="card-info"><div class="card-title">Late Night LA Session 🔥</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ"></iframe></div>
@@ -290,7 +294,7 @@ main {
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Zq3kl6z_aEM"></iframe></div>
-        <div class="card-info"><div class="card-title">Independent Skateboard Co</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
+        <div class="card-info"><div class="card-title">Independent Skateboard Co.</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
       <div class="video-card">
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/0zM3nApSvMg"></iframe></div>
@@ -312,15 +316,14 @@ main {
   </div>
 
   <div id="donate-content" style="display:none;">
-    <div class="hero"><h1>TREASURY</h1></div>
+    <div class="hero"><h1>COMMUNITY TREASURY</h1></div>
     <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold);">
-      <p style="text-align:center; margin-bottom:1rem;">Support the SK8COIN ecosystem</p>
-      <div style="background:#000; padding:15px; border-radius:10px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+      <div style="background:#000; padding:15px; border-radius:10px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
         <span>5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
-        <button onclick="copyTreasuryAddress()" style="background:var(--accent-gold); border:none; padding:5px; cursor:pointer;">COPY</button>
+        <button onclick="copyTreasuryAddress()" style="background:var(--accent-gold); border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">COPY</button>
       </div>
-      <input type="number" id="donate-amount" value="0.1" step="0.1" style="width:100%; padding:15px; margin-top:20px; background:#000; border:1px solid #333; color:#fff;">
-      <button onclick="sendDonation()" style="width:100%; padding:20px; margin-top:10px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:10px; cursor:pointer;">SEND SOL TO TREASURY</button>
+      <input type="number" id="donate-amount" value="0.1" step="0.1" style="width:100%; padding:15px; background:#000; border:1px solid #333; color:#fff; border-radius: 8px;">
+      <button onclick="sendDonation()" style="width:100%; padding:20px; margin-top:15px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:50px; cursor:pointer;">SEND TO TREASURY</button>
     </div>
   </div>
 
@@ -329,14 +332,14 @@ main {
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-skater-title" style="color:var(--accent-gold)">Sponsor Clip</h3>
-    <p style="margin:15px 0; font-size:0.9rem;">Direct peer-to-peer sponsorship via Solana.</p>
+    <p style="margin:15px 0; font-size:0.9rem;">Send SOL directly to the skater.</p>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
       <button onclick="selectAmount(0.01)" style="padding:12px; background:#000; color:var(--accent-gold); border:1px solid var(--accent-gold); cursor:pointer; font-weight:bold;">0.01 SOL</button>
       <button onclick="selectAmount(0.05)" style="padding:12px; background:#000; color:var(--accent-gold); border:1px solid var(--accent-gold); cursor:pointer; font-weight:bold;">0.05 SOL</button>
     </div>
-    <input type="number" id="custom-modal-amount" placeholder="Custom SOL Amount" step="0.01" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff;">
-    <button onclick="sendCustomModalAmount()" style="width:100%; padding:15px; margin-top:10px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; cursor:pointer;">CONFIRM SPONSORSHIP</button>
-    <button onclick="closeModal()" style="width:100%; margin-top:10px; background:transparent; color:#888; border:none; cursor:pointer;">Close</button>
+    <input type="number" id="custom-modal-amount" placeholder="Custom Amount" step="0.01" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff; margin-bottom:10px;">
+    <button onclick="sendCustomModalAmount()" style="width:100%; padding:15px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; cursor:pointer;">CONFIRM</button>
+    <button onclick="closeModal()" style="width:100%; margin-top:10px; background:transparent; color:#888; border:none; cursor:pointer;">Cancel</button>
   </div>
 </div>
 
@@ -350,14 +353,50 @@ function getProvider() {
   return null;
 }
 
+async function handleWalletAction() {
+    if (publicKey) {
+        if (confirm("Disconnect Wallet?")) {
+            await provider.disconnect();
+            publicKey = null;
+            updateWalletUI();
+        }
+    } else {
+        await connectWallet();
+    }
+}
+
 async function connectWallet() {
   provider = getProvider();
-  if (!provider) { alert("Install Phantom!"); return; }
+  if (!provider) { alert("Please Install Phantom Wallet Extension"); return; }
   try {
     const resp = await provider.connect();
     publicKey = resp.publicKey.toString();
-    document.getElementById("connect-wallet-btn").innerText = publicKey.slice(0,4)+"..."+publicKey.slice(-4);
+    updateWalletUI();
+    fetchBalance();
   } catch (err) { console.error(err); }
+}
+
+function updateWalletUI() {
+    const btn = document.getElementById("connect-wallet-btn");
+    const balEl = document.getElementById("sol-balance");
+    if (publicKey) {
+        btn.innerText = publicKey.slice(0,4)+"..."+publicKey.slice(-4);
+        btn.style.background = "linear-gradient(135deg, #4ade80, #22c55e)"; // Green when connected
+        balEl.style.display = "inline";
+    } else {
+        btn.innerText = "CONNECT WALLET";
+        btn.style.background = "linear-gradient(135deg, var(--accent-gold), var(--accent-orange))";
+        balEl.style.display = "none";
+    }
+}
+
+async function fetchBalance() {
+    if (!publicKey) return;
+    try {
+        const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
+        document.getElementById("sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(3) + " SOL";
+    } catch (e) { console.error(e); }
 }
 
 function navigateTo(page) {
@@ -369,7 +408,6 @@ function navigateTo(page) {
 
 // SPONSORING LOGIC
 let currentSkaterTarget = "";
-
 document.querySelectorAll('.donate-btn').forEach(btn => {
   btn.onclick = () => {
     if(!publicKey) { alert("Connect Wallet First"); return; }
@@ -408,11 +446,10 @@ async function sendSOL(amount, destination) {
     const signature = await connection.sendRawTransaction(signed.serialize());
     await connection.confirmTransaction(signature);
     
-    alert("Sponsorship Sent! Signature: " + signature);
+    alert("Sent! Signature: " + signature);
+    fetchBalance();
     closeModal();
-  } catch (err) {
-    alert("Transaction Failed");
-  }
+  } catch (err) { alert("Transaction Failed"); }
 }
 
 function sendDonation() {
@@ -426,9 +463,19 @@ function copyTreasuryAddress() {
   alert("Copied!");
 }
 
-function openWhitePaper() {
-  window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank');
-}
+// Check trust on load
+window.addEventListener('load', async () => {
+    const p = getProvider();
+    if (p?.isPhantom) {
+        try {
+            const resp = await p.connect({ onlyIfTrusted: true });
+            publicKey = resp.publicKey.toString();
+            provider = p;
+            updateWalletUI();
+            fetchBalance();
+        } catch (e) {}
+    }
+});
 </script>
 
 </body>
