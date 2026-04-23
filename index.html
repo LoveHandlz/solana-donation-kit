@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK8COIN | Skate2Earn</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:;">
 
@@ -31,6 +32,7 @@ body{
   background:var(--bg-deep);
   color:var(--text-primary);
   font-family:'Orbitron',sans-serif;
+  line-height: 1.6;
 }
 
 header{
@@ -52,11 +54,12 @@ header{
   padding:0 1rem;
 }
 
-.logo{height:60px;}
+.logo{height:50px;}
 
 nav ul{display:flex;gap:1.4rem;list-style:none;}
 
-nav a{color:var(--text-secondary);text-decoration:none;}
+nav a{color:var(--text-secondary);text-decoration:none;font-weight:bold;transition:0.3s;}
+nav a:hover{color:var(--accent-cyan);}
 
 .wallet-btn{
   background:linear-gradient(135deg,var(--accent-cyan),#a78bfa);
@@ -64,19 +67,32 @@ nav a{color:var(--text-secondary);text-decoration:none;}
   padding:.7rem 1.4rem;
   border-radius:50px;
   cursor:pointer;
+  font-family:'Orbitron';
+  font-weight:bold;
+  color:#000;
 }
 
-main{
-  padding-top:140px;
-  max-width:1440px;
-  margin:auto;
-  padding-bottom:100px;
+main {
+  padding-top: 120px;
+  max-width: 1440px;
+  margin: auto;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
-/* HOME */
+/* HOME SECTION */
+#home-content h1 {
+  font-size: 4rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  background: linear-gradient(to bottom, #fff, var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .menu-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
   gap:1.8rem;
 }
 
@@ -84,782 +100,340 @@ main{
   background:var(--bg-panel);
   border:1px solid var(--card-border);
   border-radius:16px;
-  padding:2rem;
+  padding:3rem 2rem;
+  text-align:center;
+  font-size:1.5rem;
   cursor:pointer;
+  transition: 0.3s;
+}
+.menu-item:hover {
+  border-color: var(--accent-cyan);
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(0,240,255,0.2);
 }
 
-/* VIDEO PAGE FULL (UNCHANGED FROM YOUR ORIGINAL — INSERTED LATER) */
+/* VIDEO GRID - THE FIX */
+.video-hero { text-align: center; margin-bottom: 3rem; }
 
-/* DONATE PAGE FULL (UNCHANGED — INSERTED LATER) */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 Columns */
+  gap: 1.5rem;
+  margin-bottom: 50px;
+}
+
+.video-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.video-card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); }
+
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  border: none;
+}
+
+.card-info { padding: 1rem; }
+.card-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.8rem; height: 40px; overflow: hidden; }
+
+.card-actions { display: flex; justify-content: space-between; align-items: center; }
+
+.heart-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; filter: grayscale(1); }
+.heart-btn.liked { filter: grayscale(0); }
+
+.donate-btn {
+  background: var(--accent-cyan);
+  color: #000;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-family: 'Orbitron';
+  font-weight: bold;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+/* DONATE PAGE */
+.donation-card {
+  background: var(--bg-panel);
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--card-border);
+}
+
+.address-box {
+  background: #000;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  margin: 1rem 0;
+}
+
+.preset-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 1.5rem 0; }
+.preset-group { text-align: center; }
+.donation-type-label { font-size: 0.6rem; color: var(--accent-cyan); margin-bottom: 5px; }
+.preset-btn { width: 100%; padding: 10px; background: #0b1a3d; border: 1px solid #222; color: #fff; cursor: pointer; }
+
+input, textarea {
+  width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; margin: 10px 0; border-radius: 5px;
+}
+
+/* MODAL STYLES */
+.modal-overlay {
+  display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+  background:rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center;
+}
+.modal-content {
+  background:var(--bg-panel); padding:2rem; border-radius:20px; border:1px solid var(--accent-cyan); width:90%; max-width:400px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .video-grid { grid-template-columns: 1fr; } .header-inner { flex-direction: column; gap: 10px; } }
 
 </style>
 </head>
-
 <body>
 
 <header>
   <div class="header-inner">
     <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo">
-
     <nav>
       <ul>
-        <li><a href="#" onclick="navigateTo('home')">Home</a></li>
-        <li><a href="#" onclick="navigateTo('video')">Videos</a></li>
-        <li><a href="#" onclick="navigateTo('donate')">Donate</a></li>
+        <li><a href="javascript:void(0)" onclick="navigateTo('home')">HOME</a></li>
+        <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
+        <li><a href="javascript:void(0)" onclick="navigateTo('donate')">DONATE</a></li>
       </ul>
     </nav>
-
-    <button id="connect-wallet-btn" class="wallet-btn">CONNECT WALLET</button>
+    <button id="connect-wallet-btn" class="wallet-btn" onclick="connectWallet()">CONNECT WALLET</button>
   </div>
 </header>
 
 <main>
 
-<!-- ================= HOME ================= -->
-<div id="home-content">
-
-  <h1>SKATE2EARN</h1>
-
-  <div class="menu-grid">
-    <div class="menu-item">BUILD</div>
-    <div class="menu-item">SHOP</div>
-    <div class="menu-item" onclick="navigateTo('video')">VIDEOS</div>
-    <div class="menu-item" onclick="navigateTo('donate')">DONATE</div>
+  <div id="home-content">
+    <h1>SKATE2EARN</h1>
+    <div class="menu-grid">
+      <div class="menu-item">BUILD</div>
+      <div class="menu-item">SHOP</div>
+      <div class="menu-item" onclick="navigateTo('video')">VIDEOS</div>
+      <div class="menu-item" onclick="navigateTo('donate')">DONATE</div>
+    </div>
   </div>
 
+  <div id="video-content" style="display:none;">
+    <div class="video-hero">
+      <h1>SK8 VIDEOS</h1>
+      <p style="color: var(--text-secondary);">Raw streets • Heavy tricks • Community sessions</p>
+    </div>
+    
+    <div class="video-grid">
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/On2BmcreKTM"></iframe></div>
+        <div class="card-info"><div class="card-title">Late Night LA Session 🔥</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ"></iframe></div>
+        <div class="card-info"><div class="card-title">Tre Flip Over the Gap</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/9bZkp7q19f0"></iframe></div>
+        <div class="card-info"><div class="card-title">Manuals in the Rain</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/kXYiU_JCYtU"></iframe></div>
+        <div class="card-info"><div class="card-title">Big Ollie at the Park</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Wg_jwgmwt-U"></iframe></div>
+        <div class="card-info"><div class="card-title">Epic Skate Clips 2025</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/MFSx4jWmDfY"></iframe></div>
+        <div class="card-info"><div class="card-title">Best Skate Videos Year</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/qqPjQpTe9W4"></iframe></div>
+        <div class="card-info"><div class="card-title">Jonny Giger Street Part</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Zq3kl6z_aEM"></iframe></div>
+        <div class="card-info"><div class="card-title">Independent Skateboard Co.</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/0zM3nApSvMg"></iframe></div>
+        <div class="card-info"><div class="card-title">Heel Flip Over Rail</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/5qap5aO7j6k"></iframe></div>
+        <div class="card-info"><div class="card-title">Skatepark Night Session</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/8tPn3v7zq0c"></iframe></div>
+        <div class="card-info"><div class="card-title">Nollie 180 Kickflip</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/t7_98X1NjNw"></iframe></div>
+        <div class="card-info"><div class="card-title">Thrasher Weekend Philly</div><div class="card-actions"><button class="heart-btn">❤️</button><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="donate-content" style="display:none;">
+    <div class="donation-card">
+      <h2 style="text-align:center;">SK8 Community Treasury</h2>
+      <div class="address-box">
+        <span id="treasury-address">5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
+        <button onclick="copyTreasuryAddress()" style="background:var(--accent-cyan); border:none; padding:5px 10px; cursor:pointer;">COPY</button>
+      </div>
+      <div id="donate-wallet-info" style="text-align:center; font-size:0.8rem; margin:10px 0;"></div>
+      <div class="preset-buttons">
+        <div class="preset-group"><div class="donation-type-label">FLOW</div><button class="preset-btn" onclick="setPresetAmount(0.01)">0.01 SOL</button></div>
+        <div class="preset-group"><div class="donation-type-label">AM</div><button class="preset-btn" onclick="setPresetAmount(0.05)">0.05 SOL</button></div>
+        <div class="preset-group"><div class="donation-type-label">PRO</div><button class="preset-btn" onclick="setPresetAmount(0.10)">0.10 SOL</button></div>
+      </div>
+      <label>Custom Amount (SOL)</label>
+      <input id="donate-amount" type="number" value="0.01" step="0.01">
+      <textarea id="donate-message" placeholder="Message for the skater..." rows="3"></textarea>
+      <button onclick="sendDonation()" style="width:100%; background:var(--accent-red); color:#fff; padding:15px; border:none; border-radius:50px; font-weight:bold; cursor:pointer; margin-top:10px;">SEND VIA PHANTOM</button>
+    </div>
+  </div>
+
+</main>
+
+<div id="sponsor-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modal-skater-title">Sponsor</h3>
+    <p style="margin:10px 0; font-size:0.8rem;">Support this clip on-chain:</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+      <button onclick="selectAmount(0.01)" style="padding:10px; background:#000; color:#fff; border:1px solid var(--accent-cyan); cursor:pointer;">0.01 SOL</button>
+      <button onclick="selectAmount(0.05)" style="padding:10px; background:#000; color:#fff; border:1px solid var(--accent-cyan); cursor:pointer;">0.05 SOL</button>
+    </div>
+    <input type="number" id="custom-modal-amount" placeholder="Custom SOL" step="0.01">
+    <button onclick="sendCustomModalAmount()" style="width:100%; padding:12px; background:var(--accent-cyan); border:none; font-weight:bold; cursor:pointer;">SEND SOL</button>
+    <button onclick="closeModal()" style="width:100%; margin-top:10px; background:transparent; color:#888; border:none; cursor:pointer;">Cancel</button>
+  </div>
 </div>
-
-<!-- ================= VIDEO (FULL PLACEHOLDER) ================= -->
-<div id="video-content" style="display:none;"></div>
-<!-- ================= VIDEO PAGE (EXACT ORIGINAL MERGE) ================= -->
-
-<div class="video-hero">
-  <h1>SK8 VIDEOS</h1>
-  <p style="color: var(--text-secondary); font-size: 1.3rem; max-width: 720px; margin: 0 auto; text-align:center;">
-    Raw streets • Heavy tricks • Community sessions • Real SOL Sponsorship (Mainnet)
-  </p>
-</div>
-
-<div class="video-grid">
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/On2BmcreKTM" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Late Night LA Session 🔥</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/3JZ_D3ELwOQ" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Tre Flip Over the Gap</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/9bZkp7q19f0" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Manuals in the Rain</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/kXYiU_JCYtU" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Big Ollie at the Park</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Wg_jwgmwt-U" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Epic Skate Clips 2025</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/MFSx4jWmDfY" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Best Skate Videos of the Year</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/qqPjQpTe9W4" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Jonny Giger Street Part 2025</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Zq3kl6z_aEM" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Independent "Get Your Sh!t Together"</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/0zM3nApSvMg" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Heel Flip Over Rail</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/5qap5aO7j6k" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Skatepark Night Session</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/8tPn3v7zq0c" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Nollie 180 Kickflip</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="video-card">
-    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/t7_98X1NjNw" allowfullscreen></iframe></div>
-    <div class="card-info">
-      <div class="card-title">Thrasher Weekend Philly</div>
-      <div class="card-actions">
-        <button class="heart-btn">❤️</button>
-        <button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Sponsor</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ================= DONATE PAGE (EXACT ORIGINAL) ================= -->
-
-<div class="donate-hero">
-  <h1>DONATE NOW</h1>
-  <p style="font-size:1.4rem; max-width:720px; margin:0 auto; color:var(--text-secondary); text-align:center;">
-    Support real skaters • Fund the revolution • Send SOL directly on-chain
-  </p>
-</div>
-
-<div class="donation-card">
-
-  <h2 style="text-align:center; margin-bottom:1.2rem;">SK8COIN Community Treasury</h2>
-
-  <div class="address-box">
-    <span id="treasury-address">
-      5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc
-    </span>
-    <button onclick="copyTreasuryAddress()"
-      style="background:var(--accent-cyan); color:#000; border:none; padding:6px 14px; border-radius:50px;">
-      📋 COPY
-    </button>
-  </div>
-
-  <div id="donate-wallet-info" style="text-align:center; margin:1.5rem 0;"></div>
-
-  <div class="preset-buttons">
-
-    <div class="preset-group">
-      <div class="donation-type-label">FLOW DONATION</div>
-      <button class="preset-btn" data-sol="0.01" onclick="setPresetAmount(0.01)">
-        0.01 SOL <span class="usd">≈ $--.--</span>
-      </button>
-    </div>
-
-    <div class="preset-group">
-      <div class="donation-type-label">AMATEUR DONATION</div>
-      <button class="preset-btn" data-sol="0.05" onclick="setPresetAmount(0.05)">
-        0.05 SOL <span class="usd">≈ $--.--</span>
-      </button>
-    </div>
-
-    <div class="preset-group">
-      <div class="donation-type-label">PRO DONATION</div>
-      <button class="preset-btn" data-sol="0.10" onclick="setPresetAmount(0.10)">
-        0.10 SOL <span class="usd">≈ $--.--</span>
-      </button>
-    </div>
-
-  </div>
-
-  <label>Custom Amount (SOL)</label>
-  <input id="donate-amount" type="number" value="0.00" step="0.001" min="0.001">
-
-  <div id="custom-usd">≈ $0.00 USD</div>
-
-  <label>Skater Message</label>
-  <textarea id="donate-message" rows="3"></textarea>
-
-  <button onclick="sendDonation()"
-    style="width:100%; margin-top:1.5rem; background:linear-gradient(135deg,var(--accent-orange),var(--accent-red)); color:#fff; font-size:1.5rem; padding:1.2rem; border-radius:50px; border:none;">
-    💸 SEND DONATION VIA PHANTOM
-  </button>
-
-</div>
-
-<p style="text-align:center; margin-top:2rem; color:var(--text-secondary);">
-  100% on-chain • Mainnet • No fees • Real impact
-</p>
 
 <script>
-/* =========================
-   SAFE GLOBAL INIT
-========================= */
-
-if (typeof window.Buffer === 'undefined') {
-  window.Buffer = window.buffer.Buffer;
-}
-
+// WALLET LOGIC
 let publicKey = null;
 let provider = null;
-let connection = null;
-
 const RPC_URL = "https://solana-rpc.publicnode.com";
 
-/* =========================
-   SHORT ADDRESS HELPER
-========================= */
-
-function shortenAddress(addr) {
-  return addr.slice(0, 6) + "..." + addr.slice(-4);
-}
-
-/* =========================
-   GET PHANTOM PROVIDER
-========================= */
-
 function getProvider() {
-  if ("phantom" in window) {
-    const sol = window.phantom?.solana;
-    if (sol?.isPhantom) return sol;
-  }
+  if ("phantom" in window) return window.phantom?.solana;
   return null;
 }
 
-/* =========================
-   CONNECT WALLET (UNIFIED)
-========================= */
-
 async function connectWallet() {
   provider = getProvider();
-
-  if (!provider) {
-    alert("Phantom not found → install https://phantom.app");
-    return;
-  }
-
+  if (!provider) { alert("Install Phantom!"); return; }
   try {
     const resp = await provider.connect();
     publicKey = resp.publicKey.toString();
-
-    updateWalletUI_ALL();
-
-    const btn1 = document.getElementById("wallet-btn");
-    const btn2 = document.getElementById("connect-wallet-btn");
-
-    if (btn1) btn1.innerHTML = `✅ ${shortenAddress(publicKey)}`;
-    if (btn2) btn2.innerHTML = `✅ ${shortenAddress(publicKey)}`;
-
-  } catch (e) {
-    console.log(e);
-  }
+    document.getElementById("connect-wallet-btn").innerText = publicKey.slice(0,4)+"..."+publicKey.slice(-4);
+    updateWalletUI();
+  } catch (err) { console.error(err); }
 }
 
-/* =========================
-   DISCONNECT WALLET
-========================= */
-
-function disconnectWallet() {
-  try {
-    provider?.disconnect();
-  } catch (e) {}
-
-  publicKey = null;
-
-  const btn1 = document.getElementById("wallet-btn");
-  const btn2 = document.getElementById("connect-wallet-btn");
-
-  if (btn1) btn1.innerHTML = "CONNECT PHANTOM";
-  if (btn2) btn2.innerHTML = "CONNECT WALLET";
-
-  updateWalletUI_ALL();
+function navigateTo(page) {
+  document.getElementById("home-content").style.display = (page === 'home' ? 'block' : 'none');
+  document.getElementById("video-content").style.display = (page === 'video' ? 'block' : 'none');
+  document.getElementById("donate-content").style.display = (page === 'donate' ? 'block' : 'none');
+  updateWalletUI();
 }
 
-/* =========================
-   WALLET UI UPDATE (BOTH PAGES)
-========================= */
-
-async function updateWalletUI_ALL() {
-  const status1 = document.getElementById("wallet-status");
-  const status2 = document.getElementById("donate-wallet-info");
-
-  if (!publicKey) {
-    if (status1) status1.innerHTML = "";
-    if (status2) status2.innerHTML = `<span style="color:#ff9500;">⚠️ Connect wallet</span>`;
-    return;
-  }
-
-  try {
-    connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-
-    const bal = await connection.getBalance(
-      new solanaWeb3.PublicKey(publicKey)
-    );
-
-    const sol = (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
-
-    if (status1) {
-      status1.innerHTML = `
-        🟢 <strong>${shortenAddress(publicKey)}</strong> • ${sol} SOL
-      `;
-    }
-
-    if (status2) {
-      status2.innerHTML = `
-        🟢 Connected • ${shortenAddress(publicKey)} • ${sol} SOL
-      `;
-    }
-
-  } catch (e) {
-    console.log(e);
-  }
+function updateWalletUI() {
+  const info = document.getElementById("donate-wallet-info");
+  if (info) info.innerHTML = publicKey ? `🟢 Connected: ${publicKey.slice(0,6)}...` : `<span style="color:orange;">⚠️ Connect Wallet</span>`;
 }
 
-/* =========================
-   AUTO CONNECT (TRUSTED)
-========================= */
-
-window.addEventListener("load", async () => {
-  provider = getProvider();
-
-  if (provider && provider.isConnected) {
-    try {
-      const resp = await provider.connect({ onlyIfTrusted: true });
-      publicKey = resp.publicKey.toString();
-      updateWalletUI_ALL();
-    } catch (e) {}
-  }
-});
-</script>
-
-<script>
-/* =========================
-   VIDEO PAGE STATE
-========================= */
-
-let currentSkaterAddress = null;
-
-/* =========================
-   OPEN SPONSOR MODAL
-========================= */
+// SPONSORING LOGIC
+let currentSkaterTarget = "";
 
 document.querySelectorAll('.donate-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-
-    if (!publicKey) {
-      alert("Connect Phantom first");
-      return;
-    }
-
-    currentSkaterAddress = btn.getAttribute('data-address');
-
-    const title = btn.closest('.video-card')
-      .querySelector('.card-title')?.textContent;
-
-    const modalTitle = document.getElementById('modal-skater-title');
-    if (modalTitle) modalTitle.textContent = title;
-
-    document.getElementById('sponsor-modal').style.display = 'flex';
-  });
+  btn.onclick = () => {
+    if(!publicKey) { alert("Connect Wallet First"); return; }
+    currentSkaterTarget = btn.dataset.address;
+    document.getElementById("modal-skater-title").innerText = btn.closest('.video-card').querySelector('.card-title').innerText;
+    document.getElementById("sponsor-modal").style.display = "flex";
+  };
 });
 
-/* =========================
-   CLOSE MODAL
-========================= */
+function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
 
-function closeModal() {
-  document.getElementById('sponsor-modal').style.display = 'none';
+function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
+function sendCustomModalAmount() {
+  const val = parseFloat(document.getElementById("custom-modal-amount").value);
+  if (val > 0) sendSOL(val, currentSkaterTarget);
 }
 
-/* =========================
-   CORE SEND FUNCTION (SHARED)
-========================= */
-
-async function sendTransaction(amount) {
-
-  if (!provider || !publicKey) {
-    alert("Connect wallet first");
-    return;
-  }
-
+// THE ACTUAL SEND FUNCTION
+async function sendSOL(amount, destination) {
   try {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const fromPubkey = new solanaWeb3.PublicKey(publicKey);
-    const toPubkey = new solanaWeb3.PublicKey(currentSkaterAddress);
+    const toPubkey = new solanaWeb3.PublicKey(destination);
 
-    const { blockhash, lastValidBlockHeight } =
-      await conn.getLatestBlockhash();
-
-    const tx = new solanaWeb3.Transaction().add(
+    const transaction = new solanaWeb3.Transaction().add(
       solanaWeb3.SystemProgram.transfer({
         fromPubkey,
         toPubkey,
-        lamports: Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL)
+        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL,
       })
     );
 
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = fromPubkey;
+    const { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = fromPubkey;
 
-    const signed = await provider.signTransaction(tx);
-    const raw = signed.serialize();
-
-    const sig = await conn.sendRawTransaction(raw, {
-      skipPreflight: true
-    });
-
-    await conn.confirmTransaction({
-      signature: sig,
-      blockhash,
-      lastValidBlockHeight
-    });
-
-    alert(`✅ Sent ${amount} SOL\n\nTX: ${sig}`);
-
+    const signed = await provider.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(signed.serialize());
+    await connection.confirmTransaction(signature);
+    
+    alert("Success! TX: " + signature);
     closeModal();
-
-  } catch (e) {
-    console.log(e);
-
-    if (e?.message?.includes("User rejected")) {
-      alert("Transaction cancelled");
-    } else {
-      alert("Transaction failed");
-    }
+  } catch (err) {
+    console.error(err);
+    alert("Transaction Failed");
   }
 }
 
-/* =========================
-   PRESET AMOUNTS
-========================= */
-
-function selectAmount(amount) {
-  sendTransaction(amount);
+// TREASURY DONATE
+function setPresetAmount(amt) { document.getElementById("donate-amount").value = amt; }
+function sendDonation() {
+  const amt = parseFloat(document.getElementById("donate-amount").value);
+  const treasury = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
+  if (amt > 0) sendSOL(amt, treasury);
 }
-
-/* =========================
-   CUSTOM AMOUNT SEND
-========================= */
-
-function sendCustomAmount() {
-  const val = parseFloat(
-    document.getElementById("custom-amount").value
-  );
-
-  if (!val || val <= 0) {
-    alert("Invalid amount");
-    return;
-  }
-
-  sendTransaction(val);
-}
-
-/* =========================
-   HEART BUTTONS (LIKE SYSTEM)
-========================= */
-
-document.querySelectorAll('.heart-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    btn.classList.toggle('liked');
-  });
-});
-</script>
-
-<script>
-/* =========================
-   NAVIGATION SYSTEM (HOME / DONATE)
-========================= */
-
-function navigateTo(page) {
-
-  const home = document.getElementById("home-content");
-  const donate = document.getElementById("donate-content");
-
-  if (!home || !donate) return;
-
-  home.style.display = (page === "home") ? "block" : "none";
-  donate.style.display = (page === "donate") ? "block" : "none";
-
-  if (page === "donate") {
-    updateDonateWalletInfo();
-    updateAllUSD();
-  }
-}
-
-/* =========================
-   DONATION WALLET DISPLAY
-========================= */
-
-function updateDonateWalletInfo() {
-  const el = document.getElementById("donate-wallet-info");
-
-  if (!el) return;
-
-  if (!publicKey) {
-    el.innerHTML = `<span style="color:#ff9500;">⚠️ Connect wallet to donate</span>`;
-    return;
-  }
-
-  el.innerHTML = `
-    🟢 Connected • ${shortenAddress(publicKey)}
-  `;
-}
-
-/* =========================
-   SOL PRICE (USD CONVERSION)
-========================= */
-
-let currentSOLPrice = 170;
-
-async function fetchSOLPrice() {
-  try {
-    const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
-    );
-
-    const data = await res.json();
-    currentSOLPrice = data.solana.usd || 170;
-
-  } catch (e) {}
-
-  return currentSOLPrice;
-}
-
-/* =========================
-   UPDATE ALL USD VALUES
-========================= */
-
-async function updateAllUSD() {
-
-  const price = await fetchSOLPrice();
-
-  document.querySelectorAll(".preset-btn").forEach(btn => {
-    const sol = parseFloat(btn.dataset.sol);
-    const usd = btn.querySelector(".usd");
-
-    if (usd) {
-      usd.textContent = `≈ $${(sol * price).toFixed(2)}`;
-    }
-  });
-
-  updateCustomUSD();
-}
-
-/* =========================
-   CUSTOM USD DISPLAY
-========================= */
-
-function updateCustomUSD() {
-  const input = document.getElementById("donate-amount");
-  const el = document.getElementById("custom-usd");
-
-  if (!input || !el) return;
-
-  const val = parseFloat(input.value) || 0;
-
-  el.textContent = `≈ $${(val * currentSOLPrice).toFixed(2)} USD`;
-}
-
-/* =========================
-   PRESET DONATION AMOUNT
-========================= */
-
-function setPresetAmount(amount) {
-  const input = document.getElementById("donate-amount");
-
-  if (input) {
-    input.value = amount;
-    updateCustomUSD();
-  }
-}
-
-/* =========================
-   MAIN DONATION TX (TREASURY)
-========================= */
-
-async function sendDonation() {
-
-  if (!provider || !publicKey) {
-    alert("Connect wallet first");
-    return;
-  }
-
-  const amount = parseFloat(
-    document.getElementById("donate-amount").value
-  );
-
-  const message =
-    document.getElementById("donate-message").value || "No message";
-
-  if (!amount || amount <= 0) {
-    alert("Invalid amount");
-    return;
-  }
-
-  const treasury =
-    "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
-
-  if (!confirm(
-    `Send ${amount} SOL to SK8 Treasury?\n\nMessage: ${message}`
-  )) return;
-
-  try {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-
-    const from = new solanaWeb3.PublicKey(publicKey);
-    const to = new solanaWeb3.PublicKey(treasury);
-
-    const { blockhash, lastValidBlockHeight } =
-      await conn.getLatestBlockhash();
-
-    const tx = new solanaWeb3.Transaction().add(
-      solanaWeb3.SystemProgram.transfer({
-        fromPubkey: from,
-        toPubkey: to,
-        lamports: Math.floor(
-          amount * solanaWeb3.LAMPORTS_PER_SOL
-        )
-      })
-    );
-
-    tx.recentBlockhash = blockhash;
-    tx.feePayer = from;
-
-    const signed = await provider.signTransaction(tx);
-    const raw = signed.serialize();
-
-    const sig = await conn.sendRawTransaction(raw, {
-      skipPreflight: true
-    });
-
-    await conn.confirmTransaction({
-      signature: sig,
-      blockhash,
-      lastValidBlockHeight
-    });
-
-    triggerSuccess();
-
-  } catch (e) {
-    console.log(e);
-    alert("Donation failed");
-  }
-}
-
-/* =========================
-   SUCCESS MODAL (DONATION)
-========================= */
-
-function triggerSuccess() {
-  const modal = document.getElementById("thank-you-modal");
-  if (modal) modal.style.display = "flex";
-
-  setTimeout(updateWalletUI_ALL, 2000);
-}
-
-/* =========================
-   CLOSE THANK YOU MODAL
-========================= */
-
-function closeThankYouModal() {
-  document.getElementById("thank-you-modal").style.display = "none";
-}
-
-/* =========================
-   WHITEPAPER MODAL
-========================= */
-
-function openWhitePaper() {
-  const el = document.getElementById("whitepaper-modal");
-  if (el) el.style.display = "flex";
-}
-
-function closeWhitePaperModal() {
-  const el = document.getElementById("whitepaper-modal");
-  if (el) el.style.display = "none";
-}
-
-/* =========================
-   COPY TREASURY ADDRESS
-========================= */
 
 function copyTreasuryAddress() {
-
-  navigator.clipboard.writeText(
-    "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc"
-  );
-
-  alert("Copied treasury address");
+  navigator.clipboard.writeText("5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc");
+  alert("Copied!");
 }
 
-/* =========================
-   DONATION INPUT LISTENER
-========================= */
-
-window.addEventListener("load", () => {
-  const input = document.getElementById("donate-amount");
-
-  if (input) {
-    input.addEventListener("input", updateCustomUSD);
-  }
-
-  navigateTo("home");
+// LIKES
+document.querySelectorAll('.heart-btn').forEach(btn => {
+  btn.onclick = () => btn.classList.toggle('liked');
 });
 </script>
 
-
+</body>
+</html>
