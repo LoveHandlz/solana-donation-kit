@@ -91,11 +91,11 @@
       padding-right: 1rem;
       padding-bottom: 100px;
     }
-    .hero {
+    .hero, .videos-hero {
       text-align: center;
       margin-bottom: 4rem;
     }
-    .hero h1 {
+    .hero h1, .videos-hero h1 {
       font-size: clamp(2.8rem, 8.5vw, 6.5rem);
       background: linear-gradient(90deg, var(--accent-red), var(--accent-orange), var(--accent-cyan));
       -webkit-background-clip: text;
@@ -104,7 +104,7 @@
       margin-bottom: 1rem;
       line-height: 1.1;
     }
-    .hero p {
+    .hero p, .videos-hero p {
       font-size: 1.5rem;
       max-width: 720px;
       margin: 1.2rem auto 2.2rem;
@@ -165,21 +165,10 @@
       line-height: 1.4;
     }
 
-    /* PAGE SPECIFIC */
+    /* Page visibility */
     #donate-content, #videos-content { padding-top: 40px; display: none; }
-    .donate-hero, .videos-hero {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    .donate-hero h1, .videos-hero h1 {
-      font-size: clamp(2.8rem, 7vw, 5rem);
-      background: linear-gradient(90deg, #ff9500, var(--accent-cyan));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
 
-    /* Donation styles (unchanged) */
+    /* Donation styles */
     .donation-card {
       background: var(--bg-panel);
       border: 2px solid var(--card-border);
@@ -262,7 +251,7 @@
       text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     }
 
-    /* Thank You & Whitepaper Modals (unchanged) */
+    /* Modals */
     #thank-you-modal {
       display: none;
       position: fixed;
@@ -363,9 +352,7 @@
           <div class="stat"><span class="stat-value">20k</span> Volume</div>
         </div>
       </section>
-
       <div class="menu-grid">
-        <!-- All 12 cards preserved and linked -->
         <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/blends', '_blank')">
           <div class="card-content">
             <div class="menu-icon">🛠️</div>
@@ -422,27 +409,52 @@
             <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
           </div>
         </div>
-        <!-- You can add more cards here if you want to reach exactly 12 unique ones – let me know if you have specific additional ones -->
       </div>
     </div>
 
-    <!-- VIDEOS PAGE (new) -->
+    <!-- VIDEOS PAGE - Same format as Home -->
     <div id="videos-content">
-      <div class="videos-hero">
+      <section class="videos-hero">
         <h1>SK8COIN VIDEOS</h1>
-        <p style="font-size: 1.4rem; max-width: 720px; margin: 0 auto; color: var(--text-secondary);">
-          Watch the raw streets • Sponsor skaters directly • Every view and donation fuels the revolution 🛹🔥
-        </p>
-      </div>
-      <div style="text-align:center; padding: 4rem 1rem; color: var(--text-secondary); font-size: 1.3rem;">
-        <p>Video player + direct on-video donation system coming soon...</p>
-        <p style="margin-top: 2rem;">In the meantime, check out the latest drops and community clips on our socials.</p>
-        <!-- Placeholder for future embedded videos or dynamic cards -->
-        <div style="margin-top: 3rem; font-size: 4rem;">📺 🛹 💸</div>
+        <p>Watch raw street sessions • Sponsor skaters directly on-chain • Every clip fuels the revolution 🛹🔥</p>
+      </section>
+      
+      <div class="menu-grid">
+        <!-- Add your video cards here in the same style -->
+        <!-- Example cards - replace with your actual video links/embed -->
+        <div class="menu-item" onclick="alert('Opening video: Skater 1 session...')">
+          <div class="card-content">
+            <div class="menu-icon">📺</div>
+            <div class="menu-title">RAW STREETS VOL.1</div>
+            <div class="menu-desc">Downtown session • Direct donate to skater</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="alert('Opening video: Skater 2 session...')">
+          <div class="card-content">
+            <div class="menu-icon">📺</div>
+            <div class="menu-title">TRICKS &amp; DONATIONS</div>
+            <div class="menu-desc">Best tricks caught on camera • Support live</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="alert('Opening video: Community clip...')">
+          <div class="card-content">
+            <div class="menu-icon">📺</div>
+            <div class="menu-title">CREW HIGHLIGHTS</div>
+            <div class="menu-desc">Community submitted clips • On-chain tips</div>
+          </div>
+        </div>
+        <!-- Duplicate or add more cards as needed to fill the grid -->
+        <div class="menu-item" onclick="alert('Opening video: Latest drop...')">
+          <div class="card-content">
+            <div class="menu-icon">📺</div>
+            <div class="menu-title">LATEST SESSION</div>
+            <div class="menu-desc">Fresh footage • Sponsor the next legend</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- DONATE PAGE (unchanged) -->
+    <!-- DONATE PAGE -->
     <div id="donate-content">
       <div class="donate-hero">
         <h1>DONATE NOW</h1>
@@ -600,7 +612,6 @@
       }
     }
 
-    // SOL Price & Donation functions (unchanged)
     async function fetchSOLPrice() {
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
@@ -691,7 +702,6 @@
       document.getElementById('home-content').style.display = page === 'home' ? 'block' : 'none';
       document.getElementById('videos-content').style.display = page === 'videos' ? 'block' : 'none';
       document.getElementById('donate-content').style.display = page === 'donate' ? 'block' : 'none';
-
       if (page === 'donate') {
         updateDonateWalletInfo();
         updateAllUSD();
@@ -722,7 +732,6 @@
         } catch (e) {}
       }
       navigateTo('home');
-
       const input = document.getElementById('donate-amount');
       if (input) input.addEventListener('input', updateCustomUSD);
     });
