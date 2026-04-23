@@ -228,14 +228,80 @@ input, textarea {
 <main>
 
   <div id="home-content">
-    <h1>SKATE2EARN</h1>
-    <div class="menu-grid">
-      <div class="menu-item">BUILD</div>
-      <div class="menu-item">SHOP</div>
-      <div class="menu-item" onclick="navigateTo('video')">VIDEOS</div>
-      <div class="menu-item" onclick="navigateTo('donate')">DONATE</div>
+      <section class="hero">
+        <h1>SKATE2EARN</h1>
+        <p style="font-size: 1.5rem; margin: 1.2rem 0 2.2rem; color: var(--text-secondary); max-width: 720px; margin-left: auto; margin-right: auto;">
+          Collect, build & earn on-chain — tokenized GameFi meets street culture.
+        </p>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-value">1.1k</span> Collectors</div>
+          <div class="stat"><span class="stat-value">37.9k+</span> NFTs Minted</div>
+          <div class="stat"><span class="stat-value">20k</span> Volume</div>
+        </div>
+      </section>
+      <div class="menu-grid">
+        <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/blends', '_blank')">
+          <div class="card-content">
+            <div class="menu-icon">🛠️</div>
+            <div class="menu-title">BUILD & MINT</div>
+            <div class="menu-desc">Craft complete boards from parts — mint legendary NFTs & earn rewards</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/drops', '_blank')">
+          <div class="card-content">
+            <div class="menu-icon">🛒</div>
+            <div class="menu-title">PARTS MARKET</div>
+            <div class="menu-desc">Buy, sell & trade rare decks, wheels, trucks, bearings</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="alert('you are now entering the skate shop...')">
+          <div class="card-content">
+            <div class="menu-icon">🛹</div>
+            <div class="menu-title">SKATE SHOP</div>
+            <div class="menu-desc">Real merch & gear — pay with $SKATE for exclusive perks</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="window.open('https://solana-donation-kit.vercel.app/#', '_blank')">
+          <div class="card-content">
+            <div class="menu-icon">📺</div>
+            <div class="menu-title">Videos</div>
+            <div class="menu-desc">Watch videos, sponsor skaters by supporting them directly from the video.</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
+          <div class="card-content">
+            <div class="menu-icon">📖</div>
+            <div class="menu-title">METAZINE</div>
+            <div class="menu-desc">Exclusive NFT-gated skate stories, interviews & creator drops</div>
+          </div>
+        </div>
+        <div class="menu-item" onclick="window.open('https://discord.gg/hgWMGpRTaK', '_blank')">
+          <div class="card-content">
+            <div class="menu-icon"><i class="fab fa-discord"></i></div>
+            <div class="menu-title">DISCORD</div>
+            <div class="menu-desc">Wallet-linked roles, alerts, battles & giveaways</div>
+          </div>
+        </div>
+        
+        <!-- NEW VIDEO CARD -->
+        <div class="menu-item" onclick="openWhitePaper()">
+          <div class="card-content">
+            <div class="menu-icon" style="color: var(--accent-gold);">📜</div>
+            <div class="menu-title" style="color: var(--accent-gold);">WHITE PAPER</div>
+            <div class="menu-desc">Interactive SK8COIN Project Overview — Vision, Tokenomics, Roadmap & Skate2Earn mechanics</div>
+          </div>
+        </div>
+
+        <!-- NEW DONATE CARD -->
+        <div class="menu-item" onclick="navigateTo('donate')">
+          <div class="card-content">
+            <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
+            <div class="menu-title" style="color: var(--accent-gold);">SUPPORT THE MOVEMENT</div>
+            <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
   <div id="video-content" style="display:none;">
     <div class="video-hero">
