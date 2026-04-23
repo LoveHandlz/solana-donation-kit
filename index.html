@@ -175,6 +175,25 @@ main {
   background:var(--bg-panel); padding:2.5rem; border-radius:20px; border:1px solid var(--accent-gold); width:90%; max-width:450px;
 }
 
+.tier-btn {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: transparent;
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-family: 'Orbitron';
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  text-transform: uppercase;
+}
+.tier-btn:hover {
+  background: var(--accent-gold);
+  color: #000;
+}
+
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
 
@@ -317,17 +336,39 @@ main {
 
   <div id="donate-content" style="display:none;">
     <div class="hero"><h1>COMMUNITY TREASURY</h1></div>
-    <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold);">
+    <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
+      <p style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Current Treasury Funds</p>
+      <h2 id="treasury-sol-balance" style="color: var(--accent-gold); font-size: 2.5rem; margin-bottom: 20px;">Fetching...</h2>
+      
       <div style="background:#000; padding:15px; border-radius:10px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <span>5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
+        <span id="treasury-addr-display">5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
         <button onclick="copyTreasuryAddress()" style="background:var(--accent-gold); border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">COPY</button>
       </div>
-      <input type="number" id="donate-amount" value="0.1" step="0.1" style="width:100%; padding:15px; background:#000; border:1px solid #333; color:#fff; border-radius: 8px;">
-      <button onclick="sendDonation()" style="width:100%; padding:20px; margin-top:15px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:50px; cursor:pointer;">SEND TO TREASURY</button>
+      
+      <button onclick="openTreasuryModal()" style="width:100%; padding:20px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:50px; cursor:pointer; font-family: 'Orbitron';">CONTRIBUTE TO TREASURY</button>
     </div>
   </div>
 
 </main>
+
+<div id="treasury-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Treasury Donation</h3>
+      <p style="margin-bottom: 20px; font-size:0.8rem;">Select your donation level:</p>
+      
+      <button class="tier-btn" onclick="sendDonation(0.01)">Flow Donation (0.01 SOL)</button>
+      <button class="tier-btn" onclick="sendDonation(0.05)">Amateur Donation (0.05 SOL)</button>
+      <button class="tier-btn" onclick="sendDonation(0.1)">Pro Donation (0.1 SOL)</button>
+      
+      <div style="margin-top: 15px;">
+        <p style="font-size: 0.7rem; margin-bottom: 5px;">Or Enter Custom Amount:</p>
+        <input type="number" id="custom-treasury-amount" placeholder="Custom SOL" step="0.01" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff; border-radius: 8px;">
+        <button onclick="sendCustomTreasuryDonation()" style="width:100%; padding:12px; margin-top:10px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer;">SEND CUSTOM</button>
+      </div>
+      
+      <button onclick="closeTreasuryModal()" style="width:100%; margin-top:15px; background:transparent; color:#888; border:none; cursor:pointer;">Back</button>
+    </div>
+  </div>
 
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
@@ -347,6 +388,7 @@ main {
 let publicKey = null;
 let provider = null;
 const RPC_URL = "https://solana-rpc.publicnode.com";
+const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 
 function getProvider() {
   if ("phantom" in window) return window.phantom?.solana;
@@ -381,7 +423,7 @@ function updateWalletUI() {
     const balEl = document.getElementById("sol-balance");
     if (publicKey) {
         btn.innerText = publicKey.slice(0,4)+"..."+publicKey.slice(-4);
-        btn.style.background = "linear-gradient(135deg, #4ade80, #22c55e)"; // Green when connected
+        btn.style.background = "linear-gradient(135deg, #4ade80, #22c55e)"; 
         balEl.style.display = "inline";
     } else {
         btn.innerText = "CONNECT WALLET";
@@ -399,14 +441,25 @@ async function fetchBalance() {
     } catch (e) { console.error(e); }
 }
 
+async function fetchTreasuryBalance() {
+    try {
+        const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const balance = await connection.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET));
+        document.getElementById("treasury-sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(2) + " SOL";
+    } catch (e) { 
+        document.getElementById("treasury-sol-balance").innerText = "Error Loading";
+    }
+}
+
 function navigateTo(page) {
   document.getElementById("home-content").style.display = (page === 'home' ? 'block' : 'none');
   document.getElementById("video-content").style.display = (page === 'video' ? 'block' : 'none');
   document.getElementById("donate-content").style.display = (page === 'donate' ? 'block' : 'none');
+  if(page === 'donate') fetchTreasuryBalance();
   window.scrollTo(0,0);
 }
 
-// SPONSORING LOGIC
+// SPONSORING LOGIC (Videos)
 let currentSkaterTarget = "";
 document.querySelectorAll('.donate-btn').forEach(btn => {
   btn.onclick = () => {
@@ -422,6 +475,26 @@ function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
 function sendCustomModalAmount() {
   const val = parseFloat(document.getElementById("custom-modal-amount").value);
   if (val > 0) sendSOL(val, currentSkaterTarget);
+}
+
+// TREASURY MODAL LOGIC
+function openTreasuryModal() {
+    if(!publicKey) { alert("Connect Wallet First"); return; }
+    document.getElementById("treasury-modal").style.display = "flex";
+}
+function closeTreasuryModal() { document.getElementById("treasury-modal").style.display = "none"; }
+
+function sendDonation(amt) {
+    sendSOL(amt, TREASURY_WALLET);
+    closeTreasuryModal();
+}
+
+function sendCustomTreasuryDonation() {
+    const val = parseFloat(document.getElementById("custom-treasury-amount").value);
+    if (val > 0) {
+        sendSOL(val, TREASURY_WALLET);
+        closeTreasuryModal();
+    }
 }
 
 async function sendSOL(amount, destination) {
@@ -448,22 +521,15 @@ async function sendSOL(amount, destination) {
     
     alert("Sent! Signature: " + signature);
     fetchBalance();
-    closeModal();
+    fetchTreasuryBalance();
   } catch (err) { alert("Transaction Failed"); }
 }
 
-function sendDonation() {
-  const amt = parseFloat(document.getElementById("donate-amount").value);
-  const treasury = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
-  if (amt > 0) sendSOL(amt, treasury);
-}
-
 function copyTreasuryAddress() {
-  navigator.clipboard.writeText("5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc");
+  navigator.clipboard.writeText(TREASURY_WALLET);
   alert("Copied!");
 }
 
-// Check trust on load
 window.addEventListener('load', async () => {
     const p = getProvider();
     if (p?.isPhantom) {
