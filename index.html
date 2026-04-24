@@ -57,9 +57,12 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 .tier-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-family: 'Orbitron'; cursor: pointer; }
 .tier-btn:hover { background: var(--accent-gold); color: #000; }
 
-/* CONFETTI */
-.confetti { position: absolute; width: 8px; height: 8px; top: -10px; animation: fall 3s linear forwards; z-index: 100; }
-@keyframes fall { to { transform: translateY(400px) rotate(360deg); opacity: 0; } }
+/* CONFETTI STYLES */
+.confetti { position: absolute; width: 8px; height: 8px; top: -10px; animation: fall 3s linear forwards; z-index: 100; border-radius: 50%; }
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(450px) rotate(360deg); opacity: 0; }
+}
 </style>
 </head>
 <body>
@@ -85,7 +88,7 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
   <div id="home-content">
       <section class="hero">
           <h1>SKATE2EARN</h1>
-          <p style="color:var(--accent-cyan)">The Decentralized Skate Revolution is Here.</p>
+          <p style="color:var(--accent-cyan)">Fueling the street revolution on-chain.</p>
       </section>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; max-width:800px; margin:auto;">
           <button class="tier-btn" onclick="navigateTo('video')">WATCH VIDEOS</button>
@@ -94,9 +97,8 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
   </div>
 
   <div id="video-content" style="display:none;">
-      <div class="hero"><h1>SQUAD CLIPS</h1></div>
-      <div class="video-grid" id="video-grid">
-          </div>
+      <div class="hero"><h1>SKATER CLIPS</h1></div>
+      <div class="video-grid" id="video-grid"></div>
   </div>
 
   <div id="donate-content" style="display:none;">
@@ -111,7 +113,7 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 
 <div id="treasury-modal" class="modal-overlay">
     <div class="modal-content">
-        <h3>CONTRIBUTE TO TRES</h3>
+        <h3>TREASURY DONATION</h3>
         <button class="tier-btn" onclick="initiateSend(0.01, 'TREASURY')">FLOW (0.01 SOL)</button>
         <button class="tier-btn" onclick="initiateSend(0.05, 'TREASURY')">AMATEUR (0.05 SOL)</button>
         <button class="tier-btn" onclick="initiateSend(0.1, 'TREASURY')">PRO (0.1 SOL)</button>
@@ -133,7 +135,7 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
         <div style="font-size:4rem;">🛹</div>
         <h2 style="color:var(--accent-gold)">LEVEL UP!</h2>
         <p>Thank you for powering the SKATE revolution!</p>
-        <button class="wallet-btn" onclick="closeModal('success-modal')" style="margin-top:20px; width:100%">KEEP SKATING</button>
+        <button class="wallet-btn" onclick="closeModal('success-modal')" style="margin-top:20px; width:100%">KEEP SHREDDING</button>
     </div>
 </div>
 
@@ -152,7 +154,6 @@ const videoData = [
     {id: "kXYiU_JCYtU", title: "Park Flow", addr: "Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"}
 ];
 
-// INITIALIZATION
 window.addEventListener('load', () => {
     populateVideos();
     setTimeout(() => autoConnect(), 500);
@@ -172,7 +173,6 @@ function populateVideos() {
     `).join('');
 }
 
-// WALLET LOGIC
 async function autoConnect() {
     if (window.phantom?.solana?.isPhantom) {
         try {
@@ -192,7 +192,7 @@ async function toggleWallet() {
         try {
             const res = await window.phantom.solana.connect();
             connectSuccess(res.publicKey.toString());
-        } catch (e) { alert("Phantom not found!"); }
+        } catch (e) { console.error("Wallet connection failed."); }
     }
 }
 
@@ -218,25 +218,23 @@ async function updateBalances() {
     });
 }
 
-// NAVIGATION
 function navigateTo(page) {
     ['home-content', 'video-content', 'donate-content'].forEach(id => document.getElementById(id).style.display = 'none');
     document.getElementById(page + '-content').style.display = 'block';
     updateBalances();
 }
 
-// MODAL CONTROLS
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 function prepSponsor(addr, name) {
-    if(!userWallet) return alert("Connect Wallet First!");
+    if(!userWallet) { toggleWallet(); return; }
     currentSkaterAddr = addr;
     document.getElementById('skater-name').innerText = "SPONSORING: " + name;
     openModal('sponsor-modal');
 }
 
-// THE BIG FIX: NO MORE ALERTS
+// FIXED: REMOVED ALERTS, ADDED 3S REWARD
 async function initiateSend(amount, type) {
     const dest = type === 'TREASURY' ? TREASURY_WALLET : currentSkaterAddr;
     try {
@@ -259,7 +257,7 @@ async function initiateSend(amount, type) {
         closeModal('sponsor-modal');
         closeModal('treasury-modal');
 
-        // REWARD SEQUENCE
+        // REWARD SEQUENCE AFTER 3 SECONDS
         setTimeout(() => {
             document.getElementById('jingle').play();
             runConfetti();
@@ -268,7 +266,8 @@ async function initiateSend(amount, type) {
         }, 3000);
 
     } catch (err) {
-        console.log("Transaction processed by wallet.");
+        // Silent catch: User likely cancelled the signature or generic RPC lag
+        console.log("Transaction Signature flow finished.");
     }
 }
 
