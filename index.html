@@ -89,7 +89,7 @@ main {
   margin: auto;
   padding-left: 20px;
   padding-right: 20px;
-  padding-bottom: 100px;
+  padding-bottom: 60px;
 }
 
 .hero { text-align: center; margin-bottom: 3rem; }
@@ -179,6 +179,46 @@ main {
   width: 100%;
 }
 
+/* FOOTER STYLES */
+footer {
+  background: var(--bg-panel);
+  border-top: 1px solid var(--card-border);
+  padding: 4rem 2rem 2rem;
+  margin-top: 4rem;
+}
+.footer-inner {
+  max-width: 1440px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr;
+  gap: 4rem;
+}
+.footer-about h3 { color: var(--accent-gold); margin-bottom: 1.2rem; font-size: 1.1rem; }
+.footer-about p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.8;
+  font-family: 'Inter', sans-serif;
+}
+.footer-widgets h3, .footer-logos h3 {
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.footer-socials { display: flex; gap: 1.5rem; font-size: 1.6rem; }
+.footer-socials a { color: var(--text-secondary); transition: 0.3s; }
+.footer-socials a:hover { color: var(--accent-gold); transform: translateY(-3px); }
+.logo-stack { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+.mini-logo {
+  height: 32px;
+  filter: grayscale(1) brightness(1.2);
+  transition: 0.4s;
+  cursor: pointer;
+}
+.mini-logo:hover { filter: none; opacity: 1; }
+
 .modal-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
   background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;
@@ -215,6 +255,11 @@ main {
 }
 
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) {
+  .footer-inner { grid-template-columns: 1fr; gap: 3rem; text-align: center; }
+  .footer-socials { justify-content: center; }
+  .logo-stack { justify-content: center; }
+}
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
 </style>
 </head>
@@ -366,6 +411,36 @@ main {
   </div>
 </main>
 
+<footer>
+  <div class="footer-inner">
+    <div class="footer-about">
+      <h3>MISSION CONTROL</h3>
+      <p>
+        Skate2earn is a new economic model for skateboarders all over the world using a decentralized peer-to-peer sponsorship model where anyone can help a skater progress through micro donations. Sponsor your favorite skater and help them reach their dreams.
+      </p>
+    </div>
+    <div class="footer-widgets">
+      <h3>CONNECT</h3>
+      <div class="footer-socials">
+        <a href="#"><i class="fab fa-discord"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-logos">
+      <h3>POWERED BY</h3>
+      <div class="logo-stack">
+        <img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="mini-logo" title="Solana">
+        <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="mini-logo" title="SK8COIN">
+      </div>
+    </div>
+  </div>
+  <div style="text-align: center; margin-top: 3rem; font-size: 0.7rem; color: #444; letter-spacing: 1px;">
+    &copy; 2026 SKATE2EARN PROTOCOL. ALL RIGHTS RESERVED.
+  </div>
+</footer>
+
 <div id="treasury-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Treasury Donation</h3>
@@ -374,7 +449,6 @@ main {
       <button class="tier-btn" onclick="sendDonation(0.05)">Amateur Donation (0.05 SOL)</button>
       <button class="tier-btn" onclick="sendDonation(0.1)">Pro Donation (0.1 SOL)</button>
       <div style="margin-top: 15px;">
-        <p style="font-size: 0.7rem; margin-bottom: 5px;">Or Enter Custom Amount:</p>
         <input type="number" id="custom-treasury-amount" placeholder="Custom SOL" step="0.01" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff; border-radius: 8px;">
         <button onclick="sendCustomTreasuryDonation()" style="width:100%; padding:12px; margin-top:10px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer;">SEND CUSTOM</button>
       </div>
@@ -385,10 +459,9 @@ main {
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-skater-title" style="color:var(--accent-gold)">Sponsor Clip</h3>
-    <p style="margin:15px 0; font-size:0.9rem;">Send SOL directly to the skater.</p>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-      <button onclick="selectAmount(0.01)" style="padding:12px; background:#000; color:var(--accent-gold); border:1px solid var(--accent-gold); cursor:pointer; font-weight:bold;">0.01 SOL</button>
-      <button onclick="selectAmount(0.05)" style="padding:12px; background:#000; color:var(--accent-gold); border:1px solid var(--accent-gold); cursor:pointer; font-weight:bold;">0.05 SOL</button>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0;">
+      <button onclick="selectAmount(0.01)" class="tier-btn">0.01 SOL</button>
+      <button onclick="selectAmount(0.05)" class="tier-btn">0.05 SOL</button>
     </div>
     <input type="number" id="custom-modal-amount" placeholder="Custom Amount" step="0.01" style="width:100%; padding:12px; background:#000; border:1px solid #333; color:#fff; margin-bottom:10px;">
     <button onclick="sendCustomModalAmount()" style="width:100%; padding:15px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; cursor:pointer;">CONFIRM</button>
@@ -489,6 +562,7 @@ async function fetchSkaterBalances() {
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(addr));
             const solAmount = bal / solanaWeb3.LAMPORTS_PER_SOL;
             const usdAmount = (solAmount * solPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            // RENDERING STANDARD FONT FOR USD
             el.innerHTML = `Blessings: ${solAmount.toFixed(4)} SOL <span class="usd-val">$${usdAmount}</span>`;
         }
     } catch (e) { console.log("Balance fetch lag."); }
@@ -600,15 +674,11 @@ window.addEventListener('load', async () => {
         } catch (e) {}
     }
     
-    // REFRESH EVERY 15 SECONDS
+    // AUTO-REFRESH EVERY 15 SECONDS
     setInterval(async () => {
         await getSolPrice();
-        if (document.getElementById("video-content").style.display !== 'none') {
-            fetchSkaterBalances();
-        }
-        if (document.getElementById("donate-content").style.display !== 'none') {
-            fetchTreasuryBalance();
-        }
+        if (document.getElementById("video-content").style.display !== 'none') fetchSkaterBalances();
+        if (document.getElementById("donate-content").style.display !== 'none') fetchTreasuryBalance();
     }, 15000);
 });
 </script>
