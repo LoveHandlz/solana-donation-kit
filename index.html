@@ -21,6 +21,7 @@
   --accent-orange:#ff9500;
   --accent-cyan:#00f0ff;
   --accent-gold:#ffd700; 
+  --accent-green:#4ade80;
   --text-primary:#e0f7ff;
   --text-secondary:#a5d8ff;
   --card-border:rgba(0,240,255,0.14);
@@ -91,6 +92,7 @@ main {
   padding-bottom: 100px;
 }
 
+/* --- HOME HERO & STATS --- */
 .hero { text-align: center; margin-bottom: 3rem; }
 .hero h1 { 
   font-size: 5rem; 
@@ -110,6 +112,7 @@ main {
 .stat { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; }
 .stat-value { display: block; font-size: 2rem; color: var(--accent-gold); font-weight: 900; }
 
+/* --- MENU GRID --- */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -132,6 +135,7 @@ main {
 .menu-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
 .menu-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
+/* --- VIDEO GRID --- */
 .video-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -157,7 +161,11 @@ main {
   font-weight: bold;
 }
 
-.usd-val { color: var(--text-secondary); opacity: 0.8; font-weight: 500; margin-left: 4px; }
+.usd-val {
+  color: var(--accent-green);
+  font-weight: 900;
+  margin-left: 6px;
+}
 
 .donate-btn {
   background: var(--accent-gold);
@@ -172,6 +180,7 @@ main {
   width: 100%;
 }
 
+/* --- MODALS --- */
 .modal-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
   background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;
@@ -209,6 +218,7 @@ main {
 
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
+
 </style>
 </head>
 <body>
@@ -231,6 +241,7 @@ main {
 </header>
 
 <main>
+
   <div id="home-content">
     <section class="hero">
         <h1>SKATE2EARN</h1>
@@ -343,6 +354,7 @@ main {
       <button onclick="openTreasuryModal()" style="width:100%; padding:20px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:50px; cursor:pointer; font-family: 'Orbitron';">CONTRIBUTE TO TREASURY</button>
     </div>
   </div>
+
 </main>
 
 <div id="treasury-modal" class="modal-overlay">
@@ -468,7 +480,7 @@ async function fetchSkaterBalances() {
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(addr));
             const solAmount = bal / solanaWeb3.LAMPORTS_PER_SOL;
             const usdAmount = (solAmount * solPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            el.innerHTML = `Blessings: ${solAmount.toFixed(4)} SOL <span class="usd-val">($${usdAmount})</span>`;
+            el.innerHTML = `Blessings: ${solAmount.toFixed(4)} SOL <span class="usd-val">$${usdAmount}</span>`;
         }
     } catch (e) { console.log("Balance fetch lag."); }
 }
@@ -578,8 +590,17 @@ window.addEventListener('load', async () => {
             fetchBalance();
         } catch (e) {}
     }
-    // Update price every 60 seconds
-    setInterval(getSolPrice, 60000);
+    
+    // REFRESH EVERY 15 SECONDS
+    setInterval(async () => {
+        await getSolPrice();
+        if (document.getElementById("video-content").style.display !== 'none') {
+            fetchSkaterBalances();
+        }
+        if (document.getElementById("donate-content").style.display !== 'none') {
+            fetchTreasuryBalance();
+        }
+    }, 15000);
 });
 </script>
 
