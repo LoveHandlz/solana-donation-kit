@@ -92,7 +92,6 @@ main {
   padding-bottom: 100px;
 }
 
-/* --- HOME HERO & STATS --- */
 .hero { text-align: center; margin-bottom: 3rem; }
 .hero h1 { 
   font-size: 5rem; 
@@ -112,7 +111,6 @@ main {
 .stat { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; }
 .stat-value { display: block; font-size: 2rem; color: var(--accent-gold); font-weight: 900; }
 
-/* --- MENU GRID --- */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -135,7 +133,6 @@ main {
 .menu-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
 .menu-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-/* --- VIDEO GRID --- */
 .video-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -163,8 +160,10 @@ main {
 
 .usd-val {
   color: var(--accent-green);
-  font-weight: 900;
-  margin-left: 6px;
+  font-weight: 600;
+  margin-left: 8px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.8rem;
 }
 
 .donate-btn {
@@ -180,7 +179,6 @@ main {
   width: 100%;
 }
 
-/* --- MODALS --- */
 .modal-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
   background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;
@@ -218,7 +216,6 @@ main {
 
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
-
 </style>
 </head>
 <body>
@@ -241,7 +238,6 @@ main {
 </header>
 
 <main>
-
   <div id="home-content">
     <section class="hero">
         <h1>SKATE2EARN</h1>
@@ -345,16 +341,13 @@ main {
     <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
       <p style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Current Treasury Funds</p>
       <h2 id="treasury-sol-balance" style="color: var(--accent-gold); font-size: 2.2rem; margin-bottom: 20px; word-break: break-all;">0.0000 SOL</h2>
-      
       <div style="background:#000; padding:15px; border-radius:10px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
         <span id="treasury-addr-display">5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
         <button onclick="copyTreasuryAddress()" style="background:var(--accent-gold); border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">COPY</button>
       </div>
-      
       <button onclick="openTreasuryModal()" style="width:100%; padding:20px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:50px; cursor:pointer; font-family: 'Orbitron';">CONTRIBUTE TO TREASURY</button>
     </div>
   </div>
-
 </main>
 
 <div id="treasury-modal" class="modal-overlay">
@@ -603,6 +596,5 @@ window.addEventListener('load', async () => {
     }, 15000);
 });
 </script>
-
 </body>
 </html>
