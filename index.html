@@ -91,7 +91,6 @@ main {
   padding-bottom: 100px;
 }
 
-/* --- HOME HERO & STATS --- */
 .hero { text-align: center; margin-bottom: 3rem; }
 .hero h1 { 
   font-size: 5rem; 
@@ -111,7 +110,6 @@ main {
 .stat { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; }
 .stat-value { display: block; font-size: 2rem; color: var(--accent-gold); font-weight: 900; }
 
-/* --- MENU GRID --- */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -134,7 +132,6 @@ main {
 .menu-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
 .menu-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-/* --- VIDEO GRID --- */
 .video-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -160,6 +157,8 @@ main {
   font-weight: bold;
 }
 
+.usd-val { color: var(--text-secondary); opacity: 0.8; font-weight: 500; margin-left: 4px; }
+
 .donate-btn {
   background: var(--accent-gold);
   color: #000;
@@ -173,7 +172,6 @@ main {
   width: 100%;
 }
 
-/* --- MODALS --- */
 .modal-overlay {
   display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
   background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;
@@ -211,7 +209,6 @@ main {
 
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } .stats-row { gap: 1rem; } }
-
 </style>
 </head>
 <body>
@@ -234,7 +231,6 @@ main {
 </header>
 
 <main>
-
   <div id="home-content">
     <section class="hero">
         <h1>SKATE2EARN</h1>
@@ -330,22 +326,6 @@ main {
         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/Zq3kl6z_aEM"></iframe></div>
         <div class="card-info"><div class="card-title">Independent Skateboard Co.</div><div class="skater-wallet-bal" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Blessings: 0.0000 SOL</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
       </div>
-      <div class="video-card">
-        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/0zM3nApSvMg"></iframe></div>
-        <div class="card-info"><div class="card-title">Heel Flip Over Rail</div><div class="skater-wallet-bal" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Blessings: 0.0000 SOL</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
-      </div>
-      <div class="video-card">
-        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/5qap5aO7j6k"></iframe></div>
-        <div class="card-info"><div class="card-title">Skatepark Night Session</div><div class="skater-wallet-bal" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Blessings: 0.0000 SOL</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
-      </div>
-      <div class="video-card">
-        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/8tPn3v7zq0c"></iframe></div>
-        <div class="card-info"><div class="card-title">Nollie 180 Kickflip</div><div class="skater-wallet-bal" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Blessings: 0.0000 SOL</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
-      </div>
-      <div class="video-card">
-        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/t7_98X1NjNw"></iframe></div>
-        <div class="card-info"><div class="card-title">Thrasher Weekend Philly</div><div class="skater-wallet-bal" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Blessings: 0.0000 SOL</div><button class="donate-btn" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button></div>
-      </div>
     </div>
   </div>
 
@@ -363,7 +343,6 @@ main {
       <button onclick="openTreasuryModal()" style="width:100%; padding:20px; background:var(--accent-gold); color:#000; font-weight:bold; border:none; border-radius:50px; cursor:pointer; font-family: 'Orbitron';">CONTRIBUTE TO TREASURY</button>
     </div>
   </div>
-
 </main>
 
 <div id="treasury-modal" class="modal-overlay">
@@ -410,8 +389,17 @@ main {
 <script>
 let publicKey = null;
 let provider = null;
+let solPrice = 0;
 const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
+
+async function getSolPrice() {
+    try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+        const data = await response.json();
+        solPrice = data.solana.usd;
+    } catch (e) { console.log("Price fetch error"); }
+}
 
 function getProvider() {
   if ("phantom" in window) return window.phantom?.solana;
@@ -425,9 +413,7 @@ async function handleWalletAction() {
             publicKey = null;
             updateWalletUI();
         }
-    } else {
-        await connectWallet();
-    }
+    } else { await connectWallet(); }
 }
 
 async function connectWallet() {
@@ -469,20 +455,20 @@ async function fetchTreasuryBalance() {
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const balance = await connection.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET));
         document.getElementById("treasury-sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4) + " SOL";
-    } catch (e) { 
-        document.getElementById("treasury-sol-balance").innerText = "Error Loading";
-    }
+    } catch (e) { document.getElementById("treasury-sol-balance").innerText = "Error Loading"; }
 }
 
-// Updated function to show "Blessings" instead of "Wallet"
 async function fetchSkaterBalances() {
+    if (solPrice === 0) await getSolPrice();
     try {
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const balanceEls = document.querySelectorAll('.skater-wallet-bal');
         for (let el of balanceEls) {
             const addr = el.dataset.address;
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(addr));
-            el.innerText = "Blessings: " + (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4) + " SOL";
+            const solAmount = bal / solanaWeb3.LAMPORTS_PER_SOL;
+            const usdAmount = (solAmount * solPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            el.innerHTML = `Blessings: ${solAmount.toFixed(4)} SOL <span class="usd-val">($${usdAmount})</span>`;
         }
     } catch (e) { console.log("Balance fetch lag."); }
 }
@@ -497,13 +483,13 @@ function navigateTo(page) {
 }
 
 let currentSkaterTarget = "";
-document.querySelectorAll('.donate-btn').forEach(btn => {
-  btn.onclick = () => {
-    if(!publicKey) { alert("Connect Wallet First"); return; }
-    currentSkaterTarget = btn.dataset.address;
-    document.getElementById("modal-skater-title").innerText = "Sponsoring: " + btn.closest('.video-card').querySelector('.card-title').innerText;
-    document.getElementById("sponsor-modal").style.display = "flex";
-  };
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('donate-btn')) {
+        if(!publicKey) { alert("Connect Wallet First"); return; }
+        currentSkaterTarget = e.target.dataset.address;
+        document.getElementById("modal-skater-title").innerText = "Sponsoring: " + e.target.closest('.video-card').querySelector('.card-title').innerText;
+        document.getElementById("sponsor-modal").style.display = "flex";
+    }
 });
 
 function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
@@ -558,11 +544,8 @@ async function sendSOL(amount, destination) {
         fetchBalance();
         fetchTreasuryBalance();
         fetchSkaterBalances();
-    }, 3000);
-
-  } catch (err) {
-    console.log("Transaction flow finished by user.");
-  }
+    }, 2000);
+  } catch (err) { console.log("TX Cancelled"); }
 }
 
 function runConfetti() {
@@ -584,6 +567,7 @@ function copyTreasuryAddress() {
 }
 
 window.addEventListener('load', async () => {
+    await getSolPrice();
     const p = getProvider();
     if (p?.isPhantom) {
         try {
@@ -594,6 +578,8 @@ window.addEventListener('load', async () => {
             fetchBalance();
         } catch (e) {}
     }
+    // Update price every 60 seconds
+    setInterval(getSolPrice, 60000);
 });
 </script>
 
