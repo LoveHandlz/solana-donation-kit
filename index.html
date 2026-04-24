@@ -153,7 +153,6 @@ main {
 .card-info { padding: 1rem; }
 .card-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.5rem; height: 35px; overflow: hidden; }
 
-/* SKATER BALANCE STYLE */
 .skater-wallet-bal {
   font-size: 0.7rem;
   color: var(--accent-cyan);
@@ -202,7 +201,6 @@ main {
   color: #000;
 }
 
-/* CONFETTI ANIMATION */
 .confetti {
   position: absolute; width: 10px; height: 10px; top: -10px;
   animation: fall 3s linear forwards; z-index: 100;
@@ -229,7 +227,7 @@ main {
       </ul>
     </nav>
     <div id="wallet-ui" style="display: flex; align-items: center; gap: 10px;">
-        <span id="sol-balance" style="display: none;">0.00 SOL</span>
+        <span id="sol-balance" style="display: none;">0 SOL</span>
         <button id="connect-wallet-btn" class="wallet-btn" onclick="handleWalletAction()">CONNECT WALLET</button>
     </div>
   </div>
@@ -355,7 +353,7 @@ main {
     <div class="hero"><h1>COMMUNITY TREASURY</h1></div>
     <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
       <p style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Current Treasury Funds</p>
-      <h2 id="treasury-sol-balance" style="color: var(--accent-gold); font-size: 2.5rem; margin-bottom: 20px;">Fetching...</h2>
+      <h2 id="treasury-sol-balance" style="color: var(--accent-gold); font-size: 1.8rem; margin-bottom: 20px; word-break: break-all;">0 SOL</h2>
       
       <div style="background:#000; padding:15px; border-radius:10px; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
         <span id="treasury-addr-display">5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc</span>
@@ -462,7 +460,7 @@ async function fetchBalance() {
     try {
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-        document.getElementById("sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(3) + " SOL";
+        document.getElementById("sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL) + " SOL";
     } catch (e) { console.error(e); }
 }
 
@@ -470,13 +468,12 @@ async function fetchTreasuryBalance() {
     try {
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const balance = await connection.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET));
-        document.getElementById("treasury-sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(2) + " SOL";
+        document.getElementById("treasury-sol-balance").innerText = (balance / solanaWeb3.LAMPORTS_PER_SOL) + " SOL";
     } catch (e) { 
         document.getElementById("treasury-sol-balance").innerText = "Error Loading";
     }
 }
 
-// FETCH INDIVIDUAL SKATER BALANCES
 async function fetchSkaterBalances() {
     try {
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
@@ -484,7 +481,7 @@ async function fetchSkaterBalances() {
         for (let el of balanceEls) {
             const addr = el.dataset.address;
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(addr));
-            el.innerText = "Wallet: " + (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(2) + " SOL";
+            el.innerText = "Wallet: " + (bal / solanaWeb3.LAMPORTS_PER_SOL) + " SOL";
         }
     } catch (e) { console.log("Balance fetch lag."); }
 }
@@ -498,7 +495,6 @@ function navigateTo(page) {
   window.scrollTo(0,0);
 }
 
-// SPONSORING LOGIC
 let currentSkaterTarget = "";
 document.querySelectorAll('.donate-btn').forEach(btn => {
   btn.onclick = () => {
