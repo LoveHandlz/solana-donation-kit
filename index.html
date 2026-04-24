@@ -364,6 +364,189 @@ main {
   </div>
 </header>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK8COIN | Skate2Earn</title>
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
+<style>
+:root {
+  --bg-deep:#0a132f;
+  --bg-panel:#0f1a47;
+  --accent-red:#ff2d55;
+  --accent-orange:#ff9500;
+  --accent-cyan:#00f0ff;
+  --accent-gold:#ffd700; 
+  --text-primary:#e0f7ff;
+  --text-secondary:#a5d8ff;
+  --card-border:rgba(0,240,255,0.14);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--bg-deep);
+  color:var(--text-primary);
+  font-family:'Orbitron',sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+header{
+  background:rgba(10,19,47,0.95);
+  backdrop-filter:blur(12px);
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:100;
+  padding:1rem 0;
+  border-bottom:1px solid var(--card-border);
+}
+
+.header-inner{
+  max-width:1440px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 1rem;
+}
+
+.logo{height:50px; cursor: pointer;}
+
+nav ul{display:flex;gap:1.4rem;list-style:none;}
+nav a{color:var(--text-secondary);text-decoration:none;font-weight:bold;transition:0.3s;font-size:0.9rem;}
+nav a:hover{color:var(--accent-gold);}
+
+.wallet-btn {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+  border: none;
+  padding: .7rem 1.4rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: 'Orbitron';
+  font-weight: bold;
+  color: #000;
+  transition: 0.3s;
+}
+
+#sol-balance {
+  background: rgba(0,0,0,0.3);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-gold);
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  font-weight: 900;
+  display: none;
+}
+
+main {
+  padding-top: 120px;
+  max-width: 1440px;
+  margin: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 100px;
+}
+
+/* --- HERO & GRID --- */
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero h1 { 
+  font-size: 5rem; 
+  background: linear-gradient(to bottom, #fff, var(--accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } }
+
+.video-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.video-card:hover { border-color: var(--accent-gold); transform: scale(1.02); }
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+.video-wrapper iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; }
+.card-info { padding: 1rem; }
+.card-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 0.2rem; height: 35px; overflow: hidden; }
+.skater-bal { font-size: 0.65rem; color: var(--accent-cyan); margin-bottom: 0.8rem; font-weight: bold; }
+
+.donate-btn {
+  background: var(--accent-gold);
+  color: #000;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-family: 'Orbitron';
+  font-weight: 900;
+  font-size: 0.7rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* --- MODALS --- */
+.modal-overlay {
+  display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+  background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center;
+}
+.modal-content {
+  background:var(--bg-panel); padding:2.5rem; border-radius:20px; border:1px solid var(--accent-gold); width:90%; max-width:400px; text-align: center; position: relative;
+}
+
+.tier-btn {
+  width: 100%; padding: 12px; margin-bottom: 10px; background: transparent;
+  border: 1px solid var(--accent-gold); color: var(--accent-gold);
+  font-family: 'Orbitron'; cursor: pointer; text-transform: uppercase;
+}
+.tier-btn:hover { background: var(--accent-gold); color: #000; }
+
+/* CONFETTI */
+.confetti { position: absolute; width: 8px; height: 8px; top: -10px; animation: fall 3s linear forwards; z-index: 100; border-radius: 50%; }
+@keyframes fall { to { transform: translateY(450px) rotate(360deg); opacity: 0; } }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="navigateTo('home')">
+    <nav>
+      <ul>
+        <li><a href="#" onclick="navigateTo('home')">HOME</a></li>
+        <li><a href="#" onclick="navigateTo('video')">VIDEOS</a></li>
+        <li><a href="#" onclick="navigateTo('donate')">TREASURY</a></li>
+      </ul>
+    </nav>
+    <div style="display:flex; align-items:center;">
+        <span id="sol-balance">0.00 SOL</span>
+        <button id="connect-wallet-btn" class="wallet-btn" onclick="toggleWallet()">CONNECT WALLET</button>
+    </div>
+  </div>
+</header>
+
 <main>
   <div id="home-content">
     <section class="hero">
@@ -381,6 +564,182 @@ main {
         </div>
     </div>
   </div>
+
+  <div id="video-content" style="display:none;">
+    <div class="hero"><h1>SK8 VIDEOS</h1></div>
+    <div class="video-grid" id="main-video-grid">
+      </div>
+  </div>
+
+  <div id="donate-content" style="display:none;">
+    <div class="hero"><h1>TREASURY</h1></div>
+    <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:3rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
+      <h2 id="treasury-display" style="color: var(--accent-gold); font-size: 3rem; margin-bottom: 20px;">0.00 SOL</h2>
+      <button onclick="openModal('treasury-modal')" class="wallet-btn" style="width:100%; padding:20px;">CONTRIBUTE TO TREASURY</button>
+    </div>
+  </div>
+</main>
+
+<div id="treasury-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>TREASURY DONATION</h3>
+      <button class="tier-btn" onclick="initiateSend(0.01, 'TREASURY')">FLOW (0.01 SOL)</button>
+      <button class="tier-btn" onclick="initiateSend(0.05, 'TREASURY')">AMATEUR (0.05 SOL)</button>
+      <button class="tier-btn" onclick="initiateSend(0.1, 'TREASURY')">PRO (0.1 SOL)</button>
+      <button onclick="closeModal('treasury-modal')" style="background:none; border:none; color:#888; cursor:pointer; margin-top:10px;">CLOSE</button>
+    </div>
+</div>
+
+<div id="sponsor-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modal-skater-title">SPONSOR</h3>
+    <button class="tier-btn" onclick="initiateSend(0.01, 'SKATER')">0.01 SOL</button>
+    <button class="tier-btn" onclick="initiateSend(0.05, 'SKATER')">0.05 SOL</button>
+    <button onclick="closeModal('sponsor-modal')" style="background:none; border:none; color:#888; cursor:pointer; margin-top:10px;">CANCEL</button>
+  </div>
+</div>
+
+<div id="success-modal" class="modal-overlay">
+    <div class="modal-content" id="success-box">
+      <div style="font-size: 4rem;">🛹</div>
+      <h2 style="color:var(--accent-gold);">MISSION SUCCESS!</h2>
+      <p>Thank you for powering the SKATE revolution!</p>
+      <button onclick="closeModal('success-modal')" class="wallet-btn" style="width:100%; margin-top:20px;">LET'S SHRED</button>
+    </div>
+</div>
+
+<audio id="jingle" src="https://www.myinstants.com/media/sounds/secret-found.mp3"></audio>
+
+<script>
+let userWallet = null;
+let currentTarget = "";
+const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
+const RPC_URL = "https://solana-rpc.publicnode.com";
+
+const videoList = [
+    {id: "On2BmcreKTM", title: "Late Night LA Session 🔥"},
+    {id: "3JZ_D3ELwOQ", title: "Tre Flip Over the Gap"},
+    {id: "9bZkp7q19f0", title: "Manuals in the Rain"},
+    {id: "kXYiU_JCYtU", title: "Big Ollie at the Park"},
+    {id: "Wg_jwgmwt-U", title: "Epic Skate Clips 2025"},
+    {id: "MFSx4jWmDfY", title: "Best Skate Videos Year"},
+    {id: "qqPjQpTe9W4", title: "Jonny Giger Street Part"},
+    {id: "Zq3kl6z_aEM", title: "Independent Skateboard Co."},
+    {id: "0zM3nApSvMg", title: "Heel Flip Over Rail"},
+    {id: "5qap5aO7j6k", title: "Skatepark Night Session"},
+    {id: "8tPn3v7zq0c", title: "Nollie 180 Kickflip"},
+    {id: "t7_98X1NjNw", title: "Thrasher Weekend Philly"}
+];
+
+function populateVideos() {
+    const grid = document.getElementById('main-video-grid');
+    grid.innerHTML = videoList.map(v => `
+      <div class="video-card">
+        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${v.id}"></iframe></div>
+        <div class="card-info">
+          <div class="card-title">${v.title}</div>
+          <div class="skater-bal" data-addr="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">Wallet: -- SOL</div>
+          <button class="donate-btn" onclick="prepSponsor('Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6', '${v.title}')">SPONSOR</button>
+        </div>
+      </div>
+    `).join('');
+}
+
+async function toggleWallet() {
+    const provider = window.phantom?.solana;
+    if (!userWallet) {
+        try {
+            const resp = await provider.connect();
+            userWallet = resp.publicKey.toString();
+            document.getElementById('connect-wallet-btn').innerText = userWallet.slice(0,4)+"..."+userWallet.slice(-4);
+            document.getElementById('sol-balance').style.display = "inline";
+            refreshData();
+        } catch (e) {}
+    } else {
+        await provider.disconnect();
+        userWallet = null;
+        document.getElementById('connect-wallet-btn').innerText = "CONNECT WALLET";
+        document.getElementById('sol-balance').style.display = "none";
+    }
+}
+
+async function refreshData() {
+    const conn = new solanaWeb3.Connection(RPC_URL);
+    if(userWallet) {
+        const b = await conn.getBalance(new solanaWeb3.PublicKey(userWallet));
+        document.getElementById('sol-balance').innerText = (b/1e9).toFixed(3) + " SOL";
+    }
+    const tb = await conn.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET));
+    document.getElementById('treasury-display').innerText = (tb/1e9).toFixed(2) + " SOL";
+}
+
+function prepSponsor(addr, title) {
+    if(!userWallet) { alert("Connect Wallet!"); return; }
+    currentTarget = addr;
+    document.getElementById('modal-skater-title').innerText = "Sponsor: " + title;
+    openModal('sponsor-modal');
+}
+
+async function initiateSend(amount, type) {
+    const dest = type === 'TREASURY' ? TREASURY_WALLET : currentTarget;
+    try {
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const tx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: new solanaWeb3.PublicKey(userWallet),
+                toPubkey: new solanaWeb3.PublicKey(dest),
+                lamports: amount * 1e9,
+            })
+        );
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new solanaWeb3.PublicKey(userWallet);
+
+        const signed = await window.phantom.solana.signTransaction(tx);
+        await conn.sendRawTransaction(signed.serialize());
+
+        closeModal('sponsor-modal');
+        closeModal('treasury-modal');
+
+        // REWARD SEQUENCE - NO ERROR ALERTS
+        setTimeout(() => {
+            document.getElementById('jingle').play();
+            runConfetti();
+            openModal('success-modal');
+            refreshData();
+        }, 3000);
+
+    } catch (e) { console.log("Flow complete."); }
+}
+
+function runConfetti() {
+    const box = document.getElementById('success-box');
+    for(let i=0; i<40; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + "%";
+        c.style.backgroundColor = ["#ffd700", "#00f0ff", "#ff2d55"][Math.floor(Math.random()*3)];
+        c.style.animationDelay = Math.random() * 2 + "s";
+        box.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+function navigateTo(page) {
+  document.getElementById("home-content").style.display = (page === 'home' ? 'block' : 'none');
+  document.getElementById("video-content").style.display = (page === 'video' ? 'block' : 'none');
+  document.getElementById("donate-content").style.display = (page === 'donate' ? 'block' : 'none');
+  refreshData();
+  window.scrollTo(0,0);
+}
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+window.onload = () => { populateVideos(); };
+</script>
+</body>
+</html>
 
   <div id="video-content" style="display:none;">
     <div class="hero"><h1>SK8 VIDEOS</h1></div>
