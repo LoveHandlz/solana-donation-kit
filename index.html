@@ -865,11 +865,11 @@ let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId =
 const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 
-// MEMO PROGRAM ID FOR ON-CHAIN WRITING
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
+/* REMOVED: Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6 */
 const SKATER_REGISTRY = [
-    "Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6", "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ",
+    "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ",
     "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW",
     "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH",
     "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", "9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj",
@@ -877,8 +877,8 @@ const SKATER_REGISTRY = [
     "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7" 
 ];
 
+/* REMOVED: LEO STREETS object */
 const SKATER_PROFILES = [
-    { wallet: "Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6", name: "LEO STREETS", rank: "PRO", styles: ["Street", "Technical"], pic: "https://i.pravatar.cc/400?img=11", bio: "Tech street master from downtown LA." },
     { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", rank: "AM", styles: ["Gaps", "Stairs"], pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
     { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", rank: "FLOW", styles: ["Balance", "Flatground"], pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
     { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", rank: "PRO", styles: ["Vert", "Transition"], pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
@@ -982,7 +982,6 @@ function updateWalletUI() {
         skaterPanel.style.display = "none";
     }
     
-    // Hide self-donation buttons on connection state change
     updateDonateButtons();
 }
 
@@ -1137,11 +1136,11 @@ async function renderProfile(wallet) {
     if (publicKey && publicKey === wallet) {
         editBtn.style.display = 'block';
         profileHeader.innerText = "SKATER DASHBOARD: BIO & STYLE";
-        if(profileDonateBtn) profileDonateBtn.style.display = 'none'; // Lockout self-donating on profile
+        if(profileDonateBtn) profileDonateBtn.style.display = 'none'; 
     } else {
         editBtn.style.display = 'none';
         profileHeader.innerText = "BIO & STYLE";
-        if(profileDonateBtn) profileDonateBtn.style.display = 'block'; // Show donate to others
+        if(profileDonateBtn) profileDonateBtn.style.display = 'block'; 
     }
 
     document.getElementById('p-name').innerText = skater.name;
@@ -1248,7 +1247,6 @@ document.addEventListener('click', (e) => {
   if (e.target && e.target.classList.contains('donate-btn') && e.target.id !== 'profile-donate-btn') {
       if(!publicKey) { alert("Connect Wallet First"); return; }
       
-      // HARD VALIDATION: Prevents devtools bypass
       if(e.target.dataset.address === publicKey) { 
           alert("Anti-Self-Dealing Protocol Active: You cannot sponsor your own clips."); 
           return; 
@@ -1264,7 +1262,6 @@ function openSponsorshipModalFromProfile() {
     if(!publicKey) { alert("Connect Wallet First"); return; }
     currentSkaterTarget = document.getElementById('p-wallet').innerText;
     
-    // HARD VALIDATION: Prevents devtools bypass on profile
     if (currentSkaterTarget === publicKey) { 
         alert("Anti-Self-Dealing Protocol Active: You cannot sponsor yourself."); 
         return; 
@@ -1293,10 +1290,8 @@ function sendCustomSponsor() {
     else alert("Please enter a valid SOL amount.");
 }
 
-/* ANTI-SELF-DEALING PROTOCOL INTEGRATED */
 async function sendSOL(amount, destination) {
   try {
-    // HARD GATE: Prevent wash-trading even if UI is bypassed
     if (destination === publicKey) {
         alert("PROTOCOL ERROR: Anti-Self-Dealing active. You cannot sponsor yourself.");
         closeModal();
