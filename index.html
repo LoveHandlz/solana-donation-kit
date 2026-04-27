@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn 6.8 (Anti-Self-Dealing Protocol)</title>
+  <title>SK8COIN | Skate2Earn 6.8.1 (Pro Connection Ledger)</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -301,6 +301,20 @@ main {
 .addr-tag { color: var(--text-secondary); font-family: monospace; display: flex; align-items: center; word-break: break-all; }
 .amt-tag { color: var(--accent-green); font-weight: bold; white-space: nowrap; }
 .live-indicator { font-size: 0.6rem; color: var(--accent-red); float: right; animation: pulse 2s infinite; }
+
+/* CONNECTION STATUS LED */
+.led-green {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-green);
+  display: inline-block;
+  margin-right: 8px;
+  animation: led-pulse 2s infinite;
+}
+
+@keyframes led-pulse { 0% {opacity:1; transform: scale(1);} 50% {opacity:0.4; transform: scale(0.9);} 100% {opacity:1; transform: scale(1);} }
 @keyframes pulse { 0% {opacity:1;} 50% {opacity:0.3;} 100% {opacity:1;} }
 
 footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); padding: 3rem 2rem 1.5rem; margin-top: 3rem; }
@@ -361,8 +375,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
 @media (max-width: 768px) { 
     .hamburger { display: block; } 
-    
-    /* Strict 100% bounds for mobile menu */
     nav#mobile-nav {
         position: absolute;
         top: 100%; 
@@ -390,14 +402,12 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     .header-inner { padding: 10px 15px; }
     .logo { height: 35px; }
 
-    /* IF CONNECTED: Aggressively stash UI to prevent horizontal blowout */
     body.wallet-connected #connect-wallet-btn { display: none !important; }
     body.wallet-connected #wallet-ui { flex-direction: column; align-items: flex-end; gap: 5px; }
     #wallet-balance-container { cursor: pointer; } 
 
     main { padding-top: 90px; padding-left: 10px; padding-right: 10px;} 
     
-    /* SURGICAL OVERRIDE FOR HERO TEXT ON MOBILE */
     .hero h1 { font-size: 2.1rem !important; margin-top: 0.5rem; }
     #leaderboard-content .hero h1 { font-size: 2.0rem !important; }
     
@@ -428,7 +438,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 }
 
 @media (max-width: 400px) {
-    /* CLAMP FOR TINY SCREENS */
     .hero h1 { font-size: 1.7rem !important; }
     #leaderboard-content .hero h1 { font-size: 1.5rem !important; } 
     
@@ -549,7 +558,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
  <div id="video-content" style="display:none;">
     <div class="hero">
         <h1 style="font-size:2.8rem;">SK8 VIDEOS</h1>
-        <p style="color: var(--accent-gold); font-weight:bold; font-size:0.75rem;">PEER-TO-PEER SPONSORSHIP ACTIVE</p>
+        <p style="color: var(--accent-gold); font-weight:bold; font-size:0.75rem; display: flex; align-items: center; justify-content: center;">
+            <span id="protocol-led" class="led-green" style="display: none;"></span>PEER-TO-PEER SPONSORSHIP ACTIVE
+        </p>
         <p class="hero-subtext" style="font-size: 0.85rem;">Scout raw talent. Drop on-chain blessings directly into skaters' wallets to unlock footage and boost rank.</p>
     </div>
     
@@ -953,11 +964,13 @@ function updateWalletUI() {
     const btn = document.getElementById("connect-wallet-btn");
     const balContainer = document.getElementById("wallet-balance-container");
     const skaterPanel = document.getElementById("skater-auth-panel");
+    const protocolLed = document.getElementById("protocol-led");
     
     if (publicKey) { 
         document.body.classList.add("wallet-connected"); 
         btn.innerText = "CONNECTED"; 
         balContainer.style.display = "flex"; 
+        if(protocolLed) protocolLed.style.display = "inline-block";
         
         const skater = SKATER_PROFILES.find(s => s.wallet === publicKey);
         if(skater) {
@@ -978,6 +991,7 @@ function updateWalletUI() {
         btn.innerText = "CONNECT"; 
         balContainer.style.display = "none"; 
         skaterPanel.style.display = "none";
+        if(protocolLed) protocolLed.style.display = "none";
     }
     
     updateDonateButtons();
@@ -1036,37 +1050,27 @@ function getRankDisplay(amount) {
     return { color: "var(--text-secondary)", icon: '', glow: '' };
 }
 
-/* REFACTORED LEADERBOARD SCAN: DESCENDING SORT & FLEX LOGIC */
 async function refreshLeaderboardData() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    
-    // TREASURY LEADERBOARD (THE FLEX LIST)
     const treasuryList = document.getElementById("treasury-sponsors-list");
     treasuryList.innerHTML = "<li>Synchronizing...</li>";
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 12 });
         let rawSponsors = [];
-
         for (let s of sigs) {
             const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
             if (tx) {
                 const sponsorAddr = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys[0].toString() : "Anonymous";
                 const amount = (tx.meta.preBalances[0] - tx.meta.postBalances[0] - tx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
-                if(amount > 0.001) {
-                    rawSponsors.push({ addr: sponsorAddr, val: amount });
-                }
+                if(amount > 0.001) rawSponsors.push({ addr: sponsorAddr, val: amount });
             }
         }
-
-        // SORT DESCENDING: Highest amount at the top
         rawSponsors.sort((a, b) => b.val - a.val);
-
         treasuryList.innerHTML = "";
         rawSponsors.forEach((s, index) => {
             const rank = getRankDisplay(s.val);
             const isTopDog = index === 0 ? "border: 1px solid var(--accent-gold); background: rgba(255, 215, 0, 0.05); padding: 8px; border-radius: 8px;" : "";
             const flexIcon = index === 0 ? '<i class="fas fa-crown" style="color:var(--accent-gold); margin-right:8px;"></i>' : '';
-            
             treasuryList.innerHTML += `
                 <li class="leader-item" style="${isTopDog}">
                     <span class="addr-tag" style="color: ${rank.color}; font-weight: bold;">
@@ -1076,10 +1080,8 @@ async function refreshLeaderboardData() {
                 </li>`;
         });
         if(rawSponsors.length === 0) treasuryList.innerHTML = "<li>No hits yet.</li>";
-
     } catch(e) { treasuryList.innerHTML = "<li>Node busy. Refresh soon.</li>"; }
 
-    // SKATER FEED (CHRONOLOGICAL HITS)
     const skaterList = document.getElementById("skater-sponsors-list");
     skaterList.innerHTML = "<li>Polling Skater Wallets...</li>";
     let entries = [];
@@ -1105,20 +1107,15 @@ async function refreshLeaderboardData() {
 function checkPersistence() {
     document.querySelectorAll('.video-card').forEach(card => {
         let iframe = card.querySelector('iframe');
-        
         if (!publicKey) {
             card.classList.remove('unlocked');
             if (iframe) iframe.src = ""; 
             return;
         }
-        
         let unlockedStr = localStorage.getItem('sk8_unlocks_' + publicKey);
         let unlockedVids = unlockedStr ? JSON.parse(unlockedStr) : [];
-        
         if (unlockedVids.includes(card.id)) {
-            if (iframe && iframe.src !== iframe.dataset.src) {
-                iframe.src = iframe.dataset.src;
-            }
+            if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src;
             card.classList.add('unlocked');
         } else {
             card.classList.remove('unlocked');
@@ -1129,31 +1126,25 @@ function checkPersistence() {
 
 function navigateTo(page, wallet = null) {
   document.getElementById('mobile-nav').classList.remove('open');
-    
   ["home", "video", "leaderboard", "donate", "profile"].forEach(id => {
       const el = document.getElementById(id + "-content");
       if(el) el.style.display = 'none';
   });
-  
   const target = document.getElementById(page + "-content");
   if(target) target.style.display = 'block';
-  
   if(page === 'profile' && wallet) renderProfile(wallet);
   if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
   if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
-  
   window.scrollTo(0,0);
 }
 
 async function renderProfile(wallet) {
     let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
     if(!skater) skater = { name: "UNKNOWN SHREDDER", rank: "FLOW", styles: ["Street"], pic: "https://i.pravatar.cc/400", bio: "Supporting the revolution." };
-    
     const editBtn = document.getElementById('edit-profile-btn');
     const profileDonateBtn = document.getElementById('profile-donate-btn');
     const profileHeader = document.getElementById('profile-header-text');
-    
     if (publicKey && publicKey === wallet) {
         editBtn.style.display = 'block';
         profileHeader.innerText = "SKATER DASHBOARD: BIO & STYLE";
@@ -1163,30 +1154,25 @@ async function renderProfile(wallet) {
         profileHeader.innerText = "BIO & STYLE";
         if(profileDonateBtn) profileDonateBtn.style.display = 'block'; 
     }
-
     document.getElementById('p-name').innerText = skater.name;
     document.getElementById('p-img').src = skater.pic;
     document.getElementById('p-bio').innerText = skater.bio;
     document.getElementById('p-wallet').innerText = wallet;
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
-    
     const rankEl = document.getElementById('p-rank');
     rankEl.innerText = skater.rank;
     if (skater.rank === "FLOW") rankEl.style.color = "var(--bronze-font)";
     else if (skater.rank === "AM") rankEl.style.color = "var(--silver-font)";
     else if (skater.rank === "PRO") rankEl.style.color = "var(--gold-font)";
     else rankEl.style.color = "var(--accent-cyan)";
-    
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     try {
         const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
         document.getElementById('p-blessings').innerText = (bal / 1e9).toFixed(4) + " SOL";
     } catch(e) { document.getElementById('p-blessings').innerText = "0.00 SOL"; }
-
     try {
         document.getElementById('p-name').innerText += " (Syncing...)";
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
-        
         for (let s of sigs) {
             if(s.memo && s.memo.includes('"sk8":"v1"')) {
                 const jsonStr = s.memo.replace(/^\[\d+\]\s*/, '');
@@ -1201,7 +1187,6 @@ async function renderProfile(wallet) {
         }
         document.getElementById('p-name').innerText = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
     } catch(e) {
-        console.log("No on-chain profile found or RPC busy.");
         document.getElementById('p-name').innerText = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
     }
 }
@@ -1212,68 +1197,41 @@ function openEditModal() {
     document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
     document.getElementById('edit-modal').style.display = 'flex';
 }
-
 function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
 async function saveProfileWeb3() {
     if(!publicKey) return;
     const btn = document.getElementById("save-web3-btn");
     btn.innerText = "AWAITING SIGNATURE...";
-    
     try {
         const name = document.getElementById("edit-name").value;
         const pic = document.getElementById("edit-pic").value;
         const bio = document.getElementById("edit-bio").value;
-
         const profileData = JSON.stringify({ sk8: "v1", name, pic, bio });
         const encodedData = new TextEncoder().encode(profileData);
         if (encodedData.length > 566) {
-            alert(`Profile too large! Max 566 bytes, you are at ${encodedData.length}. Use a shorter image URL or bio.`);
+            alert(`Profile too large! Max 566 bytes.`);
             btn.innerText = "SIGN & SAVE TO CHAIN";
             return; 
         }
-
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const fromPubkey = new solanaWeb3.PublicKey(publicKey);
-
-        const instruction = new solanaWeb3.TransactionInstruction({
-            keys: [{ pubkey: fromPubkey, isSigner: true, isWritable: true }],
-            programId: MEMO_PROGRAM_ID,
-            data: encodedData,
-        });
-
+        const instruction = new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: fromPubkey, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encodedData });
         const transaction = new solanaWeb3.Transaction().add(instruction);
         const { blockhash } = await connection.getLatestBlockhash();
-        transaction.recentBlockhash = blockhash;
-        transaction.feePayer = fromPubkey;
-
+        transaction.recentBlockhash = blockhash; transaction.feePayer = fromPubkey;
         const signed = await provider.signTransaction(transaction);
         await connection.sendRawTransaction(signed.serialize());
-
         btn.innerText = "SAVED TO CHAIN!";
-        setTimeout(() => {
-            closeEditModal();
-            renderProfile(publicKey);
-            btn.innerText = "SIGN & SAVE TO CHAIN";
-        }, 2000);
-
-    } catch (err) {
-        console.error("WEB3 SAVE ERROR:", err); 
-        btn.innerText = "FAILED - TRY AGAIN";
-        setTimeout(() => btn.innerText = "SIGN & SAVE TO CHAIN", 3000);
-    }
+        setTimeout(() => { closeEditModal(); renderProfile(publicKey); btn.innerText = "SIGN & SAVE TO CHAIN"; }, 2000);
+    } catch (err) { btn.innerText = "FAILED - TRY AGAIN"; setTimeout(() => btn.innerText = "SIGN & SAVE TO CHAIN", 3000); }
 }
 
 document.addEventListener('click', (e) => {
   if (e.target && e.target.classList.contains('donate-btn') && e.target.id !== 'profile-donate-btn') {
       if(!publicKey) { alert("Connect Wallet First"); return; }
-      
-      if(e.target.dataset.address === publicKey) { 
-          alert("Anti-Self-Dealing Protocol Active: You cannot sponsor your own clips."); 
-          return; 
-      }
-      
-      if(e.target.dataset.address) { currentSkaterTarget = e.target.dataset.address; }
+      if(e.target.dataset.address === publicKey) { alert("Anti-Self-Dealing Protocol Active."); return; }
+      if(e.target.dataset.address) currentSkaterTarget = e.target.dataset.address;
       activeVideoId = e.target.dataset.target || null;
       document.getElementById("sponsor-modal").style.display = "flex";
   }
@@ -1282,12 +1240,7 @@ document.addEventListener('click', (e) => {
 function openSponsorshipModalFromProfile() {
     if(!publicKey) { alert("Connect Wallet First"); return; }
     currentSkaterTarget = document.getElementById('p-wallet').innerText;
-    
-    if (currentSkaterTarget === publicKey) { 
-        alert("Anti-Self-Dealing Protocol Active: You cannot sponsor yourself."); 
-        return; 
-    }
-    
+    if (currentSkaterTarget === publicKey) { alert("Anti-Self-Dealing Protocol Active."); return; }
     activeVideoId = null; 
     document.getElementById('sponsor-modal').style.display = 'flex';
 }
@@ -1298,70 +1251,29 @@ function closeSuccessModal() { document.getElementById("success-modal").style.di
 function openTreasuryModal() { if(!publicKey) { alert("Connect Wallet First"); return; } document.getElementById("treasury-modal").style.display = "flex"; }
 function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
 function sendDonation(amt) { sendSOL(amt, TREASURY_WALLET); }
-
-function sendCustomTreasury() {
-    const amt = parseFloat(document.getElementById('custom-treasury-amt').value);
-    if(amt > 0) sendDonation(amt);
-    else alert("Please enter a valid SOL amount.");
-}
-
-function sendCustomSponsor() {
-    const amt = parseFloat(document.getElementById('custom-sponsor-amt').value);
-    if(amt > 0) selectAmount(amt);
-    else alert("Please enter a valid SOL amount.");
-}
+function sendCustomTreasury() { const amt = parseFloat(document.getElementById('custom-treasury-amt').value); if(amt > 0) sendDonation(amt); else alert("Invalid SOL."); }
+function sendCustomSponsor() { const amt = parseFloat(document.getElementById('custom-sponsor-amt').value); if(amt > 0) selectAmount(amt); else alert("Invalid SOL."); }
 
 async function sendSOL(amount, destination) {
   try {
-    if (destination === publicKey) {
-        alert("PROTOCOL ERROR: Anti-Self-Dealing active. You cannot sponsor yourself.");
-        closeModal();
-        closeTreasuryModal();
-        return; 
-    }
-
+    if (destination === publicKey) { alert("PROTOCOL ERROR: Anti-Self-Dealing active."); closeModal(); closeTreasuryModal(); return; }
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const fromPubkey = new solanaWeb3.PublicKey(publicKey);
     const toPubkey = new solanaWeb3.PublicKey(destination);
     const transaction = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey, toPubkey, lamports: amount * solanaWeb3.LAMPORTS_PER_SOL }));
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash; transaction.feePayer = fromPubkey;
-    
     const signed = await provider.signTransaction(transaction);
-    
-    try {
-        await connection.sendRawTransaction(signed.serialize());
-    } catch (rpcErr) {
-        console.log("RPC Network Error bypassed for UI demo purposes.");
-    }
-
-    document.getElementById('jingle').play().catch(e => console.log("Audio trigger failed"));
+    try { await connection.sendRawTransaction(signed.serialize()); } catch (rpcErr) { console.log("RPC Error"); }
+    document.getElementById('jingle').play().catch(e => {});
     closeModal(); closeTreasuryModal();
-
     if (activeVideoId && publicKey) {
         let unlockedStr = localStorage.getItem('sk8_unlocks_' + publicKey);
         let unlockedVids = unlockedStr ? JSON.parse(unlockedStr) : [];
-        
-        if (!unlockedVids.includes(activeVideoId)) {
-            unlockedVids.push(activeVideoId);
-            localStorage.setItem('sk8_unlocks_' + publicKey, JSON.stringify(unlockedVids));
-        }
+        if (!unlockedVids.includes(activeVideoId)) { unlockedVids.push(activeVideoId); localStorage.setItem('sk8_unlocks_' + publicKey, JSON.stringify(unlockedVids)); }
     }
-
-    setTimeout(() => {
-        document.getElementById("success-modal").style.display = "flex";
-        createConfetti();
-        fetchBalance(); fetchSkaterBalances(); fetchTreasuryBalance();
-        checkPersistence(); 
-        
-        if(document.getElementById('profile-content').style.display === 'block') {
-            renderProfile(document.getElementById('p-wallet').innerText);
-        }
-    }, 1500);
-
-  } catch (err) { 
-      console.log("Failed or Cancelled", err); 
-  }
+    setTimeout(() => { document.getElementById("success-modal").style.display = "flex"; createConfetti(); fetchBalance(); fetchSkaterBalances(); fetchTreasuryBalance(); checkPersistence(); if(document.getElementById('profile-content').style.display === 'block') renderProfile(document.getElementById('p-wallet').innerText); }, 1500);
+  } catch (err) { console.log("Failed", err); }
 }
 
 function createConfetti() {
@@ -1375,7 +1287,6 @@ function createConfetti() {
     setTimeout(() => confetti.remove(), 5000);
   }
 }
-
 function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
 
 window.onload = async () => {
@@ -1389,12 +1300,8 @@ window.onload = async () => {
             updateWalletUI(); 
             fetchBalance(); 
             checkPersistence();
-        } catch (e) {
-            checkPersistence(); 
-        }
-    } else {
-        checkPersistence(); 
-    }
+        } catch (e) { checkPersistence(); }
+    } else { checkPersistence(); }
 };
 </script>
 </body>
