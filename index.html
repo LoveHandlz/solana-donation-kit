@@ -882,7 +882,7 @@ async function renderProfile(wallet) {
 }
 
 // ------------------------------------------------------------------
-// NEW: WEB3 EDIT LOGIC
+// NEW: WEB3 EDIT LOGIC WITH FIXES
 // ------------------------------------------------------------------
 function openEditModal() {
     document.getElementById('edit-name').value = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
@@ -906,6 +906,14 @@ async function saveProfileWeb3() {
         // Compress data for Memo
         const profileData = JSON.stringify({ sk8: "v1", name, pic, bio });
 
+        // FIX: Use native TextEncoder and check the 566 byte limit
+        const encodedData = new TextEncoder().encode(profileData);
+        if (encodedData.length > 566) {
+            alert(`Profile too large! Max 566 bytes, you are at ${encodedData.length}. Use a shorter image URL or bio.`);
+            btn.innerText = "SIGN & SAVE TO BLOCKCHAIN";
+            return; 
+        }
+
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const fromPubkey = new solanaWeb3.PublicKey(publicKey);
 
@@ -913,7 +921,7 @@ async function saveProfileWeb3() {
         const instruction = new solanaWeb3.TransactionInstruction({
             keys: [{ pubkey: fromPubkey, isSigner: true, isWritable: true }],
             programId: MEMO_PROGRAM_ID,
-            data: buffer.Buffer.from(profileData, "utf-8"),
+            data: encodedData, // Replaced buffer.Buffer
         });
 
         const transaction = new solanaWeb3.Transaction().add(instruction);
@@ -932,7 +940,7 @@ async function saveProfileWeb3() {
         }, 2000);
 
     } catch (err) {
-        console.log(err);
+        console.error("WEB3 SAVE ERROR:", err); // Improved error logging for console debugging
         btn.innerText = "FAILED - TRY AGAIN";
         setTimeout(() => btn.innerText = "SIGN & SAVE TO BLOCKCHAIN", 3000);
     }
