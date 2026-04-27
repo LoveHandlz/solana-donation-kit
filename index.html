@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SK8COIN | Skate2Earn 5.8 (Bulletproof Embed Update)</title>
+  <title>SK8COIN | Skate2Earn 5.9 (Fresh UI & Emoji Status Update)</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -77,16 +77,6 @@ nav a:hover{color:var(--accent-gold);}
   font-weight: bold;
   color: #000;
   transition: 0.3s;
-}
-
-#sol-balance {
-  background: rgba(0,0,0,0.3);
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid var(--accent-gold);
-  font-size: 0.75rem;
-  color: var(--accent-gold);
-  font-weight: 900;
 }
 
 main {
@@ -345,9 +335,12 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
             <button onclick="navigateTo('profile', publicKey)" style="background: var(--accent-cyan); color: #000; border: none; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;">⚙️ EDIT PROFILE</button>
         </div>
 
-        <div id="wallet-balance-container" style="display: none; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--accent-gold);">
-            <span id="sol-balance" style="font-size: 0.75rem; color: var(--accent-gold); font-weight: 900;">0.0000 SOL</span>
-            <span id="usd-balance" style="font-size: 0.7rem; color: var(--accent-green); font-weight: 600; font-family: 'Inter', sans-serif;">($0.00)</span>
+        <div id="wallet-balance-container" style="display: none; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 6px 16px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);">
+            <span id="balance-emoji" style="font-size: 1.3rem; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5));">🛹</span>
+            <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                <span id="sol-balance" style="font-size: 0.75rem; color: #fff; font-weight: 900; letter-spacing: 0.5px;">0.0000 SOL</span>
+                <span id="usd-balance" style="font-size: 0.65rem; color: var(--accent-green); font-weight: 600; font-family: 'Inter', sans-serif;">$0.00 USD</span>
+            </div>
         </div>
 
         <button id="connect-wallet-btn" class="wallet-btn" onclick="handleWalletAction()">CONNECT WALLET</button>
@@ -829,7 +822,19 @@ async function fetchBalance() {
     
     if (solPrice === 0) await getSolPrice();
     const usdVal = solVal * solPrice;
-    document.getElementById("usd-balance").innerText = "($" + usdVal.toFixed(2) + ")";
+    document.getElementById("usd-balance").innerText = "$" + usdVal.toFixed(2) + " USD";
+
+    // EMOJI STATUS TIER LOGIC
+    let emoji = "🛹"; // Default Starter
+    if (solVal === 0) emoji = "🪫"; // Empty
+    else if (solVal < 0.1) emoji = "🦐"; // Shrimp
+    else if (solVal < 1) emoji = "🐟"; // Fish
+    else if (solVal < 5) emoji = "🐬"; // Dolphin
+    else if (solVal < 10) emoji = "🦈"; // Shark
+    else emoji = "🐳"; // Whale
+
+    const emojiEl = document.getElementById("balance-emoji");
+    if(emojiEl) emojiEl.innerText = emoji;
 }
 
 async function fetchSkaterBalances() {
