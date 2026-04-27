@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SK8COIN | Skate2Earn 5.6 (Status Flex Update)</title>
+  <title>SK8COIN | Skate2Earn 5.7 (Web3 Memory Update)</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -768,7 +768,12 @@ function getProvider() { return ("phantom" in window) ? window.phantom?.solana :
 
 async function handleWalletAction() {
     if (publicKey) { 
-        if (confirm("Disconnect Wallet?")) { await provider.disconnect(); publicKey = null; updateWalletUI(); } 
+        if (confirm("Disconnect Wallet?")) { 
+            await provider.disconnect(); 
+            publicKey = null; 
+            updateWalletUI(); 
+            checkPersistence(); // Re-lock videos on disconnect
+        } 
     } else { 
         provider = getProvider(); 
         if (!provider) { alert("Install Phantom!"); return; } 
@@ -776,6 +781,7 @@ async function handleWalletAction() {
         publicKey = resp.publicKey.toString(); 
         updateWalletUI(); 
         fetchBalance(); 
+        checkPersistence(); // Unlock videos for this specific wallet
     }
 }
 
@@ -856,7 +862,6 @@ function getRankDisplay(amount) {
     return { color: "var(--text-secondary)", icon: '', glow: '' };
 }
 
-// ORIGINAL SCANNER UPGRADED WITH RANK LOGIC
 async function refreshLeaderboardData() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     
@@ -902,14 +907,31 @@ async function refreshLeaderboardData() {
     } catch(e) { skaterList.innerHTML = "<li>Feed cooling down...</li>"; }
 }
 
+// UPGRADED WALLET-BOUND PERSISTENCE LOGIC
 function checkPersistence() {
     document.querySelectorAll('.video-card').forEach(card => {
-        if (localStorage.getItem(card.id) === 'true') {
-            const iframe = card.querySelector('iframe');
+        // If no wallet is connected, lock everything down securely.
+        if (!publicKey) {
+            card.classList.remove('unlocked');
+            let iframe = card.querySelector('iframe');
+            if(iframe) iframe.src = ""; // Stops any hidden video from playing
+            return;
+        }
+        
+        // If a wallet is connected, check their personal on-chain vault memory
+        let unlockedStr = localStorage.getItem('sk8_unlocks_' + publicKey);
+        let unlockedVids = unlockedStr ? JSON.parse(unlockedStr) : [];
+        
+        if (unlockedVids.includes(card.id)) {
+            let iframe = card.querySelector('iframe');
             if (iframe && (iframe.src === "" || iframe.src === window.location.href)) {
                 iframe.src = iframe.dataset.src;
             }
             card.classList.add('unlocked');
+        } else {
+            card.classList.remove('unlocked');
+            let iframe = card.querySelector('iframe');
+            if(iframe) iframe.src = ""; 
         }
     });
 }
@@ -929,15 +951,10 @@ function navigateTo(page, wallet = null) {
   if(page === 'leaderboard') refreshLeaderboardData();
 }
 
-// ------------------------------------------------------------------
-// UPGRADED FULL WEB3 PROFILE RENDERER
-// ------------------------------------------------------------------
 async function renderProfile(wallet) {
-    // 1. Load Defaults
     let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
     if(!skater) skater = { name: "UNKNOWN SHREDDER", rank: "FLOW", styles: ["Street"], pic: "https://i.pravatar.cc/400", bio: "Supporting the revolution." };
     
-    // 2. Dashboard Authorization Check
     const editBtn = document.getElementById('edit-profile-btn');
     const profileHeader = document.getElementById('profile-header-text');
     
@@ -949,14 +966,12 @@ async function renderProfile(wallet) {
         profileHeader.innerText = "BIO & STYLE";
     }
 
-    // 3. Inject Defaults First
     document.getElementById('p-name').innerText = skater.name;
     document.getElementById('p-img').src = skater.pic;
     document.getElementById('p-bio').innerText = skater.bio;
     document.getElementById('p-wallet').innerText = wallet;
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
     
-    // Dynamic Profile Rank Color
     const rankEl = document.getElementById('p-rank');
     rankEl.innerText = skater.rank;
     if (skater.rank === "FLOW") rankEl.style.color = "var(--bronze-font)";
@@ -970,21 +985,19 @@ async function renderProfile(wallet) {
         document.getElementById('p-blessings').innerText = (bal / 1e9).toFixed(4) + " SOL";
     } catch(e) { document.getElementById('p-blessings').innerText = "0.00 SOL"; }
 
-    // 4. SCAN BLOCKCHAIN FOR OVERRIDES (THE WEB3 MAGIC)
     try {
         document.getElementById('p-name').innerText += " (Syncing...)";
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
         
         for (let s of sigs) {
             if(s.memo && s.memo.includes('"sk8":"v1"')) {
-                // Remove Solana's byte prefix (e.g., "[34] ")
                 const jsonStr = s.memo.replace(/^\[\d+\]\s*/, '');
                 try {
                     const onChainProfile = JSON.parse(jsonStr);
                     if(onChainProfile.name) document.getElementById('p-name').innerText = onChainProfile.name;
                     if(onChainProfile.pic) document.getElementById('p-img').src = onChainProfile.pic;
                     if(onChainProfile.bio) document.getElementById('p-bio').innerText = onChainProfile.bio;
-                    break; // Stop at newest edit
+                    break;
                 } catch(parseErr) { console.log("Memo parse error", parseErr); }
             }
         }
@@ -995,9 +1008,6 @@ async function renderProfile(wallet) {
     }
 }
 
-// ------------------------------------------------------------------
-// WEB3 EDIT LOGIC
-// ------------------------------------------------------------------
 function openEditModal() {
     document.getElementById('edit-name').value = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
     document.getElementById('edit-pic').value = document.getElementById('p-img').src;
@@ -1017,10 +1027,7 @@ async function saveProfileWeb3() {
         const pic = document.getElementById("edit-pic").value;
         const bio = document.getElementById("edit-bio").value;
 
-        // Compress data for Memo
         const profileData = JSON.stringify({ sk8: "v1", name, pic, bio });
-
-        // Native TextEncoder and check the 566 byte limit
         const encodedData = new TextEncoder().encode(profileData);
         if (encodedData.length > 566) {
             alert(`Profile too large! Max 566 bytes, you are at ${encodedData.length}. Use a shorter image URL or bio.`);
@@ -1031,7 +1038,6 @@ async function saveProfileWeb3() {
         const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
         const fromPubkey = new solanaWeb3.PublicKey(publicKey);
 
-        // Build the on-chain write instruction
         const instruction = new solanaWeb3.TransactionInstruction({
             keys: [{ pubkey: fromPubkey, isSigner: true, isWritable: true }],
             programId: MEMO_PROGRAM_ID,
@@ -1049,7 +1055,7 @@ async function saveProfileWeb3() {
         btn.innerText = "SAVED TO CHAIN!";
         setTimeout(() => {
             closeEditModal();
-            renderProfile(publicKey); // Refresh to fetch newly written data
+            renderProfile(publicKey);
             btn.innerText = "SIGN & SAVE TO BLOCKCHAIN";
         }, 2000);
 
@@ -1060,7 +1066,6 @@ async function saveProfileWeb3() {
     }
 }
 
-// Modal Actions
 document.addEventListener('click', (e) => {
   if (e.target && e.target.classList.contains('donate-btn')) {
       if(!publicKey) { alert("Connect Wallet First"); return; }
@@ -1084,7 +1089,6 @@ function openTreasuryModal() { if(!publicKey) { alert("Connect Wallet First"); r
 function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
 function sendDonation(amt) { sendSOL(amt, TREASURY_WALLET); }
 
-// NEW: Handlers for Custom Donations
 function sendCustomTreasury() {
     const amt = parseFloat(document.getElementById('custom-treasury-amt').value);
     if(amt > 0) sendDonation(amt);
@@ -1112,18 +1116,21 @@ async function sendSOL(amount, destination) {
     closeModal(); closeTreasuryModal();
 
     setTimeout(() => {
-        if (activeVideoId) {
-            localStorage.setItem(activeVideoId, 'true');
-            const card = document.getElementById(activeVideoId);
-            if(card) {
-                const iframe = card.querySelector('iframe');
-                if(iframe) iframe.src = iframe.dataset.src;
-                card.classList.add('unlocked');
+        // UPGRADED WALLET-BOUND PERSISTENCE SAVE
+        if (activeVideoId && publicKey) {
+            let unlockedStr = localStorage.getItem('sk8_unlocks_' + publicKey);
+            let unlockedVids = unlockedStr ? JSON.parse(unlockedStr) : [];
+            
+            if (!unlockedVids.includes(activeVideoId)) {
+                unlockedVids.push(activeVideoId);
+                localStorage.setItem('sk8_unlocks_' + publicKey, JSON.stringify(unlockedVids));
             }
         }
+        
         document.getElementById("success-modal").style.display = "flex";
         createConfetti();
         fetchBalance(); fetchSkaterBalances(); fetchTreasuryBalance();
+        checkPersistence(); // Re-trigger visual unlock immediately
         
         if(document.getElementById('profile-content').style.display === 'block') {
             renderProfile(document.getElementById('p-wallet').innerText);
@@ -1149,7 +1156,6 @@ function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET);
 
 window.onload = async () => {
     await getSolPrice();
-    checkPersistence();
     const p = getProvider();
     if (p?.isPhantom) {
         try { 
@@ -1158,7 +1164,12 @@ window.onload = async () => {
             provider = p; 
             updateWalletUI(); 
             fetchBalance(); 
-        } catch (e) {}
+            checkPersistence();
+        } catch (e) {
+            checkPersistence(); // Runs empty if not trusted/connected
+        }
+    } else {
+        checkPersistence();
     }
 };
 </script>
