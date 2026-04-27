@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SK8COIN | Skate2Earn 5.4 (The GameFi Update)</title>
+  <title>SK8COIN | Skate2Earn 5.5 (Custom Vault Update)</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -624,7 +624,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
   <div id="donate-content" style="display:none;">
     <div class="hero">
         <h1>COMMUNITY TREASURY</h1>
-        <p style="color: var(--text-secondary); max-width: 650px; margin: 15px auto 0; font-size: 1.1rem; line-height: 1.6;">Fuel the main engine. Drop SOL into the master vault to fund legendary IRL skate drops, push protocol upgrades, and level up the entire ecosystem. <span style="color: var(--accent-gold); font-weight: bold;">Earn your spot on the Leaderboard.</span></p>
+        <p style="color: var(--text-secondary); max-width: 650px; margin: 15px auto 0; font-size: 1.1rem; line-height: 1.6;">Fuel the main engine. Drop SOL into the master vault to fund legendary IRL skate drops, push protocol upgrades, and level up the entire ecosystem. <a href="javascript:void(0)" onclick="navigateTo('leaderboard')" style="color: var(--accent-gold); font-weight: bold; text-decoration: underline; cursor: pointer;">Earn your spot on the Leaderboard.</a></p>
     </div>
     <div style="background:var(--bg-panel); max-width:600px; margin:2rem auto auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
       <p style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Current Treasury Funds</p>
@@ -673,7 +673,13 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
       <button class="tier-btn tier-flow" onclick="sendDonation(0.01)">FLOW DONATION (0.01 SOL)</button>
       <button class="tier-btn tier-am" onclick="sendDonation(0.05)">AMATEUR DONATION (0.05 SOL)</button>
       <button class="tier-btn tier-pro" onclick="sendDonation(0.1)">PRO DONATION (0.1 SOL)</button>
-      <button onclick="closeTreasuryModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-top: 10px;">[ Close ]</button>
+      
+      <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
+        <input type="number" id="custom-treasury-amt" placeholder="Custom SOL..." step="0.01" min="0.01" style="flex: 1; padding: 12px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-cyan); border-radius: 4px; font-family: 'Inter', sans-serif;">
+        <button onclick="sendCustomTreasury()" class="tier-btn" style="width: auto; margin-bottom: 0; padding: 12px 20px; background: var(--accent-cyan); color: #000; border: none;">SEND</button>
+      </div>
+
+      <button onclick="closeTreasuryModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-top: 15px;">[ Close ]</button>
     </div>
 </div>
 
@@ -683,7 +689,13 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     <button onclick="selectAmount(0.01)" class="tier-btn tier-flow">FLOW SPONSOR (0.01 SOL)</button>
     <button onclick="selectAmount(0.05)" class="tier-btn tier-am">AMATEUR SPONSOR (0.05 SOL)</button>
     <button onclick="selectAmount(0.1)" class="tier-btn tier-pro">PRO SPONSOR (0.1 SOL)</button>
-    <button onclick="closeModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-top: 10px;">[ Close ]</button>
+
+    <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
+        <input type="number" id="custom-sponsor-amt" placeholder="Custom SOL..." step="0.01" min="0.01" style="flex: 1; padding: 12px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-cyan); border-radius: 4px; font-family: 'Inter', sans-serif;">
+        <button onclick="sendCustomSponsor()" class="tier-btn" style="width: auto; margin-bottom: 0; padding: 12px 20px; background: var(--accent-cyan); color: #000; border: none;">SEND</button>
+    </div>
+
+    <button onclick="closeModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-top: 15px;">[ Close ]</button>
   </div>
 </div>
 
@@ -1056,6 +1068,19 @@ function closeSuccessModal() { document.getElementById("success-modal").style.di
 function openTreasuryModal() { if(!publicKey) { alert("Connect Wallet First"); return; } document.getElementById("treasury-modal").style.display = "flex"; }
 function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
 function sendDonation(amt) { sendSOL(amt, TREASURY_WALLET); }
+
+// NEW: Handlers for Custom Donations
+function sendCustomTreasury() {
+    const amt = parseFloat(document.getElementById('custom-treasury-amt').value);
+    if(amt > 0) sendDonation(amt);
+    else alert("Please enter a valid SOL amount.");
+}
+
+function sendCustomSponsor() {
+    const amt = parseFloat(document.getElementById('custom-sponsor-amt').value);
+    if(amt > 0) selectAmount(amt);
+    else alert("Please enter a valid SOL amount.");
+}
 
 async function sendSOL(amount, destination) {
   try {
