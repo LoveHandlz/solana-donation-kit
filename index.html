@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SK8COIN | Skate2Earn</title>
+  <title>SK8COIN | Skate2Earn 4.4 - Profile Update</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -25,6 +25,11 @@
   --text-primary:#e0f7ff;
   --text-secondary:#a5d8ff;
   --card-border:rgba(0,240,255,0.14);
+  
+  --bronze-font: #cd7f32;
+  --silver-font: #c0c0c0;
+  --gold-font: #ffd700;
+  --diamond-font: #b9f2ff;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -95,7 +100,7 @@ main {
 
 .hero { text-align: center; margin-bottom: 3rem; }
 .hero h1 { 
-  font-size: 5rem; 
+  font-size: 5rem;
   background: linear-gradient(to bottom, #fff, var(--accent-gold));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -192,6 +197,65 @@ main {
   width: 100%;
 }
 
+/* LEADERBOARD NEW STYLES */
+.leaderboard-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.leaderboard-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+.leaderboard-box h2 {
+  font-size: 1rem;
+  color: var(--accent-gold);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 10px;
+}
+.leader-list { list-style: none; }
+.leader-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.8rem;
+}
+.leader-item:last-child { border: none; }
+.leader-item a { text-decoration: none; color: inherit; transition: 0.2s; }
+.leader-item a:hover { text-decoration: underline; }
+
+/* TIER FONT CLASSES */
+.tier-flow { color: var(--bronze-font) !important; font-weight: 500; }
+.tier-amateur { color: var(--silver-font) !important; font-weight: 700; }
+.tier-pro { color: var(--gold-font) !important; font-weight: 900; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+.tier-diamond { color: var(--diamond-font) !important; font-weight: 900; animation: sparkle 2s infinite; }
+@keyframes sparkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+.addr-tag { color: var(--text-secondary); font-family: monospace; }
+.amt-tag { color: var(--accent-green); font-weight: bold; }
+.live-indicator {
+  font-size: 0.6rem;
+  color: var(--accent-red);
+  float: right;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0% {opacity:1;} 50% {opacity:0.3;} 100% {opacity:1;} }
+
+/* PROFILE MODAL OVERLAY */
+.profile-overlay {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,0.95); z-index:2000; justify-content:center; align-items:center;
+}
+.profile-modal-content {
+    background: var(--bg-panel); border: 2px solid var(--accent-gold); padding: 3rem; border-radius: 20px; text-align: center; max-width: 450px; width: 90%;
+}
+
 footer {
   background: var(--bg-panel);
   border-top: 1px solid var(--card-border);
@@ -248,7 +312,11 @@ footer {
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 900px) { .footer-inner { grid-template-columns: 1fr; gap: 3rem; text-align: center; } .footer-socials, .logo-stack { justify-content: center; } }
+@media (max-width: 900px) { 
+    .footer-inner { grid-template-columns: 1fr; gap: 3rem; text-align: center; } 
+    .footer-socials, .logo-stack { justify-content: center; }
+    .leaderboard-container { grid-template-columns: 1fr; }
+}
 @media (max-width: 700px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 3rem; } }
 </style>
 </head>
@@ -261,6 +329,7 @@ footer {
       <ul>
         <li><a href="javascript:void(0)" onclick="navigateTo('home')">HOME</a></li>
         <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
+        <li><a href="javascript:void(0)" onclick="navigateTo('leaderboard')">LEADERBOARD</a></li>
         <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
       </ul>
     </nav>
@@ -347,7 +416,6 @@ footer {
           <button class="donate-btn" data-target="vid-1" data-address="Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-2">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -359,7 +427,6 @@ footer {
           <button class="donate-btn" data-target="vid-2" data-address="GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-3">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -371,7 +438,6 @@ footer {
           <button class="donate-btn" data-target="vid-3" data-address="4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-4">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -383,7 +449,6 @@ footer {
           <button class="donate-btn" data-target="vid-4" data-address="6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-5">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -395,7 +460,6 @@ footer {
           <button class="donate-btn" data-target="vid-5" data-address="BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-6">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -407,7 +471,6 @@ footer {
           <button class="donate-btn" data-target="vid-6" data-address="9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-7">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -419,7 +482,6 @@ footer {
           <button class="donate-btn" data-target="vid-7" data-address="5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-8">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -431,7 +493,6 @@ footer {
           <button class="donate-btn" data-target="vid-8" data-address="9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-9">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -443,7 +504,6 @@ footer {
           <button class="donate-btn" data-target="vid-9" data-address="HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-10">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -455,7 +515,6 @@ footer {
           <button class="donate-btn" data-target="vid-10" data-address="DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-11">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -467,7 +526,6 @@ footer {
           <button class="donate-btn" data-target="vid-11" data-address="DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b">SPONSOR</button>
         </div>
       </div>
-
       <div class="video-card" id="vid-12">
         <div class="video-wrapper">
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
@@ -482,8 +540,35 @@ footer {
     </div>
 </div>
 
+  <div id="leaderboard-content" style="display:none;">
+    <div class="hero">
+        <h1>THE BOARDROOM</h1>
+        <p style="color: var(--accent-gold); font-weight:bold;">LEGENDARY SPONSORS & RECENT BLESSINGS</p>
+    </div>
+    
+    <div class="leaderboard-container">
+        <div class="leaderboard-box">
+            <h2>TREASURY GIANTS <span class="live-indicator">● LIVE SCAN</span></h2>
+            <ul class="leader-list" id="treasury-sponsors-list">
+                <li class="leader-item">Scanning on-chain...</li>
+            </ul>
+        </div>
+        <div class="leaderboard-box">
+            <h2>SKATER SUPPORT FEED <span class="live-indicator">● LIVE SCAN</span></h2>
+            <ul class="leader-list" id="skater-sponsors-list">
+                <li class="leader-item">Checking recent hits...</li>
+            </ul>
+        </div>
+    </div>
+  </div>
+
   <div id="donate-content" style="display:none;">
-    <div class="hero"><h1>COMMUNITY TREASURY</h1></div>
+    <div class="hero">
+        <h1>COMMUNITY TREASURY</h1>
+        <p style="color: var(--text-secondary); max-width: 600px; margin: 15px auto 30px; font-size: 0.95rem; line-height: 1.6;">
+          Donating helps power the decentralized sponsorship model, funding real skateboarders worldwide to progress in their careers.
+        </p>
+    </div>
     <div style="background:var(--bg-panel); max-width:600px; margin:auto; padding:2rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
       <p style="margin-bottom: 5px; font-size: 0.8rem; text-transform: uppercase;">Current Treasury Funds</p>
       
@@ -503,7 +588,7 @@ footer {
   <div class="footer-inner">
     <div class="footer-about">
       <h3>MISSION CONTROL</h3>
-      <p>Skate2earn is a new economic model for skateboarders all over the world using a decentralized peer-to-peer sponsorship model where anyone can help a skater progress through micro donations.</p>
+      <p>Skate2earn is a new economic model for skateboarders using a decentralized peer-to-peer sponsorship model.</p>
     </div>
     <div class="footer-widgets">
       <h3>CONNECT</h3>
@@ -525,12 +610,32 @@ footer {
   <div style="text-align: center; margin-top: 3rem; font-size: 0.7rem; color: #444; letter-spacing: 1px;">&copy; 2026 SKATE2EARN PROTOCOL.</div>
 </footer>
 
+<div id="skater-profile-modal" class="profile-overlay">
+    <div class="profile-modal-content">
+        <h2 id="p-display-name" style="color:var(--accent-gold); font-family:'Orbitron';">SKATER PROFILE</h2>
+        <hr style="border:0; border-top:1px solid var(--card-border); margin:1.5rem 0;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 2rem;">
+            <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;">
+                <p style="font-size:0.6rem; opacity:0.6;">SOL EARNED</p>
+                <p id="p-sol-val" style="color:var(--accent-green); font-weight:900;">0.00</p>
+            </div>
+            <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:10px;">
+                <p style="font-size:0.6rem; opacity:0.6;">RANK</p>
+                <p id="p-rank-val" style="color:var(--accent-cyan); font-weight:900;">AMATEUR</p>
+            </div>
+        </div>
+        <p id="p-wax-status" style="font-size:0.7rem; margin-bottom:2rem; color:var(--text-secondary);">WAX ASSETS: SCANNING...</p>
+        <button onclick="closeSkaterProfile()" class="tier-btn">BACK TO STREETS</button>
+    </div>
+</div>
+
 <div id="treasury-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Treasury Donation</h3>
-      <button class="tier-btn" onclick="sendDonation(0.01)">FLOW DONATION (0.01 SOL)</button>
-      <button class="tier-btn" onclick="sendDonation(0.05)">AMATEUR DONATION (0.05 SOL)</button>
-      <button class="tier-btn" onclick="sendDonation(0.1)">PRO DONATION (0.1 SOL)</button>
+      <button class="tier-btn tier-diamond" onclick="sendDonation(0.5)">DIAMOND DONATION (0.5 SOL)</button>
+      <button class="tier-btn tier-pro" onclick="sendDonation(0.1)">PRO DONATION (0.1 SOL)</button>
+      <button class="tier-btn tier-amateur" onclick="sendDonation(0.05)">AMATEUR DONATION (0.05 SOL)</button>
+      <button class="tier-btn tier-flow" onclick="sendDonation(0.01)">FLOW DONATION (0.01 SOL)</button>
       <button onclick="closeTreasuryModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-top: 10px;">[ Close ]</button>
     </div>
 </div>
@@ -538,9 +643,10 @@ footer {
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-skater-title" style="color:var(--accent-gold); margin-bottom: 15px;">Sponsor Clip</h3>
-    <button onclick="selectAmount(0.01)" class="tier-btn">FLOW SPONSOR (0.01 SOL)</button>
-    <button onclick="selectAmount(0.05)" class="tier-btn">AMATEUR SPONSOR (0.05 SOL)</button>
-    <button onclick="selectAmount(0.1)" class="tier-btn">PRO SPONSOR (0.1 SOL)</button>
+    <button class="tier-btn tier-diamond" onclick="selectAmount(0.5)">DIAMOND SPONSOR (0.5 SOL)</button>
+    <button class="tier-btn tier-pro" onclick="selectAmount(0.1)">PRO SPONSOR (0.1 SOL)</button>
+    <button class="tier-btn tier-amateur" onclick="selectAmount(0.05)">AMATEUR SPONSOR (0.05 SOL)</button>
+    <button class="tier-btn tier-flow" onclick="selectAmount(0.01)">FLOW SPONSOR (0.01 SOL)</button>
     <button onclick="closeModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-top: 10px;">[ Close ]</button>
   </div>
 </div>
@@ -560,6 +666,24 @@ let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId =
 const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 
+/** * 4.4 SKATER PROFILE REGISTRY
+ * Maps Solana Wallets to Skater Profiles
+ */
+const SKATER_PROFILES = [
+    { name: "SKATER ONE", sol_wallet: "Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6", rank: "PRO" },
+    { name: "SKATER TWO", sol_wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", rank: "AM" },
+    { name: "SKATER THREE", sol_wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", rank: "FLOW" },
+    { name: "SKATER FOUR", sol_wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", rank: "AM" },
+    { name: "SKATER FIVE", sol_wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", rank: "PRO" },
+    { name: "SKATER SIX", sol_wallet: "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH", rank: "AM" },
+    { name: "SKATER SEVEN", sol_wallet: "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", rank: "PRO" },
+    { name: "SKATER EIGHT", sol_wallet: "9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj", rank: "AM" },
+    { name: "SKATER NINE", sol_wallet: "HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq", rank: "PRO" },
+    { name: "SKATER TEN", sol_wallet: "DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b", rank: "AM" },
+    { name: "SKATER ELEVEN", sol_wallet: "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7", rank: "FLOW" },
+    { name: "SKATER TWELVE", sol_wallet: "DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b", rank: "AM" }
+];
+
 async function getSolPrice() {
     try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd'); const d = await r.json(); solPrice = d.solana.usd; } catch (e) {}
 }
@@ -568,8 +692,28 @@ function getProvider() { return ("phantom" in window) ? window.phantom?.solana :
 
 async function handleWalletAction() {
     if (publicKey) { if (confirm("Disconnect?")) { await provider.disconnect(); publicKey = null; updateWalletUI(); } } 
-    else { provider = getProvider(); if (!provider) { alert("Install Phantom!"); return; } const resp = await provider.connect(); publicKey = resp.publicKey.toString(); updateWalletUI(); fetchBalance(); }
+    else { provider = getProvider(); if (!provider) { alert("Install Phantom!"); return; } 
+    const resp = await provider.connect(); publicKey = resp.publicKey.toString(); 
+    updateWalletUI(); fetchBalance(); checkSkaterLogin(publicKey); }
 }
+
+/** * 4.4 WALLET TRACKER & PROFILE LOGIC
+ */
+async function checkSkaterLogin(wallet) {
+    const skater = SKATER_PROFILES.find(s => s.sol_wallet === wallet);
+    if(skater) {
+        document.getElementById('p-display-name').innerText = skater.name;
+        document.getElementById('p-rank-val').innerText = skater.rank;
+        document.getElementById('skater-profile-modal').style.display = 'flex';
+        
+        const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
+        document.getElementById('p-sol-val').innerText = (bal / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4) + " SOL";
+        document.getElementById('p-wax-status').innerHTML = `WAX ASSETS: <span style="color:var(--accent-gold)">SK8COIN HOLDER</span>`;
+    }
+}
+
+function closeSkaterProfile() { document.getElementById('skater-profile-modal').style.display = 'none'; }
 
 function updateWalletUI() {
     const btn = document.getElementById("connect-wallet-btn");
@@ -598,25 +742,45 @@ async function fetchSkaterBalances() {
     }
 }
 
-/* UPDATED TREASURY FUNCTION TO CALCULATE USD */
 async function fetchTreasuryBalance() {
-    if (solPrice === 0) await getSolPrice(); // Make sure solPrice is fetched
+    if (solPrice === 0) await getSolPrice();
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const balance = await connection.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET));
     const solValue = balance / solanaWeb3.LAMPORTS_PER_SOL;
-    
-    // Update SOL Text
     document.getElementById("treasury-sol-balance").innerText = solValue.toFixed(4) + " SOL";
-    
-    // Update USD Text
     document.getElementById("treasury-usd-balance").innerText = "$" + (solValue * solPrice).toFixed(2);
+}
+
+async function refreshLeaderboardData() {
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const treasuryList = document.getElementById("treasury-sponsors-list");
+    treasuryList.innerHTML = "<li>Synchronizing with ledger...</li>";
+    
+    try {
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 });
+        let aggregation = {};
+        for (let s of sigs) {
+            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+            if (tx && tx.meta) {
+                const sender = tx.transaction.message.staticAccountKeys[0].toString();
+                const amount = (tx.meta.preBalances[0] - tx.meta.postBalances[0] - tx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
+                if (amount > 0.001) aggregation[sender] = (aggregation[sender] || 0) + amount;
+            }
+        }
+        
+        const sorted = Object.entries(aggregation).sort((a,b) => b[1]-a[1]).slice(0, 10);
+        treasuryList.innerHTML = sorted.map((entry, index) => {
+            const addr = entry[0]; const total = entry[1];
+            return `<li class="leader-item"><span class="addr-tag">${addr.slice(0,8)}...</span> <span class="amt-tag">${total.toFixed(2)} SOL</span></li>`;
+        }).join('');
+    } catch(e) { treasuryList.innerHTML = "<li>Node Busy.</li>"; }
 }
 
 function checkPersistence() {
     document.querySelectorAll('.video-card').forEach(card => {
         if (localStorage.getItem(card.id) === 'true') {
             const iframe = card.querySelector('iframe');
-            if (iframe && (iframe.src === "" || iframe.src === window.location.href)) {
+            if (iframe && (iframe.getAttribute('src') === "" || iframe.src === window.location.href)) {
                 iframe.src = iframe.dataset.src;
             }
             card.classList.add('unlocked');
@@ -627,9 +791,12 @@ function checkPersistence() {
 function navigateTo(page) {
   document.getElementById("home-content").style.display = (page === 'home' ? 'block' : 'none');
   document.getElementById("video-content").style.display = (page === 'video' ? 'block' : 'none');
+  document.getElementById("leaderboard-content").style.display = (page === 'leaderboard' ? 'block' : 'none');
   document.getElementById("donate-content").style.display = (page === 'donate' ? 'block' : 'none');
+  
   if(page === 'video') { fetchSkaterBalances(); checkPersistence(); }
   if(page === 'donate') fetchTreasuryBalance();
+  if(page === 'leaderboard') refreshLeaderboardData();
 }
 
 document.addEventListener('click', (e) => {
@@ -659,26 +826,25 @@ async function sendSOL(amount, destination) {
     const signed = await provider.signTransaction(transaction);
     await connection.sendRawTransaction(signed.serialize());
 
-    // Trigger Audio immediately
-    document.getElementById('jingle').play().catch(e => console.log("Audio trigger failed"));
-
-    // Close inputs
+    document.getElementById('jingle').play().catch(e => console.log("Audio failed"));
     closeModal(); closeTreasuryModal();
 
-    // Wait 3 seconds for confirm, then unlock and show confetti
     setTimeout(() => {
         if (activeVideoId) {
             localStorage.setItem(activeVideoId, 'true');
             const card = document.getElementById(activeVideoId);
-            card.querySelector('iframe').src = card.querySelector('iframe').dataset.src;
-            card.classList.add('unlocked');
+            if(card) {
+                const iframe = card.querySelector('iframe');
+                iframe.src = iframe.dataset.src;
+                card.classList.add('unlocked');
+            }
         }
         document.getElementById("success-modal").style.display = "flex";
         createConfetti();
-        fetchBalance(); fetchSkaterBalances(); fetchTreasuryBalance();
+        fetchBalance(); fetchSkaterBalances();
     }, 3000);
 
-  } catch (err) { console.log("Failed or Cancelled"); }
+  } catch (err) { console.log("Failed"); }
 }
 
 function createConfetti() {
@@ -700,7 +866,14 @@ window.onload = async () => {
     checkPersistence();
     const p = getProvider();
     if (p?.isPhantom) {
-        try { const resp = await p.connect({ onlyIfTrusted: true }); publicKey = resp.publicKey.toString(); provider = p; updateWalletUI(); fetchBalance(); } catch (e) {}
+        try { 
+            const resp = await p.connect({ onlyIfTrusted: true }); 
+            publicKey = resp.publicKey.toString(); 
+            provider = p; 
+            updateWalletUI(); 
+            fetchBalance(); 
+            checkSkaterLogin(publicKey);
+        } catch (e) {}
     }
 };
 </script>
