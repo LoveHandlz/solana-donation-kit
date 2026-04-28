@@ -476,7 +476,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
             
             <div id="skater-auth-panel" style="display: none; align-items: center; gap: 6px; background: rgba(0, 240, 255, 0.05); padding: 4px 10px; border-radius: 50px; border: 1px solid var(--accent-cyan);">
                 <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;">PRO</span></span>
-                <button onclick="navigateTo('profile', publicKey)" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>
+                <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>
             </div>
 
             <div id="wallet-balance-container" onclick="if(isMobile()) handleWalletAction();" style="display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);">
@@ -925,7 +925,7 @@ function updateDonateButtons() {
     });
 }
 
-// THE EVOLUTION: Master Blockchain Scanner for Ins (Received) and Outs (Given)
+// Master Blockchain Scanner for Ins (Received) and Outs (Given)
 async function fetchWalletStats(wallet) {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let ins = 0; let outs = 0;
@@ -997,7 +997,7 @@ function updateWalletUI() {
         if(protocolLed) protocolLed.style.display = "inline-block";
         
         skaterPanel.style.display = "flex"; 
-        document.getElementById('skater-auth-panel').querySelector('span').innerHTML = 'RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i> SYNCING...</span>';
+        skaterPanel.innerHTML = '<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i> SYNCING...</span></span> <button onclick="navigateToProfileView(\'skater\')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: \'Orbitron\'; cursor: pointer;">⚙️</button>';
         
         fetchHeaderDualRank(publicKey);
     } 
@@ -1012,41 +1012,56 @@ function updateWalletUI() {
     updateDonateButtons();
 }
 
-// HEADER DUALITY: Dynamic representation of both sides of the coin
+// HEADER SPLICE: Let Skater dynamically choose which profile to edit
 async function fetchHeaderDualRank(wallet) {
     const stats = await fetchWalletStats(wallet);
-    const authRank = document.getElementById("auth-skater-rank");
-    if (!authRank || publicKey !== wallet) return;
+    const skaterPanel = document.getElementById("skater-auth-panel");
+    if (!skaterPanel || publicKey !== wallet) return;
 
     let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
-    let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
+    let isDual = isGenesisSkater && (stats.outs > 0);
 
-    let skaterDisplay = "";
+    let skaterRankDisplay = null;
+    let sponsorRankDisplay = null;
+
     if (isGenesisSkater) {
-         let dummy = 0;
-         if(skater && skater.rank === "PRO") dummy = 0.1;
-         else if(skater && skater.rank === "AM") dummy = 0.05;
-         else if(skater && skater.rank === "FLOW") dummy = 0.01;
-         const sRank = getRankDisplay(Math.max(dummy, stats.ins));
-         skaterDisplay = `<span style="color:${sRank.color}">${sRank.icon} ${sRank.title}</span>`;
+        let dummy = 0.01;
+        const skt = SKATER_PROFILES.find(s => s.wallet === wallet);
+        if(skt && skt.rank === "PRO") dummy = 0.1;
+        else if(skt && skt.rank === "AM") dummy = 0.05;
+        skaterRankDisplay = getRankDisplay(Math.max(dummy, stats.ins));
     } else if (stats.ins > 0) {
-         const sRank = getRankDisplay(stats.ins);
-         skaterDisplay = `<span style="color:${sRank.color}">${sRank.icon} SKATER</span>`;
+        skaterRankDisplay = getRankDisplay(stats.ins);
     }
 
-    let sponsorDisplay = "";
     if (stats.outs > 0) {
-         const spRank = getRankDisplay(stats.outs);
-         sponsorDisplay = `<span style="color:${spRank.color}">${spRank.icon} SPONSOR</span>`;
+        sponsorRankDisplay = getRankDisplay(stats.outs);
     }
 
-    if (!skaterDisplay && !sponsorDisplay) {
-         authRank.innerHTML = "🚫 POSER";
-         authRank.style.color = "var(--accent-red)";
-    } else if (skaterDisplay && sponsorDisplay) {
-         authRank.innerHTML = skaterDisplay + ` <span style="color:#fff; opacity:0.3; margin:0 4px;">|</span> ` + sponsorDisplay;
+    // Dynamic Header Splice Logic
+    if (isDual) {
+        skaterPanel.innerHTML = `
+            <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">DUAL RANK: 
+                <span style="color:${skaterRankDisplay.color}">${skaterRankDisplay.icon} SKATER</span> | <span style="color:${sponsorRankDisplay.color}">${sponsorRankDisplay.icon} SPONSOR</span>
+            </span>
+            <button onclick="navigateToProfileView('skater')" title="Edit Skater Profile" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🛹⚙️</button>
+            <button onclick="navigateToProfileView('sponsor')" title="Edit Sponsor Profile" style="background: var(--accent-gold); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🤝⚙️</button>
+        `;
+    } else if (skaterRankDisplay) {
+        skaterPanel.innerHTML = `
+            <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${skaterRankDisplay.color}">${skaterRankDisplay.icon} ${skaterRankDisplay.title}</span></span>
+            <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🛹⚙️</button>
+        `;
+    } else if (sponsorRankDisplay) {
+        skaterPanel.innerHTML = `
+            <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${sponsorRankDisplay.color}">${sponsorRankDisplay.icon} SPONSOR</span></span>
+            <button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🤝⚙️</button>
+        `;
     } else {
-         authRank.innerHTML = skaterDisplay || sponsorDisplay;
+        skaterPanel.innerHTML = `
+            <span style="font-size: 0.6rem; color: var(--accent-red); font-weight: bold;">RANK: <span style="color:var(--accent-red)">🚫 POSER</span></span>
+            <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">⚙️</button>
+        `;
     }
 }
 
@@ -1233,6 +1248,18 @@ function checkPersistence() {
     });
 }
 
+function navigateToProfileView(viewType) {
+    if(!publicKey) return;
+    document.getElementById('mobile-nav').classList.remove('open');
+    ["home", "video", "leaderboard", "donate"].forEach(id => {
+        const el = document.getElementById(id + "-content");
+        if(el) el.style.display = 'none';
+    });
+    document.getElementById("profile-content").style.display = 'block';
+    renderProfile(publicKey, viewType);
+    window.scrollTo(0,0);
+}
+
 function navigateTo(page, wallet = null) {
   document.getElementById('mobile-nav').classList.remove('open');
     
@@ -1244,7 +1271,7 @@ function navigateTo(page, wallet = null) {
   const target = document.getElementById(page + "-content");
   if(target) target.style.display = 'block';
   
-  if(page === 'profile' && wallet) renderProfile(wallet);
+  if(page === 'profile' && wallet) renderProfile(wallet, null);
   if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
   if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
@@ -1252,13 +1279,12 @@ function navigateTo(page, wallet = null) {
   window.scrollTo(0,0);
 }
 
-// PROFILE EVOLUTION: The Reality Renderer
-async function renderProfile(wallet) {
+// PROFILE EVOLUTION: 2 Distinct Toggleable Profile Pages
+async function renderProfile(wallet, forceView = null) {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const profilePicEl = document.getElementById('p-img');
     const rankEl = document.getElementById('p-rank');
     const blessEl = document.getElementById('p-blessings');
-    const statsGrid = rankEl.parentElement.parentElement;
     const blessingsLabel = document.getElementById('blessings-label');
     const profileHeader = document.getElementById('profile-header-text');
 
@@ -1267,17 +1293,18 @@ async function renderProfile(wallet) {
     rankEl.style.color = "var(--text-secondary)";
     blessEl.style.color = "var(--text-secondary)";
 
-    // Clean up dynamic UI elements
-    const existingPhil = document.getElementById('skater-philanthropy-stat');
-    if(existingPhil) existingPhil.remove();
-    statsGrid.style.gridTemplateColumns = "1fr 1fr";
+    // Clean up dynamic Toggle Injector
+    const existingToggle = document.getElementById('dual-view-toggle');
+    if(existingToggle) existingToggle.remove();
 
     // 1. Fetch Objective Blockchain Reality
     const stats = await fetchWalletStats(wallet);
     
-    // 2. Identify Baseline Origin
+    // 2. Identify Status
     let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
     let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
+    let hasGiven = stats.outs > 0;
+    let isDual = isGenesisSkater && hasGiven;
 
     if(!skater) {
         let onChainName = await resolveWalletName(wallet);
@@ -1289,19 +1316,25 @@ async function renderProfile(wallet) {
         };
     }
 
-    // 3. Compute DUAL Ranks
-    let finalSkaterRank = null;
-    if (isGenesisSkater) {
-        let dummy = 0;
-        if(skater.rank === "PRO") dummy = 0.1;
-        else if(skater.rank === "AM") dummy = 0.05;
-        else if(skater.rank === "FLOW") dummy = 0.01;
-        finalSkaterRank = getRankDisplay(Math.max(dummy, stats.ins));
-    } else if (stats.ins > 0) {
-        finalSkaterRank = getRankDisplay(stats.ins); // Organic Skater based on inbound!
-    }
+    // Determine Active Page View
+    let activeView = forceView;
+    if (!activeView) { activeView = isGenesisSkater ? 'skater' : 'sponsor'; }
 
-    let finalSponsorRank = stats.outs > 0 ? getRankDisplay(stats.outs) : null;
+    // 3. Inject DUAL Profile UI Toggle Switch (Surgical DOM Splice)
+    if (isDual) {
+        const toggleDiv = document.createElement('div');
+        toggleDiv.id = 'dual-view-toggle';
+        toggleDiv.style.cssText = "display:flex; gap:10px; margin-bottom: 15px; width: 100%; justify-content:center;";
+        
+        const skStyle = activeView === 'skater' ? 'background:var(--accent-cyan); color:#000; border:none;' : 'background:transparent; color:var(--text-secondary); border:1px solid var(--accent-cyan);';
+        const spStyle = activeView === 'sponsor' ? 'background:var(--accent-gold); color:#000; border:none;' : 'background:transparent; color:var(--text-secondary); border:1px solid var(--accent-gold);';
+
+        toggleDiv.innerHTML = `
+            <button onclick="renderProfile('${wallet}', 'skater')" style="flex:1; padding:10px; border-radius:6px; cursor:pointer; font-family:'Orbitron'; font-weight:bold; font-size:0.75rem; transition:0.3s; text-transform:uppercase; ${skStyle}">🛹 SKATER PAGE</button>
+            <button onclick="renderProfile('${wallet}', 'sponsor')" style="flex:1; padding:10px; border-radius:6px; cursor:pointer; font-family:'Orbitron'; font-weight:bold; font-size:0.75rem; transition:0.3s; text-transform:uppercase; ${spStyle}">🤝 SPONSOR PAGE</button>
+        `;
+        document.getElementById('p-tags').insertAdjacentElement('afterend', toggleDiv);
+    }
 
     // 4. Update Static UI Meta
     const editBtn = document.getElementById('edit-profile-btn');
@@ -1321,69 +1354,44 @@ async function renderProfile(wallet) {
     document.getElementById('p-wallet').innerText = wallet;
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
 
-    // 5. Construct Dashboard Reality
-    if (finalSkaterRank && !finalSponsorRank) {
-        // Pure Skater
-        profileHeader.innerText = "SKATER DASHBOARD";
-        rankEl.innerHTML = finalSkaterRank.icon + " " + finalSkaterRank.title;
-        rankEl.style.color = finalSkaterRank.color;
-        profilePicEl.style.borderColor = finalSkaterRank.color;
-        profilePicEl.style.boxShadow = `0 0 25px ${finalSkaterRank.color}`;
+    // 5. Render Page Payload based on Mode
+    if (activeView === 'skater') {
+        let dummy = 0.01;
+        if(skater.rank === "PRO") dummy = 0.1;
+        else if(skater.rank === "AM") dummy = 0.05;
+        const sRank = getRankDisplay(Math.max(dummy, stats.ins));
+
+        profileHeader.innerText = "SKATER IDENTITY & BIO";
+        rankEl.innerHTML = sRank.icon + " " + sRank.title;
+        rankEl.style.color = sRank.color;
+        profilePicEl.style.borderColor = sRank.color;
+        profilePicEl.style.boxShadow = `0 0 25px ${sRank.color}`;
 
         blessingsLabel.innerText = "BLESSINGS RECEIVED";
-        blessEl.innerText = stats.ins.toFixed(4) + " SOL";
         blessEl.style.color = "var(--accent-green)";
-
-    } else if (!finalSkaterRank && finalSponsorRank) {
-        // Pure Sponsor
-        profileHeader.innerText = "SPONSOR DASHBOARD";
-        rankEl.innerHTML = finalSponsorRank.icon + " " + finalSponsorRank.title;
-        rankEl.style.color = finalSponsorRank.color;
-        profilePicEl.style.borderColor = finalSponsorRank.color;
-        profilePicEl.style.boxShadow = `0 0 25px ${finalSponsorRank.color}`;
-
-        blessingsLabel.innerText = "TOTAL GIVEN";
-        blessEl.innerText = stats.outs.toFixed(4) + " SOL";
-        blessEl.style.color = "var(--accent-green)";
-
-    } else if (finalSkaterRank && finalSponsorRank) {
-        // LEGEND (Dual Status)
-        profileHeader.innerText = "LEGEND DASHBOARD (DUAL STATUS)";
-        statsGrid.style.gridTemplateColumns = isMobile() ? "1fr 1fr" : "1fr 1fr 1fr";
-
-        rankEl.innerHTML = finalSkaterRank.icon + " " + finalSkaterRank.title;
-        rankEl.style.color = finalSkaterRank.color;
-
-        blessingsLabel.innerText = "BLESSINGS RECEIVED";
-        blessEl.innerText = stats.ins.toFixed(4) + " SOL";
-        blessEl.style.color = "var(--accent-green)";
-
-        // Inject 3rd Box dynamically
-        const phBox = document.createElement('div');
-        phBox.id = 'skater-philanthropy-stat';
-        phBox.style.cssText = "background:var(--bg-panel); padding:15px; border-radius:10px; border:1px solid var(--card-border);";
-        phBox.innerHTML = `
-            <p style="font-size:0.6rem; color: var(--text-secondary);">PHILANTHROPY (SPONSOR)</p>
-            <p style="color:${finalSponsorRank.color}; font-weight:900; font-size: 1.1rem;">
-                ${finalSponsorRank.icon} ${stats.outs.toFixed(4)} SOL
-            </p>`;
-        statsGrid.appendChild(phBox);
-
-        // Fused dual glow
-        profilePicEl.style.borderColor = finalSkaterRank.color;
-        profilePicEl.style.boxShadow = `0 0 15px ${finalSkaterRank.color}, 0 0 35px ${finalSponsorRank.color}`;
+        try {
+            const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
+            blessEl.innerText = (bal / 1e9).toFixed(4) + " SOL";
+        } catch(e) { blessEl.innerText = "0.00 SOL"; }
 
     } else {
-        // Zero interactions
-        profileHeader.innerText = "ON-CHAIN PROFILE";
-        rankEl.innerHTML = "🚫 POSER";
-        rankEl.style.color = "var(--accent-red)";
-        profilePicEl.style.borderColor = "var(--accent-red)";
-        profilePicEl.style.boxShadow = `none`;
+        const spRank = getRankDisplay(stats.outs);
+        
+        profileHeader.innerText = "SPONSOR PHILANTHROPY & BIO";
+        rankEl.innerHTML = spRank.icon + " " + spRank.title;
+        rankEl.style.color = spRank.color;
+        profilePicEl.style.borderColor = spRank.color;
+        profilePicEl.style.boxShadow = `0 0 25px ${spRank.color}`;
 
-        blessingsLabel.innerText = "ON-CHAIN ACTIVITY";
-        blessEl.innerText = "0.0000 SOL";
-        blessEl.style.color = "var(--accent-red)";
+        blessingsLabel.innerText = "TOTAL GIVEN TO COMMUNITY";
+        blessEl.innerText = stats.outs.toFixed(4) + " SOL";
+        blessEl.style.color = "var(--accent-green)";
+        
+        if (stats.outs === 0) {
+            blessEl.style.color = "var(--accent-red)";
+            rankEl.innerHTML = "🚫 POSER";
+            rankEl.style.color = "var(--accent-red)";
+        }
     }
 
     // 6. Secondary Memo Sync
@@ -1555,7 +1563,7 @@ async function sendSOL(amount, destination) {
         if(document.getElementById('profile-content').style.display === 'block') {
             renderProfile(document.getElementById('p-wallet').innerText);
         }
-        fetchHeaderDualRank(publicKey); // Re-scan dual header
+        fetchHeaderDualRank(publicKey); 
     }, 1500);
 
   } catch (err) { 
