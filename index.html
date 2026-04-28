@@ -396,8 +396,7 @@ main {
             
             <div id="p-ig-feed-section" style="display:none; margin-bottom: 35px;">
                 <h3 style="color:var(--accent-gold); margin-bottom:20px; font-size: 1.1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">📸 INSTAGRAM FEED</h3>
-                <div id="ig-feed-container" class="ig-feed-wrapper">
-                    </div>
+                <div id="ig-feed-container" class="ig-feed-wrapper"></div>
             </div>
 
             <button onclick="navigateTo('home')" class="view-profile-btn" style="padding:15px; font-weight: bold; width: auto;">BACK TO HOME</button>
@@ -459,7 +458,6 @@ function getIGEmbed(url) {
 async function renderProfile(wallet) {
     const sk = SKATER_PROFILES.find(s => s.wallet === wallet) || { name: "Anon", styles: ["New"], pic: "https://i.pravatar.cc/400?u="+wallet, ig: "" };
     
-    // FETCH ON-CHAIN MEMO FOR PROFILE OVERRIDE
     try {
         const sigs = await new solanaWeb3.Connection(RPC_URL, "confirmed").getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 5 });
         for (let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) { 
@@ -480,10 +478,12 @@ async function renderProfile(wallet) {
     if (sk.ig) {
         feedSec.style.display = 'block';
         container.innerHTML = getIGEmbed(sk.ig);
-        // STRATEGIC: HYDRATE THE EMBED
-        if (window.instgrm) {
-            window.instgrm.Embeds.process();
-        }
+        /* STRATEGIC TIMING: Wait 50ms for HTML to settle before processing embed */
+        setTimeout(() => {
+            if (window.instgrm) {
+                window.instgrm.Embeds.process();
+            }
+        }, 50);
     } else {
         feedSec.style.display = 'none';
     }
@@ -505,7 +505,7 @@ function openEditModal() {
     document.getElementById('edit-name').value = document.getElementById('p-name').innerText;
     document.getElementById('edit-pic').value = document.getElementById('p-img').src;
     document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
-    document.getElementById('edit-ig').value = ""; // Populate from data if needed
+    document.getElementById('edit-ig').value = ""; 
     document.getElementById('edit-modal').style.display = 'flex';
 }
 
@@ -516,17 +516,14 @@ async function saveProfileWeb3() {
     const pic = document.getElementById("edit-pic").value;
     const bio = document.getElementById("edit-bio").value;
     const ig = document.getElementById("edit-ig").value;
-    
     const data = JSON.stringify({ sk8: "v1", name, pic, bio, ig });
     const encoded = new TextEncoder().encode(data);
-    
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({
         keys: [{ pubkey: new solanaWeb3.PublicKey(publicKey), isSigner: true, isWritable: true }],
         programId: MEMO_ID,
         data: encoded
     }));
-    
     tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash;
     tx.feePayer = new solanaWeb3.PublicKey(publicKey);
     const signed = await provider.signTransaction(tx);
