@@ -731,7 +731,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
                     <p id="p-rank" style="font-weight:900; font-size: 1.1rem;"></p>
                 </div>
                 <div style="background:var(--bg-panel); padding:15px; border-radius:10px; border:1px solid var(--card-border);">
-                    <p style="font-size:0.6rem; color: var(--text-secondary);">ON-CHAIN BLESSINGS</p>
+                    <p id="blessings-label" style="font-size:0.6rem; color: var(--text-secondary);">ON-CHAIN BLESSINGS</p>
                     <p id="p-blessings" style="color:var(--accent-green); font-weight:900; font-size: 1.1rem;">0.00 SOL</p>
                 </div>
             </div>
@@ -1045,7 +1045,8 @@ function getRankDisplay(amount) {
     if(amount >= 0.1) return { title: "PRO", color: "var(--gold-font)", icon: '<i class="fas fa-trophy" style="margin-right:8px; color:var(--gold-font); text-shadow:0 0 5px rgba(255,215,0,0.5);"></i>', glow: 'text-shadow: 0 0 8px rgba(255,215,0,0.4); font-weight: 900;' };
     if(amount >= 0.05) return { title: "AM", color: "var(--silver-font)", icon: '<i class="fas fa-medal" style="margin-right:8px; color:var(--silver-font);"></i>', glow: 'font-weight: bold;' };
     if(amount >= 0.01) return { title: "FLOW", color: "var(--bronze-font)", icon: '<i class="fas fa-medal" style="margin-right:8px; color:var(--bronze-font);"></i>', glow: 'font-weight: bold;' };
-    return { title: "SUPPORTER", color: "var(--text-secondary)", icon: '', glow: '' };
+    if(amount > 0) return { title: "SUPPORTER", color: "var(--text-secondary)", icon: '<i class="fas fa-handshake" style="margin-right:8px; color:var(--text-secondary);"></i>', glow: '' };
+    return { title: "POSER", color: "var(--accent-red)", icon: '🚫', glow: '' };
 }
 
 async function resolveWalletName(wallet) {
@@ -1199,22 +1200,51 @@ function navigateTo(page, wallet = null) {
 async function renderProfile(wallet) {
     const isSkater = SKATER_REGISTRY.includes(wallet);
     let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
-    
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+
+    let totalGiven = 0;
+    let isPoser = false;
+
     if(!skater) {
         let onChainName = await resolveWalletName(wallet);
         
+        // Dynamically scan chain to determine true Total Given by Sponsor
+        try {
+            document.getElementById('p-rank').innerText = "SCANNING...";
+            document.getElementById('p-blessings').innerText = "SCANNING...";
+            
+            const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 25 });
+            for (let s of sigs) {
+                const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+                if (tx && tx.meta) {
+                    const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
+                    const wIdx = accountKeys.indexOf(wallet);
+                    if(wIdx !== -1) {
+                        const diff = (tx.meta.preBalances[wIdx] - tx.meta.postBalances[wIdx] - tx.meta.fee) / 1e9;
+                        if(diff > 0.001) totalGiven += diff; // It's an outgoing send!
+                    }
+                }
+            }
+        } catch(e) { console.log("Scan error", e); }
+
+        const rankData = getRankDisplay(totalGiven);
+        
         skater = { 
             name: onChainName, 
-            rank: "SUPPORTER", 
+            rank: rankData.title,
+            rankIcon: rankData.icon,
+            rankColor: rankData.color,
             styles: ["Whale", "Sponsor"], 
             pic: "https://i.pravatar.cc/400?u=" + wallet, 
             bio: "Fueling the revolution. This is an on-chain sponsor profile." 
         };
+        isPoser = totalGiven === 0;
     }
     
     const editBtn = document.getElementById('edit-profile-btn');
     const profileDonateBtn = document.getElementById('profile-donate-btn');
     const profileHeader = document.getElementById('profile-header-text');
+    const blessingsLabel = document.getElementById('blessings-label');
     
     if (publicKey && publicKey === wallet) {
         editBtn.style.display = 'block';
@@ -1235,18 +1265,40 @@ async function renderProfile(wallet) {
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
     
     const rankEl = document.getElementById('p-rank');
-    rankEl.innerText = skater.rank;
-    if (skater.rank === "FLOW") rankEl.style.color = "var(--bronze-font)";
-    else if (skater.rank === "AM") rankEl.style.color = "var(--silver-font)";
-    else if (skater.rank === "PRO") rankEl.style.color = "var(--gold-font)";
-    else rankEl.style.color = "var(--accent-cyan)";
-    
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    try {
-        const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
-        document.getElementById('p-blessings').innerText = (bal / 1e9).toFixed(4) + " SOL";
-    } catch(e) { document.getElementById('p-blessings').innerText = "0.00 SOL"; }
+    const blessEl = document.getElementById('p-blessings');
 
+    // Display logic split between Skater (Balance) and Sponsor (Total Given)
+    if (isSkater) {
+        rankEl.innerText = skater.rank;
+        if (skater.rank === "FLOW") rankEl.style.color = "var(--bronze-font)";
+        else if (skater.rank === "AM") rankEl.style.color = "var(--silver-font)";
+        else if (skater.rank === "PRO") rankEl.style.color = "var(--gold-font)";
+        else rankEl.style.color = "var(--accent-cyan)";
+        
+        if(blessingsLabel) blessingsLabel.innerText = "ON-CHAIN BLESSINGS";
+        blessEl.style.color = "var(--accent-green)";
+        try {
+            const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
+            blessEl.innerText = (bal / 1e9).toFixed(4) + " SOL";
+        } catch(e) { blessEl.innerText = "0.00 SOL"; }
+    } else {
+        // Sponsor Override
+        rankEl.innerHTML = (skater.rankIcon ? skater.rankIcon + " " : "") + skater.rank;
+        rankEl.style.color = skater.rankColor;
+        
+        if(blessingsLabel) blessingsLabel.innerText = "TOTAL GIVEN";
+        blessEl.innerText = totalGiven.toFixed(4) + " SOL";
+        
+        if (isPoser) {
+            blessEl.style.color = "var(--accent-red)";
+            rankEl.innerHTML = "🚫 POSER";
+            rankEl.style.color = "var(--accent-red)";
+        } else {
+            blessEl.style.color = "var(--accent-green)";
+        }
+    }
+
+    // Secondary Memo Sync for manual profile updates
     try {
         document.getElementById('p-name').innerText += " (Syncing...)";
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
