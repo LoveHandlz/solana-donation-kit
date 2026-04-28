@@ -876,6 +876,7 @@ const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
+/* Ghost Wallet Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6 Purged Completely */
 const SKATER_REGISTRY = [
     "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW",
     "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ",
@@ -886,25 +887,34 @@ const SKATER_REGISTRY = [
     "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7" 
 ];
 
+/* Hardcoded Ranks removed. System defaults to GROMMET unless they have received on-chain blessings. */
 const SKATER_PROFILES = [
-    { wallet: "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW", name: "GREG VALENCIA", rank: "PRO", styles: ["Street", "Flow"], pic: "https://i.pravatar.cc/400?img=11", bio: "Original Sk8Coin pioneer." },
-    { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", rank: "AM", styles: ["Gaps", "Stairs"], pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
-    { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", rank: "FLOW", styles: ["Balance", "Flatground"], pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
-    { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", rank: "PRO", styles: ["Vert", "Transition"], pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
-    { wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", name: "SHREDDER 5", rank: "AM", styles: ["Park", "Flow"], pic: "https://i.pravatar.cc/400?img=15", bio: "Style and flow over everything." },
-    { wallet: "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH", name: "SHREDDER 6", rank: "AM", styles: ["Street"], pic: "https://i.pravatar.cc/400?img=16", bio: "Raw street talent." },
-    { wallet: "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", name: "SHREDDER 7", rank: "PRO", styles: ["Technical"], pic: "https://i.pravatar.cc/400?img=17", bio: "Precision skating." },
-    { wallet: "9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj", name: "SHREDDER 8", rank: "AM", styles: ["Big Rails"], pic: "https://i.pravatar.cc/400?img=18", bio: "Handrail specialist." },
-    { wallet: "HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq", name: "SHREDDER 9", rank: "PRO", styles: ["Gaps"], pic: "https://i.pravatar.cc/400?img=19", bio: "Big gap hunter." },
-    { wallet: "DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b", name: "SHREDDER 10", rank: "AM", styles: ["Technical"], pic: "https://i.pravatar.cc/400?img=20", bio: "Ledge master." },
-    { wallet: "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7", name: "SHREDDER 11", rank: "FLOW", styles: ["Flatground"], pic: "https://i.pravatar.cc/400?img=21", bio: "Creative flatground skating." }
+    { wallet: "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW", name: "GREG VALENCIA", styles: ["Street", "Flow"], pic: "https://i.pravatar.cc/400?img=11", bio: "Original Sk8Coin pioneer." },
+    { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", styles: ["Gaps", "Stairs"], pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
+    { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", styles: ["Balance", "Flatground"], pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
+    { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", styles: ["Vert", "Transition"], pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
+    { wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", name: "SHREDDER 5", styles: ["Park", "Flow"], pic: "https://i.pravatar.cc/400?img=15", bio: "Style and flow over everything." },
+    { wallet: "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH", name: "SHREDDER 6", styles: ["Street"], pic: "https://i.pravatar.cc/400?img=16", bio: "Raw street talent." },
+    { wallet: "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", name: "SHREDDER 7", styles: ["Technical"], pic: "https://i.pravatar.cc/400?img=17", bio: "Precision skating." },
+    { wallet: "9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj", name: "SHREDDER 8", styles: ["Big Rails"], pic: "https://i.pravatar.cc/400?img=18", bio: "Handrail specialist." },
+    { wallet: "HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq", name: "SHREDDER 9", styles: ["Gaps"], pic: "https://i.pravatar.cc/400?img=19", bio: "Big gap hunter." },
+    { wallet: "DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b", name: "SHREDDER 10", styles: ["Technical"], pic: "https://i.pravatar.cc/400?img=20", bio: "Ledge master." },
+    { wallet: "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7", name: "SHREDDER 11", styles: ["Flatground"], pic: "https://i.pravatar.cc/400?img=21", bio: "Creative flatground skating." }
 ];
 
 async function getSolPrice() {
     try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd'); const d = await r.json(); solPrice = d.solana.usd; } catch (e) {}
 }
 
-function getProvider() { return ("phantom" in window) ? window.phantom?.solana : null; }
+function getProvider() {
+    if ("phantom" in window) {
+        const p = window.phantom?.solana;
+        if (p?.isPhantom) {
+            return p;
+        }
+    }
+    return null;
+}
 
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -940,8 +950,8 @@ async function fetchWalletStats(wallet) {
                     const pre = tx.meta.preBalances[wIdx];
                     const post = tx.meta.postBalances[wIdx];
                     const diff = (post - pre) / 1e9;
-                    if (diff < -0.001) outs += Math.abs(diff); // Sent (Sponsor Activity)
-                    else if (diff > 0.001) ins += diff;        // Received (Blessings)
+                    if (diff < -0.001) outs += Math.abs(diff); 
+                    else if (diff > 0.001) ins += diff;        
                 }
             }
         }
@@ -951,12 +961,13 @@ async function fetchWalletStats(wallet) {
 
 async function handleWalletAction() {
     if (publicKey) { 
-        if (confirm("Disconnect Wallet?")) { 
-            await provider.disconnect(); 
-            publicKey = null; 
-            updateWalletUI(); 
-            checkPersistence(); 
-        } 
+        // Pure silent disconnect execution. No annoying popups.
+        try {
+            if (provider && provider.disconnect) await provider.disconnect();
+        } catch(e) {}
+        publicKey = null; 
+        updateWalletUI(); 
+        checkPersistence(); 
     } else { 
         provider = getProvider(); 
         
@@ -965,11 +976,11 @@ async function handleWalletAction() {
                 const dAppUrl = encodeURIComponent(window.location.href);
                 const ref = encodeURIComponent(window.location.origin);
                 window.location.href = `https://phantom.app/ul/browse/${dAppUrl}?ref=${ref}`;
-                return;
             } else {
                 alert("Install Phantom Wallet Extension!"); 
-                return; 
+                window.open("https://phantom.app/", "_blank");
             }
+            return;
         } 
 
         try {
@@ -1012,7 +1023,7 @@ function updateWalletUI() {
     updateDonateButtons();
 }
 
-// HEADER SPLICE: Let Skater dynamically choose which profile to edit
+// DYNAMIC HEADER
 async function fetchHeaderDualRank(wallet) {
     const stats = await fetchWalletStats(wallet);
     const skaterPanel = document.getElementById("skater-auth-panel");
@@ -1024,21 +1035,13 @@ async function fetchHeaderDualRank(wallet) {
     let skaterRankDisplay = null;
     let sponsorRankDisplay = null;
 
-    if (isGenesisSkater) {
-        let dummy = 0.01;
-        const skt = SKATER_PROFILES.find(s => s.wallet === wallet);
-        if(skt && skt.rank === "PRO") dummy = 0.1;
-        else if(skt && skt.rank === "AM") dummy = 0.05;
-        skaterRankDisplay = getRankDisplay(Math.max(dummy, stats.ins));
-    } else if (stats.ins > 0) {
-        skaterRankDisplay = getRankDisplay(stats.ins);
+    if (isGenesisSkater || stats.ins > 0) {
+        skaterRankDisplay = getRankDisplay(stats.ins, true);
     }
-
     if (stats.outs > 0) {
-        sponsorRankDisplay = getRankDisplay(stats.outs);
+        sponsorRankDisplay = getRankDisplay(stats.outs, false);
     }
 
-    // Dynamic Header Splice Logic
     if (isDual) {
         skaterPanel.innerHTML = `
             <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">DUAL RANK: 
@@ -1089,6 +1092,7 @@ async function fetchBalance() {
     if(emojiEl) emojiEl.innerText = emoji;
 }
 
+// VIDEO CARD INJECTION: Injecting real-time ranks above the wallet balance dynamically
 async function fetchSkaterBalances() {
     if (solPrice === 0) await getSolPrice();
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
@@ -1097,7 +1101,14 @@ async function fetchSkaterBalances() {
         try {
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(el.dataset.address));
             const sol = bal / solanaWeb3.LAMPORTS_PER_SOL;
-            el.innerHTML = `Blessings: ${sol.toFixed(4)} SOL <span class="usd-val">$${(sol*solPrice).toFixed(2)}</span>`;
+            const rankData = getRankDisplay(sol, true); // true = forces Skater rank logic
+            
+            el.innerHTML = `
+                <div style="color:${rankData.color}; font-size:0.75rem; margin-bottom:4px; letter-spacing:1px; font-weight:900; text-transform:uppercase;">
+                    ${rankData.icon} ${rankData.title}
+                </div>
+                Blessings: ${sol.toFixed(4)} SOL <span class="usd-val">$${(sol*solPrice).toFixed(2)}</span>
+            `;
         } catch(e) { el.innerText = "Check wallet..."; }
     }
 }
@@ -1111,12 +1122,18 @@ async function fetchTreasuryBalance() {
     document.getElementById("treasury-usd-balance").innerText = "$" + (solValue * solPrice).toFixed(2);
 }
 
-function getRankDisplay(amount) {
+// RANK EVOLUTION: Introducing the baseline GROMMET natively
+function getRankDisplay(amount, isSkater = false) {
     if(amount >= 0.1) return { title: "PRO", color: "var(--gold-font)", icon: '<i class="fas fa-trophy" style="margin-right:8px; color:var(--gold-font); text-shadow:0 0 5px rgba(255,215,0,0.5);"></i>', glow: 'text-shadow: 0 0 8px rgba(255,215,0,0.4); font-weight: 900;' };
     if(amount >= 0.05) return { title: "AM", color: "var(--silver-font)", icon: '<i class="fas fa-medal" style="margin-right:8px; color:var(--silver-font);"></i>', glow: 'font-weight: bold;' };
     if(amount >= 0.01) return { title: "FLOW", color: "var(--bronze-font)", icon: '<i class="fas fa-medal" style="margin-right:8px; color:var(--bronze-font);"></i>', glow: 'font-weight: bold;' };
-    if(amount > 0) return { title: "SUPPORTER", color: "var(--text-secondary)", icon: '<i class="fas fa-handshake" style="margin-right:8px; color:var(--text-secondary);"></i>', glow: '' };
-    return { title: "POSER", color: "var(--accent-red)", icon: '🚫', glow: '' };
+    
+    if (isSkater) {
+        return { title: "GROMMET", color: "var(--accent-green)", icon: '<i class="fas fa-seedling" style="margin-right:8px; color:var(--accent-green);"></i>', glow: '' };
+    } else {
+        if(amount > 0) return { title: "SUPPORTER", color: "var(--text-secondary)", icon: '<i class="fas fa-handshake" style="margin-right:8px; color:var(--text-secondary);"></i>', glow: '' };
+        return { title: "POSER", color: "var(--accent-red)", icon: '🚫', glow: '' };
+    }
 }
 
 async function resolveWalletName(wallet) {
@@ -1170,7 +1187,7 @@ async function refreshLeaderboardData() {
 
         treasuryList.innerHTML = "";
         rawSponsors.forEach((s, index) => {
-            const rank = getRankDisplay(s.val);
+            const rank = getRankDisplay(s.val, false);
             const isTopDog = index === 0 ? "border: 1px solid var(--accent-gold); background: rgba(255, 215, 0, 0.05); padding: 8px; border-radius: 8px;" : "";
             const flexIcon = index === 0 ? '<i class="fas fa-crown" style="color:var(--accent-gold); margin-right:8px;"></i>' : '';
             
@@ -1211,7 +1228,7 @@ async function refreshLeaderboardData() {
         }));
 
         skaterList.innerHTML = entries.map(e => {
-            const rank = getRankDisplay(e.val);
+            const rank = getRankDisplay(e.val, false);
             return `<li class="leader-item">
                 <div style="display: flex; flex-direction: column;">
                     <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${e.addr}')">${rank.icon} ${e.name} helped ${e.skater}</span> 
@@ -1279,7 +1296,7 @@ function navigateTo(page, wallet = null) {
   window.scrollTo(0,0);
 }
 
-// PROFILE EVOLUTION: 2 Distinct Toggleable Profile Pages
+// 2 Distinct Toggleable Profile Pages 
 async function renderProfile(wallet, forceView = null) {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const profilePicEl = document.getElementById('p-img');
@@ -1293,14 +1310,11 @@ async function renderProfile(wallet, forceView = null) {
     rankEl.style.color = "var(--text-secondary)";
     blessEl.style.color = "var(--text-secondary)";
 
-    // Clean up dynamic Toggle Injector
     const existingToggle = document.getElementById('dual-view-toggle');
     if(existingToggle) existingToggle.remove();
 
-    // 1. Fetch Objective Blockchain Reality
     const stats = await fetchWalletStats(wallet);
     
-    // 2. Identify Status
     let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
     let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
     let hasGiven = stats.outs > 0;
@@ -1316,11 +1330,9 @@ async function renderProfile(wallet, forceView = null) {
         };
     }
 
-    // Determine Active Page View
     let activeView = forceView;
-    if (!activeView) { activeView = isGenesisSkater ? 'skater' : 'sponsor'; }
+    if (!activeView) { activeView = (isGenesisSkater || stats.ins > 0) ? 'skater' : 'sponsor'; }
 
-    // 3. Inject DUAL Profile UI Toggle Switch (Surgical DOM Splice)
     if (isDual) {
         const toggleDiv = document.createElement('div');
         toggleDiv.id = 'dual-view-toggle';
@@ -1336,7 +1348,6 @@ async function renderProfile(wallet, forceView = null) {
         document.getElementById('p-tags').insertAdjacentElement('afterend', toggleDiv);
     }
 
-    // 4. Update Static UI Meta
     const editBtn = document.getElementById('edit-profile-btn');
     const profileDonateBtn = document.getElementById('profile-donate-btn');
     
@@ -1354,12 +1365,8 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('p-wallet').innerText = wallet;
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
 
-    // 5. Render Page Payload based on Mode
     if (activeView === 'skater') {
-        let dummy = 0.01;
-        if(skater.rank === "PRO") dummy = 0.1;
-        else if(skater.rank === "AM") dummy = 0.05;
-        const sRank = getRankDisplay(Math.max(dummy, stats.ins));
+        const sRank = getRankDisplay(stats.ins, true);
 
         profileHeader.innerText = "SKATER IDENTITY & BIO";
         rankEl.innerHTML = sRank.icon + " " + sRank.title;
@@ -1375,7 +1382,7 @@ async function renderProfile(wallet, forceView = null) {
         } catch(e) { blessEl.innerText = "0.00 SOL"; }
 
     } else {
-        const spRank = getRankDisplay(stats.outs);
+        const spRank = getRankDisplay(stats.outs, false);
         
         profileHeader.innerText = "SPONSOR PHILANTHROPY & BIO";
         rankEl.innerHTML = spRank.icon + " " + spRank.title;
@@ -1394,7 +1401,6 @@ async function renderProfile(wallet, forceView = null) {
         }
     }
 
-    // 6. Secondary Memo Sync
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
         for (let s of sigs) {
@@ -1585,24 +1591,26 @@ function createConfetti() {
 
 function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
 
-window.onload = async () => {
+window.addEventListener('load', async () => {
     await getSolPrice();
     const p = getProvider();
-    if (p?.isPhantom) {
+    if (p) {
+        provider = p;
         try { 
-            const resp = await p.connect({ onlyIfTrusted: true }); 
-            publicKey = resp.publicKey.toString(); 
-            provider = p; 
-            updateWalletUI(); 
-            fetchBalance(); 
-            checkPersistence();
+            const resp = await provider.connect({ onlyIfTrusted: true }); 
+            if(resp.publicKey) {
+                publicKey = resp.publicKey.toString(); 
+                updateWalletUI(); 
+                fetchBalance(); 
+                checkPersistence();
+            }
         } catch (e) {
             checkPersistence(); 
         }
     } else {
         checkPersistence(); 
     }
-};
+});
 </script>
 </body>
 </html>
