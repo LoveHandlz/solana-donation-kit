@@ -980,8 +980,9 @@ function updateWalletUI() {
             else if (skater.rank === "PRO") authRank.style.color = "var(--gold-font)";
             else authRank.style.color = "#fff";
         } else {
-            authRank.innerText = "SPONSOR";
-            authRank.style.color = "var(--accent-cyan)";
+            authRank.innerText = "SCANNING...";
+            authRank.style.color = "var(--text-secondary)";
+            fetchHeaderSponsorRank(publicKey);
         }
     } 
     else { 
@@ -993,6 +994,33 @@ function updateWalletUI() {
     }
     
     updateDonateButtons();
+}
+
+async function fetchHeaderSponsorRank(wallet) {
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    let totalGiven = 0;
+    try {
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 25 });
+        for (let s of sigs) {
+            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+            if (tx && tx.meta) {
+                const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
+                const wIdx = accountKeys.indexOf(wallet);
+                if(wIdx !== -1) {
+                    const diff = (tx.meta.preBalances[wIdx] - tx.meta.postBalances[wIdx] - tx.meta.fee) / 1e9;
+                    if(diff > 0.001) totalGiven += diff;
+                }
+            }
+        }
+    } catch(e) { console.log("Header scan error", e); }
+
+    const rankData = getRankDisplay(totalGiven);
+    const authRank = document.getElementById("auth-skater-rank");
+    
+    if (authRank && publicKey === wallet) {
+        authRank.innerHTML = (totalGiven === 0 ? "🚫 " : "") + rankData.title;
+        authRank.style.color = rankData.color;
+    }
 }
 
 async function fetchBalance() {
@@ -1473,6 +1501,7 @@ async function sendSOL(amount, destination) {
         if(document.getElementById('profile-content').style.display === 'block') {
             renderProfile(document.getElementById('p-wallet').innerText);
         }
+        fetchHeaderSponsorRank(publicKey); // Re-scan header after donation
     }, 1500);
 
   } catch (err) { 
