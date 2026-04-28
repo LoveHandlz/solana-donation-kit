@@ -877,6 +877,7 @@ const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
 const SKATER_REGISTRY = [
+    "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW",
     "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ",
     "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW",
     "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH",
@@ -886,6 +887,7 @@ const SKATER_REGISTRY = [
 ];
 
 const SKATER_PROFILES = [
+    { wallet: "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW", name: "GREG VALENCIA", rank: "PRO", styles: ["Street", "Flow"], pic: "https://i.pravatar.cc/400?img=11", bio: "Original Sk8Coin pioneer." },
     { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", rank: "AM", styles: ["Gaps", "Stairs"], pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
     { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", rank: "FLOW", styles: ["Balance", "Flatground"], pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
     { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", rank: "PRO", styles: ["Vert", "Transition"], pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
@@ -921,6 +923,30 @@ function updateDonateButtons() {
             btn.style.display = '';
         }
     });
+}
+
+// THE EVOLUTION: Master Blockchain Scanner for Ins (Received) and Outs (Given)
+async function fetchWalletStats(wallet) {
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    let ins = 0; let outs = 0;
+    try {
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 25 });
+        for (let s of sigs) {
+            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+            if (tx && tx.meta) {
+                const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
+                const wIdx = accountKeys.indexOf(wallet);
+                if(wIdx !== -1) {
+                    const pre = tx.meta.preBalances[wIdx];
+                    const post = tx.meta.postBalances[wIdx];
+                    const diff = (post - pre) / 1e9;
+                    if (diff < -0.001) outs += Math.abs(diff); // Sent (Sponsor Activity)
+                    else if (diff > 0.001) ins += diff;        // Received (Blessings)
+                }
+            }
+        }
+    } catch(e) { console.log("Ledger scan limited", e); }
+    return { ins, outs };
 }
 
 async function handleWalletAction() {
@@ -963,7 +989,6 @@ function updateWalletUI() {
     const balContainer = document.getElementById("wallet-balance-container");
     const skaterPanel = document.getElementById("skater-auth-panel");
     const protocolLed = document.getElementById("protocol-led");
-    const authRank = document.getElementById("auth-skater-rank");
     
     if (publicKey) { 
         document.body.classList.add("wallet-connected"); 
@@ -972,22 +997,9 @@ function updateWalletUI() {
         if(protocolLed) protocolLed.style.display = "inline-block";
         
         skaterPanel.style.display = "flex"; 
-        const skater = SKATER_PROFILES.find(s => s.wallet === publicKey);
+        document.getElementById('skater-auth-panel').querySelector('span').innerHTML = 'RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i> SYNCING...</span>';
         
-        if(skater) {
-            let dummyAmount = 0;
-            if(skater.rank === "PRO") dummyAmount = 0.1;
-            else if(skater.rank === "AM") dummyAmount = 0.05;
-            else if(skater.rank === "FLOW") dummyAmount = 0.01;
-            
-            const rankData = getRankDisplay(dummyAmount);
-            authRank.innerHTML = rankData.icon + " " + skater.rank;
-            authRank.style.color = rankData.color;
-        } else {
-            authRank.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i> SCANNING...';
-            authRank.style.color = "var(--text-secondary)";
-            fetchHeaderSponsorRank(publicKey);
-        }
+        fetchHeaderDualRank(publicKey);
     } 
     else { 
         document.body.classList.remove("wallet-connected");
@@ -1000,30 +1012,41 @@ function updateWalletUI() {
     updateDonateButtons();
 }
 
-async function fetchHeaderSponsorRank(wallet) {
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let totalGiven = 0;
-    try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 25 });
-        for (let s of sigs) {
-            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
-            if (tx && tx.meta) {
-                const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
-                const wIdx = accountKeys.indexOf(wallet);
-                if(wIdx !== -1) {
-                    const diff = (tx.meta.preBalances[wIdx] - tx.meta.postBalances[wIdx] - tx.meta.fee) / 1e9;
-                    if(diff > 0.001) totalGiven += diff;
-                }
-            }
-        }
-    } catch(e) { console.log("Header scan error", e); }
-
-    const rankData = getRankDisplay(totalGiven);
+// HEADER DUALITY: Dynamic representation of both sides of the coin
+async function fetchHeaderDualRank(wallet) {
+    const stats = await fetchWalletStats(wallet);
     const authRank = document.getElementById("auth-skater-rank");
-    
-    if (authRank && publicKey === wallet) {
-        authRank.innerHTML = rankData.icon + " " + rankData.title;
-        authRank.style.color = rankData.color;
+    if (!authRank || publicKey !== wallet) return;
+
+    let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
+    let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
+
+    let skaterDisplay = "";
+    if (isGenesisSkater) {
+         let dummy = 0;
+         if(skater && skater.rank === "PRO") dummy = 0.1;
+         else if(skater && skater.rank === "AM") dummy = 0.05;
+         else if(skater && skater.rank === "FLOW") dummy = 0.01;
+         const sRank = getRankDisplay(Math.max(dummy, stats.ins));
+         skaterDisplay = `<span style="color:${sRank.color}">${sRank.icon} ${sRank.title}</span>`;
+    } else if (stats.ins > 0) {
+         const sRank = getRankDisplay(stats.ins);
+         skaterDisplay = `<span style="color:${sRank.color}">${sRank.icon} SKATER</span>`;
+    }
+
+    let sponsorDisplay = "";
+    if (stats.outs > 0) {
+         const spRank = getRankDisplay(stats.outs);
+         sponsorDisplay = `<span style="color:${spRank.color}">${spRank.icon} SPONSOR</span>`;
+    }
+
+    if (!skaterDisplay && !sponsorDisplay) {
+         authRank.innerHTML = "🚫 POSER";
+         authRank.style.color = "var(--accent-red)";
+    } else if (skaterDisplay && sponsorDisplay) {
+         authRank.innerHTML = skaterDisplay + ` <span style="color:#fff; opacity:0.3; margin:0 4px;">|</span> ` + sponsorDisplay;
+    } else {
+         authRank.innerHTML = skaterDisplay || sponsorDisplay;
     }
 }
 
@@ -1229,66 +1252,67 @@ function navigateTo(page, wallet = null) {
   window.scrollTo(0,0);
 }
 
+// PROFILE EVOLUTION: The Reality Renderer
 async function renderProfile(wallet) {
-    const isSkater = SKATER_REGISTRY.includes(wallet);
-    let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const profilePicEl = document.getElementById('p-img');
+    const rankEl = document.getElementById('p-rank');
+    const blessEl = document.getElementById('p-blessings');
+    const statsGrid = rankEl.parentElement.parentElement;
+    const blessingsLabel = document.getElementById('blessings-label');
+    const profileHeader = document.getElementById('profile-header-text');
 
-    let totalGiven = 0;
-    let isPoser = false;
+    rankEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i> SYNCING...';
+    blessEl.innerText = "SYNCING...";
+    rankEl.style.color = "var(--text-secondary)";
+    blessEl.style.color = "var(--text-secondary)";
+
+    // Clean up dynamic UI elements
+    const existingPhil = document.getElementById('skater-philanthropy-stat');
+    if(existingPhil) existingPhil.remove();
+    statsGrid.style.gridTemplateColumns = "1fr 1fr";
+
+    // 1. Fetch Objective Blockchain Reality
+    const stats = await fetchWalletStats(wallet);
+    
+    // 2. Identify Baseline Origin
+    let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
+    let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
 
     if(!skater) {
         let onChainName = await resolveWalletName(wallet);
-        
-        // Dynamically scan chain to determine true Total Given by Sponsor
-        try {
-            document.getElementById('p-rank').innerText = "SCANNING...";
-            document.getElementById('p-blessings').innerText = "SCANNING...";
-            
-            const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 25 });
-            for (let s of sigs) {
-                const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
-                if (tx && tx.meta) {
-                    const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
-                    const wIdx = accountKeys.indexOf(wallet);
-                    if(wIdx !== -1) {
-                        const diff = (tx.meta.preBalances[wIdx] - tx.meta.postBalances[wIdx] - tx.meta.fee) / 1e9;
-                        if(diff > 0.001) totalGiven += diff; // It's an outgoing send!
-                    }
-                }
-            }
-        } catch(e) { console.log("Scan error", e); }
-
-        const rankData = getRankDisplay(totalGiven);
-        
         skater = { 
             name: onChainName, 
-            rank: rankData.title,
-            rankIcon: rankData.icon,
-            rankColor: rankData.color,
-            styles: ["Whale", "Sponsor"], 
+            styles: stats.ins > 0 ? ["Organic Skater"] : ["Whale", "Sponsor"], 
             pic: "https://i.pravatar.cc/400?u=" + wallet, 
-            bio: "Fueling the revolution. This is an on-chain sponsor profile." 
+            bio: stats.ins > 0 ? "A new skater forged on-chain." : "Fueling the revolution." 
         };
-        isPoser = totalGiven === 0;
     }
-    
+
+    // 3. Compute DUAL Ranks
+    let finalSkaterRank = null;
+    if (isGenesisSkater) {
+        let dummy = 0;
+        if(skater.rank === "PRO") dummy = 0.1;
+        else if(skater.rank === "AM") dummy = 0.05;
+        else if(skater.rank === "FLOW") dummy = 0.01;
+        finalSkaterRank = getRankDisplay(Math.max(dummy, stats.ins));
+    } else if (stats.ins > 0) {
+        finalSkaterRank = getRankDisplay(stats.ins); // Organic Skater based on inbound!
+    }
+
+    let finalSponsorRank = stats.outs > 0 ? getRankDisplay(stats.outs) : null;
+
+    // 4. Update Static UI Meta
     const editBtn = document.getElementById('edit-profile-btn');
     const profileDonateBtn = document.getElementById('profile-donate-btn');
-    const profileHeader = document.getElementById('profile-header-text');
-    const blessingsLabel = document.getElementById('blessings-label');
     
     if (publicKey && publicKey === wallet) {
         editBtn.style.display = 'block';
-        profileHeader.innerText = isSkater ? "SKATER DASHBOARD: BIO & STYLE" : "SPONSOR DASHBOARD: BIO & STYLE";
         if(profileDonateBtn) profileDonateBtn.style.display = 'none'; 
     } else {
         editBtn.style.display = 'none';
-        profileHeader.innerText = isSkater ? "BIO & STYLE" : "SPONSOR PROFILE";
-        if(profileDonateBtn) {
-            profileDonateBtn.style.display = isSkater ? 'block' : 'none'; 
-        }
+        if(profileDonateBtn) profileDonateBtn.style.display = 'block'; 
     }
 
     document.getElementById('p-name').innerText = skater.name;
@@ -1296,57 +1320,75 @@ async function renderProfile(wallet) {
     document.getElementById('p-bio').innerText = skater.bio;
     document.getElementById('p-wallet').innerText = wallet;
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
-    
-    const rankEl = document.getElementById('p-rank');
-    const blessEl = document.getElementById('p-blessings');
 
-    // Display logic split between Skater (Balance) and Sponsor (Total Given)
-    if (isSkater) {
-        let dummyAmount = 0;
-        if(skater.rank === "PRO") dummyAmount = 0.1;
-        else if(skater.rank === "AM") dummyAmount = 0.05;
-        else if(skater.rank === "FLOW") dummyAmount = 0.01;
-        const rankData = getRankDisplay(dummyAmount);
+    // 5. Construct Dashboard Reality
+    if (finalSkaterRank && !finalSponsorRank) {
+        // Pure Skater
+        profileHeader.innerText = "SKATER DASHBOARD";
+        rankEl.innerHTML = finalSkaterRank.icon + " " + finalSkaterRank.title;
+        rankEl.style.color = finalSkaterRank.color;
+        profilePicEl.style.borderColor = finalSkaterRank.color;
+        profilePicEl.style.boxShadow = `0 0 25px ${finalSkaterRank.color}`;
 
-        rankEl.innerHTML = rankData.icon + " " + skater.rank;
-        rankEl.style.color = rankData.color;
-        
-        // Dynamically color profile pic border & glow
-        profilePicEl.style.borderColor = rankData.color;
-        profilePicEl.style.boxShadow = `0 0 25px ${rankData.color}`;
-        
-        if(blessingsLabel) blessingsLabel.innerText = "ON-CHAIN BLESSINGS";
+        blessingsLabel.innerText = "BLESSINGS RECEIVED";
+        blessEl.innerText = stats.ins.toFixed(4) + " SOL";
         blessEl.style.color = "var(--accent-green)";
-        try {
-            const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
-            blessEl.innerText = (bal / 1e9).toFixed(4) + " SOL";
-        } catch(e) { blessEl.innerText = "0.00 SOL"; }
+
+    } else if (!finalSkaterRank && finalSponsorRank) {
+        // Pure Sponsor
+        profileHeader.innerText = "SPONSOR DASHBOARD";
+        rankEl.innerHTML = finalSponsorRank.icon + " " + finalSponsorRank.title;
+        rankEl.style.color = finalSponsorRank.color;
+        profilePicEl.style.borderColor = finalSponsorRank.color;
+        profilePicEl.style.boxShadow = `0 0 25px ${finalSponsorRank.color}`;
+
+        blessingsLabel.innerText = "TOTAL GIVEN";
+        blessEl.innerText = stats.outs.toFixed(4) + " SOL";
+        blessEl.style.color = "var(--accent-green)";
+
+    } else if (finalSkaterRank && finalSponsorRank) {
+        // LEGEND (Dual Status)
+        profileHeader.innerText = "LEGEND DASHBOARD (DUAL STATUS)";
+        statsGrid.style.gridTemplateColumns = isMobile() ? "1fr 1fr" : "1fr 1fr 1fr";
+
+        rankEl.innerHTML = finalSkaterRank.icon + " " + finalSkaterRank.title;
+        rankEl.style.color = finalSkaterRank.color;
+
+        blessingsLabel.innerText = "BLESSINGS RECEIVED";
+        blessEl.innerText = stats.ins.toFixed(4) + " SOL";
+        blessEl.style.color = "var(--accent-green)";
+
+        // Inject 3rd Box dynamically
+        const phBox = document.createElement('div');
+        phBox.id = 'skater-philanthropy-stat';
+        phBox.style.cssText = "background:var(--bg-panel); padding:15px; border-radius:10px; border:1px solid var(--card-border);";
+        phBox.innerHTML = `
+            <p style="font-size:0.6rem; color: var(--text-secondary);">PHILANTHROPY (SPONSOR)</p>
+            <p style="color:${finalSponsorRank.color}; font-weight:900; font-size: 1.1rem;">
+                ${finalSponsorRank.icon} ${stats.outs.toFixed(4)} SOL
+            </p>`;
+        statsGrid.appendChild(phBox);
+
+        // Fused dual glow
+        profilePicEl.style.borderColor = finalSkaterRank.color;
+        profilePicEl.style.boxShadow = `0 0 15px ${finalSkaterRank.color}, 0 0 35px ${finalSponsorRank.color}`;
+
     } else {
-        // Sponsor Override
-        rankEl.innerHTML = (skater.rankIcon ? skater.rankIcon + " " : "") + skater.rank;
-        rankEl.style.color = skater.rankColor;
-        
-        // Dynamically color profile pic border & glow
-        profilePicEl.style.borderColor = skater.rankColor;
-        profilePicEl.style.boxShadow = `0 0 25px ${skater.rankColor}`;
-        
-        if(blessingsLabel) blessingsLabel.innerText = "TOTAL GIVEN";
-        blessEl.innerText = totalGiven.toFixed(4) + " SOL";
-        
-        if (isPoser) {
-            blessEl.style.color = "var(--accent-red)";
-            rankEl.innerHTML = "🚫 POSER";
-            rankEl.style.color = "var(--accent-red)";
-        } else {
-            blessEl.style.color = "var(--accent-green)";
-        }
+        // Zero interactions
+        profileHeader.innerText = "ON-CHAIN PROFILE";
+        rankEl.innerHTML = "🚫 POSER";
+        rankEl.style.color = "var(--accent-red)";
+        profilePicEl.style.borderColor = "var(--accent-red)";
+        profilePicEl.style.boxShadow = `none`;
+
+        blessingsLabel.innerText = "ON-CHAIN ACTIVITY";
+        blessEl.innerText = "0.0000 SOL";
+        blessEl.style.color = "var(--accent-red)";
     }
 
-    // Secondary Memo Sync for manual profile updates
+    // 6. Secondary Memo Sync
     try {
-        document.getElementById('p-name').innerText += " (Syncing...)";
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
-        
         for (let s of sigs) {
             if(s.memo && s.memo.includes('"sk8":"v1"')) {
                 const jsonStr = s.memo.replace(/^\[\d+\]\s*/, '');
@@ -1359,11 +1401,7 @@ async function renderProfile(wallet) {
                 } catch(parseErr) { console.log("Memo parse error", parseErr); }
             }
         }
-        document.getElementById('p-name').innerText = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
-    } catch(e) {
-        console.log("No on-chain profile found or RPC busy.");
-        document.getElementById('p-name').innerText = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
-    }
+    } catch(e) {}
 }
 
 function openEditModal() {
@@ -1517,7 +1555,7 @@ async function sendSOL(amount, destination) {
         if(document.getElementById('profile-content').style.display === 'block') {
             renderProfile(document.getElementById('p-wallet').innerText);
         }
-        fetchHeaderSponsorRank(publicKey); // Re-scan header after donation
+        fetchHeaderDualRank(publicKey); // Re-scan dual header
     }, 1500);
 
   } catch (err) { 
