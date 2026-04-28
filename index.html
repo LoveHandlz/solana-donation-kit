@@ -7,6 +7,10 @@
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -292,6 +296,22 @@ main {
     border: 1px solid var(--accent-cyan);
 }
 
+/* NEW: SETUP GEAR TAGS */
+.gear-tag {
+    display: inline-block;
+    padding: 5px 10px;
+    background: rgba(255, 215, 0, 0.05);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    margin: 4px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+}
+.gear-tag i { color: var(--accent-gold); margin-right: 5px; }
+
 /* LEADERBOARD STYLES */
 .leaderboard-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
 .leaderboard-box { background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 16px; padding: 1.5rem; }
@@ -349,7 +369,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
 .confetti { position: fixed; width: 10px; height: 10px; top: -10px; animation: fall 3s linear forwards; z-index: 2000; }
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-
 
 /* ======================================================== */
 /* RUTHLESS MOBILE LOCKDOWN ARCHITECTURE                    */
@@ -716,7 +735,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
             <img id="p-img" src="" class="profile-pic">
             <h2 id="p-name" style="font-family:'Bangers'; font-size:3rem;"></h2>
             <div id="p-tags"></div>
-            <div style="background:rgba(0,0,0,0.4); padding:15px; border-radius:15px; margin-top:15px; border:1px dashed var(--accent-gold);">
+            
+            <div id="p-gear" style="margin-top: 10px; margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: center;"></div>
+            
+            <div style="background:rgba(0,0,0,0.4); padding:15px; border-radius:15px; border:1px dashed var(--accent-gold);">
                 <p style="font-size:0.6rem; opacity:0.6;">WALLET</p>
                 <p id="p-wallet" style="font-family:monospace; font-size:0.55rem; word-break:break-all; color: var(--text-secondary); margin-bottom: 10px;"></p>
                 <button id="edit-profile-btn" onclick="openEditModal()" class="wallet-btn" style="display:none; margin-bottom:10px; width:100%; background: #fff; color: #000; padding: 10px; font-size: 0.8rem;">⚙️ EDIT GEAR</button>
@@ -859,6 +881,25 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     <label style="font-size: 0.65rem; color: var(--text-secondary);">PROFILE PIC URL (IPFS or Direct Link)</label>
     <input type="text" id="edit-pic" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;">
     
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div>
+            <label style="font-size: 0.65rem; color: var(--text-secondary);">STANCE</label>
+            <input type="text" id="edit-stance" placeholder="Goofy, Regular..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+        </div>
+        <div>
+            <label style="font-size: 0.65rem; color: var(--text-secondary);">DECK</label>
+            <input type="text" id="edit-deck" placeholder="8.25 Popsicle..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+        </div>
+        <div>
+            <label style="font-size: 0.65rem; color: var(--text-secondary);">TRUCKS</label>
+            <input type="text" id="edit-trucks" placeholder="Indy 149s..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+        </div>
+        <div>
+            <label style="font-size: 0.65rem; color: var(--text-secondary);">LOCAL SPOT</label>
+            <input type="text" id="edit-spot" placeholder="LA Courthouse..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+        </div>
+    </div>
+
     <label style="font-size: 0.65rem; color: var(--text-secondary);">BIO</label>
     <textarea id="edit-bio" rows="3" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;"></textarea>
     
@@ -876,7 +917,12 @@ const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
-/* Ghost Wallet Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6 Purged Completely */
+/* EXCLUSION LIST: Wallets that have historical skater data on-chain but are now strictly Sponsors */
+const SPONSOR_ONLY_WALLETS = [
+    "Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"
+];
+
+/* Skater Registry */
 const SKATER_REGISTRY = [
     "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW",
     "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ",
@@ -887,13 +933,13 @@ const SKATER_REGISTRY = [
     "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7" 
 ];
 
-/* Hardcoded Ranks removed. System defaults to GROMMET unless they have received on-chain blessings. */
+/* NEW DATA: Injected Default Setup Gear for Genesis Skaters */
 const SKATER_PROFILES = [
-    { wallet: "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW", name: "GREG VALENCIA", styles: ["Street", "Flow"], pic: "https://i.pravatar.cc/400?img=11", bio: "Original Sk8Coin pioneer." },
-    { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", styles: ["Gaps", "Stairs"], pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
-    { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", styles: ["Balance", "Flatground"], pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
-    { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", styles: ["Vert", "Transition"], pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
-    { wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", name: "SHREDDER 5", styles: ["Park", "Flow"], pic: "https://i.pravatar.cc/400?img=15", bio: "Style and flow over everything." },
+    { wallet: "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW", name: "GREG VALENCIA", styles: ["Street", "Flow"], stance: "Goofy", deck: "8.25 FA", trucks: "Indys 149", spot: "LA Courthouse", pic: "https://i.pravatar.cc/400?img=11", bio: "Original Sk8Coin pioneer." },
+    { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", styles: ["Gaps", "Stairs"], stance: "Regular", deck: "8.5 Baker", trucks: "Thunders", spot: "El Toro", pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
+    { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", styles: ["Balance", "Flatground"], stance: "Regular", deck: "8.0 Primitive", trucks: "Ventures", spot: "Muni", pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
+    { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", styles: ["Vert", "Transition"], stance: "Goofy", deck: "8.75 Anti-Hero", trucks: "Indys 159", spot: "Vans Park", pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
+    { wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", name: "SHREDDER 5", styles: ["Park", "Flow"], stance: "Regular", deck: "8.25 Girl", trucks: "Crailtap", spot: "Stoner Park", pic: "https://i.pravatar.cc/400?img=15", bio: "Style and flow over everything." },
     { wallet: "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH", name: "SHREDDER 6", styles: ["Street"], pic: "https://i.pravatar.cc/400?img=16", bio: "Raw street talent." },
     { wallet: "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", name: "SHREDDER 7", styles: ["Technical"], pic: "https://i.pravatar.cc/400?img=17", bio: "Precision skating." },
     { wallet: "9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj", name: "SHREDDER 8", styles: ["Big Rails"], pic: "https://i.pravatar.cc/400?img=18", bio: "Handrail specialist." },
@@ -961,7 +1007,7 @@ async function fetchWalletStats(wallet) {
 
 async function handleWalletAction() {
     if (publicKey) { 
-        // Pure silent disconnect execution. No annoying popups.
+        // Pure silent disconnect execution
         try {
             if (provider && provider.disconnect) await provider.disconnect();
         } catch(e) {}
@@ -1023,22 +1069,27 @@ function updateWalletUI() {
     updateDonateButtons();
 }
 
-// DYNAMIC HEADER
+// DYNAMIC HEADER - STRICT IDENTITY GATES APPLIED
 async function fetchHeaderDualRank(wallet) {
     const stats = await fetchWalletStats(wallet);
     const skaterPanel = document.getElementById("skater-auth-panel");
     if (!skaterPanel || publicKey !== wallet) return;
 
     let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
-    let isDual = isGenesisSkater && (stats.outs > 0);
+    let isSponsorOnly = SPONSOR_ONLY_WALLETS.includes(wallet);
+    
+    let isDual = isGenesisSkater && (stats.outs > 0) && !isSponsorOnly;
 
     let skaterRankDisplay = null;
     let sponsorRankDisplay = null;
 
-    if (isGenesisSkater || stats.ins > 0) {
+    // STRICT GATE: You are ONLY a skater if you are explicitly in the registry (Future NFT integration point)
+    if (isGenesisSkater && !isSponsorOnly) {
         skaterRankDisplay = getRankDisplay(stats.ins, true);
     }
-    if (stats.outs > 0) {
+    
+    // SPONSOR GATE: Anyone else defaults to Sponsor status
+    if (stats.outs > 0 || !isGenesisSkater || isSponsorOnly) {
         sponsorRankDisplay = getRankDisplay(stats.outs, false);
     }
 
@@ -1055,15 +1106,11 @@ async function fetchHeaderDualRank(wallet) {
             <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${skaterRankDisplay.color}">${skaterRankDisplay.icon} ${skaterRankDisplay.title}</span></span>
             <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🛹⚙️</button>
         `;
-    } else if (sponsorRankDisplay) {
-        skaterPanel.innerHTML = `
-            <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${sponsorRankDisplay.color}">${sponsorRankDisplay.icon} SPONSOR</span></span>
-            <button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🤝⚙️</button>
-        `;
     } else {
+        // STRICT FALLBACK: All other users get the sponsor view natively
         skaterPanel.innerHTML = `
-            <span style="font-size: 0.6rem; color: var(--accent-red); font-weight: bold;">RANK: <span style="color:var(--accent-red)">🚫 POSER</span></span>
-            <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">⚙️</button>
+            <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${sponsorRankDisplay.color}">${sponsorRankDisplay.icon} ${sponsorRankDisplay.title}</span></span>
+            <button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; cursor: pointer;">🤝⚙️</button>
         `;
     }
 }
@@ -1304,11 +1351,13 @@ async function renderProfile(wallet, forceView = null) {
     const blessEl = document.getElementById('p-blessings');
     const blessingsLabel = document.getElementById('blessings-label');
     const profileHeader = document.getElementById('profile-header-text');
+    const gearContainer = document.getElementById('p-gear');
 
     rankEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i> SYNCING...';
     blessEl.innerText = "SYNCING...";
     rankEl.style.color = "var(--text-secondary)";
     blessEl.style.color = "var(--text-secondary)";
+    gearContainer.innerHTML = ""; // Clear gear tags on render
 
     const existingToggle = document.getElementById('dual-view-toggle');
     if(existingToggle) existingToggle.remove();
@@ -1316,22 +1365,56 @@ async function renderProfile(wallet, forceView = null) {
     const stats = await fetchWalletStats(wallet);
     
     let isGenesisSkater = SKATER_REGISTRY.includes(wallet);
+    let isSponsorOnly = SPONSOR_ONLY_WALLETS.includes(wallet);
     let skater = SKATER_PROFILES.find(s => s.wallet === wallet);
     let hasGiven = stats.outs > 0;
-    let isDual = isGenesisSkater && hasGiven;
+    
+    let isDual = isGenesisSkater && hasGiven && !isSponsorOnly;
 
     if(!skater) {
         let onChainName = await resolveWalletName(wallet);
         skater = { 
             name: onChainName, 
-            styles: stats.ins > 0 ? ["Organic Skater"] : ["Whale", "Sponsor"], 
+            styles: (isGenesisSkater) ? ["Organic Skater"] : ["Sponsor"], 
             pic: "https://i.pravatar.cc/400?u=" + wallet, 
-            bio: stats.ins > 0 ? "A new skater forged on-chain." : "Fueling the revolution." 
+            bio: (isGenesisSkater) ? "A new skater forged on-chain." : "Fueling the revolution." 
         };
     }
 
+    // Assign default gear if undefined
+    skater.stance = skater.stance || "";
+    skater.deck = skater.deck || "";
+    skater.trucks = skater.trucks || "";
+    skater.spot = skater.spot || "";
+
+    // PULL FROM ON-CHAIN DATA FIRST
+    try {
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
+        for (let s of sigs) {
+            if(s.memo && s.memo.includes('"sk8":"v1"')) {
+                const jsonStr = s.memo.replace(/^\[\d+\]\s*/, '');
+                try {
+                    const onChainProfile = JSON.parse(jsonStr);
+                    if(onChainProfile.name) skater.name = onChainProfile.name;
+                    if(onChainProfile.pic) skater.pic = onChainProfile.pic;
+                    if(onChainProfile.bio) skater.bio = onChainProfile.bio;
+                    
+                    // NEW: Parse on-chain gear
+                    if(onChainProfile.stance) skater.stance = onChainProfile.stance;
+                    if(onChainProfile.deck) skater.deck = onChainProfile.deck;
+                    if(onChainProfile.trucks) skater.trucks = onChainProfile.trucks;
+                    if(onChainProfile.spot) skater.spot = onChainProfile.spot;
+                    break;
+                } catch(parseErr) { console.log("Memo parse error", parseErr); }
+            }
+        }
+    } catch(e) {}
+
     let activeView = forceView;
-    if (!activeView) { activeView = (isGenesisSkater || stats.ins > 0) ? 'skater' : 'sponsor'; }
+    if (!activeView) { 
+        // STRICT GATE: Default to skater ONLY if explicitly recognized as one
+        activeView = (isGenesisSkater && !isSponsorOnly) ? 'skater' : 'sponsor'; 
+    }
 
     if (isDual) {
         const toggleDiv = document.createElement('div');
@@ -1365,6 +1448,12 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('p-wallet').innerText = wallet;
     document.getElementById('p-tags').innerHTML = skater.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
 
+    // Attach dataset for easy retrieval in the edit modal
+    gearContainer.dataset.stance = skater.stance;
+    gearContainer.dataset.deck = skater.deck;
+    gearContainer.dataset.trucks = skater.trucks;
+    gearContainer.dataset.spot = skater.spot;
+
     if (activeView === 'skater') {
         const sRank = getRankDisplay(stats.ins, true);
 
@@ -1380,6 +1469,14 @@ async function renderProfile(wallet, forceView = null) {
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(wallet));
             blessEl.innerText = (bal / 1e9).toFixed(4) + " SOL";
         } catch(e) { blessEl.innerText = "0.00 SOL"; }
+
+        // RENDER GEAR TAGS (Only on Skater View)
+        let gearHtml = "";
+        if(skater.stance) gearHtml += `<div class="gear-tag" title="Stance"><i class="fas fa-shoe-prints"></i> ${skater.stance}</div>`;
+        if(skater.deck) gearHtml += `<div class="gear-tag" title="Deck"><i class="fas fa-layer-group"></i> ${skater.deck}</div>`;
+        if(skater.trucks) gearHtml += `<div class="gear-tag" title="Trucks"><i class="fas fa-wrench"></i> ${skater.trucks}</div>`;
+        if(skater.spot) gearHtml += `<div class="gear-tag" title="Local Spot"><i class="fas fa-map-marker-alt"></i> ${skater.spot}</div>`;
+        gearContainer.innerHTML = gearHtml;
 
     } else {
         const spRank = getRankDisplay(stats.outs, false);
@@ -1400,28 +1497,20 @@ async function renderProfile(wallet, forceView = null) {
             rankEl.style.color = "var(--accent-red)";
         }
     }
-
-    try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
-        for (let s of sigs) {
-            if(s.memo && s.memo.includes('"sk8":"v1"')) {
-                const jsonStr = s.memo.replace(/^\[\d+\]\s*/, '');
-                try {
-                    const onChainProfile = JSON.parse(jsonStr);
-                    if(onChainProfile.name) document.getElementById('p-name').innerText = onChainProfile.name;
-                    if(onChainProfile.pic) document.getElementById('p-img').src = onChainProfile.pic;
-                    if(onChainProfile.bio) document.getElementById('p-bio').innerText = onChainProfile.bio;
-                    break;
-                } catch(parseErr) { console.log("Memo parse error", parseErr); }
-            }
-        }
-    } catch(e) {}
 }
 
 function openEditModal() {
     document.getElementById('edit-name').value = document.getElementById('p-name').innerText.replace(" (Syncing...)", "");
     document.getElementById('edit-pic').value = document.getElementById('p-img').src;
     document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
+    
+    // NEW: Load existing gear tags into input fields
+    const gearData = document.getElementById('p-gear').dataset;
+    document.getElementById('edit-stance').value = gearData.stance || "";
+    document.getElementById('edit-deck').value = gearData.deck || "";
+    document.getElementById('edit-trucks').value = gearData.trucks || "";
+    document.getElementById('edit-spot').value = gearData.spot || "";
+    
     document.getElementById('edit-modal').style.display = 'flex';
 }
 
@@ -1436,11 +1525,20 @@ async function saveProfileWeb3() {
         const name = document.getElementById("edit-name").value;
         const pic = document.getElementById("edit-pic").value;
         const bio = document.getElementById("edit-bio").value;
+        
+        // NEW: Pull input values from DOM
+        const stance = document.getElementById("edit-stance").value;
+        const deck = document.getElementById("edit-deck").value;
+        const trucks = document.getElementById("edit-trucks").value;
+        const spot = document.getElementById("edit-spot").value;
 
-        const profileData = JSON.stringify({ sk8: "v1", name, pic, bio });
+        // INJECT NEW DATA: JSON structure updated to include the setup tags
+        const profileData = JSON.stringify({ sk8: "v1", name, pic, bio, stance, deck, trucks, spot });
         const encodedData = new TextEncoder().encode(profileData);
+        
+        // Memo program limit checking
         if (encodedData.length > 566) {
-            alert(`Profile too large! Max 566 bytes, you are at ${encodedData.length}. Use a shorter image URL or bio.`);
+            alert(`Profile too large! Max 566 bytes, you are at ${encodedData.length}. Use shorter tags or bio.`);
             btn.innerText = "SIGN & SAVE TO CHAIN";
             return; 
         }
