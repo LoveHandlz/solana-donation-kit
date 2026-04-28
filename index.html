@@ -27,298 +27,79 @@
   --accent-cyan:#00f0ff;
   --accent-gold:#ffd700; 
   --accent-green:#4ade80;
-  --accent-blue-eth: #0052ff; /* WEB3 SURVIVAL BLUE */
+  --accent-eth: #0052ff;
   --text-primary:#e0f7ff;
   --text-secondary:#a5d8ff;
   --card-border:rgba(0,240,255,0.14);
-  
-  --bronze-font: #cd7f32;
-  --silver-font: #c0c0c0;
-  --gold-font: #ffd700;
-  --diamond-font: #b9f2ff;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
 
-/* STRICT VIEWPORT LOCKDOWN */
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+body{ background:var(--bg-deep); color:var(--text-primary); font-family:'Orbitron',sans-serif; line-height: 1.6; }
 
-body{
-  background:var(--bg-deep);
-  color:var(--text-primary);
-  font-family:'Orbitron',sans-serif;
-  line-height: 1.6;
-}
+header{ background:rgba(10,19,47,0.95); backdrop-filter:blur(12px); position:fixed; top:0; left:0; right:0; z-index:100; border-bottom:1px solid var(--card-border); }
+.header-inner{ max-width:1440px; margin:auto; display:flex; justify-content:space-between; align-items:center; padding: 1rem 20px; }
+.logo{ height:45px; cursor:pointer; }
 
-header{
-  background:rgba(10,19,47,0.95);
-  backdrop-filter:blur(12px);
-  position:fixed;
-  top:0;left:0;right:0;
-  z-index:100;
-  border-bottom:1px solid var(--card-border);
-}
+nav#mobile-nav { display: flex; flex: 1; justify-content: center; }
+nav#mobile-nav ul { display:flex; gap:1.8rem; list-style:none; }
+nav#mobile-nav a { color:var(--text-secondary); text-decoration:none; font-weight:bold; font-size:0.9rem; }
 
-.header-inner{
-  max-width:1440px;
-  margin:auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding: 1rem 20px;
-  position: relative;
-}
+.header-controls { display: flex; align-items: center; gap: 10px; }
+.wallet-btn { background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange)); border: none; padding: .6rem 1.1rem; border-radius: 50px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; color: #000; font-size: 0.7rem; }
+.eth-connect-btn { background: var(--accent-eth) !important; color: #fff !important; }
 
-.logo{height:45px; z-index: 101;}
-
-/* PERFECT DESKTOP CENTERING */
-nav#mobile-nav { 
-    display: flex; 
-    flex: 1; 
-    justify-content: center; 
-}
-nav#mobile-nav ul {
-    display:flex;
-    gap:1.8rem;
-    list-style:none;
-}
-nav#mobile-nav a {
-    color:var(--text-secondary);
-    text-decoration:none;
-    font-weight:bold;
-    transition:0.3s;
-    font-size:0.9rem;
-    letter-spacing: 1px;
-}
-nav#mobile-nav a:hover{color:var(--accent-gold);}
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    z-index: 101;
-}
-
-.hamburger {
-    display: none;
-    font-size: 1.8rem;
-    color: var(--accent-gold);
-    cursor: pointer;
-    transition: 0.3s;
-}
-.hamburger:hover { color: var(--accent-cyan); }
-
-.wallet-btn {
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
-  border: none;
-  padding: .6rem 1.1rem;
-  border-radius: 50px;
-  cursor: pointer;
-  font-family: 'Orbitron';
-  font-weight: bold;
-  color: #000;
-  transition: 0.3s;
-  white-space: nowrap;
-  font-size: 0.75rem;
-}
-
-/* BLUE FOR METAMASK */
-.metamask-btn {
-  background: var(--accent-blue-eth) !important;
-  color: #fff !important;
-}
-
-main {
-  padding-top: 120px; 
-  max-width: 1440px;
-  margin: auto;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 60px;
-}
+main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; padding-right: 20px; padding-bottom: 60px; }
 
 .hero { text-align: center; margin-bottom: 2.5rem; }
-.hero h1 { 
-  font-size: 4.5rem;
-  background: linear-gradient(to bottom, #fff, var(--accent-gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 900;
-  line-height: 1.1;
-}
+.hero h1 { font-size: 4.5rem; background: linear-gradient(to bottom, #fff, var(--accent-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Orbitron', sans-serif; font-weight: 900; }
+.hero-subtext { font-size: 1.3rem; margin: 1rem auto 2rem; color: var(--text-secondary); max-width: 720px; }
 
-.hero-subtext {
-  font-size: 1.3rem; 
-  margin: 1rem auto 2rem; 
-  color: var(--text-secondary); 
-  max-width: 720px;
-}
-
-.stats-row {
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  margin-top: 1.5rem;
-}
+.stats-row { display: flex; justify-content: center; gap: 3rem; margin-top: 1.5rem; }
 .stat { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; }
 .stat-value { display: block; font-size: 2rem; color: var(--accent-gold); font-weight: 900; }
 
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-}
-.menu-item {
-  background: var(--bg-panel);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 2rem;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.menu-item:hover {
-  border-color: var(--accent-gold);
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
-}
-.menu-icon { font-size: 2.2rem; margin-bottom: 0.8rem; }
-.menu-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
-.menu-desc { font-size: 0.8rem; color: var(--text-secondary); }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+.menu-item { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 2rem; cursor: pointer; transition: 0.3s; }
+.menu-item:hover { border-color: var(--accent-gold); transform: translateY(-5px); }
 
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
-.video-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: 0.3s;
-  position: relative;
-  width: 100%;
-}
-.video-card:hover { border-color: var(--accent-gold); transform: scale(1.02); }
+.video-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+.video-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; position: relative; }
 .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000;}
 .video-wrapper iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; z-index: 1;}
+.video-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+.unlocked .video-mask { display: none; }
 
-.video-mask {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(45deg, rgba(10,19,47,0.98), rgba(15,26,71,0.95));
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  z-index: 10; transition: 0.4s ease;
-}
-.video-mask i { font-size: 2rem; color: var(--accent-gold); margin-bottom: 8px; }
-.video-mask p { font-size: 0.6rem; letter-spacing: 2px; color: #fff; text-transform: uppercase; font-weight: bold;}
-.unlocked .video-mask { opacity: 0; pointer-events: none; visibility: hidden; }
+.card-info { padding: 1.2rem; position: relative; }
+.card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;}
+.eth-trigger { color: var(--accent-eth); cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+.eth-trigger:hover { transform: scale(1.2); filter: drop-shadow(0 0 5px var(--accent-eth)); }
 
-.card-info { padding: 1.2rem; }
-.card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; height: 35px; overflow: hidden; }
+.donate-btn { background: var(--accent-gold); color: #000; border: none; padding: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.75rem; cursor: pointer; width: 100%; }
 
-.skater-wallet-bal {
-  font-size: 0.7rem;
-  color: var(--accent-cyan);
-  margin-bottom: 1rem;
-  font-weight: bold;
-  word-break: break-all;
-}
-
-/* DUAL ACTION CONTAINER */
-.multi-chain-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.donate-btn {
-  background: var(--accent-gold);
-  color: #000;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-family: 'Orbitron';
-  font-weight: 900;
-  font-size: 0.75rem;
-  cursor: pointer;
-  width: 100%;
-}
-
-.bail-fund-btn {
-  background: var(--accent-blue-eth);
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-family: 'Orbitron';
-  font-weight: 900;
-  font-size: 0.7rem;
-  cursor: pointer;
-  width: 100%;
-}
-
-.view-profile-btn {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--card-border);
-    margin-top: 4px;
-    padding: 8px;
-    font-size: 0.7rem;
-    cursor: pointer;
-    width: 100%;
-    text-transform: uppercase;
-    font-family: 'Orbitron';
-    transition: 0.3s;
-    border-radius: 6px;
-}
-.view-profile-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-
-/* UI MODAL BASICS */
 .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; }
 .modal-content { background:var(--bg-panel); padding:2rem; border-radius:15px; border:1px solid var(--accent-gold); width:92%; max-width:400px; text-align: center; }
-.tier-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-family: 'Orbitron'; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.8rem;}
+.bail-btn { background: var(--accent-eth); color: #fff; border: none; padding: 15px; width: 100%; border-radius: 8px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; margin-top: 20px; }
 
-.confetti { position: fixed; width: 10px; height: 10px; top: -10px; animation: fall 3s linear forwards; z-index: 2000; }
-@keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-
-@media (max-width: 768px) {
-  .hamburger { display: block; }
-  .video-grid { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 2.2rem; }
-  nav#mobile-nav { display:none; }
-}
+@media (max-width: 768px) { .video-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 2.2rem; } }
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-inner">
-    <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="navigateTo('home')" style="cursor:pointer;">
-    
+    <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="navigateTo('home')">
     <nav id="mobile-nav">
         <ul>
           <li><a href="javascript:void(0)" onclick="navigateTo('home')">HOME</a></li>
           <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
-          <li><a href="javascript:void(0)" onclick="navigateTo('leaderboard')">LEADERBOARD</a></li>
-          <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateTo('leaderboard')">TREASURY</a></li>
         </ul>
     </nav>
-
     <div class="header-controls">
-        <div id="skater-auth-panel" style="display: none; align-items: center; gap: 6px; background: rgba(0, 240, 255, 0.05); padding: 4px 10px; border-radius: 50px; border: 1px solid var(--accent-cyan);">
-            <span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;">PRO</span></span>
-            <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>
-        </div>
-
-        <button id="connect-sol-btn" class="wallet-btn" onclick="handleSolAction()">SOL</button>
-        <button id="connect-evm-btn" class="wallet-btn metamask-btn" onclick="handleEVMAction()">ETH</button>
+        <button id="connect-sol" class="wallet-btn" onclick="handleSolAction()">SOL</button>
+        <button id="connect-eth" class="wallet-btn eth-connect-btn" onclick="handleEVMAction()">ETH</button>
     </div>
   </div>
 </header>
@@ -334,224 +115,144 @@ main {
           <div class="stat"><span class="stat-value">20k</span> Volume</div>
         </div>
     </section>
-
     <div class="menu-grid">
       <div class="menu-item" onclick="navigateTo('video')">
         <div class="menu-icon">📺</div>
         <div class="menu-title">VIDEOS</div>
         <div class="menu-desc">Watch videos, sponsor skaters by supporting them directly on-chain.</div>
       </div>
-      <div class="menu-item" onclick="navigateTo('donate')">
-        <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
-        <div class="menu-title" style="color: var(--accent-gold);">TREASURY</div>
-        <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
-      </div>
     </div>
   </div>
 
  <div id="video-content" style="display:none;">
-    <div class="hero">
-        <h1 style="font-size:2.8rem;">SK8 VIDEOS</h1>
-        <p class="hero-subtext" style="font-size: 0.85rem;">Scout raw talent. Drop on-chain blessings directly into skaters' wallets.</p>
-    </div>
-    
-    <div class="video-grid" id="main-video-grid">
-        <div class="video-card" id="vid-1">
+    <div class="video-grid" id="v-grid">
+      <script>
+        const SKATERS = [
+          {id: 'vid-1', name: 'greg valencia', addr: 'FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW', yt: 'TkiDuln_Q28'},
+          {id: 'vid-2', name: 'Tre Flip Gap', addr: 'GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ', yt: '3JZ_D3ELwOQ'},
+          {id: 'vid-3', name: 'Manuals in Rain', addr: '4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi', yt: '9bZkp7q19f0'},
+          {id: 'vid-4', name: 'Big Ollie', addr: '6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW', yt: 'kXYiU_JCYtU'},
+          {id: 'vid-5', name: 'Epic Clips', addr: 'BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi', yt: 'Wg_jwgmwt-U'},
+          {id: 'vid-6', name: 'Best Videos', addr: '9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH', yt: 'MFSx4jWmDfY'},
+          {id: 'vid-7', name: 'Street Part', addr: '5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm', yt: 'qqPjQpTe9W4'},
+          {id: 'vid-8', name: 'Independent Co', addr: '9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj', yt: 'Zq3kl6z_aEM'},
+          {id: 'vid-9', name: 'Heelflip Challenge', addr: 'HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq', yt: '8_B_6vX1pXU'},
+          {id: 'vid-10', name: 'Barcelona Trip', addr: 'DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b', yt: 'T9yZzS7L-98'},
+          {id: 'vid-11', name: 'Manual Pad', addr: 'DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b', yt: '6i1YyB7g-Ew'},
+          {id: 'vid-12', name: 'Night School', addr: 'E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7', yt: 'P6Ff-e9V270'}
+        ];
+        document.write(SKATERS.map(s => `
+          <div class="video-card" id="${s.id}">
             <div class="video-wrapper">
-                <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
-                <iframe data-src="https://www.youtube.com/embed/TkiDuln_Q28" allowfullscreen></iframe>
+              <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
+              <iframe data-src="https://www.youtube.com/embed/${s.yt}" allowfullscreen></iframe>
             </div>
             <div class="card-info">
-                <div class="card-title">greg valencia</div>
-                <div class="skater-wallet-bal">Blessings: ...</div>
-                <div class="multi-chain-actions">
-                    <button class="donate-btn" onclick="openSponsorModal('FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW', 'vid-1')">SPONSOR</button>
-                    <button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-1')">BAIL FUND</button>
-                </div>
-                <button class="view-profile-btn" onclick="navigateTo('profile')">VIEW PROFILE</button>
+              <div class="card-title">${s.name} <i class="fab fa-ethereum eth-trigger" onclick="openBailModal('${s.id}')"></i></div>
+              <button class="donate-btn" onclick="openSponsorModal('${s.addr}', '${s.id}')">SPONSOR</button>
             </div>
-        </div>
-        <div class="video-card" id="vid-2"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/3JZ_D3ELwOQ" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Tre Flip Gap</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ', 'vid-2')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-2')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-3"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/9bZkp7q19f0" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Manuals in the Rain</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi', 'vid-3')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-3')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-4"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/kXYiU_JCYtU" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Big Ollie</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW', 'vid-4')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-4')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-5"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/Wg_jwgmwt-U" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Epic Skate Clips</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi', 'vid-5')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-5')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-6"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/MFSx4jWmDfY" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Best Videos</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH', 'vid-6')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-6')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-7"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/qqPjQpTe9W4" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Street Part</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm', 'vid-7')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-7')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-8"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/Zq3kl6z_aEM" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Independent Co.</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj', 'vid-8')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-8')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-9"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/8_B_6vX1pXU" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Heelflip Challenge</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq', 'vid-9')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-9')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-10"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/T9yZzS7L-98" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Barcelona Trip</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b', 'vid-10')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-10')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-11"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/6i1YyB7g-Ew" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Manual Pad Session</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b', 'vid-11')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-11')">BAIL FUND</button></div></div></div>
-        <div class="video-card" id="vid-12"><div class="video-wrapper"><div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div><iframe data-src="https://www.youtube.com/embed/P6Ff-e9V270" allowfullscreen></iframe></div><div class="card-info"><div class="card-title">Night School Grind</div><div class="skater-wallet-bal">Blessings: ...</div><div class="multi-chain-actions"><button class="donate-btn" onclick="openSponsorModal('E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7', 'vid-12')">SPONSOR</button><button class="bail-fund-btn" onclick="sendBailFund('0x000000000000000000000000000000000000dEaD', 'vid-12')">BAIL FUND</button></div></div></div>
+          </div>
+        `).join(''));
+      </script>
     </div>
 </div>
-
-  <div id="leaderboard-content" style="display:none;"><h2 style="text-align:center;">Boardroom Leaders</h2></div>
-  <div id="donate-content" style="display:none;"><h2 style="text-align:center;">Community Treasury</h2></div>
-  <div id="profile-content" style="display:none;"><h2 style="text-align:center;">User Profile</h2></div>
 </main>
+
+<div id="bail-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="color:var(--accent-eth);"><i class="fab fa-ethereum"></i> BASE BAIL FUND</h3>
+        <p style="font-size:0.8rem; margin:15px 0;">Post bail for this skater on the Base network to unlock footage immediately.</p>
+        <button class="bail-btn" onclick="sendBail()">POST BAIL (0.005 ETH)</button>
+        <button onclick="closeBailModal()" style="background:transparent; color:#888; border:none; margin-top:15px; cursor:pointer;">[ Close ]</button>
+    </div>
+</div>
 
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
-    <h3 style="color:var(--accent-gold); margin-bottom: 15px;">Sponsor Clip (SOL)</h3>
-    <button onclick="sendSOL(0.01)" class="tier-btn">FLOW (0.01 SOL)</button>
-    <button onclick="sendSOL(0.05)" class="tier-btn">AM (0.05 SOL)</button>
-    <button onclick="sendSOL(0.1)" class="tier-btn">PRO (0.1 SOL)</button>
-    <button onclick="closeModal()" style="background:transparent; color:#888; border:none; cursor:pointer;">[ Close ]</button>
+    <h3 style="color:var(--accent-gold);">SOLANA SPONSORSHIP</h3>
+    <button onclick="sendSOL(0.01)" class="tier-btn" style="width:100%; padding:10px; margin:5px 0;">0.01 SOL</button>
+    <button onclick="sendSOL(0.05)" class="tier-btn" style="width:100%; padding:10px; margin:5px 0;">0.05 SOL</button>
+    <button onclick="closeSponsorModal()" style="background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer;">[ Close ]</button>
   </div>
 </div>
 
-<div id="success-modal" class="modal-overlay">
-    <div class="modal-content">
-      <h2 style="color:var(--accent-gold); font-family:'Bangers'; font-size: 2.8rem;">UNLOCKED!</h2>
-      <button onclick="closeSuccessModal()" class="wallet-btn" style="width:100%; margin-top:10px;">KEEP SKATING</button>
-    </div>
-</div>
-
 <script>
-let solPublicKey = null; let solProvider = null;
-let evmAddress = null; let evmProvider = null; let evmSigner = null;
-let activeVideoId = null; let currentSkaterTarget = "";
+let solKey = null; let evmAddr = null; let evmSigner = null;
+let activeVid = null; let activeDest = "";
 
-const SPONSOR_ONLY_WALLETS = ["BZ6NiSdT4EbRtfbDVkCpRgiaVgAL96jyhGTznxbkrzMg"];
-
-// 1. ISOLATED SOLANA LOGIC
+// WALLET OPS
 async function handleSolAction() {
-    if (solPublicKey) {
-        solPublicKey = null;
-        document.getElementById("connect-sol-btn").innerText = "SOL";
-        updateWalletUI();
-    } else {
-        solProvider = window.phantom?.solana;
-        if (!solProvider) { alert("Install Phantom!"); return; }
-        try {
-            const resp = await solProvider.connect();
-            solPublicKey = resp.publicKey.toString();
-            document.getElementById("connect-sol-btn").innerText = solPublicKey.slice(0,4) + "..";
-            updateWalletUI();
-            checkPersistence();
-        } catch (e) { console.error(e); }
-    }
+    const p = window.phantom?.solana;
+    if(!p) return alert("Install Phantom");
+    const resp = await p.connect();
+    solKey = resp.publicKey.toString();
+    document.getElementById('connect-sol').innerText = solKey.slice(0,4);
+    checkPersistence();
 }
 
-// 2. ISOLATED METAMASK LOGIC (ANTI-HIJACK)
 async function handleEVMAction() {
-    if (evmAddress) {
-        evmAddress = null; evmSigner = null;
-        document.getElementById("connect-evm-btn").innerText = "ETH";
-        updateWalletUI();
-    } else {
-        if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-            try {
-                evmProvider = new ethers.BrowserProvider(window.ethereum);
-                const accounts = await evmProvider.send("eth_requestAccounts", []);
-                evmAddress = accounts[0];
-                evmSigner = await evmProvider.getSigner();
-                document.getElementById("connect-evm-btn").innerText = evmAddress.slice(0,4) + "..";
-                updateWalletUI();
-                checkPersistence();
-            } catch (e) { alert("MetaMask Connection Rejected"); }
-        } else {
-            alert("Please install MetaMask!");
-        }
-    }
+    if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        evmAddr = accounts[0];
+        evmSigner = await provider.getSigner();
+        document.getElementById('connect-eth').innerText = evmAddr.slice(0,4);
+        checkPersistence();
+    } else alert("Install MetaMask");
 }
 
-function updateWalletUI() {
-    const auth = document.getElementById("skater-auth-panel");
-    if (solPublicKey || evmAddress) {
-        auth.style.display = "flex";
-        if (SPONSOR_ONLY_WALLETS.includes(solPublicKey)) {
-            document.getElementById("auth-skater-rank").innerText = "SPONSOR";
-        }
-    } else {
-        auth.style.display = "none";
-    }
-}
-
-// 3. TRANSACTIONS
-async function sendSOL(amount) {
+// TX OPS
+async function sendSOL(amt) {
     try {
-        const connection = new solanaWeb3.Connection("https://solana-rpc.publicnode.com", "confirmed");
-        const fromPubkey = new solanaWeb3.PublicKey(solPublicKey);
-        const toPubkey = new solanaWeb3.PublicKey(currentSkaterTarget);
-        const tx = new solanaWeb3.Transaction().add(
-            solanaWeb3.SystemProgram.transfer({ fromPubkey, toPubkey, lamports: amount * 1e9 })
-        );
-        const { blockhash } = await connection.getLatestBlockhash();
-        tx.recentBlockhash = blockhash; tx.feePayer = fromPubkey;
-        const signed = await solProvider.signTransaction(tx);
-        await connection.sendRawTransaction(signed.serialize());
-        handleUnlockSuccess();
-    } catch (e) { alert("Transaction Failed"); }
+        const conn = new solanaWeb3.Connection("https://solana-rpc.publicnode.com");
+        const from = new solanaWeb3.PublicKey(solKey);
+        const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey:from, toPubkey:new solanaWeb3.PublicKey(activeDest), lamports:amt*1e9 }));
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; tx.feePayer = from;
+        const signed = await window.phantom.solana.signTransaction(tx);
+        await conn.sendRawTransaction(signed.serialize());
+        unlock(solKey);
+    } catch(e) { alert("SOL Fail"); }
 }
 
-async function sendBailFund(dest, vidId) {
-    if (!evmSigner) { alert("Connect ETH/MetaMask first!"); return; }
+async function sendBail() {
+    if(!evmSigner) return alert("Connect ETH");
     try {
-        activeVideoId = vidId;
-        const tx = await evmSigner.sendTransaction({
-            to: dest,
-            value: ethers.parseEther("0.005") // Fixed Bail Fund amount
-        });
+        const tx = await evmSigner.sendTransaction({ to: "0x000000000000000000000000000000000000dEaD", value: ethers.parseEther("0.005") });
         await tx.wait();
-        handleUnlockSuccess();
-    } catch (e) { alert("Bail Fund Transaction Failed"); }
+        unlock(evmAddr);
+    } catch(e) { alert("EVM Fail"); }
 }
 
-// 4. UTILITIES
-function handleUnlockSuccess() {
-    let walletKey = solPublicKey || evmAddress;
-    if (activeVideoId && walletKey) {
-        let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + walletKey) || "[]");
-        if (!unlocked.includes(activeVideoId)) {
-            unlocked.push(activeVideoId);
-            localStorage.setItem('sk8_unlocks_' + walletKey, JSON.stringify(unlocked));
-        }
-    }
-    document.getElementById("success-modal").style.display = "flex";
-    createConfetti(); checkPersistence(); closeModal();
+// UI LOGIC
+function openBailModal(vid) { activeVid = vid; document.getElementById('bail-modal').style.display='flex'; }
+function closeBailModal() { document.getElementById('bail-modal').style.display='none'; }
+function openSponsorModal(dest, vid) { activeDest = dest; activeVid = vid; document.getElementById('sponsor-modal').style.display='flex'; }
+function closeSponsorModal() { document.getElementById('sponsor-modal').style.display='none'; }
+
+function unlock(key) {
+    let list = JSON.parse(localStorage.getItem('sk8_'+key) || "[]");
+    if(!list.includes(activeVid)) list.push(activeVid);
+    localStorage.setItem('sk8_'+key, JSON.stringify(list));
+    location.reload();
 }
 
 function checkPersistence() {
-    let walletKey = solPublicKey || evmAddress;
-    if (!walletKey) return;
-    let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + walletKey) || "[]");
-    document.querySelectorAll('.video-card').forEach(card => {
-        if (unlocked.includes(card.id)) {
-            card.classList.add('unlocked');
-            let frame = card.querySelector('iframe');
-            if (frame.src !== frame.dataset.src) frame.src = frame.dataset.src;
+    let key = solKey || evmAddr;
+    if(!key) return;
+    let list = JSON.parse(localStorage.getItem('sk8_'+key) || "[]");
+    document.querySelectorAll('.video-card').forEach(c => {
+        if(list.includes(c.id)) {
+            c.classList.add('unlocked');
+            let f = c.querySelector('iframe'); f.src = f.dataset.src;
         }
     });
 }
 
-function navigateTo(page) {
-    ["home", "video", "leaderboard", "donate", "profile"].forEach(id => {
-        document.getElementById(id + "-content").style.display = 'none';
-    });
-    document.getElementById(page + "-content").style.display = 'block';
-    if(page === 'video') checkPersistence();
-}
-
-function openSponsorModal(addr, vid) {
-    if(!solPublicKey) { alert("Connect SOL first"); return; }
-    currentSkaterTarget = addr; activeVideoId = vid;
-    document.getElementById("sponsor-modal").style.display = "flex";
-}
-
-function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
-function closeSuccessModal() { document.getElementById("success-modal").style.display = "none"; }
-
-function createConfetti() {
-  for (let i = 0; i < 40; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    confetti.style.left = Math.random() * 95 + '%'; 
-    confetti.style.backgroundColor = ['#ff2d55', '#ff9500', '#00f0ff', '#ffd700'][Math.floor(Math.random() * 4)];
-    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-    document.body.appendChild(confetti);
-    setTimeout(() => confetti.remove(), 4000);
-  }
+function navigateTo(p) {
+    document.getElementById('home-content').style.display = p==='home'?'block':'none';
+    document.getElementById('video-content').style.display = p==='video'?'block':'none';
+    if(p==='video') checkPersistence();
 }
 </script>
 </body>
