@@ -1386,6 +1386,23 @@ function initJupiter() {
     });
 }
 
+    // 2. Prevent double-initialization bugs
+    if (terminal.hasAttribute('data-jup-loaded')) return;
+    terminal.setAttribute('data-jup-loaded', 'true');
+    terminal.innerHTML = ""; // Clear loader
+
+    // 3. Ignite Terminal V3
+    window.Jupiter.init({
+        displayMode: 'integrated',
+        integratedTargetId: 'jupiter-terminal',
+        // NOTE: We REMOVED endpoint: RPC_URL. Jupiter will now use its own un-throttled node.
+        formProps: {
+            // NOTE: Token routing must be securely wrapped inside formProps
+            initialOutputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // Official USDC
+        }
+    });
+}
+
 async function renderProfile(wallet, forceView = null) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const picEl = document.getElementById('p-img'); const rEl = document.getElementById('p-rank'); const bEl = document.getElementById('p-blessings');
