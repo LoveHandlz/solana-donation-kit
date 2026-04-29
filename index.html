@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn 6.9.2 (Master Protocol)</title>
+  <title>SK8COIN | Skate2Earn Master Protocol</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -862,7 +862,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
             <div id="feed-paywall-overlay" class="feed-paywall" style="display: none;">
                 <i class="fas fa-lock paywall-icon"></i>
                 <h2 style="color: var(--silver-font); font-family: 'Bangers'; font-size: 2.2rem; letter-spacing: 1px;">AMATEUR TIER REQUIRED</h2>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; max-width: 400px; margin: 10px auto 20px;">You must drop an on-chain blessing of 0.05 SOL (Silver Tier) or higher to this skater to permanently unlock their private feed.</p>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; max-width: 400px; margin: 10px auto 20px;">You must drop a cumulative on-chain blessing of 0.05 SOL (Silver Tier) or higher to this skater to permanently unlock their private feed.</p>
                 <button onclick="openSponsorshipModalFromFeed()" class="tier-btn tier-am" style="max-width: 250px;">UPGRADE TO AM (0.05 SOL)</button>
             </div>
 
@@ -1034,7 +1034,10 @@ const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
-const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"];
+// GODMODE ADMIN ARRAY
+const ADMIN_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
+const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
+
 const SKATER_REGISTRY = ["FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW","GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ","4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi","6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW","BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi","9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH","5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm","9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj","HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq","DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b","E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7"];
 
 const SKATER_PROFILES = [
@@ -1278,13 +1281,31 @@ function renderSkaterFeed() {
 function loadMoreTreasury() { treasuryRenderLimit += 20; renderTreasuryFeed(); }
 function loadMoreSkaterFeed() { skaterRenderLimit += 20; renderSkaterFeed(); }
 
+/* ======================================================== */
+/* GODMODE ADMIN PROTOCOL FOR MAIN VIDEO GRID               */
+/* ======================================================== */
 function checkPersistence() {
+    let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
+
     document.querySelectorAll('.video-card').forEach(card => {
         let iframe = card.querySelector('iframe');
-        if (!publicKey) { card.classList.remove('unlocked'); if (iframe) iframe.src = ""; return; }
+        
+        if (!publicKey) { 
+            card.classList.remove('unlocked'); 
+            if (iframe) iframe.src = ""; 
+            return; 
+        }
+        
         let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
-        if (unlocked.includes(card.id)) { if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; card.classList.add('unlocked'); }
-        else { card.classList.remove('unlocked'); if (iframe) iframe.src = ""; }
+        
+        // Universal Admin Unlock
+        if (isAdmin || unlocked.includes(card.id)) { 
+            if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; 
+            card.classList.add('unlocked'); 
+        } else { 
+            card.classList.remove('unlocked'); 
+            if (iframe) iframe.src = ""; 
+        }
     });
 }
 
@@ -1451,7 +1472,7 @@ function createConfetti() {
 function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
 
 /* ======================================================== */
-/* FEED LOGIC (12-GRID + BUTTONS + ICONS)                   */
+/* UPGRADED TIER HIERARCHY LOGIC & GODMODE PRIVATE FEED     */
 /* ======================================================== */
 async function attemptFeedAccess() {
     if(!publicKey) { alert("Connect Wallet First"); return; }
@@ -1471,7 +1492,7 @@ async function attemptFeedAccess() {
     document.getElementById('post-create-box').style.display = 'none';
     document.getElementById('feed-paywall-overlay').style.display = 'none';
     document.getElementById('load-more-feed-btn').style.display = 'none';
-    document.getElementById('actual-feed-items').innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain...</div>';
+    document.getElementById('actual-feed-items').innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain history...</div>';
 
     feedRenderLimit = 12;
     currentSkaterPosts = [];
@@ -1480,37 +1501,59 @@ async function attemptFeedAccess() {
     let hasAccess = isOwner;
 
     if (!isOwner) {
-        hasAccess = await verifySilverTier(publicKey, activeFeedWallet);
+        const requiredSOL = 0.05; 
+        hasAccess = await verifySponsorshipTier(publicKey, activeFeedWallet, requiredSOL);
     }
 
     if (hasAccess) {
         if(isOwner) document.getElementById('post-create-box').style.display = 'block';
-        fetchSkaterFeed(activeFeedWallet, false);
+        fetchSkaterFeed(activeFeedWallet, false); 
     } else {
         document.getElementById('feed-paywall-overlay').style.display = 'flex';
         fetchSkaterFeed(activeFeedWallet, true); 
     }
 }
 
-async function verifySilverTier(sponsorPubKey, skaterPubKey) {
+async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
+    // GODMODE BYPASS
+    if (ADMIN_WALLETS.includes(sponsorPubKey)) {
+        console.log("Godmode Active: Universal Private Feed Bypass Granted.");
+        return true;
+    }
+
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    let totalDonated = 0;
+    
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterPubKey), { limit: 40 });
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterPubKey), { limit: 50 });
+        
         for(let s of sigs) {
             const tx = await conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
             if(tx) {
                 const keys = tx.transaction.message.staticAccountKeys.map(k=>k.toString());
+                
                 if(keys[0] === sponsorPubKey) { 
                     const skaterIdx = keys.indexOf(skaterPubKey);
                     if(skaterIdx !== -1) {
-                        const diff = (tx.meta.postBalances[skaterIdx] - tx.meta.preBalances[skaterIdx]) / 1e9;
-                        if(diff >= 0.049) return true;
+                        const pre = tx.meta.preBalances[skaterIdx];
+                        const post = tx.meta.postBalances[skaterIdx];
+                        const diff = (post - pre) / solanaWeb3.LAMPORTS_PER_SOL;
+                        
+                        if (diff > 0) {
+                            totalDonated += diff;
+                        }
                     }
                 }
             }
         }
-    } catch(e) { console.error("Verification error", e); }
-    return false;
+    } catch(e) { 
+        console.error("On-Chain Verification error", e); 
+    }
+    
+    const buffer = 0.001; 
+    console.log(`Total accumulated on-chain support: ${totalDonated} SOL`);
+    
+    return totalDonated >= (requiredSOL - buffer);
 }
 
 async function fetchSkaterFeed(wallet, isBlurred) {
