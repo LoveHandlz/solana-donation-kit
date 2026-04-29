@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.1</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.2</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -1358,7 +1358,9 @@ function navigateTo(page, wallet = null) {
   window.scrollTo(0,0);
 }
 
-// NEW: JUPITER INITIALIZATION ENGINE
+// ======================================================== 
+// JUPITER DEX INITIALIZATION ENGINE (UPDATED v3.1)
+// ======================================================== 
 function initJupiter() {
     const terminal = document.getElementById('jupiter-terminal');
     
@@ -1368,23 +1370,6 @@ function initJupiter() {
         setTimeout(initJupiter, 500);
         return;
     }
-
-    // 2. Prevent double-initialization bugs
-    if (terminal.hasAttribute('data-jup-loaded')) return;
-    terminal.setAttribute('data-jup-loaded', 'true');
-    terminal.innerHTML = ""; // Clear loader
-
-    // 3. Ignite Terminal V3
-    window.Jupiter.init({
-        displayMode: 'integrated',
-        integratedTargetId: 'jupiter-terminal',
-        // NOTE: We REMOVED endpoint: RPC_URL. Jupiter will now use its own un-throttled node.
-        formProps: {
-            // NOTE: Token routing must be securely wrapped inside formProps
-            initialOutputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // Official USDC
-        }
-    });
-}
 
     // 2. Prevent double-initialization bugs
     if (terminal.hasAttribute('data-jup-loaded')) return;
