@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn 6.9.1 (Pro Edition)</title>
+  <title>SK8COIN | Skate2Earn 6.9.1 (Master Protocol)</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -258,7 +258,7 @@ main {
 }
 .view-profile-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
 
-/* PROFILE PAGE STYLES - SPACING ADJUSTMENTS */
+/* PROFILE PAGE STYLES */
 #profile-content {
     background: linear-gradient(145deg, var(--bg-panel), #050a1f);
     border: 1px solid var(--accent-gold);
@@ -371,14 +371,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
 /* ======================================================== */
-/* PRIVATE FEED ARCHITECTURE                                */
+/* PRIVATE FEED ARCHITECTURE & 12-GRID                      */
 /* ======================================================== */
-.feed-container { max-width: 800px; margin: 0 auto; position: relative; }
+.feed-container { max-width: 1000px; margin: 0 auto; position: relative; }
 .post-create-box { background: rgba(0,240,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--accent-cyan); margin-bottom: 2rem; display: none; }
-.feed-item { background: var(--bg-panel); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; transition: 0.3s; position: relative; overflow: hidden; }
-.feed-item:hover { border-color: var(--accent-gold); box-shadow: 0 5px 15px rgba(255,215,0,0.05); }
-.feed-date { font-size: 0.65rem; color: var(--accent-cyan); font-family: 'Inter', sans-serif; margin-bottom: 8px; font-weight: bold; }
-.feed-text { font-size: 0.9rem; color: #fff; line-height: 1.6; margin-bottom: 15px; font-family: 'Inter', sans-serif;}
 .feed-paywall { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(10,19,47,0.98); backdrop-filter: blur(8px); 
@@ -387,6 +383,54 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     border: 2px dashed var(--silver-font); padding: 2rem; 
 }
 .paywall-icon { font-size: 3rem; color: var(--silver-font); margin-bottom: 15px; }
+
+.feed-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
+}
+.feed-grid-item { 
+    background: var(--bg-panel); 
+    border-radius: 12px; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    transition: 0.3s; 
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.feed-grid-item:hover { 
+    border-color: var(--accent-gold); 
+    box-shadow: 0 5px 15px rgba(255,215,0,0.05); 
+    transform: translateY(-3px);
+}
+.feed-grid-media {
+    width: 100%;
+    position: relative;
+    padding-bottom: 100%; /* 1:1 Square aspect ratio */
+    background: #000;
+}
+.feed-grid-media iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+}
+.feed-grid-content {
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.feed-grid-text { 
+    font-size: 0.75rem; 
+    color: #fff; 
+    line-height: 1.4; 
+    margin-bottom: 10px; 
+    flex: 1;
+    word-wrap: break-word;
+}
+.feed-grid-date { 
+    font-size: 0.6rem; 
+    color: var(--text-secondary); 
+    font-family: 'Inter', sans-serif; 
+}
 
 /* ======================================================== */
 /* RUTHLESS MOBILE LOCKDOWN ARCHITECTURE                    */
@@ -401,6 +445,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     .leaderboard-container { grid-template-columns: 1fr; }
     .profile-layout { grid-template-columns: 1fr; text-align: center; gap: 30px;}
     .profile-sidebar { border-right: none !important; padding-right: 0 !important; }
+    .feed-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 
 @media (max-width: 768px) { 
@@ -454,7 +499,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     footer { padding: 2rem 1.2rem 1.2rem; margin-top: 2rem; }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 480px) {
     .hero h1 { font-size: 1.7rem !important; }
     #leaderboard-content .hero h1 { font-size: 1.5rem !important; } 
     .logo { height: 28px; }
@@ -469,6 +514,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     h2#p-name { font-size: 2rem !important; }
     .profile-pic { max-width: 150px; }
     #success-box h2 { font-size: 2.5rem !important; }
+    .feed-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -776,12 +822,13 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
         <div id="post-create-box" class="post-create-box">
             <h3 style="color:var(--accent-cyan); font-size: 1rem; margin-bottom: 10px;">UPDATE YOUR FEED</h3>
             <textarea id="new-post-text" placeholder="What went down today? Land a new trick?" rows="3" style="width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid var(--card-border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.85rem; margin-bottom: 10px;"></textarea>
-            <input type="text" id="new-post-yt" placeholder="Optional: YouTube URL for clip" style="width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid var(--card-border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 10px;">
+            
+            <input type="text" id="new-post-link" placeholder="Optional: YouTube or Instagram Reel/Post URL" style="width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid var(--card-border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 10px;">
+            
             <button onclick="publishToFeed()" id="publish-feed-btn" class="tier-btn" style="background: var(--accent-cyan); color: #000; border: none; font-size: 0.8rem;">SIGN & POST TO CHAIN</button>
         </div>
 
         <div id="feed-list-container" style="position: relative; min-height: 400px;">
-            
             <div id="feed-paywall-overlay" class="feed-paywall" style="display: none;">
                 <i class="fas fa-lock paywall-icon"></i>
                 <h2 style="color: var(--silver-font); font-family: 'Bangers'; font-size: 2.2rem; letter-spacing: 1px;">AMATEUR TIER REQUIRED</h2>
@@ -789,10 +836,11 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
                 <button onclick="openSponsorshipModalFromFeed()" class="tier-btn tier-am" style="max-width: 250px;">UPGRADE TO AM (0.05 SOL)</button>
             </div>
 
-            <div id="actual-feed-items">
-                <div style="text-align:center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain...</div>
+            <div id="actual-feed-items" class="feed-grid">
+                <div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain...</div>
             </div>
-
+            
+            <button id="load-more-feed-btn" class="view-profile-btn" style="display:none; margin-top:20px; font-weight:bold; padding:15px; grid-column: 1 / -1;" onclick="loadMoreFeed()">LOAD MORE POSTS</button>
         </div>
     </div>
   </div>
@@ -940,11 +988,17 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
 <script>
 let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
+
+// LEADERBOARD GLOBALS
 let allTreasurySponsors = [];
 let allSkaterHits = [];
 let treasuryRenderLimit = 20;
 let skaterRenderLimit = 20;
+
+// FEED GLOBALS
 let activeFeedWallet = "";
+let currentSkaterPosts = [];
+let feedRenderLimit = 12;
 
 const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
@@ -1095,7 +1149,6 @@ async function refreshLeaderboardData() {
     treasuryList.innerHTML = "<li>Synchronizing deep history...</li>";
     skaterList.innerHTML = "<li>Polling Skater Wallets...</li>";
 
-    // 1. TREASURY DEEP SCAN
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 60 });
         let aggregatedSponsors = {};
@@ -1115,16 +1168,12 @@ async function refreshLeaderboardData() {
         let rawSponsors = Object.keys(aggregatedSponsors).map(addr => ({ addr, val: aggregatedSponsors[addr] }));
         rawSponsors.sort((a, b) => b.val - a.val);
 
-        await Promise.all(rawSponsors.map(async (s) => {
-            s.name = await resolveWalletName(s.addr);
-        }));
-
+        await Promise.all(rawSponsors.map(async (s) => { s.name = await resolveWalletName(s.addr); }));
         allTreasurySponsors = rawSponsors;
         renderTreasuryFeed();
 
     } catch(e) { treasuryList.innerHTML = "<li>Node busy. Refresh soon.</li>"; }
 
-    // 2. SKATER SUPPORT DEEP SCAN
     let entries = [];
     try {
         let shuffledSkaters = [...SKATER_REGISTRY].sort(() => 0.5 - Math.random()).slice(0, 6);
@@ -1142,11 +1191,7 @@ async function refreshLeaderboardData() {
         }
         
         entries.sort((a, b) => b.time - a.time); 
-        
-        await Promise.all(entries.map(async (e) => {
-            e.name = await resolveWalletName(e.addr);
-        }));
-
+        await Promise.all(entries.map(async (e) => { e.name = await resolveWalletName(e.addr); }));
         allSkaterHits = entries;
         renderSkaterFeed();
 
@@ -1157,7 +1202,6 @@ function renderTreasuryFeed() {
     const list = document.getElementById("treasury-sponsors-list");
     const btn = document.getElementById("load-more-treasury");
     list.innerHTML = "";
-    
     let toRender = allTreasurySponsors.slice(0, treasuryRenderLimit);
     
     toRender.forEach((s, index) => {
@@ -1185,7 +1229,6 @@ function renderSkaterFeed() {
     const list = document.getElementById("skater-sponsors-list");
     const btn = document.getElementById("load-more-skater");
     list.innerHTML = "";
-
     let toRender = allSkaterHits.slice(0, skaterRenderLimit);
 
     list.innerHTML = toRender.map(e => {
@@ -1202,15 +1245,8 @@ function renderSkaterFeed() {
     btn.style.display = (allSkaterHits.length > skaterRenderLimit) ? "block" : "none";
 }
 
-function loadMoreTreasury() {
-    treasuryRenderLimit += 20;
-    renderTreasuryFeed();
-}
-
-function loadMoreSkaterFeed() {
-    skaterRenderLimit += 20;
-    renderSkaterFeed();
-}
+function loadMoreTreasury() { treasuryRenderLimit += 20; renderTreasuryFeed(); }
+function loadMoreSkaterFeed() { skaterRenderLimit += 20; renderSkaterFeed(); }
 
 function checkPersistence() {
     document.querySelectorAll('.video-card').forEach(card => {
@@ -1385,7 +1421,7 @@ function createConfetti() {
 function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
 
 /* ======================================================== */
-/* FEED ARCHITECTURE & VERIFICATION LOGIC                   */
+/* FEED LOGIC (12-GRID + LOAD MORE)                         */
 /* ======================================================== */
 async function attemptFeedAccess() {
     if(!publicKey) { alert("Connect Wallet First"); return; }
@@ -1402,10 +1438,14 @@ async function attemptFeedAccess() {
     window.scrollTo(0,0);
 
     document.getElementById('feed-header-title').innerText = `${skaterName}'S FEED`;
-    
     document.getElementById('post-create-box').style.display = 'none';
     document.getElementById('feed-paywall-overlay').style.display = 'none';
-    document.getElementById('actual-feed-items').innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain...</div>';
+    document.getElementById('load-more-feed-btn').style.display = 'none';
+    document.getElementById('actual-feed-items').innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain...</div>';
+
+    // Reset render limit to 12 when entering feed
+    feedRenderLimit = 12;
+    currentSkaterPosts = [];
 
     let isOwner = (publicKey === activeFeedWallet);
     let hasAccess = isOwner;
@@ -1416,10 +1456,10 @@ async function attemptFeedAccess() {
 
     if (hasAccess) {
         if(isOwner) document.getElementById('post-create-box').style.display = 'block';
-        loadSkaterFeed(activeFeedWallet);
+        fetchSkaterFeed(activeFeedWallet, false);
     } else {
         document.getElementById('feed-paywall-overlay').style.display = 'flex';
-        loadSkaterFeed(activeFeedWallet, true); 
+        fetchSkaterFeed(activeFeedWallet, true); 
     }
 }
 
@@ -1444,41 +1484,66 @@ async function verifySilverTier(sponsorPubKey, skaterPubKey) {
     return false;
 }
 
-async function loadSkaterFeed(wallet, isBlurred = false) {
+async function fetchSkaterFeed(wallet, isBlurred) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let posts = [];
+    currentSkaterPosts = [];
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 50 });
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 60 });
         for (let s of sigs) { 
             if(s.memo && s.memo.includes('"sk8post":"v1"')) { 
                 const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                posts.push({ text: d.text, yt: d.yt, time: s.blockTime });
+                currentSkaterPosts.push({ text: d.text, yt: d.yt, ig: d.ig, time: s.blockTime });
             }
         }
     } catch(e) {}
+    
+    renderFeedGrid(isBlurred);
+}
 
+function renderFeedGrid(isBlurred) {
     const container = document.getElementById('actual-feed-items');
-    if (posts.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary);">No feed entries found on-chain.</div>`;
+    const loadMoreBtn = document.getElementById('load-more-feed-btn');
+    
+    if (currentSkaterPosts.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`;
         return;
     }
 
+    let toRender = currentSkaterPosts.slice(0, feedRenderLimit);
     let html = "";
-    posts.forEach(p => {
-        let dateStr = new Date(p.time * 1000).toLocaleString();
-        let ytHtml = "";
+    
+    toRender.forEach(p => {
+        let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        let mediaHtml = "";
+        
         if(p.yt) {
-            ytHtml = `<div class="video-wrapper" style="border: 1px solid var(--card-border); border-radius: 8px; margin-bottom: 10px;">
-                        <iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe>
-                      </div>`;
+            mediaHtml = `<div class="feed-grid-media"><iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe></div>`;
+        } else if (p.ig) {
+            mediaHtml = `<div class="feed-grid-media"><iframe src="https://www.instagram.com/p/${p.ig}/embed" scrolling="no" allowtransparency="true"></iframe></div>`;
+        } else {
+            mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex; align-items:center; justify-content:center;"><i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
         }
-        html += `<div class="feed-item" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
-                    <div class="feed-date">${dateStr}</div>
-                    <div class="feed-text">${p.text}</div>
-                    ${ytHtml}
+
+        html += `<div class="feed-grid-item" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
+                    ${mediaHtml}
+                    <div class="feed-grid-content">
+                        <div class="feed-grid-text">${p.text || ""}</div>
+                        <div class="feed-grid-date">${dateStr}</div>
+                    </div>
                  </div>`;
     });
     container.innerHTML = html;
+    
+    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) {
+        loadMoreBtn.style.display = "block";
+    } else {
+        loadMoreBtn.style.display = "none";
+    }
+}
+
+function loadMoreFeed() {
+    feedRenderLimit += 12;
+    renderFeedGrid(false);
 }
 
 async function publishToFeed() {
@@ -1488,17 +1553,25 @@ async function publishToFeed() {
     
     try {
         const text = document.getElementById("new-post-text").value;
-        const rawYt = document.getElementById("new-post-yt").value;
+        const rawLink = document.getElementById("new-post-link").value;
         
         let yt = ""; 
-        if (rawYt) { const m = rawYt.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); yt = (m && m[2].length === 11) ? m[2] : ""; }
+        let ig = "";
         
-        if(!text && !yt) { alert("Cannot post empty data."); btn.innerText = "SIGN & POST TO CHAIN"; return; }
+        if (rawLink) { 
+            const ytMatch = rawLink.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); 
+            if (ytMatch && ytMatch[2].length === 11) yt = ytMatch[2]; 
+            
+            const igMatch = rawLink.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
+            if (igMatch) ig = igMatch[1];
+        }
+        
+        if(!text && !yt && !ig) { alert("Cannot post empty data."); btn.innerText = "SIGN & POST TO CHAIN"; return; }
 
-        const pData = JSON.stringify({ sk8post: "v1", text, yt });
+        const pData = JSON.stringify({ sk8post: "v1", text, yt, ig });
         const encoded = new TextEncoder().encode(pData); 
         
-        if (encoded.length > 566) { alert(`Post too long for Memo!`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
+        if (encoded.length > 566) { alert(`Post too long for Memo! Shorten your text.`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
         
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
@@ -1509,16 +1582,10 @@ async function publishToFeed() {
         btn.innerText = "POSTED!"; 
         
         document.getElementById("new-post-text").value = "";
-        document.getElementById("new-post-yt").value = "";
+        document.getElementById("new-post-link").value = "";
         
-        setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; loadSkaterFeed(activeFeedWallet); }, 2000);
+        setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; attemptFeedAccess(); }, 2000);
     } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000); }
-}
-
-function openSponsorshipModalFromFeed() {
-    currentSkaterTarget = activeFeedWallet;
-    activeVideoId = null; 
-    document.getElementById('sponsor-modal').style.display = 'flex';
 }
 
 window.addEventListener('load', async () => {
