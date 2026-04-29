@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 6.2</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.0</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -16,6 +16,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+  <script src="https://terminal.jup.ag/main-v3.js" data-preload></script>
 
 <style>
 :root {
@@ -546,6 +547,18 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     #success-box h2 { font-size: 2.5rem !important; }
     .feed-grid { grid-template-columns: 1fr; }
 }
+
+/* JUPITER OVERRIDES */
+#jupiter-terminal {
+    max-width: 420px; 
+    margin: 0 auto; 
+    min-height: 500px; 
+    background: var(--bg-panel); 
+    border-radius: 20px; 
+    padding: 10px; 
+    border: 1px solid var(--accent-cyan); 
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+}
 </style>
 </head>
 <body>
@@ -559,6 +572,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
           <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
           <li><a href="javascript:void(0)" onclick="navigateTo('leaderboard')">LEADERBOARD</a></li>
           <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateTo('swap')">SWAP</a></li>
         </ul>
     </nav>
     <div class="header-controls">
@@ -625,10 +639,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
         <div class="menu-title">DISCORD</div>
         <div class="menu-desc">Wallet-linked roles, alerts, battles & giveaways</div>
       </div>
-      <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
-        <div class="menu-icon" style="color: var(--accent-gold);">📜</div>
-        <div class="menu-title" style="color: var(--accent-gold);">WHITE PAPER</div>
-        <div class="menu-desc">Project Overview — Vision, Tokenomics, Roadmap & Skate2Earn mechanics</div>
+      <div class="menu-item" onclick="navigateTo('swap')">
+        <div class="menu-icon" style="color: var(--accent-green);">🔄</div>
+        <div class="menu-title" style="color: var(--accent-green);">DEX SWAP</div>
+        <div class="menu-desc">Swap tokens instantly with zero friction using Jupiter.</div>
       </div>
       <div class="menu-item" onclick="navigateTo('donate')">
         <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
@@ -636,6 +650,14 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
         <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
       </div>
     </div>
+  </div>
+
+  <div id="swap-content" style="display:none;">
+    <div class="hero">
+        <h1 style="font-size: 3.5rem;">DEX SWAP</h1>
+        <p class="hero-subtext" style="font-size: 0.9rem;">Swap SOL or any Solana token instantly. Powered by Jupiter Aggregator.</p>
+    </div>
+    <div id="jupiter-terminal"></div>
   </div>
 
  <div id="video-content" style="display:none;">
@@ -1299,7 +1321,6 @@ function checkPersistence() {
         
         let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
         
-        // Universal Admin Unlock
         if (isAdmin || unlocked.includes(card.id)) { 
             if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; 
             card.classList.add('unlocked'); 
@@ -1312,7 +1333,7 @@ function checkPersistence() {
 
 function navigateToProfileView(viewType) {
     if(!publicKey) return; document.getElementById('mobile-nav').classList.remove('open');
-    ["home", "video", "leaderboard", "donate", "feed"].forEach(id => {
+    ["home", "video", "leaderboard", "donate", "feed", "swap"].forEach(id => {
         let el = document.getElementById(id + "-content");
         if(el) el.style.display = 'none';
     });
@@ -1322,16 +1343,33 @@ function navigateToProfileView(viewType) {
 
 function navigateTo(page, wallet = null) {
   document.getElementById('mobile-nav').classList.remove('open');
-  ["home", "video", "leaderboard", "donate", "profile", "feed"].forEach(id => {
+  ["home", "video", "leaderboard", "donate", "profile", "feed", "swap"].forEach(id => {
       let el = document.getElementById(id + "-content");
       if(el) el.style.display = 'none';
   });
   document.getElementById(page + "-content").style.display = 'block';
+  
   if(page === 'profile' && wallet) renderProfile(wallet, null);
   if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
   if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
+  if(page === 'swap') initJupiter();
+  
   window.scrollTo(0,0);
+}
+
+// NEW: JUPITER INITIALIZATION ENGINE
+function initJupiter() {
+    if (!window.Jupiter) return;
+    if (document.getElementById('jupiter-terminal').innerHTML !== "") return; // Already loaded
+
+    window.Jupiter.init({
+        displayMode: 'integrated',
+        integratedTargetId: 'jupiter-terminal',
+        endpoint: RPC_URL,
+        defaultExplorer: "Solscan",
+        // initialOutputMint: "YOUR_SKATE_TOKEN_MINT_ADDRESS_HERE", // UPGRADABLE LATER
+    });
 }
 
 async function renderProfile(wallet, forceView = null) {
@@ -1482,7 +1520,7 @@ async function attemptFeedAccess() {
     let skaterName = document.getElementById('p-name').innerText;
     
     document.getElementById('mobile-nav').classList.remove('open');
-    ["home", "video", "leaderboard", "donate", "profile"].forEach(id => {
+    ["home", "video", "leaderboard", "donate", "profile", "swap"].forEach(id => {
         let el = document.getElementById(id + "-content");
         if(el) el.style.display = 'none';
     });
@@ -1516,7 +1554,6 @@ async function attemptFeedAccess() {
 }
 
 async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
-    // GODMODE BYPASS
     if (ADMIN_WALLETS.includes(sponsorPubKey)) {
         console.log("Godmode Active: Universal Private Feed Bypass Granted.");
         return true;
