@@ -1360,15 +1360,29 @@ function navigateTo(page, wallet = null) {
 
 // NEW: JUPITER INITIALIZATION ENGINE
 function initJupiter() {
-    if (!window.Jupiter) return;
-    if (document.getElementById('jupiter-terminal').innerHTML !== "") return; // Already loaded
+    const terminal = document.getElementById('jupiter-terminal');
+    
+    // 1. Await CDN injection (If user clicks too fast)
+    if (!window.Jupiter) {
+        terminal.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--accent-cyan);"><i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px;"></i><br>Booting DEX Engine...</div>';
+        setTimeout(initJupiter, 500);
+        return;
+    }
 
+    // 2. Prevent double-initialization bugs
+    if (terminal.hasAttribute('data-jup-loaded')) return;
+    terminal.setAttribute('data-jup-loaded', 'true');
+    terminal.innerHTML = ""; // Clear loader
+
+    // 3. Ignite Terminal V3
     window.Jupiter.init({
         displayMode: 'integrated',
         integratedTargetId: 'jupiter-terminal',
-        endpoint: RPC_URL,
-        defaultExplorer: "Solscan",
-        initialOutputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // Official Solana USDC
+        // NOTE: We REMOVED endpoint: RPC_URL. Jupiter will now use its own un-throttled node.
+        formProps: {
+            // NOTE: Token routing must be securely wrapped inside formProps
+            initialOutputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // Official USDC
+        }
     });
 }
 
