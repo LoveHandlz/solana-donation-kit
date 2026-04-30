@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.2 (Godmode Beta)</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 6.2</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -31,7 +31,7 @@
   --card-border:rgba(0,240,255,0.14);
   
   --bronze-font: #cd7f32;
-  --silver-font: #cbd5e1; /* Vivid silver for readability */
+  --silver-font: #c0c0c0;
   --gold-font: #ffd700;
   --diamond-font: #b9f2ff;
 }
@@ -91,7 +91,6 @@ nav#mobile-nav a {
     transition:0.3s;
     font-size:0.9rem;
     letter-spacing: 1px;
-    cursor: pointer;
 }
 nav#mobile-nav a:hover{color:var(--accent-gold);}
 
@@ -315,25 +314,21 @@ main {
 
 /* LEADERBOARD STYLES */
 .leaderboard-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
-.leaderboard-box { background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 16px; padding: 1.5rem; position: relative; }
+.leaderboard-box { background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 16px; padding: 1.5rem; }
 .leaderboard-box h2 { font-size: 1rem; color: var(--accent-gold); margin-bottom: 1.2rem; text-transform: uppercase; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
 .leader-list { list-style: none; }
 .leader-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
 .leader-item:last-child { border: none; }
-
-/* FIX: ISOLATED CLICKABLE AREAS */
-.info-col { display: flex; flex-direction: column; flex: 1; min-width: 0; padding-right: 15px;}
-.addr-tag { font-family: monospace; display: flex; align-items: center; word-break: break-all; margin-bottom: 2px;}
+.addr-tag { color: var(--text-secondary); font-family: monospace; display: flex; align-items: center; word-break: break-all; }
 .amt-tag { color: var(--accent-green); font-weight: bold; white-space: nowrap; }
 .live-indicator { font-size: 0.6rem; color: var(--accent-red); float: right; animation: pulse 2s infinite; }
 @keyframes pulse { 0% {opacity:1;} 50% {opacity:0.3;} 100% {opacity:1;} }
 
+/* UI UPDATE CLASSES */
 .led-green { width: 8px; height: 8px; background-color: var(--accent-green); border-radius: 50%; box-shadow: 0 0 10px var(--accent-green); display: inline-block; margin-right: 8px; animation: led-pulse 2s infinite; }
 @keyframes led-pulse { 0% {opacity:1; transform: scale(1);} 50% {opacity:0.4; transform: scale(0.9);} 100% {opacity:1; transform: scale(1);} }
-.addr-name-click { cursor: pointer; transition: 0.2s; display: inline-block; pointer-events: auto; }
-.addr-name-click:hover { color: var(--accent-cyan) !important; text-decoration: underline; }
-.solscan-link { font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; position: relative; z-index: 5;}
-.solscan-link:hover { color: var(--accent-cyan); text-decoration: underline; }
+.addr-tag.clickable { cursor: pointer; transition: 0.2s; }
+.addr-tag.clickable:hover { color: var(--accent-cyan); text-decoration: underline; }
 
 footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); padding: 3rem 2rem 1.5rem; margin-top: 3rem; }
 .footer-inner { max-width: 1440px; margin: auto; display: grid; grid-template-columns: 2.5fr 1fr 1fr; gap: 3rem; }
@@ -348,7 +343,20 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 .mini-logo:hover { filter: none; opacity: 1; }
 
 .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; }
-.modal-content { background:var(--bg-panel); padding:2rem; border-radius:15px; border:1px solid var(--accent-gold); width:92%; max-width:400px; text-align: center; position: relative; margin: 0 auto; box-sizing: border-box; max-height: 90vh; overflow-y: auto; }
+.modal-content { 
+    background:var(--bg-panel); 
+    padding:2rem; 
+    border-radius:15px; 
+    border:1px solid var(--accent-gold); 
+    width:92%; 
+    max-width:400px; 
+    text-align: center; 
+    position: relative; 
+    margin: 0 auto; 
+    box-sizing: border-box;
+    max-height: 90vh; 
+    overflow-y: auto; 
+}
 
 .tier-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-weight: bold; border-radius: 6px; font-size: 0.8rem;}
 .tier-btn:hover { background: var(--accent-gold); color: #000; }
@@ -363,26 +371,104 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
 /* ======================================================== */
-/* PRIVATE FEED ARCHITECTURE                                */
+/* PRIVATE FEED ARCHITECTURE & 12-GRID + UI UPGRADES        */
 /* ======================================================== */
 .feed-container { max-width: 1000px; margin: 0 auto; position: relative; }
 .post-create-box { background: rgba(0,240,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--accent-cyan); margin-bottom: 2rem; display: none; }
-.feed-paywall { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.98); backdrop-filter: blur(8px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; text-align: center; border-radius: 12px; border: 2px dashed var(--silver-font); padding: 2rem; }
+.feed-paywall { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(10,19,47,0.98); backdrop-filter: blur(8px); 
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
+    z-index: 50; text-align: center; border-radius: 12px; 
+    border: 2px dashed var(--silver-font); padding: 2rem; 
+}
 .paywall-icon { font-size: 3rem; color: var(--silver-font); margin-bottom: 15px; }
 
-.feed-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-.feed-grid-item { background: var(--bg-panel); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; overflow: hidden; display: flex; flex-direction: column; }
-.feed-grid-item:hover { border-color: var(--accent-gold); box-shadow: 0 5px 15px rgba(255,215,0,0.05); transform: translateY(-3px); }
-.feed-grid-media { width: 100%; position: relative; padding-bottom: 100%; background: #000; }
-.feed-grid-media iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-.feed-platform-icon { position: absolute; top: 8px; right: 8px; background: rgba(10,19,47,0.8); backdrop-filter: blur(4px); padding: 5px 8px; border-radius: 6px; z-index: 10; border: 1px solid rgba(255,255,255,0.1); }
-.feed-grid-content { padding: 12px; flex: 1; display: flex; flex-direction: column; }
-.feed-grid-text { font-size: 0.75rem; color: #fff; line-height: 1.4; margin-bottom: 10px; flex: 1; word-wrap: break-word; }
-.feed-grid-date { font-size: 0.6rem; color: var(--text-secondary); font-family: 'Inter', sans-serif; }
-.feed-bless-btn { background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 8px; border-radius: 6px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: auto; transition: 0.3s; text-transform: uppercase; }
-.feed-bless-btn:hover { background: var(--accent-gold); color: #000; }
+.feed-grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
+}
+.feed-grid-item { 
+    background: var(--bg-panel); 
+    border-radius: 12px; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    transition: 0.3s; 
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.feed-grid-item:hover { 
+    border-color: var(--accent-gold); 
+    box-shadow: 0 5px 15px rgba(255,215,0,0.05); 
+    transform: translateY(-3px);
+}
+.feed-grid-media {
+    width: 100%;
+    position: relative;
+    padding-bottom: 100%; /* 1:1 Square aspect ratio */
+    background: #000;
+}
+.feed-grid-media iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+}
+.feed-platform-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(10,19,47,0.8);
+    backdrop-filter: blur(4px);
+    padding: 5px 8px;
+    border-radius: 6px;
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.feed-grid-content {
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.feed-grid-text { 
+    font-size: 0.75rem; 
+    color: #fff; 
+    line-height: 1.4; 
+    margin-bottom: 10px; 
+    flex: 1;
+    word-wrap: break-word;
+}
+.feed-grid-date { 
+    font-size: 0.6rem; 
+    color: var(--text-secondary); 
+    font-family: 'Inter', sans-serif; 
+}
+.feed-bless-btn {
+    background: transparent;
+    color: var(--accent-gold);
+    border: 1px solid var(--accent-gold);
+    padding: 8px;
+    border-radius: 6px;
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: auto;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+.feed-bless-btn:hover {
+    background: var(--accent-gold);
+    color: #000;
+}
 
-@media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
+/* ======================================================== */
+/* RUTHLESS MOBILE LOCKDOWN ARCHITECTURE                    */
+/* ======================================================== */
+@media (max-width: 1200px) { 
+    .video-grid { grid-template-columns: repeat(2, 1fr); } 
+}
+
 @media (max-width: 900px) { 
     .footer-inner { grid-template-columns: 1fr; gap: 2rem; text-align: center; } 
     .footer-socials, .logo-stack { justify-content: center; }
@@ -391,20 +477,43 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     .profile-sidebar { border-right: none !important; padding-right: 0 !important; }
     .feed-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
+
 @media (max-width: 768px) { 
     .hamburger { display: block; } 
-    nav#mobile-nav { position: absolute; top: 100%; left: 0; width: 100%; background: rgba(10,19,47,0.98); border-bottom: 1px solid var(--accent-cyan); border-top: 1px solid rgba(255,255,255,0.05); flex-direction: column; padding: 1.5rem 0; opacity: 0; pointer-events: none; transform: translateY(-10px); transition: all 0.3s ease-in-out; z-index: 99; }
-    nav#mobile-nav.open { opacity: 1; pointer-events: auto; transform: translateY(0); } 
+    nav#mobile-nav {
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        width: 100%;
+        background: rgba(10,19,47,0.98);
+        border-bottom: 1px solid var(--accent-cyan);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        flex-direction: column;
+        padding: 1.5rem 0;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-10px);
+        transition: all 0.3s ease-in-out;
+        z-index: 99;
+    }
+    nav#mobile-nav.open { 
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0); 
+    } 
     nav#mobile-nav ul { flex-direction: column; width: 100%; text-align: center; gap: 1.5rem; }
     nav#mobile-nav a { font-size: 1.1rem; display: block; padding: 10px; }
+
     .header-inner { padding: 10px 15px; }
     .logo { height: 35px; }
+
     body.wallet-connected #connect-wallet-btn { display: none !important; }
     body.wallet-connected #wallet-ui { flex-direction: column; align-items: flex-end; gap: 5px; }
     #wallet-balance-container { cursor: pointer; } 
+
     main { padding-top: 90px; padding-left: 10px; padding-right: 10px;} 
     .hero h1 { font-size: 2.1rem !important; margin-top: 0.5rem; }
-    #leaderboard-content .hero h1 { font-size: 1.8rem !important; }
+    #leaderboard-content .hero h1 { font-size: 2.0rem !important; }
     .hero-subtext { font-size: 0.9rem; padding: 0 10px; margin-bottom: 1.5rem;}
     .menu-item { padding: 1.2rem; }
     .video-card { margin-bottom: 10px; }
@@ -419,6 +528,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     .amt-tag { align-self: flex-start; margin-left: 1.8rem; }
     footer { padding: 2rem 1.2rem 1.2rem; margin-top: 2rem; }
 }
+
 @media (max-width: 480px) {
     .hero h1 { font-size: 1.7rem !important; }
     #leaderboard-content .hero h1 { font-size: 1.5rem !important; } 
@@ -445,10 +555,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="navigateTo('home')" style="cursor:pointer;">
     <nav id="mobile-nav">
         <ul>
-          <li><a onclick="navigateTo('home')">HOME</a></li>
-          <li><a onclick="navigateTo('video')">VIDEOS</a></li>
-          <li><a onclick="navigateTo('leaderboard')">LEADERBOARD</a></li>
-          <li><a onclick="navigateTo('donate')">TREASURY</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateTo('home')">HOME</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateTo('leaderboard')">LEADERBOARD</a></li>
+          <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
         </ul>
     </nav>
     <div class="header-controls">
@@ -768,23 +878,25 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
   <div id="leaderboard-content" style="display:none;">
     <div class="hero">
-        <h1 style="font-size: 2.24rem;">THE BOARDROOM</h1>
+        <h1 style="font-size: 2.8rem;">THE BOARDROOM</h1>
         <p style="color: var(--accent-gold); font-weight:bold; font-size: 0.8rem;">LEGENDARY SPONSORS & RECENT BLESSINGS</p>
         <p class="hero-subtext" style="font-size:0.9rem; max-width:700px; margin: 15px auto;">Sponsors are the lifeblood of the Skate2Earn ecosystem. This Boardroom immortalizes the legends who fuel the community treasury and drop direct, on-chain blessings to raw talent. Secure your spot, fund the revolution, and achieve legendary status.</p>
     </div>
     
     <div class="leaderboard-container">
         <div class="leaderboard-box">
-            <h2>TREASURY SPONSORS <span class="live-indicator">● LIVE SCAN</span></h2>
+            <h2>SPONSORS <span class="live-indicator">● LIVE SCAN</span></h2>
             <ul class="leader-list" id="treasury-sponsors-list">
-                <li class="leader-item">Awaiting Scan...</li>
+                <li class="leader-item">Scanning on-chain history...</li>
             </ul>
+            <button id="load-more-treasury" class="view-profile-btn" style="display:none; margin-top:15px; font-weight:bold;" onclick="loadMoreTreasury()">LOAD MORE SPONSORS</button>
         </div>
         <div class="leaderboard-box">
-            <h2>TOP SKATER SPONSORS <span class="live-indicator">● LIVE SCAN</span></h2>
+            <h2>SKATER SUPPORT FEED <span class="live-indicator">● LIVE SCAN</span></h2>
             <ul class="leader-list" id="skater-sponsors-list">
-                <li class="leader-item">Awaiting Scan...</li>
+                <li class="leader-item">Checking recent hits...</li>
             </ul>
+            <button id="load-more-skater" class="view-profile-btn" style="display:none; margin-top:15px; font-weight:bold;" onclick="loadMoreSkaterFeed()">LOAD MORE HISTORY</button>
         </div>
     </div>
   </div>
@@ -792,7 +904,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
   <div id="donate-content" style="display:none;">
     <div class="hero">
         <h1 style="font-size: 2.5rem;">COMMUNITY TREASURY</h1>
-        <p class="hero-subtext" style="font-size: 0.9rem;">Fuel the main engine. Drop SOL into the master vault to fund legendary IRL skate drops, push protocol upgrades, and level up the entire ecosystem. <a onclick="navigateTo('leaderboard')" style="color: var(--accent-gold); font-weight: bold; text-decoration: underline; cursor: pointer;">Earn your spot.</a></p>
+        <p class="hero-subtext" style="font-size: 0.9rem;">Fuel the main engine. Drop SOL into the master vault to fund legendary IRL skate drops, push protocol upgrades, and level up the entire ecosystem. <a href="javascript:void(0)" onclick="navigateTo('leaderboard')" style="color: var(--accent-gold); font-weight: bold; text-decoration: underline; cursor: pointer;">Earn your spot.</a></p>
     </div>
     <div style="background:var(--bg-panel); max-width:600px; margin:1rem auto auto; padding:1.5rem; border-radius:20px; border:1px solid var(--accent-gold); text-align: center;">
       <p style="margin-bottom: 5px; font-size: 0.75rem; text-transform: uppercase;">Current Treasury Funds</p>
@@ -836,9 +948,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="treasury-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="color:var(--accent-gold); margin-bottom: 15px; font-size: 1.1rem;">Treasury Donation</h3>
-      <button class="tier-btn tier-flow" onclick="sendDonation(0.01)">FLOW DONATION 0.01</button>
-      <button class="tier-btn tier-am" onclick="sendDonation(0.05)">AMATUER DONATION 0.05</button>
-      <button class="tier-btn tier-pro" onclick="sendDonation(0.1)">PRO DONATION 0.1</button>
+      <button class="tier-btn tier-flow" onclick="sendDonation(0.01)">FLOW (0.01 SOL)</button>
+      <button class="tier-btn tier-am" onclick="sendDonation(0.05)">AMATEUR (0.05 SOL)</button>
+      <button class="tier-btn tier-pro" onclick="sendDonation(0.1)">PRO (0.1 SOL)</button>
       <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
         <input type="number" id="custom-treasury-amt" placeholder="Custom SOL..." step="0.01" min="0.01" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-cyan); border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.8rem;">
         <button onclick="sendCustomTreasury()" class="tier-btn" style="width: auto; margin-bottom: 0; padding: 10px 15px; background: var(--accent-cyan); color: #000; border: none;">SEND</button>
@@ -850,9 +962,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-skater-title" style="color:var(--accent-gold); margin-bottom: 15px; font-size: 1.1rem;">Sponsor Clip</h3>
-    <button onclick="selectAmount(0.01)" class="tier-btn tier-flow">FLOW DONATION 0.01</button>
-    <button onclick="selectAmount(0.05)" class="tier-btn tier-am">AMATUER DONATION 0.05</button>
-    <button onclick="selectAmount(0.1)" class="tier-btn tier-pro">PRO DONATION 0.1</button>
+    <button onclick="selectAmount(0.01)" class="tier-btn tier-flow">FLOW (0.01 SOL)</button>
+    <button onclick="selectAmount(0.05)" class="tier-btn tier-am">AMATEUR (0.05 SOL)</button>
+    <button onclick="selectAmount(0.1)" class="tier-btn tier-pro">PRO (0.1 SOL)</button>
     <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
         <input type="number" id="custom-sponsor-amt" placeholder="Custom SOL..." step="0.01" min="0.01" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-cyan); border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.8rem;">
         <button onclick="sendCustomSponsor()" class="tier-btn" style="width: auto; margin-bottom: 0; padding: 10px 15px; background: var(--accent-cyan); color: #000; border: none;">SEND</button>
@@ -864,7 +976,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="success-modal" class="modal-overlay">
     <div class="modal-content" id="success-box">
       <h2 style="color:var(--accent-gold); font-family:'Bangers'; font-size: 2.8rem;">UNLOCKED!</h2>
-      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 0.85rem;">You just helped power the SKATE revolution, keep shredding!</p>
+      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 0.85rem;">You just helped power the revolution.</p>
       <button onclick="closeSuccessModal()" class="wallet-btn" style="width:100%; margin-top:10px; font-size: 0.8rem;">KEEP SKATING</button>
     </div>
 </div>
@@ -911,25 +1023,13 @@ let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId =
 // LEADERBOARD GLOBALS
 let allTreasurySponsors = [];
 let allSkaterHits = [];
-let treasuryRenderLimit = 12;
-let skaterRenderLimit = 12; 
+let treasuryRenderLimit = 20;
+let skaterRenderLimit = 20;
 
 // FEED GLOBALS
 let activeFeedWallet = "";
 let currentSkaterPosts = [];
 let feedRenderLimit = 12;
-
-// Utility for rate-limit bypassing
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
-// Centralized Name Resolution Cache to save RPC requests
-let nameCache = {};
-async function resolveWalletNameCached(wallet) {
-    if(nameCache[wallet]) return nameCache[wallet];
-    let name = await resolveWalletName(wallet);
-    nameCache[wallet] = name;
-    return name;
-}
 
 const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
@@ -965,26 +1065,16 @@ async function fetchWalletStats(wallet) {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let ins = 0; let outs = 0;
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 60 });
-        const chunkSize = 10; 
-        for (let i = 0; i < sigs.length; i += chunkSize) {
-            const chunk = sigs.slice(i, i + chunkSize);
-            const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
-            for (let tx of txs) {
-                if (tx && tx.meta) {
-                    const msg = tx.transaction.message;
-                    let accountKeys = [];
-                    if (msg.staticAccountKeys) accountKeys = msg.staticAccountKeys.map(k=>k.toString());
-                    else if (msg.accountKeys) accountKeys = msg.accountKeys.map(k=>k.toString());
-
-                    const wIdx = accountKeys.indexOf(wallet);
-                    if(wIdx !== -1 && !tx.meta.err) {
-                        const pre = tx.meta.preBalances[wIdx]; 
-                        const post = tx.meta.postBalances[wIdx];
-                        const diff = (post - pre) / 1e9;
-                        if (diff < -0.001) outs += Math.abs(diff); 
-                        else if (diff > 0.001) ins += diff;        
-                    }
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 25 });
+        for (let s of sigs) {
+            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+            if (tx && tx.meta) {
+                const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
+                const wIdx = accountKeys.indexOf(wallet);
+                if(wIdx !== -1) {
+                    const pre = tx.meta.preBalances[wIdx]; const post = tx.meta.postBalances[wIdx];
+                    const diff = (post - pre) / 1e9;
+                    if (diff < -0.001) outs += Math.abs(diff); else if (diff > 0.001) ins += diff;        
                 }
             }
         }
@@ -1013,7 +1103,7 @@ function updateWalletUI() {
     if (publicKey) { 
         document.body.classList.add("wallet-connected"); btn.innerText = "CONNECTED"; balContainer.style.display = "flex"; 
         if(protocolLed) protocolLed.style.display = "inline-block";
-        skaterPanel.style.display = "flex"; skaterPanel.innerHTML = '<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin"></i></span></span> <button onclick="navigateToProfileView(\'skater\')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>';
+        skaterPanel.style.display = "flex"; skaterPanel.innerHTML = '<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;">PRO</span></span> <button onclick="navigateToProfileView(\'skater\')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>';
         fetchHeaderDualRank(publicKey);
     } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; }
     updateDonateButtons();
@@ -1067,7 +1157,6 @@ async function fetchTreasuryBalance() {
     document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
 }
 
-// Exactly preserved logic: Flow=Bronze, Amatuer=Silver, Pro=Gold
 function getRankDisplay(amount, isSkater = false) {
     if(amount >= 0.1) return { title: "PRO", color: "var(--gold-font)", icon: '<i class="fas fa-trophy"></i>' };
     if(amount >= 0.05) return { title: "AM", color: "var(--silver-font)", icon: '<i class="fas fa-medal"></i>' };
@@ -1085,218 +1174,113 @@ async function resolveWalletName(wallet) {
     } catch(e) {} return "Anon Sponsor";
 }
 
-/* ======================================================== */
-/* UPGRADED: TRUE WEB3 LEADERBOARD SCANNER & LINK ISOLATION */
-/* ======================================================== */
 async function refreshLeaderboardData() {
-    document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-cyan);'><i class='fas fa-spinner fa-spin' style='margin-right:8px;'></i> Initializing Secure RPC Link...</li>";
-    document.getElementById("skater-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-cyan);'><i class='fas fa-spinner fa-spin' style='margin-right:8px;'></i> Pooling Skater Network...</li>";
-    
-    processTreasuryStaged();
-    processSkaterHitsStaged();
-}
-
-async function processTreasuryStaged() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let aggregatedSponsors = {};
     
+    const treasuryList = document.getElementById("treasury-sponsors-list");
+    const skaterList = document.getElementById("skater-sponsors-list");
+    
+    treasuryList.innerHTML = "<li>Synchronizing deep history...</li>";
+    skaterList.innerHTML = "<li>Polling Skater Wallets...</li>";
+
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 100 }); 
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 60 });
+        let aggregatedSponsors = {};
+
+        for (let s of sigs) {
+            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+            if (tx) {
+                const sponsorAddr = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys[0].toString() : "Anonymous";
+                const amount = (tx.meta.preBalances[0] - tx.meta.postBalances[0] - tx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
+                if(amount > 0.001) {
+                    if(!aggregatedSponsors[sponsorAddr]) aggregatedSponsors[sponsorAddr] = 0;
+                    aggregatedSponsors[sponsorAddr] += amount;
+                }
+            }
+        }
+
+        let rawSponsors = Object.keys(aggregatedSponsors).map(addr => ({ addr, val: aggregatedSponsors[addr] }));
+        rawSponsors.sort((a, b) => b.val - a.val);
+
+        await Promise.all(rawSponsors.map(async (s) => { s.name = await resolveWalletName(s.addr); }));
+        allTreasurySponsors = rawSponsors;
+        renderTreasuryFeed();
+
+    } catch(e) { treasuryList.innerHTML = "<li>Node busy. Refresh soon.</li>"; }
+
+    let entries = [];
+    try {
+        let shuffledSkaters = [...SKATER_REGISTRY].sort(() => 0.5 - Math.random()).slice(0, 6);
+        for (let skaterWallet of shuffledSkaters) {
+            const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 6 });
+            for (let ss of sSigs) {
+                const sTx = await connection.getTransaction(ss.signature, { maxSupportedTransactionVersion: 0 });
+                if (sTx) {
+                    const sp = sTx.transaction.message.staticAccountKeys[0].toString();
+                    const am = (sTx.meta.preBalances[0] - sTx.meta.postBalances[0] - sTx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
+                    const skaterName = await resolveWalletName(skaterWallet);
+                    if(am > 0.001) entries.push({ addr: sp, val: am, skater: skaterName, time: sTx.blockTime || 0 });
+                }
+            }
+        }
         
-        for (let i = 0; i < sigs.length; i += 5) { 
-            const chunk = sigs.slice(i, i + 5);
-            const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
+        entries.sort((a, b) => b.time - a.time); 
+        await Promise.all(entries.map(async (e) => { e.name = await resolveWalletName(e.addr); }));
+        allSkaterHits = entries;
+        renderSkaterFeed();
 
-            for (let tx of txs) {
-                if (tx && tx.meta && !tx.meta.err && tx.transaction && tx.transaction.message) {
-                    const msg = tx.transaction.message;
-                    let keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k => k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k => k.toString()) : []);
-                    
-                    const tIdx = keys.indexOf(TREASURY_WALLET);
-                    if (tIdx !== -1) {
-                        const amountReceived = (tx.meta.postBalances[tIdx] - tx.meta.preBalances[tIdx]) / 1e9;
-                        if (amountReceived > 0.001) {
-                            const sponsorAddr = keys[0]; 
-                            if (sponsorAddr !== TREASURY_WALLET) {
-                                aggregatedSponsors[sponsorAddr] = (aggregatedSponsors[sponsorAddr] || 0) + amountReceived;
-                            }
-                        }
-                    }
-                }
-            }
-
-            let rawSponsors = Object.keys(aggregatedSponsors).map(addr => ({ addr, val: aggregatedSponsors[addr] }));
-            rawSponsors.sort((a, b) => b.val - a.val); 
-            rawSponsors = rawSponsors.slice(0, treasuryRenderLimit);
-            
-            for(let j = 0; j < rawSponsors.length; j++) {
-                if(!rawSponsors[j].name) rawSponsors[j].name = await resolveWalletNameCached(rawSponsors[j].addr);
-            }
-
-            allTreasurySponsors = rawSponsors;
-            renderTreasuryFeed(true);
-
-            if (i + 5 < sigs.length) await delay(800); 
-        }
-        renderTreasuryFeed(false); 
-
-    } catch(e) {
-        document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network RPC limit hit. Retry later.</li>";
-    }
+    } catch(e) { skaterList.innerHTML = "<li>Feed cooling down...</li>"; }
 }
 
-async function processSkaterHitsStaged() {
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let aggregatedSkaterSponsors = {};
-    let processedCount = 0;
-    
-    try {
-        for (let skaterWallet of SKATER_REGISTRY) {
-            try {
-                // Reduced limit to prevent timeouts, but still deep enough to catch history
-                const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 15 });
-                
-                for (let i = 0; i < sigs.length; i += 5) {
-                    const chunk = sigs.slice(i, i + 5);
-                    const txs = await Promise.all(chunk.map(sig => connection.getTransaction(sig.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
-
-                    for (let data of txs) {
-                        if (data && data.meta && !data.meta.err && data.transaction && data.transaction.message) {
-                            const msg = data.transaction.message;
-                            let keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k=>k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k=>k.toString()) : []);
-                            const skaterIdx = keys.indexOf(skaterWallet);
-
-                            if (skaterIdx !== -1) {
-                                const receivedAmount = (data.meta.postBalances[skaterIdx] - data.meta.preBalances[skaterIdx]) / 1e9;
-                                if (receivedAmount > 0.001) {
-                                    const sponsorAddr = keys[0]; 
-                                    if (sponsorAddr !== skaterWallet && sponsorAddr !== TREASURY_WALLET) { 
-                                        if (!aggregatedSkaterSponsors[sponsorAddr]) {
-                                            aggregatedSkaterSponsors[sponsorAddr] = { addr: sponsorAddr, val: 0, skaterNames: new Set() };
-                                        }
-                                        aggregatedSkaterSponsors[sponsorAddr].val += receivedAmount;
-                                        aggregatedSkaterSponsors[sponsorAddr].skaterNames.add(skaterWallet);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    await delay(400); // 400ms breather between chunks inside the skater
-                }
-                
-                processedCount++;
-                await updateSkaterFeedUI(aggregatedSkaterSponsors, true, processedCount, SKATER_REGISTRY.length);
-
-            } catch(e) {}
-            await delay(800); // 800ms BIG BREATHE between each skater 
-        }
-
-        await updateSkaterFeedUI(aggregatedSkaterSponsors, false);
-
-    } catch(e) {
-        document.getElementById("skater-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network RPC limit hit. Retry later.</li>";
-    }
-}
-
-async function updateSkaterFeedUI(aggregatedData, isScanning, current = 0, total = 0) {
-    let entries = Object.values(aggregatedData);
-    entries.sort((a, b) => b.val - a.val); // Sort by highest global blessing
-    entries = entries.slice(0, skaterRenderLimit); // Cap at 12
-
-    for(let j=0; j < entries.length; j++) {
-        if(!entries[j].name) entries[j].name = await resolveWalletNameCached(entries[j].addr);
-        if(!entries[j].skatersDisplay) {
-            let resolvedSkaters = [];
-            for (let skWallet of entries[j].skaterNames) { resolvedSkaters.push(await resolveWalletNameCached(skWallet)); }
-            entries[j].skatersDisplay = resolvedSkaters.join(", ");
-        }
-    }
-
-    allSkaterHits = entries;
-    renderSkaterFeed(isScanning, current, total);
-}
-
-function renderTreasuryFeed(isScanning = false) {
+function renderTreasuryFeed() {
     const list = document.getElementById("treasury-sponsors-list");
+    const btn = document.getElementById("load-more-treasury");
     list.innerHTML = "";
-    
     let toRender = allTreasurySponsors.slice(0, treasuryRenderLimit);
     
     toRender.forEach((s, index) => {
         const rank = getRankDisplay(s.val, false);
-        
-        const isTopDog = index === 0 ? "border: 1px solid var(--accent-gold); background: rgba(255, 215, 0, 0.05); padding: 12px; border-radius: 8px; box-shadow: 0 0 20px rgba(255,215,0,0.2); transform: scale(1.02); margin-bottom: 15px;" : 
-                         index === 1 ? "border: 1px solid var(--silver-font); background: rgba(192, 192, 192, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;" :
-                         index === 2 ? "border: 1px solid var(--bronze-font); background: rgba(205, 127, 50, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;" : "";
-                         
-        let iconHtml = '';
-        if (index === 0) iconHtml = '<i class="fa-solid fa-crown" style="color:#FFD700; filter: drop-shadow(0 0 8px rgba(255,215,0,0.8)); font-size: 1.4rem; margin-right:8px; animation: pulse 2s infinite;"></i>';
-        else if (index === 1) iconHtml = '<i class="fa-solid fa-medal" style="color:var(--silver-font); font-size: 1.2rem; margin-right:8px;"></i>';
-        else if (index === 2) iconHtml = '<i class="fa-solid fa-medal" style="color:var(--bronze-font); font-size: 1.1rem; margin-right:8px;"></i>';
-        else iconHtml = rank.icon + ' ';
+        const isTopDog = index === 0 ? "border: 1px solid var(--accent-gold); background: rgba(255, 215, 0, 0.05); padding: 12px; border-radius: 8px; box-shadow: 0 0 15px rgba(255,215,0,0.1);" : "";
+        const flexIcon = index === 0 ? '<i class="fa-solid fa-crown" style="color:#FFD700; filter: drop-shadow(0 0 8px rgba(255,215,0,0.8)); font-size: 1.2rem; margin-right:8px; animation: pulse 2s infinite;"></i>' : '';
         
         list.innerHTML += `
             <li class="leader-item" style="${isTopDog}">
-                <div class="info-col">
-                    <div class="addr-tag">
-                        <span class="addr-name-click" style="color: ${rank.color}; font-weight: bold; font-size: 0.85rem;" onclick="navigateTo('profile', '${s.addr}')">
-                            ${iconHtml} <span style="text-transform: uppercase; letter-spacing: 0.5px; color: ${rank.color};">${s.name}</span> 
-                            <span style="font-size:0.6rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: ${rank.color}; border: 1px solid ${rank.color};">${rank.title}</span>
-                        </span>
-                    </div>
-                    <a href="https://solscan.io/account/${s.addr}" target="_blank" class="solscan-link"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${s.addr.slice(0,6)}...${s.addr.slice(-4)}</a>
+                <div style="display: flex; flex-direction: column;">
+                    <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${s.addr}')">
+                        ${flexIcon}${rank.icon} ${s.name} <span style="font-size:0.6rem; opacity:0.7; margin-left:5px;">[${rank.title}]</span>
+                    </span> 
+                    <a href="https://solscan.io/account/${s.addr}" target="_blank" style="font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; margin-top: 4px;" onmouseover="this.style.color='var(--accent-cyan)'" onmouseout="this.style.color='var(--text-secondary)'" onclick="event.stopPropagation();"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${s.addr.slice(0,6)}...${s.addr.slice(-4)}</a>
                 </div>
-                <span class="amt-tag" style="color: ${rank.color}; align-self: flex-start;">${s.val.toFixed(2)} SOL</span>
+                <span class="amt-tag" style="color: ${rank.color};">${s.val.toFixed(2)} SOL</span>
             </li>`;
     });
     
-    if (isScanning) {
-        list.innerHTML += `<li class="leader-item" style="justify-content: center; color: var(--accent-cyan); font-size: 0.7rem; border: none; padding-top: 15px;"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> SCANNING DEEP HISTORY...</li>`;
-    } else if (allTreasurySponsors.length === 0) {
-        list.innerHTML = "<li class='leader-item'>No hits found.</li>";
-    }
+    if(allTreasurySponsors.length === 0) list.innerHTML = "<li>No hits yet.</li>";
+    btn.style.display = (allTreasurySponsors.length > treasuryRenderLimit) ? "block" : "none";
 }
 
-function renderSkaterFeed(isScanning = false, current = 0, total = 0) {
+function renderSkaterFeed() {
     const list = document.getElementById("skater-sponsors-list");
+    const btn = document.getElementById("load-more-skater");
     list.innerHTML = "";
-    
     let toRender = allSkaterHits.slice(0, skaterRenderLimit);
 
-    toRender.forEach((e, index) => {
+    list.innerHTML = toRender.map(e => {
         const rank = getRankDisplay(e.val, false);
-        
-        const isTopDog = index === 0 ? "border: 1px solid var(--accent-gold); background: rgba(255, 215, 0, 0.05); padding: 12px; border-radius: 8px; box-shadow: 0 0 20px rgba(255,215,0,0.2); transform: scale(1.02); margin-bottom: 15px;" : 
-                         index === 1 ? "border: 1px solid var(--silver-font); background: rgba(192, 192, 192, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;" :
-                         index === 2 ? "border: 1px solid var(--bronze-font); background: rgba(205, 127, 50, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;" : "";
-                         
-        let iconHtml = '';
-        if (index === 0) iconHtml = '<i class="fa-solid fa-crown" style="color:#FFD700; filter: drop-shadow(0 0 8px rgba(255,215,0,0.8)); font-size: 1.4rem; margin-right:8px; animation: pulse 2s infinite;"></i>';
-        else if (index === 1) iconHtml = '<i class="fa-solid fa-medal" style="color:var(--silver-font); font-size: 1.2rem; margin-right:8px;"></i>';
-        else if (index === 2) iconHtml = '<i class="fa-solid fa-medal" style="color:var(--bronze-font); font-size: 1.1rem; margin-right:8px;"></i>';
-        else iconHtml = rank.icon + ' ';
-
-        list.innerHTML += `<li class="leader-item" style="${isTopDog}">
-            <div class="info-col">
-                <div class="addr-tag">
-                    <span class="addr-name-click" style="color: ${rank.color}; font-weight: bold; font-size: 0.85rem;" onclick="navigateTo('profile', '${e.addr}')">
-                        ${iconHtml} <span style="text-transform: uppercase; letter-spacing: 0.5px; color: ${rank.color};">${e.name}</span> 
-                        <span style="font-size:0.6rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: ${rank.color}; border: 1px solid ${rank.color};">${rank.title}</span>
-                    </span> 
-                </div>
-                <span style="color: var(--text-secondary); font-size: 0.65rem; font-weight: normal; margin-top: 6px; line-height: 1.3;">blessed ${e.skatersDisplay}</span>
-                <a href="https://solscan.io/account/${e.addr}" target="_blank" class="solscan-link"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${e.addr.slice(0,4)}...${e.addr.slice(-4)}</a>
+        return `<li class="leader-item">
+            <div style="display: flex; flex-direction: column;">
+                <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${e.addr}')">${rank.icon} ${e.name} helped ${e.skater}</span> 
+                <a href="https://solscan.io/account/${e.addr}" target="_blank" style="font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; margin-top: 4px;" onmouseover="this.style.color='var(--accent-cyan)'" onmouseout="this.style.color='var(--text-secondary)'" onclick="event.stopPropagation();"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${e.addr.slice(0,4)}...${e.addr.slice(-4)}</a>
             </div>
-            <span class="amt-tag" style="color: var(--accent-green); align-self: flex-start;">+${e.val.toFixed(2)} SOL</span>
+            <span class="amt-tag" style="color: ${rank.color};">${e.val.toFixed(2)} SOL</span>
         </li>`;
-    });
+    }).join('') || "<li>No recent hits.</li>";
 
-    if (isScanning) {
-        list.innerHTML += `<li class="leader-item" style="justify-content: center; color: var(--accent-cyan); font-size: 0.7rem; border: none; padding-top: 15px; text-transform: uppercase;"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> SCANNING SKATERS (${current}/${total})...</li>`;
-    } else if (allSkaterHits.length === 0) {
-        list.innerHTML = "<li class='leader-item'>No recent hits.</li>";
-    }
+    btn.style.display = (allSkaterHits.length > skaterRenderLimit) ? "block" : "none";
 }
+
+function loadMoreTreasury() { treasuryRenderLimit += 20; renderTreasuryFeed(); }
+function loadMoreSkaterFeed() { skaterRenderLimit += 20; renderSkaterFeed(); }
 
 /* ======================================================== */
 /* GODMODE ADMIN PROTOCOL FOR MAIN VIDEO GRID               */
@@ -1359,7 +1343,7 @@ async function renderProfile(wallet, forceView = null) {
     
     const stats = await fetchWalletStats(wallet);
     let isGen = SKATER_REGISTRY.includes(wallet); let sk = SKATER_PROFILES.find(s => s.wallet === wallet);
-    if(!sk) sk = { name: await resolveWalletNameCached(wallet), styles: isGen ? ["New Skater"] : ["Sponsor"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: isGen ? "Raw street talent." : "Fueling the movement." };
+    if(!sk) sk = { name: await resolveWalletName(wallet), styles: isGen ? ["New Skater"] : ["Sponsor"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: isGen ? "Raw street talent." : "Fueling the movement." };
 
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 10 });
@@ -1379,7 +1363,7 @@ async function renderProfile(wallet, forceView = null) {
 
     if (view === 'skater') {
         const rank = getRankDisplay(stats.ins, true); header.innerText = "SKATER IDENTITY & BIO";
-        rEl.innerHTML = rank.icon + " <span style='color: " + rank.color + "'>" + rank.title + "</span>"; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         try { const bal = await conn.getBalance(new solanaWeb3.PublicKey(wallet)); bEl.innerText = (bal / 1e9).toFixed(4) + " SOL"; } catch(e) {}
         let gHtml = "";
         if(sk.stance) gHtml += `<div class="gear-tag"><i class="fas fa-shoe-prints"></i> ${sk.stance}</div>`;
@@ -1391,7 +1375,7 @@ async function renderProfile(wallet, forceView = null) {
         if (sk.yt) { vSec.style.display = 'block'; document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${sk.yt}`; } else vSec.style.display = 'none';
     } else {
         const rank = getRankDisplay(stats.outs, false); header.innerText = "SPONSOR IDENTITY & BIO";
-        rEl.innerHTML = rank.icon + " <span style='color: " + rank.color + "'>" + rank.title + "</span>"; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         bEl.innerText = stats.outs.toFixed(4) + " SOL";
         document.getElementById('p-sponsor-video-section').style.display = 'none';
     }
@@ -1490,11 +1474,15 @@ function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET);
 
 async function attemptFeedAccess() {
     if(!publicKey) { alert("Connect Wallet First"); return; }
+    
     activeFeedWallet = document.getElementById('p-wallet').innerText;
     let skaterName = document.getElementById('p-name').innerText;
     
     document.getElementById('mobile-nav').classList.remove('open');
-    ["home", "video", "leaderboard", "donate", "profile"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
+    ["home", "video", "leaderboard", "donate", "profile"].forEach(id => {
+        let el = document.getElementById(id + "-content");
+        if(el) el.style.display = 'none';
+    });
     document.getElementById("feed-content").style.display = 'block';
     window.scrollTo(0,0);
 
@@ -1504,40 +1492,64 @@ async function attemptFeedAccess() {
     document.getElementById('load-more-feed-btn').style.display = 'none';
     document.getElementById('actual-feed-items').innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain history...</div>';
 
-    feedRenderLimit = 12; currentSkaterPosts = [];
+    feedRenderLimit = 12;
+    currentSkaterPosts = [];
 
     let isOwner = (publicKey === activeFeedWallet);
     let hasAccess = isOwner;
 
-    if (!isOwner) { const requiredSOL = 0.05; hasAccess = await verifySponsorshipTier(publicKey, activeFeedWallet, requiredSOL); }
+    if (!isOwner) {
+        const requiredSOL = 0.05; 
+        hasAccess = await verifySponsorshipTier(publicKey, activeFeedWallet, requiredSOL);
+    }
 
-    if (hasAccess) { if(isOwner) document.getElementById('post-create-box').style.display = 'block'; fetchSkaterFeed(activeFeedWallet, false); } 
-    else { document.getElementById('feed-paywall-overlay').style.display = 'flex'; fetchSkaterFeed(activeFeedWallet, true); }
+    if (hasAccess) {
+        if(isOwner) document.getElementById('post-create-box').style.display = 'block';
+        fetchSkaterFeed(activeFeedWallet, false); 
+    } else {
+        document.getElementById('feed-paywall-overlay').style.display = 'flex';
+        fetchSkaterFeed(activeFeedWallet, true); 
+    }
 }
 
 async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
-    if (ADMIN_WALLETS.includes(sponsorPubKey)) return true;
+    if (ADMIN_WALLETS.includes(sponsorPubKey)) {
+        console.log("Godmode Active: Universal Private Feed Bypass Granted.");
+        return true;
+    }
+
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let totalDonated = 0;
+    
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterPubKey), { limit: 50 });
+        
         for(let s of sigs) {
             const tx = await conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
             if(tx) {
                 const keys = tx.transaction.message.staticAccountKeys.map(k=>k.toString());
+                
                 if(keys[0] === sponsorPubKey) { 
                     const skaterIdx = keys.indexOf(skaterPubKey);
                     if(skaterIdx !== -1) {
                         const pre = tx.meta.preBalances[skaterIdx];
                         const post = tx.meta.postBalances[skaterIdx];
                         const diff = (post - pre) / solanaWeb3.LAMPORTS_PER_SOL;
-                        if (diff > 0) totalDonated += diff;
+                        
+                        if (diff > 0) {
+                            totalDonated += diff;
+                        }
                     }
                 }
             }
         }
-    } catch(e) {}
+    } catch(e) { 
+        console.error("On-Chain Verification error", e); 
+    }
+    
     const buffer = 0.001; 
+    console.log(`Total accumulated on-chain support: ${totalDonated} SOL`);
+    
     return totalDonated >= (requiredSOL - buffer);
 }
 
@@ -1553,17 +1565,29 @@ async function fetchSkaterFeed(wallet, isBlurred) {
             }
         }
     } catch(e) {}
+    
     renderFeedGrid(isBlurred);
 }
 
 function renderFeedGrid(isBlurred) {
     const container = document.getElementById('actual-feed-items');
     const loadMoreBtn = document.getElementById('load-more-feed-btn');
-    if (currentSkaterPosts.length === 0) { container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`; return; }
-    let toRender = currentSkaterPosts.slice(0, feedRenderLimit); let html = ""; let isOwner = (publicKey === activeFeedWallet);
+    
+    if (currentSkaterPosts.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`;
+        return;
+    }
+
+    let toRender = currentSkaterPosts.slice(0, feedRenderLimit);
+    let html = "";
+    
+    let isOwner = (publicKey === activeFeedWallet);
+
     toRender.forEach(p => {
         let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-        let mediaHtml = ""; let platformIcon = "";
+        let mediaHtml = "";
+        let platformIcon = "";
+        
         if(p.yt) {
             platformIcon = `<div class="feed-platform-icon"><i class="fab fa-youtube" style="color:#ff2d55;"></i></div>`;
             mediaHtml = `<div class="feed-grid-media">${platformIcon}<iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe></div>`;
@@ -1573,36 +1597,76 @@ function renderFeedGrid(isBlurred) {
         } else {
             mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex; align-items:center; justify-content:center;"><i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
         }
+
         let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed()">BLESS CLIP</button>`;
-        html += `<div class="feed-grid-item" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">${mediaHtml}<div class="feed-grid-content"><div class="feed-grid-text">${p.text || ""}</div><div class="feed-grid-date" style="margin-bottom: ${isOwner ? '0' : '10px'};">${dateStr}</div>${blessBtn}</div></div>`;
+
+        html += `<div class="feed-grid-item" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
+                    ${mediaHtml}
+                    <div class="feed-grid-content">
+                        <div class="feed-grid-text">${p.text || ""}</div>
+                        <div class="feed-grid-date" style="margin-bottom: ${isOwner ? '0' : '10px'};">${dateStr}</div>
+                        ${blessBtn}
+                    </div>
+                 </div>`;
     });
     container.innerHTML = html;
-    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) loadMoreBtn.style.display = "block"; else loadMoreBtn.style.display = "none";
+    
+    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) {
+        loadMoreBtn.style.display = "block";
+    } else {
+        loadMoreBtn.style.display = "none";
+    }
 }
 
-function loadMoreFeed() { feedRenderLimit += 12; renderFeedGrid(false); }
+function loadMoreFeed() {
+    feedRenderLimit += 12;
+    renderFeedGrid(false);
+}
 
-function openSponsorshipModalFromFeed() { currentSkaterTarget = activeFeedWallet; activeVideoId = null; document.getElementById('sponsor-modal').style.display = 'flex'; }
+function openSponsorshipModalFromFeed() {
+    currentSkaterTarget = activeFeedWallet;
+    activeVideoId = null; 
+    document.getElementById('sponsor-modal').style.display = 'flex';
+}
 
 async function publishToFeed() {
-    if(!publicKey) return; const btn = document.getElementById("publish-feed-btn"); btn.innerText = "AWAITING SIGNATURE...";
+    if(!publicKey) return; 
+    const btn = document.getElementById("publish-feed-btn"); 
+    btn.innerText = "AWAITING SIGNATURE...";
+    
     try {
-        const text = document.getElementById("new-post-text").value; const rawLink = document.getElementById("new-post-link").value;
-        let yt = ""; let ig = "";
+        const text = document.getElementById("new-post-text").value;
+        const rawLink = document.getElementById("new-post-link").value;
+        
+        let yt = ""; 
+        let ig = "";
+        
         if (rawLink) { 
             const ytMatch = rawLink.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); 
             if (ytMatch && ytMatch[2].length === 11) yt = ytMatch[2]; 
-            const igMatch = rawLink.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i); if (igMatch) ig = igMatch[1];
+            
+            const igMatch = rawLink.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
+            if (igMatch) ig = igMatch[1];
         }
+        
         if(!text && !yt && !ig) { alert("Cannot post empty data."); btn.innerText = "SIGN & POST TO CHAIN"; return; }
+
         const pData = JSON.stringify({ sk8post: "v1", text, yt, ig });
         const encoded = new TextEncoder().encode(pData); 
+        
         if (encoded.length > 566) { alert(`Post too long for Memo! Shorten your text.`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
+        const from = new solanaWeb3.PublicKey(publicKey);
         const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        btn.innerText = "POSTED!"; document.getElementById("new-post-text").value = ""; document.getElementById("new-post-link").value = "";
+        btn.innerText = "POSTED!"; 
+        
+        document.getElementById("new-post-text").value = "";
+        document.getElementById("new-post-link").value = "";
+        
         setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; attemptFeedAccess(); }, 2000);
     } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000); }
 }
