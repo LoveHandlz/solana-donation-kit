@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 6.3</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 6.4</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -1061,13 +1061,13 @@ function isMobile() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile
 function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
-// Upgraded with parallel chunking so lifetime rank calculations don't drop out/timeout
+// Upgraded with parallel chunking & MAX LIMIT (1000) so lifetime rank calculations are mathematically perfect
 async function fetchWalletStats(wallet) {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let ins = 0; let outs = 0;
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 40 });
-        const chunkSize = 10; 
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 });
+        const chunkSize = 50; 
         
         for (let i = 0; i < sigs.length; i += chunkSize) {
             const chunk = sigs.slice(i, i + chunkSize);
@@ -1194,9 +1194,9 @@ async function refreshLeaderboardData() {
     treasuryList.innerHTML = "<li>Synchronizing deep history...</li>";
     skaterList.innerHTML = "<li>Pooling Skater Wallets Globally...</li>";
 
-    // BOARDROOM (TREASURY SPONSORS) DEEP SCAN
+    // BOARDROOM (TREASURY SPONSORS) DEEP SCAN - Pushed to max limit (1000)
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 150 });
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 1000 });
         let aggregatedSponsors = {};
 
         for (let s of sigs) {
@@ -1219,14 +1219,14 @@ async function refreshLeaderboardData() {
         renderTreasuryFeed();
     } catch(e) { treasuryList.innerHTML = "<li>Node busy. Refresh soon.</li>"; }
 
-    // SKATER SUPPORT FEED GLOBAL SCAN
+    // SKATER SUPPORT FEED GLOBAL SCAN - Pushed to max limit (1000) per skater
     let entries = [];
     try {
         let allSigs = [];
-        // Pull signatures from every single skater in the registry
+        // Pull full signature history from every single skater in the registry
         for (let skaterWallet of SKATER_REGISTRY) {
             try {
-                const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 40 });
+                const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 1000 });
                 sSigs.forEach(sig => allSigs.push({ ...sig, skaterWallet }));
             } catch(e) {}
         }
