@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 6.4</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 6.5</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -31,7 +31,7 @@
   --card-border:rgba(0,240,255,0.14);
   
   --bronze-font: #cd7f32;
-  --silver-font: #c0c0c0;
+  --silver-font: #cbd5e1; /* Upgraded to a cleaner, brighter silver/grey */
   --gold-font: #ffd700;
   --diamond-font: #b9f2ff;
 }
@@ -314,7 +314,7 @@ main {
 
 /* LEADERBOARD STYLES */
 .leaderboard-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
-.leaderboard-box { background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 16px; padding: 1.5rem; }
+.leaderboard-box { background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 16px; padding: 1.5rem; position: relative; }
 .leaderboard-box h2 { font-size: 1rem; color: var(--accent-gold); margin-bottom: 1.2rem; text-transform: uppercase; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
 .leader-list { list-style: none; }
 .leader-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
@@ -328,7 +328,7 @@ main {
 .led-green { width: 8px; height: 8px; background-color: var(--accent-green); border-radius: 50%; box-shadow: 0 0 10px var(--accent-green); display: inline-block; margin-right: 8px; animation: led-pulse 2s infinite; }
 @keyframes led-pulse { 0% {opacity:1; transform: scale(1);} 50% {opacity:0.4; transform: scale(0.9);} 100% {opacity:1; transform: scale(1);} }
 .addr-tag.clickable { cursor: pointer; transition: 0.2s; }
-.addr-tag.clickable:hover { color: var(--accent-cyan); text-decoration: underline; }
+.addr-tag.clickable:hover { color: var(--accent-cyan) !important; text-decoration: underline; }
 
 footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); padding: 3rem 2rem 1.5rem; margin-top: 3rem; }
 .footer-inner { max-width: 1440px; margin: auto; display: grid; grid-template-columns: 2.5fr 1fr 1fr; gap: 3rem; }
@@ -371,7 +371,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
 /* ======================================================== */
-/* PRIVATE FEED ARCHITECTURE & 12-GRID + UI UPGRADES        */
+/* PRIVATE FEED ARCHITECTURE                                */
 /* ======================================================== */
 .feed-container { max-width: 1000px; margin: 0 auto; position: relative; }
 .post-create-box { background: rgba(0,240,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--accent-cyan); margin-bottom: 2rem; display: none; }
@@ -887,16 +887,14 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
         <div class="leaderboard-box">
             <h2>SPONSORS <span class="live-indicator">● LIVE SCAN</span></h2>
             <ul class="leader-list" id="treasury-sponsors-list">
-                <li class="leader-item">Scanning on-chain history...</li>
+                <li class="leader-item">Awaiting Scan...</li>
             </ul>
-            <button id="load-more-treasury" class="view-profile-btn" style="display:none; margin-top:15px; font-weight:bold;" onclick="loadMoreTreasury()">LOAD MORE SPONSORS</button>
         </div>
         <div class="leaderboard-box">
             <h2>SKATER SUPPORT FEED <span class="live-indicator">● LIVE SCAN</span></h2>
             <ul class="leader-list" id="skater-sponsors-list">
-                <li class="leader-item">Checking recent hits...</li>
+                <li class="leader-item">Awaiting Scan...</li>
             </ul>
-            <button id="load-more-skater" class="view-profile-btn" style="display:none; margin-top:15px; font-weight:bold;" onclick="loadMoreSkaterFeed()">LOAD MORE HISTORY</button>
         </div>
     </div>
   </div>
@@ -1023,13 +1021,25 @@ let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId =
 // LEADERBOARD GLOBALS
 let allTreasurySponsors = [];
 let allSkaterHits = [];
-let treasuryRenderLimit = 20;
-let skaterRenderLimit = 25; // Requested Top 25 limit
+let treasuryRenderLimit = 100;
+let skaterRenderLimit = 100; 
 
 // FEED GLOBALS
 let activeFeedWallet = "";
 let currentSkaterPosts = [];
 let feedRenderLimit = 12;
+
+// Utility for rate-limit bypassing
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+// Centralized Name Resolution Cache to save RPC requests
+let nameCache = {};
+async function resolveWalletNameCached(wallet) {
+    if(nameCache[wallet]) return nameCache[wallet];
+    let name = await resolveWalletName(wallet);
+    nameCache[wallet] = name;
+    return name;
+}
 
 const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
@@ -1061,20 +1071,16 @@ function isMobile() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile
 function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
-// Upgraded with parallel chunking & MAX LIMIT (1000) so lifetime rank calculations are mathematically perfect
+// Kept reasonable to 50 limits per user profile query to stay under limits
 async function fetchWalletStats(wallet) {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let ins = 0; let outs = 0;
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 });
-        const chunkSize = 50; 
-        
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 60 });
+        const chunkSize = 10; 
         for (let i = 0; i < sigs.length; i += chunkSize) {
             const chunk = sigs.slice(i, i + chunkSize);
-            const txs = await Promise.all(
-                chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null))
-            );
-            
+            const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
             for (let tx of txs) {
                 if (tx && tx.meta) {
                     const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
@@ -1185,104 +1191,138 @@ async function resolveWalletName(wallet) {
     } catch(e) {} return "Anon Sponsor";
 }
 
+/* ======================================================== */
+/* UPGRADED: STAGED LEADERBOARD SCANNER (RATE LIMIT BYPASS) */
+/* ======================================================== */
 async function refreshLeaderboardData() {
+    document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-cyan);'><i class='fas fa-spinner fa-spin' style='margin-right:8px;'></i> Initializing Blockchain Connection...</li>";
+    document.getElementById("skater-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-cyan);'><i class='fas fa-spinner fa-spin' style='margin-right:8px;'></i> Pooling Skater Network...</li>";
+    
+    // We launch them simultaneously, they will process internally using async delays
+    processTreasuryStaged();
+    processSkaterHitsStaged();
+}
+
+async function processTreasuryStaged() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    let aggregatedSponsors = {};
     
-    const treasuryList = document.getElementById("treasury-sponsors-list");
-    const skaterList = document.getElementById("skater-sponsors-list");
-    
-    treasuryList.innerHTML = "<li>Synchronizing deep history...</li>";
-    skaterList.innerHTML = "<li>Pooling Skater Wallets Globally...</li>";
-
-    // BOARDROOM (TREASURY SPONSORS) DEEP SCAN - Pushed to max limit (1000)
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 1000 });
-        let aggregatedSponsors = {};
+        // Deep Scan limit (300 blocks) ensures we hit the top 100 without completely freezing the app
+        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 300 });
+        
+        // Chunk sizes of 15. Safe for public nodes.
+        for (let i = 0; i < sigs.length; i += 15) {
+            const chunk = sigs.slice(i, i + 15);
+            const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
 
-        for (let s of sigs) {
-            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
-            if (tx) {
-                const sponsorAddr = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys[0].toString() : "Anonymous";
-                const amount = (tx.meta.preBalances[0] - tx.meta.postBalances[0] - tx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
-                if(amount > 0.001) {
-                    if(!aggregatedSponsors[sponsorAddr]) aggregatedSponsors[sponsorAddr] = 0;
-                    aggregatedSponsors[sponsorAddr] += amount;
+            for (let tx of txs) {
+                if (tx && tx.transaction.message.staticAccountKeys) {
+                    const sponsorAddr = tx.transaction.message.staticAccountKeys[0].toString();
+                    const amount = (tx.meta.preBalances[0] - tx.meta.postBalances[0] - tx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
+                    if (amount > 0.001) {
+                        aggregatedSponsors[sponsorAddr] = (aggregatedSponsors[sponsorAddr] || 0) + amount;
+                    }
                 }
             }
+
+            // Transform, sort, and render the LIVE state so user sees it building
+            let rawSponsors = Object.keys(aggregatedSponsors).map(addr => ({ addr, val: aggregatedSponsors[addr] }));
+            rawSponsors.sort((a, b) => b.val - a.val);
+            
+            // Name lookup on the fly using cache so it doesn't freeze
+            for(let j = 0; j < Math.min(rawSponsors.length, 100); j++) {
+                if(!rawSponsors[j].name) rawSponsors[j].name = await resolveWalletNameCached(rawSponsors[j].addr);
+            }
+
+            allTreasurySponsors = rawSponsors;
+            renderTreasuryFeed(true); // Pass scanning flag to keep spinner
+
+            if (i + 15 < sigs.length) await delay(1000); // CRITICAL: 1 second breathing room for the RPC
         }
+        renderTreasuryFeed(false); // Scan complete
 
-        let rawSponsors = Object.keys(aggregatedSponsors).map(addr => ({ addr, val: aggregatedSponsors[addr] }));
-        rawSponsors.sort((a, b) => b.val - a.val);
+    } catch(e) {
+        document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network congestion. Try again later.</li>";
+    }
+}
 
-        await Promise.all(rawSponsors.map(async (s) => { s.name = await resolveWalletName(s.addr); }));
-        allTreasurySponsors = rawSponsors;
-        renderTreasuryFeed();
-    } catch(e) { treasuryList.innerHTML = "<li>Node busy. Refresh soon.</li>"; }
-
-    // SKATER SUPPORT FEED GLOBAL SCAN - Pushed to max limit (1000) per skater
-    let entries = [];
+async function processSkaterHitsStaged() {
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    let allSigs = [];
+    
     try {
-        let allSigs = [];
-        // Pull full signature history from every single skater in the registry
+        // Collect 25 signatures per skater
         for (let skaterWallet of SKATER_REGISTRY) {
             try {
-                const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 1000 });
+                const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 25 });
                 sSigs.forEach(sig => allSigs.push({ ...sig, skaterWallet }));
             } catch(e) {}
         }
         
-        // Sort globally to guarantee we only pull the TRUE most recent events platform-wide
+        // Sort globally
         allSigs.sort((a, b) => (b.blockTime || 0) - (a.blockTime || 0));
+
+        let entries = [];
         
-        // Take the top 60 recent global events and resolve them to avoid RPC throttling
-        const topSigs = allSigs.slice(0, 60);
-        
-        for (let sigData of topSigs) {
-            try {
-                const sTx = await connection.getTransaction(sigData.signature, { maxSupportedTransactionVersion: 0 });
-                if (sTx && sTx.meta && sTx.transaction.message.staticAccountKeys) {
-                    const sp = sTx.transaction.message.staticAccountKeys[0].toString();
-                    const skaterIdx = sTx.transaction.message.staticAccountKeys.findIndex(k => k.toString() === sigData.skaterWallet);
-                    
+        // Process in chunks of 15, delay 1s
+        for (let i = 0; i < allSigs.length && entries.length < 100; i += 15) {
+            const chunk = allSigs.slice(i, i + 15);
+            
+            const txs = await Promise.all(chunk.map(sigData =>
+                connection.getTransaction(sigData.signature, { maxSupportedTransactionVersion: 0 })
+                .then(tx => ({ tx, skaterWallet: sigData.skaterWallet }))
+                .catch(() => null)
+            ));
+
+            for (let data of txs) {
+                if (data && data.tx && data.tx.meta && data.tx.transaction.message.staticAccountKeys) {
+                    const sp = data.tx.transaction.message.staticAccountKeys[0].toString();
+                    const skaterIdx = data.tx.transaction.message.staticAccountKeys.findIndex(k => k.toString() === data.skaterWallet);
+
                     if (skaterIdx !== -1) {
-                        const pre = sTx.meta.preBalances[skaterIdx];
-                        const post = sTx.meta.postBalances[skaterIdx];
+                        const pre = data.tx.meta.preBalances[skaterIdx];
+                        const post = data.tx.meta.postBalances[skaterIdx];
                         const am = (post - pre) / solanaWeb3.LAMPORTS_PER_SOL;
-                        
-                        // Valid donation criteria
-                        if (am > 0.001 && sp !== sigData.skaterWallet && sp !== TREASURY_WALLET) {
-                            const skaterName = await resolveWalletName(sigData.skaterWallet);
-                            entries.push({ addr: sp, val: am, skater: skaterName, time: sTx.blockTime || 0 });
+
+                        if (am > 0.001 && sp !== data.skaterWallet && sp !== TREASURY_WALLET) {
+                            const skaterName = await resolveWalletNameCached(data.skaterWallet);
+                            entries.push({ addr: sp, val: am, skater: skaterName, time: data.tx.blockTime || 0 });
                         }
                     }
                 }
-            } catch(e) {}
-        }
-        
-        // We only want the Top 25 confirmed hits
-        entries = entries.slice(0, 25);
-        
-        // Safely determine their TRUE total historical rank
-        for (let e of entries) {
-            e.name = await resolveWalletName(e.addr);
-            const stats = await fetchWalletStats(e.addr);
-            e.totalOut = stats.outs; 
+            }
+
+            // Update names on the fly
+            for(let j=0; j < entries.length; j++) {
+                if(!entries[j].name) entries[j].name = await resolveWalletNameCached(entries[j].addr);
+                // We will defer totalOut (rank upgrade) calculation until the end to prevent total lockup
+            }
+
+            allSkaterHits = entries;
+            renderSkaterFeed(true); // Scanning flag active
+            
+            if (i + 15 < allSigs.length && entries.length < 100) await delay(1000); // 1 sec delay
         }
 
-        allSkaterHits = entries;
-        skaterRenderLimit = 25; 
-        renderSkaterFeed();
+        // Final pass: Determine TRUE total rank for the displayed hits safely
+        for (let e of allSkaterHits.slice(0, skaterRenderLimit)) {
+            if(!e.totalOut) {
+                const stats = await fetchWalletStats(e.addr);
+                e.totalOut = stats.outs;
+            }
+        }
+        renderSkaterFeed(false);
 
-    } catch(e) { 
-        skaterList.innerHTML = "<li>Feed cooling down...</li>"; 
-        console.error(e); 
+    } catch(e) {
+        document.getElementById("skater-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network congestion. Try again later.</li>";
     }
 }
 
-function renderTreasuryFeed() {
+function renderTreasuryFeed(isScanning = false) {
     const list = document.getElementById("treasury-sponsors-list");
-    const btn = document.getElementById("load-more-treasury");
     list.innerHTML = "";
+    
     let toRender = allTreasurySponsors.slice(0, treasuryRenderLimit);
     
     toRender.forEach((s, index) => {
@@ -1301,7 +1341,7 @@ function renderTreasuryFeed() {
             <li class="leader-item" style="${isTopDog}">
                 <div style="display: flex; flex-direction: column;">
                     <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${s.addr}')">
-                        ${flexIcon}${index > 2 ? rank.icon : ''} ${s.name} <span style="font-size:0.6rem; opacity:0.7; margin-left:5px;">[${rank.title}]</span>
+                        ${flexIcon}${index > 2 ? rank.icon : ''} <span style="color: ${rank.color};">${s.name}</span> <span style="font-size:0.6rem; opacity:0.7; margin-left:5px;">[${rank.title}]</span>
                     </span> 
                     <a href="https://solscan.io/account/${s.addr}" target="_blank" style="font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; margin-top: 4px;" onmouseover="this.style.color='var(--accent-cyan)'" onmouseout="this.style.color='var(--text-secondary)'" onclick="event.stopPropagation();"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${s.addr.slice(0,6)}...${s.addr.slice(-4)}</a>
                 </div>
@@ -1309,14 +1349,17 @@ function renderTreasuryFeed() {
             </li>`;
     });
     
-    if(allTreasurySponsors.length === 0) list.innerHTML = "<li>No hits yet.</li>";
-    btn.style.display = (allTreasurySponsors.length > treasuryRenderLimit) ? "block" : "none";
+    if (isScanning) {
+        list.innerHTML += `<li class="leader-item" style="justify-content: center; color: var(--accent-cyan); font-size: 0.7rem; border: none; padding-top: 15px;"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> SCANNING DEEP HISTORY...</li>`;
+    } else if (allTreasurySponsors.length === 0) {
+        list.innerHTML = "<li class='leader-item'>No hits found.</li>";
+    }
 }
 
-function renderSkaterFeed() {
+function renderSkaterFeed(isScanning = false) {
     const list = document.getElementById("skater-sponsors-list");
-    const btn = document.getElementById("load-more-skater");
     list.innerHTML = "";
+    
     let toRender = allSkaterHits.slice(0, skaterRenderLimit);
 
     list.innerHTML = toRender.map(e => {
@@ -1326,7 +1369,7 @@ function renderSkaterFeed() {
         return `<li class="leader-item">
             <div style="display: flex; flex-direction: column;">
                 <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.85rem;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${e.addr}')">
-                    ${rank.icon} <span style="text-transform: uppercase; letter-spacing: 0.5px;">${e.name}</span> 
+                    ${rank.icon} <span style="text-transform: uppercase; letter-spacing: 0.5px; color: ${rank.color};">${e.name}</span> 
                     <span style="font-size:0.6rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: ${rank.color}; border: 1px solid ${rank.color};">${rank.title}</span>
                     <span style="color: #fff; font-size: 0.75rem; font-weight: normal; margin-left: 5px;">blessed ${e.skater}</span>
                 </span> 
@@ -1334,13 +1377,14 @@ function renderSkaterFeed() {
             </div>
             <span class="amt-tag" style="color: var(--accent-green);">+${e.val.toFixed(2)} SOL</span>
         </li>`;
-    }).join('') || "<li>No recent hits.</li>";
+    }).join('');
 
-    btn.style.display = (allSkaterHits.length > skaterRenderLimit) ? "block" : "none";
+    if (isScanning) {
+        list.innerHTML += `<li class="leader-item" style="justify-content: center; color: var(--accent-cyan); font-size: 0.7rem; border: none; padding-top: 15px;"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> MINING GLOBAL BLOCKS...</li>`;
+    } else if (allSkaterHits.length === 0) {
+        list.innerHTML = "<li class='leader-item'>No recent hits.</li>";
+    }
 }
-
-function loadMoreTreasury() { treasuryRenderLimit += 20; renderTreasuryFeed(); }
-function loadMoreSkaterFeed() { skaterRenderLimit += 20; renderSkaterFeed(); }
 
 /* ======================================================== */
 /* GODMODE ADMIN PROTOCOL FOR MAIN VIDEO GRID               */
@@ -1403,7 +1447,7 @@ async function renderProfile(wallet, forceView = null) {
     
     const stats = await fetchWalletStats(wallet);
     let isGen = SKATER_REGISTRY.includes(wallet); let sk = SKATER_PROFILES.find(s => s.wallet === wallet);
-    if(!sk) sk = { name: await resolveWalletName(wallet), styles: isGen ? ["New Skater"] : ["Sponsor"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: isGen ? "Raw street talent." : "Fueling the movement." };
+    if(!sk) sk = { name: await resolveWalletNameCached(wallet), styles: isGen ? ["New Skater"] : ["Sponsor"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: isGen ? "Raw street talent." : "Fueling the movement." };
 
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 10 });
@@ -1423,7 +1467,7 @@ async function renderProfile(wallet, forceView = null) {
 
     if (view === 'skater') {
         const rank = getRankDisplay(stats.ins, true); header.innerText = "SKATER IDENTITY & BIO";
-        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        rEl.innerHTML = rank.icon + " <span style='color: " + rank.color + "'>" + rank.title + "</span>"; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         try { const bal = await conn.getBalance(new solanaWeb3.PublicKey(wallet)); bEl.innerText = (bal / 1e9).toFixed(4) + " SOL"; } catch(e) {}
         let gHtml = "";
         if(sk.stance) gHtml += `<div class="gear-tag"><i class="fas fa-shoe-prints"></i> ${sk.stance}</div>`;
@@ -1435,7 +1479,7 @@ async function renderProfile(wallet, forceView = null) {
         if (sk.yt) { vSec.style.display = 'block'; document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${sk.yt}`; } else vSec.style.display = 'none';
     } else {
         const rank = getRankDisplay(stats.outs, false); header.innerText = "SPONSOR IDENTITY & BIO";
-        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        rEl.innerHTML = rank.icon + " <span style='color: " + rank.color + "'>" + rank.title + "</span>"; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         bEl.innerText = stats.outs.toFixed(4) + " SOL";
         document.getElementById('p-sponsor-video-section').style.display = 'none';
     }
