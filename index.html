@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.1</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.2 (Godmode Beta)</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -31,14 +31,19 @@
   --card-border:rgba(0,240,255,0.14);
   
   --bronze-font: #cd7f32;
-  --silver-font: #cbd5e1;
+  --silver-font: #cbd5e1; /* Vivid silver for readability */
   --gold-font: #ffd700;
   --diamond-font: #b9f2ff;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
 
-html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+/* STRICT VIEWPORT LOCKDOWN */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
 body{
   background:var(--bg-deep);
@@ -68,13 +73,43 @@ header{
 
 .logo{height:45px; z-index: 101;}
 
-nav#mobile-nav { display: flex; flex: 1; justify-content: center; }
-nav#mobile-nav ul { display:flex; gap:1.8rem; list-style:none; }
-nav#mobile-nav a { color:var(--text-secondary); text-decoration:none; font-weight:bold; transition:0.3s; font-size:0.9rem; letter-spacing: 1px; cursor: pointer; pointer-events: auto; }
+/* PERFECT DESKTOP CENTERING */
+nav#mobile-nav { 
+    display: flex; 
+    flex: 1; 
+    justify-content: center; 
+}
+nav#mobile-nav ul {
+    display:flex;
+    gap:1.8rem;
+    list-style:none;
+}
+nav#mobile-nav a {
+    color:var(--text-secondary);
+    text-decoration:none;
+    font-weight:bold;
+    transition:0.3s;
+    font-size:0.9rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
 nav#mobile-nav a:hover{color:var(--accent-gold);}
 
-.header-controls { display: flex; align-items: center; justify-content: flex-end; gap: 15px; z-index: 101; }
-.hamburger { display: none; font-size: 1.8rem; color: var(--accent-gold); cursor: pointer; transition: 0.3s; }
+.header-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+    z-index: 101;
+}
+
+.hamburger {
+    display: none;
+    font-size: 1.8rem;
+    color: var(--accent-gold);
+    cursor: pointer;
+    transition: 0.3s;
+}
 .hamburger:hover { color: var(--accent-cyan); }
 
 .wallet-btn {
@@ -90,7 +125,14 @@ nav#mobile-nav a:hover{color:var(--accent-gold);}
   white-space: nowrap;
 }
 
-main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; padding-right: 20px; padding-bottom: 60px; }
+main {
+  padding-top: 120px; 
+  max-width: 1440px;
+  margin: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 60px;
+}
 
 .hero { text-align: center; margin-bottom: 2.5rem; }
 .hero h1 { 
@@ -103,21 +145,58 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
   line-height: 1.1;
 }
 
-.hero-subtext { font-size: 1.3rem; margin: 1rem auto 2rem; color: var(--text-secondary); max-width: 720px; }
+.hero-subtext {
+  font-size: 1.3rem; 
+  margin: 1rem auto 2rem; 
+  color: var(--text-secondary); 
+  max-width: 720px;
+}
 
-.stats-row { display: flex; justify-content: center; gap: 3rem; margin-top: 1.5rem; }
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 1.5rem;
+}
 .stat { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; }
 .stat-value { display: block; font-size: 2rem; color: var(--accent-gold); font-weight: 900; }
 
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-.menu-item { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 2rem; cursor: pointer; transition: 0.3s; }
-.menu-item:hover { border-color: var(--accent-gold); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1); }
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.menu-item {
+  background: var(--bg-panel);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.menu-item:hover {
+  border-color: var(--accent-gold);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
+}
 .menu-icon { font-size: 2.2rem; margin-bottom: 0.8rem; }
 .menu-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 0.5rem; color: var(--accent-cyan); }
 .menu-desc { font-size: 0.8rem; color: var(--text-secondary); }
 
-.video-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-.video-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; transition: 0.3s; position: relative; width: 100%; }
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.video-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: 0.3s;
+  position: relative;
+  width: 100%;
+}
 .video-card:hover { border-color: var(--accent-gold); transform: scale(1.02); }
 .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000;}
 .video-wrapper iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; z-index: 1;}
@@ -134,18 +213,104 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 
 .card-info { padding: 1.2rem; }
 .card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; height: 35px; overflow: hidden; }
-.skater-wallet-bal { font-size: 0.7rem; color: var(--accent-cyan); margin-bottom: 1rem; font-weight: bold; word-break: break-all; }
-.usd-val { color: var(--accent-green); font-weight: 600; margin-left: 8px; font-family: 'Inter', sans-serif; font-size: 0.8rem; }
 
-.donate-btn { background: var(--accent-gold); color: #000; border: none; padding: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.75rem; cursor: pointer; width: 100%; }
-.view-profile-btn { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); margin-top: 8px; padding: 8px; font-size: 0.7rem; cursor: pointer; width: 100%; text-transform: uppercase; font-family: 'Orbitron'; transition: 0.3s; border-radius: 6px; }
+.skater-wallet-bal {
+  font-size: 0.7rem;
+  color: var(--accent-cyan);
+  margin-bottom: 1rem;
+  font-weight: bold;
+  word-break: break-all;
+}
+
+.usd-val {
+  color: var(--accent-green);
+  font-weight: 600;
+  margin-left: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+}
+
+.donate-btn {
+  background: var(--accent-gold);
+  color: #000;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-family: 'Orbitron';
+  font-weight: 900;
+  font-size: 0.75rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.view-profile-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--card-border);
+    margin-top: 8px;
+    padding: 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    width: 100%;
+    text-transform: uppercase;
+    font-family: 'Orbitron';
+    transition: 0.3s;
+    border-radius: 6px;
+}
 .view-profile-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
 
-#profile-content { background: linear-gradient(145deg, var(--bg-panel), #050a1f); border: 1px solid var(--accent-gold); border-radius: 20px; padding: 2.5rem; max-width: 1100px; margin: auto; box-shadow: 0 0 50px rgba(0, 240, 255, 0.05); }
-.profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 40px; }
-.profile-pic { width: 100%; max-width: 250px; border-radius: 20px; border: 3px solid var(--accent-cyan); margin-bottom: 25px; object-fit: cover; transition: all 0.3s ease; }
-.style-tag { display: inline-block; padding: 8px 16px; background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); border-radius: 50px; font-size: 0.75rem; margin: 6px; border: 1px solid var(--accent-cyan); letter-spacing: 0.5px; }
-.gear-tag { display: inline-block; padding: 6px 12px; background: rgba(255, 215, 0, 0.05); color: var(--text-secondary); border-radius: 6px; font-size: 0.65rem; margin: 6px; border: 1px solid rgba(255, 215, 0, 0.3); text-transform: uppercase; font-family: 'Inter', sans-serif; letter-spacing: 0.5px; }
+/* PROFILE PAGE STYLES */
+#profile-content {
+    background: linear-gradient(145deg, var(--bg-panel), #050a1f);
+    border: 1px solid var(--accent-gold);
+    border-radius: 20px;
+    padding: 2.5rem;
+    max-width: 1100px;
+    margin: auto;
+    box-shadow: 0 0 50px rgba(0, 240, 255, 0.05);
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+}
+
+.profile-pic {
+    width: 100%;
+    max-width: 250px;
+    border-radius: 20px;
+    border: 3px solid var(--accent-cyan);
+    margin-bottom: 25px;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.style-tag {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--accent-cyan);
+    border-radius: 50px;
+    font-size: 0.75rem;
+    margin: 6px;
+    border: 1px solid var(--accent-cyan);
+    letter-spacing: 0.5px;
+}
+
+.gear-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    background: rgba(255, 215, 0, 0.05);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    margin: 6px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+}
 .gear-tag i { color: var(--accent-gold); margin-right: 5px; }
 
 /* LEADERBOARD STYLES */
@@ -156,9 +321,9 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 .leader-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
 .leader-item:last-child { border: none; }
 
-/* Fixed Link Isolation Classes */
+/* FIX: ISOLATED CLICKABLE AREAS */
 .info-col { display: flex; flex-direction: column; flex: 1; min-width: 0; padding-right: 15px;}
-.addr-tag { color: var(--text-secondary); font-family: monospace; display: flex; align-items: center; word-break: break-all; }
+.addr-tag { font-family: monospace; display: flex; align-items: center; word-break: break-all; margin-bottom: 2px;}
 .amt-tag { color: var(--accent-green); font-weight: bold; white-space: nowrap; }
 .live-indicator { font-size: 0.6rem; color: var(--accent-red); float: right; animation: pulse 2s infinite; }
 @keyframes pulse { 0% {opacity:1;} 50% {opacity:0.3;} 100% {opacity:1;} }
@@ -167,7 +332,7 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 @keyframes led-pulse { 0% {opacity:1; transform: scale(1);} 50% {opacity:0.4; transform: scale(0.9);} 100% {opacity:1; transform: scale(1);} }
 .addr-name-click { cursor: pointer; transition: 0.2s; display: inline-block; pointer-events: auto; }
 .addr-name-click:hover { color: var(--accent-cyan) !important; text-decoration: underline; }
-.solscan-link { font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; margin-top: 4px; pointer-events: auto; display: inline-block; }
+.solscan-link { font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; display: inline-flex; align-items: center; position: relative; z-index: 5;}
 .solscan-link:hover { color: var(--accent-cyan); text-decoration: underline; }
 
 footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); padding: 3rem 2rem 1.5rem; margin-top: 3rem; }
@@ -197,6 +362,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 .confetti { position: fixed; width: 10px; height: 10px; top: -10px; animation: fall 3s linear forwards; z-index: 2000; }
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
+/* ======================================================== */
+/* PRIVATE FEED ARCHITECTURE                                */
+/* ======================================================== */
 .feed-container { max-width: 1000px; margin: 0 auto; position: relative; }
 .post-create-box { background: rgba(0,240,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--accent-cyan); margin-bottom: 2rem; display: none; }
 .feed-paywall { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.98); backdrop-filter: blur(8px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; text-align: center; border-radius: 12px; border: 2px dashed var(--silver-font); padding: 2rem; }
@@ -696,7 +864,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="success-modal" class="modal-overlay">
     <div class="modal-content" id="success-box">
       <h2 style="color:var(--accent-gold); font-family:'Bangers'; font-size: 2.8rem;">UNLOCKED!</h2>
-      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 0.85rem;">You just help power the SKATE revolution, keep shredding!</p>
+      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 0.85rem;">You just helped power the SKATE revolution, keep shredding!</p>
       <button onclick="closeSuccessModal()" class="wallet-btn" style="width:100%; margin-top:10px; font-size: 0.8rem;">KEEP SKATING</button>
     </div>
 </div>
@@ -751,9 +919,10 @@ let activeFeedWallet = "";
 let currentSkaterPosts = [];
 let feedRenderLimit = 12;
 
-// Hardcore Throttling Utility to bypass 429 rate limits
+// Utility for rate-limit bypassing
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
+// Centralized Name Resolution Cache to save RPC requests
 let nameCache = {};
 async function resolveWalletNameCached(wallet) {
     if(nameCache[wallet]) return nameCache[wallet];
@@ -766,6 +935,7 @@ const RPC_URL = "https://solana-rpc.publicnode.com";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
+// GODMODE ADMIN ARRAY
 const ADMIN_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 
@@ -897,6 +1067,7 @@ async function fetchTreasuryBalance() {
     document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
 }
 
+// Exactly preserved logic: Flow=Bronze, Amatuer=Silver, Pro=Gold
 function getRankDisplay(amount, isSkater = false) {
     if(amount >= 0.1) return { title: "PRO", color: "var(--gold-font)", icon: '<i class="fas fa-trophy"></i>' };
     if(amount >= 0.05) return { title: "AM", color: "var(--silver-font)", icon: '<i class="fas fa-medal"></i>' };
@@ -915,7 +1086,7 @@ async function resolveWalletName(wallet) {
 }
 
 /* ======================================================== */
-/* THE FIX: THROTTLED RPC SCANNER WITH LINK ISOLATION       */
+/* UPGRADED: TRUE WEB3 LEADERBOARD SCANNER & LINK ISOLATION */
 /* ======================================================== */
 async function refreshLeaderboardData() {
     document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-cyan);'><i class='fas fa-spinner fa-spin' style='margin-right:8px;'></i> Initializing Secure RPC Link...</li>";
@@ -932,22 +1103,18 @@ async function processTreasuryStaged() {
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 100 }); 
         
-        for (let i = 0; i < sigs.length; i += 5) { // Chunk by 5 for extreme safety
+        for (let i = 0; i < sigs.length; i += 5) { 
             const chunk = sigs.slice(i, i + 5);
             const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
 
             for (let tx of txs) {
                 if (tx && tx.meta && !tx.meta.err && tx.transaction && tx.transaction.message) {
                     const msg = tx.transaction.message;
-                    let keys = [];
-                    if (msg.staticAccountKeys) keys = msg.staticAccountKeys.map(k => k.toString());
-                    else if (msg.accountKeys) keys = msg.accountKeys.map(k => k.toString());
+                    let keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k => k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k => k.toString()) : []);
                     
                     const tIdx = keys.indexOf(TREASURY_WALLET);
-                    
                     if (tIdx !== -1) {
                         const amountReceived = (tx.meta.postBalances[tIdx] - tx.meta.preBalances[tIdx]) / 1e9;
-                        
                         if (amountReceived > 0.001) {
                             const sponsorAddr = keys[0]; 
                             if (sponsorAddr !== TREASURY_WALLET) {
@@ -969,98 +1136,84 @@ async function processTreasuryStaged() {
             allTreasurySponsors = rawSponsors;
             renderTreasuryFeed(true);
 
-            if (i + 5 < sigs.length) await delay(1500); // Massive 1.5s delay between chunks
+            if (i + 5 < sigs.length) await delay(800); 
         }
         renderTreasuryFeed(false); 
 
     } catch(e) {
-        document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network RPC limit hit. <button onclick='refreshLeaderboardData()' style='background:transparent; border:1px solid var(--accent-red); color:var(--accent-red); margin-left:10px; cursor:pointer;'>RETRY</button></li>";
+        document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network RPC limit hit. Retry later.</li>";
     }
 }
 
 async function processSkaterHitsStaged() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let allSigs = [];
+    let aggregatedSkaterSponsors = {};
+    let processedCount = 0;
     
     try {
-        // HARDCORE THROTTLING PING RATE FIX
         for (let skaterWallet of SKATER_REGISTRY) {
             try {
-                // Reduced limit to 15 to ensure we don't trigger the 429 while still catching the leaders
-                const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 15 });
-                sSigs.forEach(sig => allSigs.push({ ...sig, skaterWallet }));
-                await delay(800); // BIG BREATHE 800ms between each skater history pull
-            } catch(e) {}
-        }
-        
-        allSigs.sort((a, b) => (b.blockTime || 0) - (a.blockTime || 0));
+                // Reduced limit to prevent timeouts, but still deep enough to catch history
+                const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 15 });
+                
+                for (let i = 0; i < sigs.length; i += 5) {
+                    const chunk = sigs.slice(i, i + 5);
+                    const txs = await Promise.all(chunk.map(sig => connection.getTransaction(sig.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
 
-        let aggregatedSkaterSponsors = {};
-        
-        for (let i = 0; i < allSigs.length; i += 5) { // Chunk size 5
-            const chunk = allSigs.slice(i, i + 5);
-            
-            const txs = await Promise.all(chunk.map(sigData =>
-                connection.getTransaction(sigData.signature, { maxSupportedTransactionVersion: 0 })
-                .then(tx => ({ tx, skaterWallet: sigData.skaterWallet }))
-                .catch(() => null)
-            ));
+                    for (let data of txs) {
+                        if (data && data.meta && !data.meta.err && data.transaction && data.transaction.message) {
+                            const msg = data.transaction.message;
+                            let keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k=>k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k=>k.toString()) : []);
+                            const skaterIdx = keys.indexOf(skaterWallet);
 
-            for (let data of txs) {
-                if (data && data.tx && data.tx.meta && !data.tx.meta.err && data.tx.transaction && data.tx.transaction.message) {
-                    const msg = data.tx.transaction.message;
-                    let keys = [];
-                    if (msg.staticAccountKeys) keys = msg.staticAccountKeys.map(k=>k.toString());
-                    else if (msg.accountKeys) keys = msg.accountKeys.map(k=>k.toString());
-
-                    const skaterIdx = keys.indexOf(data.skaterWallet);
-
-                    if (skaterIdx !== -1) {
-                        const receivedAmount = (data.tx.meta.postBalances[skaterIdx] - data.tx.meta.preBalances[skaterIdx]) / 1e9;
-
-                        if (receivedAmount > 0.001) {
-                            const sponsorAddr = keys[0]; 
-                            if (sponsorAddr !== data.skaterWallet) { 
-                                if (!aggregatedSkaterSponsors[sponsorAddr]) {
-                                    aggregatedSkaterSponsors[sponsorAddr] = { 
-                                        addr: sponsorAddr, 
-                                        val: 0, 
-                                        skaterNames: new Set()
-                                    };
+                            if (skaterIdx !== -1) {
+                                const receivedAmount = (data.meta.postBalances[skaterIdx] - data.meta.preBalances[skaterIdx]) / 1e9;
+                                if (receivedAmount > 0.001) {
+                                    const sponsorAddr = keys[0]; 
+                                    if (sponsorAddr !== skaterWallet && sponsorAddr !== TREASURY_WALLET) { 
+                                        if (!aggregatedSkaterSponsors[sponsorAddr]) {
+                                            aggregatedSkaterSponsors[sponsorAddr] = { addr: sponsorAddr, val: 0, skaterNames: new Set() };
+                                        }
+                                        aggregatedSkaterSponsors[sponsorAddr].val += receivedAmount;
+                                        aggregatedSkaterSponsors[sponsorAddr].skaterNames.add(skaterWallet);
+                                    }
                                 }
-                                aggregatedSkaterSponsors[sponsorAddr].val += receivedAmount;
-                                aggregatedSkaterSponsors[sponsorAddr].skaterNames.add(data.skaterWallet);
                             }
                         }
                     }
+                    await delay(400); // 400ms breather between chunks inside the skater
                 }
-            }
-
-            let entries = Object.values(aggregatedSkaterSponsors);
-            entries.sort((a, b) => b.val - a.val);
-            entries = entries.slice(0, skaterRenderLimit);
-
-            for(let j=0; j < entries.length; j++) {
-                if(!entries[j].name) entries[j].name = await resolveWalletNameCached(entries[j].addr);
                 
-                let resolvedSkaters = [];
-                for (let skWallet of entries[j].skaterNames) {
-                    resolvedSkaters.push(await resolveWalletNameCached(skWallet));
-                }
-                entries[j].skatersDisplay = resolvedSkaters.join(", ");
-            }
+                processedCount++;
+                await updateSkaterFeedUI(aggregatedSkaterSponsors, true, processedCount, SKATER_REGISTRY.length);
 
-            allSkaterHits = entries;
-            renderSkaterFeed(true);
-            
-            if (i + 5 < allSigs.length) await delay(1500); // Delay between chunks
+            } catch(e) {}
+            await delay(800); // 800ms BIG BREATHE between each skater 
         }
 
-        renderSkaterFeed(false);
+        await updateSkaterFeedUI(aggregatedSkaterSponsors, false);
 
     } catch(e) {
-        document.getElementById("skater-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network RPC limit hit. <button onclick='refreshLeaderboardData()' style='background:transparent; border:1px solid var(--accent-red); color:var(--accent-red); margin-left:10px; cursor:pointer;'>RETRY</button></li>";
+        document.getElementById("skater-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-red);'>Network RPC limit hit. Retry later.</li>";
     }
+}
+
+async function updateSkaterFeedUI(aggregatedData, isScanning, current = 0, total = 0) {
+    let entries = Object.values(aggregatedData);
+    entries.sort((a, b) => b.val - a.val); // Sort by highest global blessing
+    entries = entries.slice(0, skaterRenderLimit); // Cap at 12
+
+    for(let j=0; j < entries.length; j++) {
+        if(!entries[j].name) entries[j].name = await resolveWalletNameCached(entries[j].addr);
+        if(!entries[j].skatersDisplay) {
+            let resolvedSkaters = [];
+            for (let skWallet of entries[j].skaterNames) { resolvedSkaters.push(await resolveWalletNameCached(skWallet)); }
+            entries[j].skatersDisplay = resolvedSkaters.join(", ");
+        }
+    }
+
+    allSkaterHits = entries;
+    renderSkaterFeed(isScanning, current, total);
 }
 
 function renderTreasuryFeed(isScanning = false) {
@@ -1082,19 +1235,18 @@ function renderTreasuryFeed(isScanning = false) {
         else if (index === 2) iconHtml = '<i class="fa-solid fa-medal" style="color:var(--bronze-font); font-size: 1.1rem; margin-right:8px;"></i>';
         else iconHtml = rank.icon + ' ';
         
-        // Link Isolation Fix applied here
         list.innerHTML += `
             <li class="leader-item" style="${isTopDog}">
                 <div class="info-col">
                     <div class="addr-tag">
-                        <span class="addr-name-click" style="color: ${rank.color}; font-weight: bold;" onclick="navigateTo('profile', '${s.addr}')">
-                            ${iconHtml} <span style="color: ${rank.color};">${s.name}</span> 
-                            <span style="font-size:0.6rem; opacity:0.7; margin-left:5px;">[${rank.title}]</span>
+                        <span class="addr-name-click" style="color: ${rank.color}; font-weight: bold; font-size: 0.85rem;" onclick="navigateTo('profile', '${s.addr}')">
+                            ${iconHtml} <span style="text-transform: uppercase; letter-spacing: 0.5px; color: ${rank.color};">${s.name}</span> 
+                            <span style="font-size:0.6rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: ${rank.color}; border: 1px solid ${rank.color};">${rank.title}</span>
                         </span>
                     </div>
                     <a href="https://solscan.io/account/${s.addr}" target="_blank" class="solscan-link"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${s.addr.slice(0,6)}...${s.addr.slice(-4)}</a>
                 </div>
-                <span class="amt-tag" style="color: ${rank.color};">${s.val.toFixed(2)} SOL</span>
+                <span class="amt-tag" style="color: ${rank.color}; align-self: flex-start;">${s.val.toFixed(2)} SOL</span>
             </li>`;
     });
     
@@ -1105,11 +1257,10 @@ function renderTreasuryFeed(isScanning = false) {
     }
 }
 
-function renderSkaterFeed(isScanning = false) {
+function renderSkaterFeed(isScanning = false, current = 0, total = 0) {
     const list = document.getElementById("skater-sponsors-list");
     list.innerHTML = "";
     
-    allSkaterHits.sort((a, b) => b.val - a.val);
     let toRender = allSkaterHits.slice(0, skaterRenderLimit);
 
     toRender.forEach((e, index) => {
@@ -1125,7 +1276,6 @@ function renderSkaterFeed(isScanning = false) {
         else if (index === 2) iconHtml = '<i class="fa-solid fa-medal" style="color:var(--bronze-font); font-size: 1.1rem; margin-right:8px;"></i>';
         else iconHtml = rank.icon + ' ';
 
-        // Link Isolation Fix applied here
         list.innerHTML += `<li class="leader-item" style="${isTopDog}">
             <div class="info-col">
                 <div class="addr-tag">
@@ -1142,20 +1292,37 @@ function renderSkaterFeed(isScanning = false) {
     });
 
     if (isScanning) {
-        list.innerHTML += `<li class="leader-item" style="justify-content: center; color: var(--accent-cyan); font-size: 0.7rem; border: none; padding-top: 15px;"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> MINING GLOBAL BLOCKS...</li>`;
+        list.innerHTML += `<li class="leader-item" style="justify-content: center; color: var(--accent-cyan); font-size: 0.7rem; border: none; padding-top: 15px; text-transform: uppercase;"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> SCANNING SKATERS (${current}/${total})...</li>`;
     } else if (allSkaterHits.length === 0) {
         list.innerHTML = "<li class='leader-item'>No recent hits.</li>";
     }
 }
 
+/* ======================================================== */
+/* GODMODE ADMIN PROTOCOL FOR MAIN VIDEO GRID               */
+/* ======================================================== */
 function checkPersistence() {
     let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
+
     document.querySelectorAll('.video-card').forEach(card => {
         let iframe = card.querySelector('iframe');
-        if (!publicKey) { card.classList.remove('unlocked'); if (iframe) iframe.src = ""; return; }
+        
+        if (!publicKey) { 
+            card.classList.remove('unlocked'); 
+            if (iframe) iframe.src = ""; 
+            return; 
+        }
+        
         let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
-        if (isAdmin || unlocked.includes(card.id)) { if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; card.classList.add('unlocked'); } 
-        else { card.classList.remove('unlocked'); if (iframe) iframe.src = ""; }
+        
+        // Universal Admin Unlock
+        if (isAdmin || unlocked.includes(card.id)) { 
+            if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; 
+            card.classList.add('unlocked'); 
+        } else { 
+            card.classList.remove('unlocked'); 
+            if (iframe) iframe.src = ""; 
+        }
     });
 }
 
