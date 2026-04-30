@@ -516,20 +516,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
                 </div>
             </div>
             
-            <div id="p-sponsor-video-section" style="display:none; margin-bottom: 20px;">
+            <div id="p-sponsor-video-section" style="display:none; margin-bottom: 35px;">
                 <h3 style="color:var(--accent-gold); margin-bottom:20px; font-size: 1.1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">🎥 SPONSOR ME TAPE</h3>
                 <div class="video-wrapper" style="border: 2px solid var(--accent-cyan); border-radius: 16px; overflow: hidden; box-shadow: 0 5px 25px rgba(0,240,255,0.15);">
                     <iframe id="p-sponsor-video" src="" allowfullscreen></iframe>
-                </div>
-            </div>
-
-            <div id="skater-mini-badges-section" style="display:none; background: var(--bg-panel); border: 1px dashed var(--card-border); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;">
-                <p style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">SPONSOR ENDORSEMENTS (V2)</p>
-                <div style="display: flex; justify-content: center; gap: 15px; font-size: 1.4rem;">
-                    <span style="opacity: 0.3; filter: grayscale(1); cursor: help;" title="Steeze Rating Placeholder">🔥</span>
-                    <span style="opacity: 0.3; filter: grayscale(1); cursor: help;" title="Tech Rating Placeholder">🛹</span>
-                    <span style="opacity: 0.3; filter: grayscale(1); cursor: help;" title="Consistency Rating Placeholder">💯</span>
-                    <span style="opacity: 0.3; filter: grayscale(1); cursor: help;" title="Pro Potential Placeholder">👑</span>
                 </div>
             </div>
 
@@ -540,10 +530,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
                     </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button onclick="attemptFeedAccess()" class="view-profile-btn" id="private-feed-btn" style="display:none; flex: 1; padding:15px; font-weight: bold; font-size: 0.85rem; border-color: var(--silver-font); color: var(--silver-font);"><i class="fas fa-video" style="margin-right: 5px;"></i> PRIVATE FEED</button>
-                <button onclick="navigateTo('home')" class="view-profile-btn" style="flex: 1; padding:15px; font-weight: bold; font-size: 0.85rem;"><i class="fas fa-home" style="margin-right: 5px;"></i> HOME</button>
-            </div>
+            <button onclick="attemptFeedAccess()" class="wallet-btn" id="private-feed-btn" style="display:none; width: 100%; padding: 15px; font-size: 0.9rem; margin-top: 15px; background: linear-gradient(135deg, var(--silver-font), #fff);">ENTER PRIVATE FEED</button>
+            
+            <button onclick="navigateTo('home')" class="view-profile-btn" style="padding:15px; font-weight: bold; font-size: 0.85rem; width: auto; margin-top: 10px;">BACK TO HOME</button>
         </div>
     </div>
   </div>
@@ -1119,7 +1108,6 @@ async function renderProfile(wallet, forceView = null) {
     rEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...'; bEl.innerText = "SYNCING...";
     tags.innerHTML = ""; gear.innerHTML = "";
     
-    const isOwner = publicKey === wallet;
     const stats = await fetchWalletStats(wallet);
     
     let isGen = SKATER_REGISTRY.includes(wallet); 
@@ -1169,9 +1157,6 @@ async function renderProfile(wallet, forceView = null) {
         
         document.getElementById('p-sponsor-video-section').style.display = activeProf.yt ? 'block' : 'none';
         if (activeProf.yt) document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${activeProf.yt}`;
-        
-        // Show Skater-only features
-        document.getElementById('skater-mini-badges-section').style.display = 'block';
         document.getElementById('private-feed-btn').style.display = 'block';
         document.getElementById('p-sponsor-badges-section').style.display = 'none';
     
@@ -1183,15 +1168,11 @@ async function renderProfile(wallet, forceView = null) {
         tags.innerHTML = `<span class="style-tag" style="border-color:var(--accent-gold); color:var(--accent-gold);"><i class="fas fa-star" style="margin-right:5px;"></i> ON-CHAIN SPONSOR</span>`;
         gear.innerHTML = ""; 
         
-        // Hide Skater-only features
         document.getElementById('p-sponsor-video-section').style.display = 'none';
-        document.getElementById('skater-mini-badges-section').style.display = 'none';
         document.getElementById('private-feed-btn').style.display = 'none';
-        
-        // Show Sponsor-only features
         document.getElementById('p-sponsor-badges-section').style.display = 'block';
         
-        // 6-TIER BADGE SYSTEM WITH REWARDS
+        // 6-TIER BADGE SYSTEM
         let badgesHtml = "";
         const badgeTiers = [
             { id: 'flow', threshold: 0.01, icon: '🥉', title: 'FLOW', color: 'var(--bronze-font)', desc: '0.01 SOL' },
@@ -1205,21 +1186,15 @@ async function renderProfile(wallet, forceView = null) {
         badgeTiers.forEach(b => {
             let isUnlocked = stats.outs >= b.threshold;
             if (isUnlocked) {
-                // Claim button only renders if it's the owner viewing their own profile
-                let claimBtn = isOwner ? `<button onclick="claimSponsorReward('${b.id}')" style="background: transparent; color: ${b.color}; border: 1px solid ${b.color}; border-radius: 4px; padding: 6px; font-size: 0.65rem; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; width: 100%; margin-top: 10px;" onmouseover="this.style.background='${b.color}'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='${b.color}';">CLAIM REWARD</button>` : '';
-                
                 badgesHtml += `
-                    <div style="background: rgba(0,0,0,0.4); border: 1px solid ${b.color}; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 0 15px ${b.color}20; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="font-size: 2rem; margin-bottom: 10px; filter: drop-shadow(0 0 8px ${b.color});">${b.icon}</div>
-                            <div style="font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Unlocked</div>
-                            <div style="font-size: 0.8rem; color: ${b.color}; font-weight: 900;">${b.title}</div>
-                        </div>
-                        ${claimBtn}
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid ${b.color}; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 0 15px ${b.color}20;">
+                        <div style="font-size: 2rem; margin-bottom: 10px; filter: drop-shadow(0 0 8px ${b.color});">${b.icon}</div>
+                        <div style="font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Unlocked</div>
+                        <div style="font-size: 0.8rem; color: ${b.color}; font-weight: 900;">${b.title}</div>
                     </div>`;
             } else {
                 badgesHtml += `
-                    <div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center; opacity: 0.5; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center; opacity: 0.5;">
                         <div style="font-size: 1.5rem; color: #555; margin-bottom: 10px;"><i class="fas fa-lock"></i></div>
                         <div style="font-size: 0.55rem; color: #777; text-transform: uppercase; font-weight: bold;">Requires ${b.desc}</div>
                         <div style="font-size: 0.8rem; color: #555; font-weight: 900;">${b.title}</div>
@@ -1230,13 +1205,9 @@ async function renderProfile(wallet, forceView = null) {
         document.getElementById('sponsor-badge-grid').innerHTML = badgesHtml;
     }
     
+    const isOwner = publicKey === wallet;
     document.getElementById('edit-profile-btn').style.display = isOwner ? 'block' : 'none';
     document.getElementById('profile-donate-btn').style.display = isOwner ? 'none' : 'block';
-}
-
-function claimSponsorReward(tierId) {
-    // Placeholder logic for claiming Web3 Assets (NFTs/$SKATE)
-    alert(`Initiating Web3 claim for ${tierId.toUpperCase()} tier reward (NFTs / $SKATE). Contract linking pending...`);
 }
 
 function openEditModal() {
