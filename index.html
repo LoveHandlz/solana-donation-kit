@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 6.7</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 6.8</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -878,7 +878,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
   <div id="leaderboard-content" style="display:none;">
     <div class="hero">
-        <h1 style="font-size: 2.8rem;">THE BOARDROOM</h1>
+        <h1 style="font-size: 2.24rem;">THE BOARDROOM</h1>
         <p style="color: var(--accent-gold); font-weight:bold; font-size: 0.8rem;">LEGENDARY SPONSORS & RECENT BLESSINGS</p>
         <p class="hero-subtext" style="font-size:0.9rem; max-width:700px; margin: 15px auto;">Sponsors are the lifeblood of the Skate2Earn ecosystem. This Boardroom immortalizes the legends who fuel the community treasury and drop direct, on-chain blessings to raw talent. Secure your spot, fund the revolution, and achieve legendary status.</p>
     </div>
@@ -946,9 +946,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="treasury-modal" class="modal-overlay">
     <div class="modal-content">
       <h3 style="color:var(--accent-gold); margin-bottom: 15px; font-size: 1.1rem;">Treasury Donation</h3>
-      <button class="tier-btn tier-flow" onclick="sendDonation(0.01)">FLOW (0.01 SOL)</button>
-      <button class="tier-btn tier-am" onclick="sendDonation(0.05)">AMATEUR (0.05 SOL)</button>
-      <button class="tier-btn tier-pro" onclick="sendDonation(0.1)">PRO (0.1 SOL)</button>
+      <button class="tier-btn tier-flow" onclick="sendDonation(0.01)">FLOW DONATION 0.01</button>
+      <button class="tier-btn tier-am" onclick="sendDonation(0.05)">AMATUER DONATION 0.05</button>
+      <button class="tier-btn tier-pro" onclick="sendDonation(0.1)">PRO DONATION 0.1</button>
       <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
         <input type="number" id="custom-treasury-amt" placeholder="Custom SOL..." step="0.01" min="0.01" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-cyan); border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.8rem;">
         <button onclick="sendCustomTreasury()" class="tier-btn" style="width: auto; margin-bottom: 0; padding: 10px 15px; background: var(--accent-cyan); color: #000; border: none;">SEND</button>
@@ -960,9 +960,9 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="sponsor-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-skater-title" style="color:var(--accent-gold); margin-bottom: 15px; font-size: 1.1rem;">Sponsor Clip</h3>
-    <button onclick="selectAmount(0.01)" class="tier-btn tier-flow">FLOW (0.01 SOL)</button>
-    <button onclick="selectAmount(0.05)" class="tier-btn tier-am">AMATEUR (0.05 SOL)</button>
-    <button onclick="selectAmount(0.1)" class="tier-btn tier-pro">PRO (0.1 SOL)</button>
+    <button onclick="selectAmount(0.01)" class="tier-btn tier-flow">FLOW DONATION 0.01</button>
+    <button onclick="selectAmount(0.05)" class="tier-btn tier-am">AMATUER DONATION 0.05</button>
+    <button onclick="selectAmount(0.1)" class="tier-btn tier-pro">PRO DONATION 0.1</button>
     <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
         <input type="number" id="custom-sponsor-amt" placeholder="Custom SOL..." step="0.01" min="0.01" style="flex: 1; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--accent-cyan); border-radius: 4px; font-family: 'Inter', sans-serif; font-size: 0.8rem;">
         <button onclick="sendCustomSponsor()" class="tier-btn" style="width: auto; margin-bottom: 0; padding: 10px 15px; background: var(--accent-cyan); color: #000; border: none;">SEND</button>
@@ -974,7 +974,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 <div id="success-modal" class="modal-overlay">
     <div class="modal-content" id="success-box">
       <h2 style="color:var(--accent-gold); font-family:'Bangers'; font-size: 2.8rem;">UNLOCKED!</h2>
-      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 0.85rem;">You just helped power the revolution.</p>
+      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 0.85rem;">You just help power the SKATE revolution, keep shredding!</p>
       <button onclick="closeSuccessModal()" class="wallet-btn" style="width:100%; margin-top:10px; font-size: 0.8rem;">KEEP SKATING</button>
     </div>
 </div>
@@ -1082,9 +1082,13 @@ async function fetchWalletStats(wallet) {
             const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
             for (let tx of txs) {
                 if (tx && tx.meta) {
-                    const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
+                    const msg = tx.transaction.message;
+                    let accountKeys = [];
+                    if (msg.staticAccountKeys) accountKeys = msg.staticAccountKeys.map(k=>k.toString());
+                    else if (msg.accountKeys) accountKeys = msg.accountKeys.map(k=>k.toString());
+
                     const wIdx = accountKeys.indexOf(wallet);
-                    if(wIdx !== -1) {
+                    if(wIdx !== -1 && !tx.meta.err) {
                         const pre = tx.meta.preBalances[wIdx]; 
                         const post = tx.meta.postBalances[wIdx];
                         const diff = (post - pre) / 1e9;
@@ -1173,6 +1177,7 @@ async function fetchTreasuryBalance() {
     document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
 }
 
+// Exactly preserved logic: Flow=Bronze, Amatuer=Silver, Pro=Gold
 function getRankDisplay(amount, isSkater = false) {
     if(amount >= 0.1) return { title: "PRO", color: "var(--gold-font)", icon: '<i class="fas fa-trophy"></i>' };
     if(amount >= 0.05) return { title: "AM", color: "var(--silver-font)", icon: '<i class="fas fa-medal"></i>' };
@@ -1191,7 +1196,7 @@ async function resolveWalletName(wallet) {
 }
 
 /* ======================================================== */
-/* UPGRADED: TRUE LEADERBOARD SCANNER & THROTTLED PING RATE */
+/* UPGRADED: TRUE WEB3 LEADERBOARD SCANNER WITH LEGACY FIX  */
 /* ======================================================== */
 async function refreshLeaderboardData() {
     document.getElementById("treasury-sponsors-list").innerHTML = "<li class='leader-item' style='color: var(--accent-cyan);'><i class='fas fa-spinner fa-spin' style='margin-right:8px;'></i> Initializing Secure RPC Link...</li>";
@@ -1213,8 +1218,13 @@ async function processTreasuryStaged() {
             const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
 
             for (let tx of txs) {
-                if (tx && tx.meta && tx.transaction.message.staticAccountKeys) {
-                    const keys = tx.transaction.message.staticAccountKeys.map(k => k.toString());
+                if (tx && tx.meta && !tx.meta.err && tx.transaction && tx.transaction.message) {
+                    // True Web3 Fix: Safely parse BOTH Version 0 and Legacy transactions to prevent missing hits
+                    const msg = tx.transaction.message;
+                    let keys = [];
+                    if (msg.staticAccountKeys) keys = msg.staticAccountKeys.map(k => k.toString());
+                    else if (msg.accountKeys) keys = msg.accountKeys.map(k => k.toString());
+                    
                     const tIdx = keys.indexOf(TREASURY_WALLET);
                     
                     if (tIdx !== -1) {
@@ -1222,7 +1232,9 @@ async function processTreasuryStaged() {
                         
                         if (amountReceived > 0.001) {
                             const sponsorAddr = keys[0]; 
-                            aggregatedSponsors[sponsorAddr] = (aggregatedSponsors[sponsorAddr] || 0) + amountReceived;
+                            if (sponsorAddr !== TREASURY_WALLET) { // Ignore self-sends
+                                aggregatedSponsors[sponsorAddr] = (aggregatedSponsors[sponsorAddr] || 0) + amountReceived;
+                            }
                         }
                     }
                 }
@@ -1252,7 +1264,7 @@ async function processSkaterHitsStaged() {
     let allSigs = [];
     
     try {
-        // MICRO-DELAY PING RATE FIX to prevent initial 429 Too Many Requests
+        // MICRO-DELAY PING RATE FIX
         for (let skaterWallet of SKATER_REGISTRY) {
             try {
                 const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 20 });
@@ -1275,8 +1287,13 @@ async function processSkaterHitsStaged() {
             ));
 
             for (let data of txs) {
-                if (data && data.tx && data.tx.meta && data.tx.transaction.message.staticAccountKeys) {
-                    const keys = data.tx.transaction.message.staticAccountKeys.map(k=>k.toString());
+                if (data && data.tx && data.tx.meta && !data.tx.meta.err && data.tx.transaction && data.tx.transaction.message) {
+                    // True Web3 Fix: Safely parse BOTH Version 0 and Legacy transactions to prevent missing hits
+                    const msg = data.tx.transaction.message;
+                    let keys = [];
+                    if (msg.staticAccountKeys) keys = msg.staticAccountKeys.map(k=>k.toString());
+                    else if (msg.accountKeys) keys = msg.accountKeys.map(k=>k.toString());
+
                     const skaterIdx = keys.indexOf(data.skaterWallet);
 
                     if (skaterIdx !== -1) {
@@ -1367,7 +1384,7 @@ function renderSkaterFeed(isScanning = false) {
     const list = document.getElementById("skater-sponsors-list");
     list.innerHTML = "";
     
-    // Safety check - force sorting globally by amount just in case.
+    // Safety check - force sorting globally by amount to ensure flex hierarchy.
     allSkaterHits.sort((a, b) => b.val - a.val);
 
     let toRender = allSkaterHits.slice(0, skaterRenderLimit);
@@ -1375,7 +1392,7 @@ function renderSkaterFeed(isScanning = false) {
     toRender.forEach((e, index) => {
         const rank = getRankDisplay(e.totalOut > 0 ? e.totalOut : e.val, false);
         
-        // Exact matching Top Dog UI for the Skater Leaderboard
+        // Exact matching Top Dog UI for the Skater Leaderboard flex
         const isTopDog = index === 0 ? "border: 1px solid var(--accent-gold); background: rgba(255, 215, 0, 0.05); padding: 12px; border-radius: 8px; box-shadow: 0 0 20px rgba(255,215,0,0.2); transform: scale(1.02); margin-bottom: 15px;" : 
                          index === 1 ? "border: 1px solid var(--silver-font); background: rgba(192, 192, 192, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;" :
                          index === 2 ? "border: 1px solid var(--bronze-font); background: rgba(205, 127, 50, 0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px;" : "";
