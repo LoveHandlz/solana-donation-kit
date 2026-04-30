@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.1</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 6.2</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -16,7 +16,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-  <script src="https://terminal.jup.ag/main-v3.js" data-preload></script>
 
 <style>
 :root {
@@ -547,18 +546,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     #success-box h2 { font-size: 2.5rem !important; }
     .feed-grid { grid-template-columns: 1fr; }
 }
-
-/* JUPITER OVERRIDES */
-#jupiter-terminal {
-    max-width: 420px; 
-    margin: 0 auto; 
-    min-height: 500px; 
-    background: var(--bg-panel); 
-    border-radius: 20px; 
-    padding: 10px; 
-    border: 1px solid var(--accent-cyan); 
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
-}
 </style>
 </head>
 <body>
@@ -572,7 +559,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
           <li><a href="javascript:void(0)" onclick="navigateTo('video')">VIDEOS</a></li>
           <li><a href="javascript:void(0)" onclick="navigateTo('leaderboard')">LEADERBOARD</a></li>
           <li><a href="javascript:void(0)" onclick="navigateTo('donate')">TREASURY</a></li>
-          <li><a href="javascript:void(0)" onclick="navigateTo('swap')">SWAP</a></li>
         </ul>
     </nav>
     <div class="header-controls">
@@ -639,10 +625,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
         <div class="menu-title">DISCORD</div>
         <div class="menu-desc">Wallet-linked roles, alerts, battles & giveaways</div>
       </div>
-      <div class="menu-item" onclick="navigateTo('swap')">
-        <div class="menu-icon" style="color: var(--accent-green);">🔄</div>
-        <div class="menu-title" style="color: var(--accent-green);">DEX SWAP</div>
-        <div class="menu-desc">Swap tokens instantly with zero friction using Jupiter.</div>
+      <div class="menu-item" onclick="window.open('https://fliphtml5.com/bookcase/fxvce/', '_blank')">
+        <div class="menu-icon" style="color: var(--accent-gold);">📜</div>
+        <div class="menu-title" style="color: var(--accent-gold);">WHITE PAPER</div>
+        <div class="menu-desc">Project Overview — Vision, Tokenomics, Roadmap & Skate2Earn mechanics</div>
       </div>
       <div class="menu-item" onclick="navigateTo('donate')">
         <div class="menu-icon" style="color: var(--accent-gold);">💸</div>
@@ -650,14 +636,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
         <div class="menu-desc">Fuel real skaters, fund drops & keep the revolution rolling</div>
       </div>
     </div>
-  </div>
-
-  <div id="swap-content" style="display:none;">
-    <div class="hero">
-        <h1 style="font-size: 3.5rem;">DEX SWAP</h1>
-        <p class="hero-subtext" style="font-size: 0.9rem;">Swap SOL or any Solana token instantly. Powered by Jupiter Aggregator.</p>
-    </div>
-    <div id="jupiter-terminal"></div>
   </div>
 
  <div id="video-content" style="display:none;">
@@ -1046,7 +1024,7 @@ let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId =
 let allTreasurySponsors = [];
 let allSkaterHits = [];
 let treasuryRenderLimit = 20;
-let skaterRenderLimit = 20;
+let skaterRenderLimit = 25; // Updated to 25 to match the new feed behavior
 
 // FEED GLOBALS
 let activeFeedWallet = "";
@@ -1232,26 +1210,47 @@ async function refreshLeaderboardData() {
 
     let entries = [];
     try {
-        let shuffledSkaters = [...SKATER_REGISTRY].sort(() => 0.5 - Math.random()).slice(0, 6);
-        for (let skaterWallet of shuffledSkaters) {
-            const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 6 });
+        // 1. Scan ALL skaters instead of a random 6 to ensure we don't miss recent hits
+        for (let skaterWallet of SKATER_REGISTRY) {
+            const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 10 });
             for (let ss of sSigs) {
                 const sTx = await connection.getTransaction(ss.signature, { maxSupportedTransactionVersion: 0 });
                 if (sTx) {
                     const sp = sTx.transaction.message.staticAccountKeys[0].toString();
-                    const am = (sTx.meta.preBalances[0] - sTx.meta.postBalances[0] - sTx.meta.fee) / solanaWeb3.LAMPORTS_PER_SOL;
-                    const skaterName = await resolveWalletName(skaterWallet);
-                    if(am > 0.001) entries.push({ addr: sp, val: am, skater: skaterName, time: sTx.blockTime || 0 });
+                    const pre = sTx.meta.preBalances[0];
+                    const post = sTx.meta.postBalances[0];
+                    const fee = sTx.meta.fee;
+                    const am = (pre - post - fee) / solanaWeb3.LAMPORTS_PER_SOL;
+                    
+                    // Verify it's a valid outbound hit and not self-funding
+                    if(am > 0.001 && sp !== skaterWallet) {
+                        const skaterName = await resolveWalletName(skaterWallet);
+                        entries.push({ addr: sp, val: am, skater: skaterName, time: sTx.blockTime || 0 });
+                    }
                 }
             }
         }
         
-        entries.sort((a, b) => b.time - a.time); 
-        await Promise.all(entries.map(async (e) => { e.name = await resolveWalletName(e.addr); }));
+        // 2. Sort by most recent first and take the top 25
+        entries.sort((a, b) => b.time - a.time);
+        entries = entries.slice(0, 25);
+        
+        // 3. Resolve names AND calculate their TRUE total rank safely (sequential to prevent RPC 429s)
+        for (let e of entries) {
+            e.name = await resolveWalletName(e.addr);
+            // Fetch total lifetime outbound to determine their actual rank
+            const stats = await fetchWalletStats(e.addr);
+            e.totalOut = stats.outs; 
+        }
+
         allSkaterHits = entries;
+        skaterRenderLimit = 25; // Set default view limit to 25
         renderSkaterFeed();
 
-    } catch(e) { skaterList.innerHTML = "<li>Feed cooling down...</li>"; }
+    } catch(e) { 
+        skaterList.innerHTML = "<li>Feed cooling down...</li>"; 
+        console.error(e); 
+    }
 }
 
 function renderTreasuryFeed() {
@@ -1288,13 +1287,17 @@ function renderSkaterFeed() {
     let toRender = allSkaterHits.slice(0, skaterRenderLimit);
 
     list.innerHTML = toRender.map(e => {
-        const rank = getRankDisplay(e.val, false);
+        // Calculate rank based on total historical output, fallback to transaction value if 0
+        const rank = getRankDisplay(e.totalOut > 0 ? e.totalOut : e.val, false);
+        
         return `<li class="leader-item">
             <div style="display: flex; flex-direction: column;">
-                <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${e.addr}')">${rank.icon} ${e.name} helped ${e.skater}</span> 
+                <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)'; this.style.textDecoration='underline';" onmouseout="this.style.color='${rank.color}'; this.style.textDecoration='none';" onclick="navigateTo('profile', '${e.addr}')">
+                    ${rank.icon} ${e.name} helped ${e.skater} <span style="font-size:0.6rem; opacity:0.7; margin-left:5px;">[${rank.title}]</span>
+                </span> 
                 <a href="https://solscan.io/account/${e.addr}" target="_blank" style="font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; margin-top: 4px;" onmouseover="this.style.color='var(--accent-cyan)'" onmouseout="this.style.color='var(--text-secondary)'" onclick="event.stopPropagation();"><i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${e.addr.slice(0,4)}...${e.addr.slice(-4)}</a>
             </div>
-            <span class="amt-tag" style="color: ${rank.color};">${e.val.toFixed(2)} SOL</span>
+            <span class="amt-tag" style="color: var(--accent-green);">+${e.val.toFixed(2)} SOL</span>
         </li>`;
     }).join('') || "<li>No recent hits.</li>";
 
@@ -1321,6 +1324,7 @@ function checkPersistence() {
         
         let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
         
+        // Universal Admin Unlock
         if (isAdmin || unlocked.includes(card.id)) { 
             if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; 
             card.classList.add('unlocked'); 
@@ -1333,7 +1337,7 @@ function checkPersistence() {
 
 function navigateToProfileView(viewType) {
     if(!publicKey) return; document.getElementById('mobile-nav').classList.remove('open');
-    ["home", "video", "leaderboard", "donate", "feed", "swap"].forEach(id => {
+    ["home", "video", "leaderboard", "donate", "feed"].forEach(id => {
         let el = document.getElementById(id + "-content");
         if(el) el.style.display = 'none';
     });
@@ -1343,47 +1347,16 @@ function navigateToProfileView(viewType) {
 
 function navigateTo(page, wallet = null) {
   document.getElementById('mobile-nav').classList.remove('open');
-  ["home", "video", "leaderboard", "donate", "profile", "feed", "swap"].forEach(id => {
+  ["home", "video", "leaderboard", "donate", "profile", "feed"].forEach(id => {
       let el = document.getElementById(id + "-content");
       if(el) el.style.display = 'none';
   });
   document.getElementById(page + "-content").style.display = 'block';
-  
   if(page === 'profile' && wallet) renderProfile(wallet, null);
   if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
   if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
-  if(page === 'swap') initJupiter();
-  
   window.scrollTo(0,0);
-}
-
-// NEW: JUPITER INITIALIZATION ENGINE
-function initJupiter() {
-    const terminal = document.getElementById('jupiter-terminal');
-    
-    // 1. Await CDN injection (If user clicks too fast)
-    if (!window.Jupiter) {
-        terminal.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--accent-cyan);"><i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px;"></i><br>Booting DEX Engine...</div>';
-        setTimeout(initJupiter, 500);
-        return;
-    }
-
-    // 2. Prevent double-initialization bugs
-    if (terminal.hasAttribute('data-jup-loaded')) return;
-    terminal.setAttribute('data-jup-loaded', 'true');
-    terminal.innerHTML = ""; // Clear loader
-
-    // 3. Ignite Terminal V3
-    window.Jupiter.init({
-        displayMode: 'integrated',
-        integratedTargetId: 'jupiter-terminal',
-        // NOTE: We REMOVED endpoint: RPC_URL. Jupiter will now use its own un-throttled node.
-        formProps: {
-            // NOTE: Token routing must be securely wrapped inside formProps
-            initialOutputMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // Official USDC
-        }
-    });
 }
 
 async function renderProfile(wallet, forceView = null) {
@@ -1534,7 +1507,7 @@ async function attemptFeedAccess() {
     let skaterName = document.getElementById('p-name').innerText;
     
     document.getElementById('mobile-nav').classList.remove('open');
-    ["home", "video", "leaderboard", "donate", "profile", "swap"].forEach(id => {
+    ["home", "video", "leaderboard", "donate", "profile"].forEach(id => {
         let el = document.getElementById(id + "-content");
         if(el) el.style.display = 'none';
     });
@@ -1568,6 +1541,7 @@ async function attemptFeedAccess() {
 }
 
 async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
+    // GODMODE BYPASS
     if (ADMIN_WALLETS.includes(sponsorPubKey)) {
         console.log("Godmode Active: Universal Private Feed Bypass Granted.");
         return true;
