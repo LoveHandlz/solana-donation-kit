@@ -496,7 +496,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
                 <p id="p-wallet" style="font-family:monospace; font-size:0.55rem; word-break:break-all; color: var(--text-secondary); margin-bottom: 15px;"></p>
                 
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button id="edit-profile-btn" onclick="openEditModal()" class="wallet-btn" style="display:none; width:100%; background: #fff; color: #000; padding: 12px; font-size: 0.8rem;">⚙️ EDIT GEAR</button>
+                    <button id="edit-profile-btn" onclick="openEditModal()" class="wallet-btn" style="display:none; width:100%; background: #fff; color: #000; padding: 12px; font-size: 0.8rem;">⚙️ EDIT PROFILE</button>
                     <button id="profile-donate-btn" onclick="openSponsorshipModalFromProfile()" class="donate-btn" style="padding: 12px;">BLESS THIS USER</button>
                 </div>
             </div>
@@ -523,7 +523,14 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
                 </div>
             </div>
 
-            <button onclick="attemptFeedAccess()" class="wallet-btn" id="private-feed-btn" style="width: 100%; padding: 15px; font-size: 0.9rem; margin-top: 15px; background: linear-gradient(135deg, var(--silver-font), #fff);">ENTER PRIVATE FEED</button>
+            <div id="p-sponsor-badges-section" style="display:none; margin-bottom: 35px;">
+                <h3 style="color:var(--accent-gold); margin-bottom:20px; font-size: 1.1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">🏆 SPONSOR ACHIEVEMENTS</h3>
+                <div id="sponsor-badge-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px;">
+                    </div>
+            </div>
+
+            <button onclick="attemptFeedAccess()" class="wallet-btn" id="private-feed-btn" style="display:none; width: 100%; padding: 15px; font-size: 0.9rem; margin-top: 15px; background: linear-gradient(135deg, var(--silver-font), #fff);">ENTER PRIVATE FEED</button>
+            
             <button onclick="navigateTo('home')" class="view-profile-btn" style="padding:15px; font-weight: bold; font-size: 0.85rem; width: auto; margin-top: 10px;">BACK TO HOME</button>
         </div>
     </div>
@@ -673,26 +680,29 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     <input type="text" id="edit-name" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;">
     <label style="font-size: 0.65rem; color: var(--text-secondary);">PROFILE PIC URL (IPFS or Direct Link)</label>
     <input type="text" id="edit-pic" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-        <div>
-            <label style="font-size: 0.65rem; color: var(--text-secondary);">STANCE</label>
-            <input type="text" id="edit-stance" placeholder="Goofy, Regular..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+    
+    <div id="edit-skater-gear-section">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+            <div>
+                <label style="font-size: 0.65rem; color: var(--text-secondary);">STANCE</label>
+                <input type="text" id="edit-stance" placeholder="Goofy, Regular..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+            </div>
+            <div>
+                <label style="font-size: 0.65rem; color: var(--text-secondary);">DECK</label>
+                <input type="text" id="edit-deck" placeholder="8.25 Popsicle..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+            </div>
+            <div>
+                <label style="font-size: 0.65rem; color: var(--text-secondary);">TRUCKS</label>
+                <input type="text" id="edit-trucks" placeholder="Indy 149s..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+            </div>
+            <div>
+                <label style="font-size: 0.65rem; color: var(--text-secondary);">LOCAL SPOT</label>
+                <input type="text" id="edit-spot" placeholder="LA Courthouse..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
+            </div>
         </div>
-        <div>
-            <label style="font-size: 0.65rem; color: var(--text-secondary);">DECK</label>
-            <input type="text" id="edit-deck" placeholder="8.25 Popsicle..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
-        </div>
-        <div>
-            <label style="font-size: 0.65rem; color: var(--text-secondary);">TRUCKS</label>
-            <input type="text" id="edit-trucks" placeholder="Indy 149s..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
-        </div>
-        <div>
-            <label style="font-size: 0.65rem; color: var(--text-secondary);">LOCAL SPOT</label>
-            <input type="text" id="edit-spot" placeholder="LA Courthouse..." style="width: 100%; padding: 8px; background: #000; color: #fff; border: 1px solid var(--accent-gold); border-radius: 5px; font-size: 0.75rem;">
-        </div>
+        <label style="font-size: 0.65rem; color: var(--accent-gold); font-weight: bold;">SPONSOR ME TAPE (YouTube Link)</label>
+        <input type="text" id="edit-yt" placeholder="https://youtu.be/..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: rgba(255, 215, 0, 0.05); color: #fff; border: 1px dashed var(--accent-gold); border-radius: 5px; font-size: 0.8rem;">
     </div>
-    <label style="font-size: 0.65rem; color: var(--accent-gold); font-weight: bold;">SPONSOR ME TAPE (YouTube Link)</label>
-    <input type="text" id="edit-yt" placeholder="https://youtu.be/..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: rgba(255, 215, 0, 0.05); color: #fff; border: 1px dashed var(--accent-gold); border-radius: 5px; font-size: 0.8rem;">
     <label style="font-size: 0.65rem; color: var(--text-secondary);">BIO</label>
     <textarea id="edit-bio" rows="3" style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;"></textarea>
     <button onclick="saveProfileWeb3()" id="save-web3-btn" class="tier-btn tier-pro" style="background: var(--accent-cyan); color: #000; border: none; font-size: 0.75rem;">SIGN & SAVE TO CHAIN</button>
@@ -766,6 +776,13 @@ async function fetchWalletStats(wallet) {
             }
         }
     } catch(e) {}
+    
+    // INJECT HARDCODED BASELINE FOR STATS DISPLAY
+    let sponsorProf = SPONSOR_PROFILES.find(sp => sp.wallet === wallet);
+    if(sponsorProf && sponsorProf.baseline) {
+        outs = Math.max(outs, sponsorProf.baseline);
+    }
+    
     return { ins, outs };
 }
 
@@ -811,13 +828,10 @@ async function fetchHeaderDualRank(wallet) {
     let spRank = (stats.outs > 0 || !isGen || isSpon) ? getRankDisplay(stats.outs, false) : null;
     
     if (isGen && !isSpon && stats.outs > 0) {
-        // Skater with dual rank
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">DUAL RANK: <span style="color:${sRank.color}">${sRank.icon}</span> | <span style="color:${spRank.color}">${spRank.icon}</span></span><button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🛹⚙️</button><button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🤝⚙️</button>`;
     } else if (isGen && !isSpon) {
-        // Skater only
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${sRank.color}">${sRank.icon} ${sRank.title}</span></span><button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🛹⚙️</button>`;
     } else {
-        // Strict Sponsor
         let spDisp = spRank || getRankDisplay(0, false);
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${spDisp.color}">${spDisp.icon} ${spDisp.title}</span></span><button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🤝⚙️</button>`;
     }
@@ -900,12 +914,10 @@ async function refreshLeaderboardData() {
 
     let aggregatedSponsors = {};
     
-    // INJECT KNOWN SPONSOR BASELINE TO BYPASS RPC TRUNCATION
     SPONSOR_PROFILES.forEach(sp => { aggregatedSponsors[sp.wallet] = sp.baseline || 0; });
     
     let recentHits = [];
 
-    // 1. Scan Treasury for Top Sponsors (Light RPC Load)
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 15 });
         for (let i = 0; i < sigs.length; i += 3) {
@@ -933,7 +945,6 @@ async function refreshLeaderboardData() {
         }
     } catch(e) {}
 
-    // 2. Scan Skaters for hits AND aggregate sponsors (Light RPC Load)
     try {
         for (let skaterWallet of SKATER_REGISTRY) {
             const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 5 });
@@ -963,7 +974,6 @@ async function refreshLeaderboardData() {
         }
     } catch(e) { console.error(e); }
 
-    // 3. Process Top Sponsors
     let rawSponsors = Object.keys(aggregatedSponsors).map(addr => ({ addr, val: aggregatedSponsors[addr] }));
     rawSponsors.sort((a, b) => b.val - a.val);
     allTreasurySponsors = rawSponsors.slice(0, 10);
@@ -973,7 +983,6 @@ async function refreshLeaderboardData() {
     }
     renderTreasuryFeed();
 
-    // 4. Process Right Feed (Real-Time Blessings)
     recentHits.sort((a, b) => b.time - a.time);
     allSkaterHits = recentHits.slice(0, 10);
     
@@ -1094,12 +1103,13 @@ async function renderProfile(wallet, forceView = null) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const picEl = document.getElementById('p-img'); const rEl = document.getElementById('p-rank'); const bEl = document.getElementById('p-blessings');
     const header = document.getElementById('profile-header-text'); const tags = document.getElementById('p-tags'); const gear = document.getElementById('p-gear');
+    
     rEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...'; bEl.innerText = "SYNCING...";
     tags.innerHTML = ""; gear.innerHTML = "";
     
     const stats = await fetchWalletStats(wallet);
     
-    // STRICT PROTOCOL: Skaters are not Sponsors. Sponsors are strictly Sponsors.
+    // STRICT PROTOCOL LOGIC
     let isGen = SKATER_REGISTRY.includes(wallet); 
     let isSpon = SPONSOR_ONLY_WALLETS.includes(wallet);
     
@@ -1110,7 +1120,6 @@ async function renderProfile(wallet, forceView = null) {
 
     let sk = SKATER_PROFILES.find(s => s.wallet === wallet);
     let sp = SPONSOR_PROFILES.find(s => s.wallet === wallet);
-    
     let fallbackName = await resolveWalletName(wallet);
     
     if(!sk && view === 'skater') sk = { name: fallbackName, styles: ["New Skater"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Raw street talent." };
@@ -1128,13 +1137,17 @@ async function renderProfile(wallet, forceView = null) {
         } }
     } catch(e) {}
 
-    document.getElementById('p-name').innerText = activeProf.name; picEl.src = activeProf.pic; document.getElementById('p-bio').innerText = activeProf.bio;
+    document.getElementById('p-name').innerText = activeProf.name; 
+    picEl.src = activeProf.pic; 
+    document.getElementById('p-bio').innerText = activeProf.bio;
     document.getElementById('p-wallet').innerText = wallet;
     
     if (view === 'skater') {
+        // --- SKATER UI ---
         const rank = getRankDisplay(stats.ins, true); header.innerText = "SKATER IDENTITY & BIO";
         rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         tags.innerHTML = activeProf.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
+        
         try { const bal = await conn.getBalance(new solanaWeb3.PublicKey(wallet)); bEl.innerText = (bal / 1e9).toFixed(4) + " SOL"; } catch(e) {}
         
         let gHtml = "";
@@ -1145,11 +1158,14 @@ async function renderProfile(wallet, forceView = null) {
         if(activeProf.spot) gHtml += `<div class="gear-tag"><i class="fas fa-map-marker-alt"></i> ${activeProf.spot}</div>`;
         gear.innerHTML = gHtml;
         
+        // Render Skater Sections
+        document.getElementById('p-sponsor-video-section').style.display = activeProf.yt ? 'block' : 'none';
+        if (activeProf.yt) document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${activeProf.yt}`;
         document.getElementById('private-feed-btn').style.display = 'block';
-        const vSec = document.getElementById('p-sponsor-video-section');
-        if (activeProf.yt) { vSec.style.display = 'block'; document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${activeProf.yt}`; } else vSec.style.display = 'none';
+        document.getElementById('p-sponsor-badges-section').style.display = 'none';
     
     } else {
+        // --- SPONSOR UI ---
         const rank = getRankDisplay(stats.outs, false); header.innerText = "SPONSOR IDENTITY & BIO";
         rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         bEl.innerText = stats.outs.toFixed(4) + " SOL";
@@ -1157,8 +1173,39 @@ async function renderProfile(wallet, forceView = null) {
         tags.innerHTML = `<span class="style-tag" style="border-color:var(--accent-gold); color:var(--accent-gold);"><i class="fas fa-star" style="margin-right:5px;"></i> ON-CHAIN SPONSOR</span>`;
         gear.innerHTML = ""; 
         
+        // Hide Skater Sections
         document.getElementById('p-sponsor-video-section').style.display = 'none';
         document.getElementById('private-feed-btn').style.display = 'none';
+        
+        // Show Sponsor Badges
+        document.getElementById('p-sponsor-badges-section').style.display = 'block';
+        
+        let badgesHtml = "";
+        badgesHtml += `
+            <div style="background: rgba(0,0,0,0.4); border: 1px solid ${rank.color}; border-radius: 12px; padding: 15px; text-align: center;">
+                <div style="font-size: 2rem; color: ${rank.color}; margin-bottom: 10px; animation: pulse 2s infinite;">${rank.icon}</div>
+                <div style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Current Tier</div>
+                <div style="font-size: 0.85rem; color: ${rank.color}; font-weight: 900;">${rank.title}</div>
+            </div>`;
+        
+        if (stats.outs > 0) {
+             badgesHtml += `
+                <div style="background: rgba(0,0,0,0.4); border: 1px dashed var(--accent-cyan); border-radius: 12px; padding: 15px; text-align: center;">
+                    <div style="font-size: 2rem; color: var(--accent-cyan); margin-bottom: 10px;">💎</div>
+                    <div style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Verified</div>
+                    <div style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 900;">ON-CHAIN BACKER</div>
+                </div>`;
+        }
+        
+        if (SPONSOR_PROFILES.some(s => s.wallet === wallet && s.baseline >= 0.1)) {
+            badgesHtml += `
+                <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--accent-gold); border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(255,215,0,0.1);">
+                    <div style="font-size: 2rem; color: var(--accent-gold); margin-bottom: 10px;">🐋</div>
+                    <div style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Status</div>
+                    <div style="font-size: 0.85rem; color: var(--accent-gold); font-weight: 900;">LEGENDARY WHALE</div>
+                </div>`;
+        }
+        document.getElementById('sponsor-badge-grid').innerHTML = badgesHtml;
     }
     
     const isOwner = publicKey === wallet;
@@ -1170,10 +1217,18 @@ function openEditModal() {
     document.getElementById('edit-name').value = document.getElementById('p-name').innerText;
     document.getElementById('edit-pic').value = document.getElementById('p-img').src;
     document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
-    const d = document.getElementById('p-gear').dataset;
-    document.getElementById('edit-stance').value = d.stance || ""; document.getElementById('edit-deck').value = d.deck || "";
-    document.getElementById('edit-trucks').value = d.trucks || ""; document.getElementById('edit-spot').value = d.spot || "";
-    document.getElementById('edit-yt').value = d.yt ? "https://youtu.be/" + d.yt : "";
+    
+    const isSponOnly = SPONSOR_ONLY_WALLETS.includes(publicKey);
+    document.getElementById('edit-skater-gear-section').style.display = isSponOnly ? 'none' : 'block';
+    
+    if (!isSponOnly) {
+        const d = document.getElementById('p-gear').dataset;
+        document.getElementById('edit-stance').value = d.stance || ""; 
+        document.getElementById('edit-deck').value = d.deck || "";
+        document.getElementById('edit-trucks').value = d.trucks || ""; 
+        document.getElementById('edit-spot').value = d.spot || "";
+        document.getElementById('edit-yt').value = d.yt ? "https://youtu.be/" + d.yt : "";
+    }
     document.getElementById('edit-modal').style.display = 'flex';
 }
 
@@ -1182,13 +1237,25 @@ function closeEditModal() { document.getElementById('edit-modal').style.display 
 async function saveProfileWeb3() {
     if(!publicKey) return; const btn = document.getElementById("save-web3-btn"); btn.innerText = "AWAITING SIGNATURE...";
     try {
-        const name = document.getElementById("edit-name").value; const pic = document.getElementById("edit-pic").value;
-        const bio = document.getElementById("edit-bio").value; const stance = document.getElementById("edit-stance").value;
-        const deck = document.getElementById("edit-deck").value; const trucks = document.getElementById("edit-trucks").value;
-        const spot = document.getElementById("edit-spot").value; const rawYt = document.getElementById("edit-yt").value;
-        let yt = ""; if (rawYt) { const m = rawYt.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); yt = (m && m[2].length === 11) ? m[2] : ""; }
+        const name = document.getElementById("edit-name").value; 
+        const pic = document.getElementById("edit-pic").value;
+        const bio = document.getElementById("edit-bio").value; 
+        
+        let stance = "", deck = "", trucks = "", spot = "", yt = "";
+        
+        if (!SPONSOR_ONLY_WALLETS.includes(publicKey)) {
+            stance = document.getElementById("edit-stance").value;
+            deck = document.getElementById("edit-deck").value; 
+            trucks = document.getElementById("edit-trucks").value;
+            spot = document.getElementById("edit-spot").value; 
+            const rawYt = document.getElementById("edit-yt").value;
+            if (rawYt) { const m = rawYt.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); yt = (m && m[2].length === 11) ? m[2] : ""; }
+        }
+
         const pData = JSON.stringify({ sk8: "v1", name, pic, bio, stance, deck, trucks, spot, yt });
-        const encoded = new TextEncoder().encode(pData); if (encoded.length > 566) { alert(`Too large!`); btn.innerText = "SAVE"; return; }
+        const encoded = new TextEncoder().encode(pData); 
+        if (encoded.length > 566) { alert(`Too large!`); btn.innerText = "SAVE"; return; }
+        
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
         const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
