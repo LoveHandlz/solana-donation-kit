@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.6</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.6.1</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -1283,29 +1283,23 @@ async function fetchJupiterQuote() {
     try {
         if (amountInLamports === 0) throw new Error("Amount too small");
 
-        // HACK: Bumped slippage to 100 (1%) to prevent "No Route Found" errors 
-        // Added explicit headers to prevent strict-browser CORS drops
-        const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=100`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
+        const url = `https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=100`;
+
+        // BARE METAL FETCH: Explicitly tell the browser we expect CORS, stripping strict headers
+        const response = await fetch(url, { 
+            method: 'GET', 
+            mode: 'cors' 
         });
 
-        // HACK: Catch rate limits directly so the UI doesn't just look broken
-        if (response.status === 429) {
-            outputInput.value = "Rate Limited (Wait 10s)";
-            currentQuoteResponse = null;
-            return;
+        if (!response.ok) {
+            if (response.status === 429) throw new Error("Rate Limited (Wait 10s)");
+            throw new Error(`HTTP Status: ${response.status}`);
         }
 
         const quoteResponse = await response.json();
 
-        // If Jupiter explicitly returns an error message inside the JSON payload
         if (quoteResponse.error) {
-            outputInput.value = "Error: " + quoteResponse.error;
-            currentQuoteResponse = null;
-            return;
+            throw new Error(quoteResponse.error);
         }
 
         if (quoteResponse && quoteResponse.outAmount) {
@@ -1313,13 +1307,20 @@ async function fetchJupiterQuote() {
             const outAmountParsed = (quoteResponse.outAmount / outputDecimals).toFixed(isSolToUsdc ? 2 : 4);
             outputInput.value = outAmountParsed;
         } else {
-            outputInput.value = "Route unavailable";
-            currentQuoteResponse = null;
+            throw new Error("No route found");
         }
+
     } catch (error) {
         console.error("Jupiter Quote Error:", error);
-        outputInput.value = "API Connection Failed";
         currentQuoteResponse = null;
+        
+        // DIAGNOSTIC CATCH: Identify exactly why it failed
+        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+            outputInput.value = "BLOCKED BY BROWSER";
+            alert("⚠️ BROWSER SECURITY BLOCK ⚠️\n\nYour browser killed the connection to Jupiter.\n\n1. Check your URL bar. If it starts with 'file:///', you MUST run this using a Local Server (like VSCode Live Server).\n2. If you are on localhost or a live site, turn OFF Brave Shields, uBlock, or any Adblockers.");
+        } else {
+            outputInput.value = "Error: " + error.message;
+        }
     }
 }
 
