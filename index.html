@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 6.7</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 6.8</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -200,7 +200,8 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 
 /* DAO ARCHITECTURE */
 .dao-container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-.dao-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; }
+.dao-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; transition: 0.3s; }
+.vetoed-card { border-color: var(--accent-red); background: rgba(255, 45, 85, 0.05); }
 .dao-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;}
 .dao-status { font-size: 0.65rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 .status-active { background: rgba(74, 222, 128, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
@@ -373,7 +374,6 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
   </div>
 
  <div id="video-content" style="display:none;">
-    
     <div id="admin-panel">
         <div class="admin-header"><i class="fas fa-shield-alt" style="margin-right: 8px;"></i>PROTOCOL ROSTER CONTROL</div>
         <div class="admin-input-group">
@@ -390,8 +390,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
         <p class="hero-subtext" style="font-size: 0.85rem;">Scout raw talent. Drop on-chain blessings directly into skaters' wallets to unlock footage and boost rank.</p>
     </div>
     
-    <div class="video-grid" id="main-video-grid">
-        </div>
+    <div class="video-grid" id="main-video-grid"></div>
 </div>
 
   <div id="profile-content" style="display:none;">
@@ -449,8 +448,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
             <div id="p-sponsor-badges-section" style="display:none; margin-bottom: 35px;">
                 <h3 style="color:var(--accent-gold); margin-bottom:20px; font-size: 1.1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">🏆 SPONSOR ACHIEVEMENTS</h3>
                 <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 15px;">Unlock exclusive steeze and protocol privileges by hitting direct-sponsorship milestones.</p>
-                <div id="sponsor-badge-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
-                    </div>
+                <div id="sponsor-badge-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;"></div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 10px;">
@@ -486,9 +484,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
                 <button onclick="openSponsorshipModalFromFeed()" class="tier-btn tier-am" style="max-width: 250px;">UPGRADE TO AM (0.05 SOL)</button>
             </div>
 
-            <div id="actual-feed-items" class="feed-grid">
-                <div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain...</div>
-            </div>
+            <div id="actual-feed-items" class="feed-grid"></div>
             
             <button id="load-more-feed-btn" class="view-profile-btn" style="display:none; margin-top:20px; font-weight:bold; padding:15px; grid-column: 1 / -1;" onclick="loadMoreFeed()">LOAD MORE POSTS</button>
         </div>
@@ -505,15 +501,11 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
     <div class="leaderboard-container">
         <div class="leaderboard-box">
             <h2>TOP 10 GLOBAL SPONSORS <span class="live-indicator">● LIVE SCAN</span></h2>
-            <ul class="leader-list" id="treasury-sponsors-list">
-                <li class="leader-item">Scanning on-chain history...</li>
-            </ul>
+            <ul class="leader-list" id="treasury-sponsors-list"></ul>
         </div>
         <div class="leaderboard-box">
             <h2>RECENT SKATER BLESSINGS <span class="live-indicator">● LIVE SCAN</span></h2>
-            <ul class="leader-list" id="skater-sponsors-list">
-                <li class="leader-item">Checking recent hits...</li>
-            </ul>
+            <ul class="leader-list" id="skater-sponsors-list"></ul>
         </div>
     </div>
   </div>
@@ -527,124 +519,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
         <button onclick="handleDaoPropose()" class="wallet-btn" style="margin-top: 15px; font-size: 0.8rem; padding: 12px 25px;"><i class="fas fa-plus" style="margin-right: 8px;"></i> PROPOSE NEW MOTION</button>
     </div>
 
-    <div class="dao-container">
-        <div class="dao-card">
-            <div class="dao-header">
-                <div>
-                    <h3 class="dao-title">SIP-1: Fund NYC Go Skate Day 2026</h3>
-                    <div class="dao-meta"><span>Proposer:</span> Gold Sponsor <span>Sec:</span> Am Skater</div>
-                </div>
-                <span class="dao-status status-active">● ACTIVE</span>
-            </div>
-            <p class="dao-desc">Allocate 20 SOL from the Community Treasury to sponsor obstacles, prizes, and on-site onboarding at the NYC Go Skate Day event.</p>
-            
-            <div class="dao-progress-container">
-                <div class="dao-progress-for" style="width: 85%;"></div>
-                <div class="dao-progress-against" style="width: 15%;"></div>
-            </div>
-            <div class="dao-stats">
-                <span style="color: var(--accent-green);">85 VITES (FOR)</span>
-                <span style="color: var(--accent-red);">15 VOTES (AGAINST)</span>
-            </div>
-            <div class="dao-actions">
-                <button class="vote-btn vote-btn-for" onclick="handleDaoVote(1, 'for')">VOTE FOR (0.001 SOL)</button>
-                <button class="vote-btn vote-btn-against" onclick="handleDaoVote(1, 'against')">VOTE AGAINST (0.001 SOL)</button>
-            </div>
-        </div>
-
-        <div class="dao-card">
-            <div class="dao-header">
-                <div>
-                    <h3 class="dao-title">SIP-2: Upgrade Flow Tier Base Reward</h3>
-                    <div class="dao-meta"><span>Proposer:</span> Pro Skater <span>Sec:</span> Am Sponsor</div>
-                </div>
-                <span class="dao-status status-active">● ACTIVE</span>
-            </div>
-            <p class="dao-desc">Increase the protocol baseline rewards for the Bronze (Flow) tier to better incentivize early-stage adoption for underground skaters.</p>
-            
-            <div class="dao-progress-container">
-                <div class="dao-progress-for" style="width: 52%;"></div>
-                <div class="dao-progress-against" style="width: 48%;"></div>
-            </div>
-            <div class="dao-stats">
-                <span style="color: var(--accent-green);">142 VOTES (FOR)</span>
-                <span style="color: var(--accent-red);">130 VOTES (AGAINST)</span>
-            </div>
-            <div class="dao-actions">
-                <button class="vote-btn vote-btn-for" onclick="handleDaoVote(2, 'for')">VOTE FOR (0.001 SOL)</button>
-                <button class="vote-btn vote-btn-against" onclick="handleDaoVote(2, 'against')">VOTE AGAINST (0.001 SOL)</button>
-            </div>
-        </div>
-
-        <div class="dao-card">
-            <div class="dao-header">
-                <div>
-                    <h3 class="dao-title">SIP-3: Deploy 3% Master Treasury Fee</h3>
-                    <div class="dao-meta"><span>Proposer:</span> Core Team <span>Sec:</span> - </div>
-                </div>
-                <span class="dao-status status-pending">● NEEDS SECOND</span>
-            </div>
-            <p class="dao-desc">Implement a 3% routing fee on all P2P direct blessings, funneled automatically to the master Treasury to build long-term protocol sustainability.</p>
-            
-            <div class="dao-progress-container">
-                <div class="dao-progress-for" style="width: 0%;"></div>
-                <div class="dao-progress-against" style="width: 0%;"></div>
-            </div>
-            <div class="dao-stats">
-                <span style="color: var(--accent-green);">0 VOTES (FOR)</span>
-                <span style="color: var(--accent-red);">0 VOTES (AGAINST)</span>
-            </div>
-            <div class="dao-actions" style="display: block;">
-                <button class="second-btn" onclick="handleDaoSecond(3)" style="width: 100%;">SECOND THIS MOTION (AM RANK REQUIRED)</button>
-            </div>
-        </div>
-
-        <div class="dao-card">
-            <div class="dao-header">
-                <div>
-                    <h3 class="dao-title">SIP-4: Expand Parts Market to Jupiter Swap</h3>
-                    <div class="dao-meta"><span>Proposer:</span> Diamond Sponsor <span>Sec:</span> - </div>
-                </div>
-                <span class="dao-status status-pending">● NEEDS SECOND</span>
-            </div>
-            <p class="dao-desc">Integrate Jupiter routing natively into the Web3 Parts Market so users can buy decks and wheels directly with USDC or BONK.</p>
-            
-            <div class="dao-progress-container">
-                <div class="dao-progress-for" style="width: 0%;"></div>
-                <div class="dao-progress-against" style="width: 0%;"></div>
-            </div>
-            <div class="dao-stats">
-                <span style="color: var(--accent-green);">0 VOTES (FOR)</span>
-                <span style="color: var(--accent-red);">0 VOTES (AGAINST)</span>
-            </div>
-            <div class="dao-actions" style="display: block;">
-                <button class="second-btn" onclick="handleDaoSecond(4)" style="width: 100%;">SECOND THIS MOTION (AM RANK REQUIRED)</button>
-            </div>
-        </div>
-
-        <div class="dao-card">
-            <div class="dao-header">
-                <div>
-                    <h3 class="dao-title">SIP-5: Partner with Supreme for NFT Drop</h3>
-                    <div class="dao-meta"><span>Proposer:</span> Elite Sponsor <span>Sec:</span> - </div>
-                </div>
-                <span class="dao-status status-pending">● NEEDS SECOND</span>
-            </div>
-            <p class="dao-desc">Initiate formal talks to launch a co-branded, limited-edition digital deck drop. Required: 50 SOL marketing budget from Treasury.</p>
-            
-            <div class="dao-progress-container">
-                <div class="dao-progress-for" style="width: 0%;"></div>
-                <div class="dao-progress-against" style="width: 0%;"></div>
-            </div>
-            <div class="dao-stats">
-                <span style="color: var(--accent-green);">0 VOTES (FOR)</span>
-                <span style="color: var(--accent-red);">0 VOTES (AGAINST)</span>
-            </div>
-            <div class="dao-actions" style="display: block;">
-                <button class="second-btn" onclick="handleDaoSecond(5)" style="width: 100%;">SECOND THIS MOTION (AM RANK REQUIRED)</button>
-            </div>
-        </div>
-    </div>
+    <div class="dao-container" id="dao-feed-container"></div>
   </div>
 
   <div id="donate-content" style="display:none;">
@@ -847,6 +722,13 @@ let activeFeedWallet = "";
 let currentSkaterPosts = [];
 let feedRenderLimit = 12;
 
+// DAO DYNAMIC STATE
+let DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions')) || [
+    { id: 1, title: "SIP-1: Fund NYC Go Skate Day 2026", proposerRank: "Gold Sponsor", secRank: "Am Skater", status: "active", desc: "Allocate 20 SOL from the Community Treasury to sponsor obstacles, prizes, and on-site onboarding at the NYC Go Skate Day event.", votesFor: 85, votesAgainst: 15 },
+    { id: 2, title: "SIP-2: Upgrade Flow Tier Base Reward", proposerRank: "Pro Skater", secRank: "Am Sponsor", status: "active", desc: "Increase the protocol baseline rewards for the Bronze (Flow) tier to better incentivize early-stage adoption for underground skaters.", votesFor: 142, votesAgainst: 130 },
+    { id: 3, title: "SIP-3: Deploy 3% Master Treasury Fee", proposerRank: "Core Team", secRank: null, status: "pending", desc: "Implement a 3% routing fee on all P2P direct blessings, funneled automatically to the master Treasury to build long-term protocol sustainability.", votesFor: 0, votesAgainst: 0 }
+];
+
 // HELIUS API KEY
 const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
@@ -871,11 +753,7 @@ let SKATER_PROFILES = JSON.parse(localStorage.getItem('sk8_profiles')) || [
     { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", styles: ["Vert", "Transition"], stance: "Goofy", deck: "8.75 Anti-Hero", trucks: "Indys 159", spot: "Vans Park", yt: "kXYiU_JCYtU", pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
     { wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", name: "SHREDDER 5", styles: ["Park", "Flow"], stance: "Regular", deck: "8.25 Girl", trucks: "Crailtap", spot: "Stoner Park", yt: "Wg_jwgmwt-U", pic: "https://i.pravatar.cc/400?img=15", bio: "Style and flow over everything." },
     { wallet: "9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH", name: "SHREDDER 6", styles: ["Street"], yt: "MFSx4jWmDfY", pic: "https://i.pravatar.cc/400?img=16", bio: "Raw street talent." },
-    { wallet: "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", name: "SHREDDER 7", styles: ["Technical"], yt: "qqPjQpTe9W4", pic: "https://i.pravatar.cc/400?img=17", bio: "Precision skating." },
-    { wallet: "9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj", name: "SHREDDER 8", styles: ["Big Rails"], yt: "Zq3kl6z_aEM", pic: "https://i.pravatar.cc/400?img=18", bio: "Handrail specialist." },
-    { wallet: "HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq", name: "SHREDDER 9", styles: ["Gaps"], yt: "8_B_6vX1pXU", pic: "https://i.pravatar.cc/400?img=19", bio: "Big gap hunter." },
-    { wallet: "DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b", name: "SHREDDER 10", styles: ["Technical"], yt: "T9yZzS7L-98", pic: "https://i.pravatar.cc/400?img=20", bio: "Ledge master." },
-    { wallet: "E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7", name: "SHREDDER 11", styles: ["Flatground"], yt: "P6Ff-e9V270", pic: "https://i.pravatar.cc/400?img=21", bio: "Creative flatground skating." }
+    { wallet: "5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm", name: "SHREDDER 7", styles: ["Technical"], yt: "qqPjQpTe9W4", pic: "https://i.pravatar.cc/400?img=17", bio: "Precision skating." }
 ];
 
 async function getSolPrice() { try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd'); const d = await r.json(); solPrice = d.solana.usd; } catch (e) {} }
@@ -885,8 +763,66 @@ function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
 // ==========================================
-// DAO LOGIC & ELIGIBILITY 
+// DYNAMIC DAO ENGINE
 // ==========================================
+function renderDaoFeed() {
+    const container = document.getElementById("dao-feed-container");
+    container.innerHTML = "";
+    let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
+
+    DAO_MOTIONS.forEach(m => {
+        let total = m.votesFor + m.votesAgainst;
+        let pctFor = total > 0 ? (m.votesFor / total * 100).toFixed(1) : 0;
+        let pctAgainst = total > 0 ? (m.votesAgainst / total * 100).toFixed(1) : 0;
+
+        let statusHtml = m.status === 'active' ? `<span class="dao-status status-active">● ACTIVE</span>` :
+                         m.status === 'pending' ? `<span class="dao-status status-pending">● NEEDS SECOND</span>` :
+                         `<span class="dao-status" style="background:rgba(255,45,85,0.1); color:var(--accent-red); border:1px solid var(--accent-red);">● VETOED</span>`;
+
+        let actionHtml = "";
+        
+        if (m.status !== 'vetoed') {
+            if (isAdmin) {
+                // ADMIN GODMODE: VETO ONLY, NO VOTING
+                actionHtml = `<div class="dao-actions" style="display: block;">
+                                <button class="vote-btn vote-btn-against" style="width: 100%; border-color: var(--accent-red); color: var(--accent-red);" onclick="handleDaoVeto(${m.id})"><i class="fas fa-ban"></i> VETO MOTION (ADMIN)</button>
+                              </div>`;
+            } else if (m.status === 'active') {
+                actionHtml = `<div class="dao-actions">
+                                <button class="vote-btn vote-btn-for" onclick="handleDaoVote(${m.id}, 'for')">VOTE FOR (0.001 SOL)</button>
+                                <button class="vote-btn vote-btn-against" onclick="handleDaoVote(${m.id}, 'against')">VOTE AGAINST (0.001 SOL)</button>
+                              </div>`;
+            } else if (m.status === 'pending') {
+                actionHtml = `<div class="dao-actions" style="display: block;">
+                                <button class="second-btn" onclick="handleDaoSecond(${m.id})" style="width: 100%;">SECOND THIS MOTION (AM RANK REQUIRED)</button>
+                              </div>`;
+            }
+        }
+
+        container.innerHTML += `
+        <div class="dao-card ${m.status === 'vetoed' ? 'vetoed-card' : ''}">
+            <div class="dao-header">
+                <div>
+                    <h3 class="dao-title">${m.title}</h3>
+                    <div class="dao-meta"><span>Proposer:</span> ${m.proposerRank} <span>Sec:</span> ${m.secRank || '-'}</div>
+                </div>
+                ${statusHtml}
+            </div>
+            <p class="dao-desc" style="${m.status === 'vetoed' ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${m.desc}</p>
+            
+            <div class="dao-progress-container" style="${m.status === 'vetoed' ? 'opacity: 0.3;' : ''}">
+                <div class="dao-progress-for" style="width: ${pctFor}%;"></div>
+                <div class="dao-progress-against" style="width: ${pctAgainst}%;"></div>
+            </div>
+            <div class="dao-stats" style="${m.status === 'vetoed' ? 'opacity: 0.3;' : ''}">
+                <span style="color: var(--accent-green);">${m.votesFor} VOTES (FOR)</span>
+                <span style="color: var(--accent-red);">${m.votesAgainst} VOTES (AGAINST)</span>
+            </div>
+            ${actionHtml}
+        </div>`;
+    });
+}
+
 async function checkDaoEligibility(action) {
     if (!publicKey) return false;
     const stats = await fetchWalletStats(publicKey);
@@ -910,15 +846,40 @@ async function checkDaoEligibility(action) {
 async function handleDaoPropose() {
     if (!publicKey) { alert("Connect Wallet to propose a motion."); return; }
     const isEligible = await checkDaoEligibility('propose');
-    if (!isEligible) { alert("Access Denied: You must be Gold/Pro rank (0.10 SOL+) to propose a new motion."); return; }
     
-    alert("Propose Motion flow initiated (Web3 integration pending). Prepare your SIP document.");
+    if (!isEligible) { 
+        if(!confirm("Access Denied: You must be Gold/Pro rank (0.10 SOL+) to propose a new motion.\n\n[TESTING BYPASS DETECTED] Force create motion anyway?")) return;
+    }
+    
+    const title = prompt("Enter Motion Title (e.g., SIP-4: Whitelist $BONK):");
+    if(!title) return;
+    const desc = prompt("Enter Motion Description:");
+    if(!desc) return;
+
+    const newMotion = {
+        id: DAO_MOTIONS.length + 1,
+        title: title,
+        proposerRank: ADMIN_WALLETS.includes(publicKey) ? "Admin" : "Pro Sponsor",
+        secRank: null,
+        status: "pending",
+        desc: desc,
+        votesFor: 0,
+        votesAgainst: 0
+    };
+    
+    DAO_MOTIONS.push(newMotion);
+    localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS));
+    renderDaoFeed();
+    alert("Motion Proposed! It is now pending a Second.");
 }
 
 async function handleDaoSecond(motionId) {
     if (!publicKey) { alert("Connect Wallet to second a motion."); return; }
     const isEligible = await checkDaoEligibility('second');
-    if (!isEligible) { alert("Access Denied: You must be Am rank (0.05 SOL+) to second a motion."); return; }
+    
+    if (!isEligible) { 
+        if(!confirm("Access Denied: You must be Am rank (0.05 SOL+) to second a motion.\n\n[TESTING BYPASS DETECTED] Force second motion anyway?")) return;
+    }
     
     try {
         const payload = JSON.stringify({ sk8dao: "v1", action: "second", id: motionId });
@@ -927,17 +888,18 @@ async function handleDaoSecond(motionId) {
         const from = new solanaWeb3.PublicKey(publicKey);
 
         const tx = new solanaWeb3.Transaction().add(
-            new solanaWeb3.TransactionInstruction({ 
-                keys: [{ pubkey: from, isSigner: true, isWritable: true }], 
-                programId: MEMO_PROGRAM_ID, 
-                data: encoded 
-            })
+            new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
         );
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; 
-        tx.feePayer = from;
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert(`Successfully seconded Motion SIP-${motionId}. Status will update when confirmed on chain.`);
+        
+        let m = DAO_MOTIONS.find(x => x.id === motionId);
+        if(m) {
+            m.status = 'active'; m.secRank = ADMIN_WALLETS.includes(publicKey) ? "Admin" : "Am Sponsor";
+            localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
+        }
+        alert(`Successfully seconded Motion SIP-${motionId}. Voting is now ACTIVE.`);
     } catch(err) {
         if (!err.message?.includes("User rejected")) alert("Transaction failed.");
     }
@@ -945,6 +907,8 @@ async function handleDaoSecond(motionId) {
 
 async function handleDaoVote(motionId, choice) {
     if (!publicKey) { alert("Connect Wallet to vote."); return; }
+    if (ADMIN_WALLETS.includes(publicKey)) { alert("Admins cannot participate in standard voting. You only have Veto power."); return; }
+
     const isEligible = await checkDaoEligibility('vote');
     if (!isEligible) { alert("Access Denied: You must be a registered protocol user to vote."); return; }
     
@@ -958,28 +922,35 @@ async function handleDaoVote(motionId, choice) {
         const from = new solanaWeb3.PublicKey(publicKey);
 
         const tx = new solanaWeb3.Transaction().add(
-            // The Vote Cost Transfer
-            solanaWeb3.SystemProgram.transfer({ 
-                fromPubkey: from, 
-                toPubkey: new solanaWeb3.PublicKey(TREASURY_WALLET), 
-                lamports: Math.floor(VOTE_COST * 1e9) 
-            }),
-            // The On-chain Memo Record
-            new solanaWeb3.TransactionInstruction({ 
-                keys: [{ pubkey: from, isSigner: true, isWritable: true }], 
-                programId: MEMO_PROGRAM_ID, 
-                data: encoded 
-            })
+            solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(TREASURY_WALLET), lamports: Math.floor(VOTE_COST * 1e9) }),
+            new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
         );
         
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; 
-        tx.feePayer = from;
-        
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        
+        let m = DAO_MOTIONS.find(x => x.id === motionId);
+        if(m) {
+            if(choice === 'for') m.votesFor++; else m.votesAgainst++;
+            localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
+        }
         alert(`Your vote for Motion SIP-${motionId} has been successfully recorded on-chain!`);
         fetchTreasuryBalance();
     } catch(err) {
         if (!err.message?.includes("User rejected")) alert("Voting transaction failed.");
+    }
+}
+
+function handleDaoVeto(motionId) {
+    if (!publicKey || !ADMIN_WALLETS.includes(publicKey)) return;
+    const confirmVeto = confirm(`WARNING: Absolute Veto requested for SIP-${motionId}. This will kill the motion permanently. Proceed?`);
+    if(confirmVeto) {
+        let m = DAO_MOTIONS.find(x => x.id === motionId);
+        if(m) {
+            m.status = 'vetoed';
+            localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS));
+            renderDaoFeed();
+        }
     }
 }
 
@@ -1270,7 +1241,7 @@ async function fetchWalletStats(wallet) {
 async function handleWalletAction() {
     if (publicKey) { 
         try { if (provider && provider.disconnect) await provider.disconnect(); } catch(e) {} 
-        publicKey = null; updateWalletUI(); checkPersistence(); checkAdminStatus(); 
+        publicKey = null; updateWalletUI(); checkPersistence(); checkAdminStatus(); renderDaoFeed();
     } 
     else { 
         provider = getProvider(); 
@@ -1299,6 +1270,7 @@ async function handleWalletAction() {
                 fetchBalance(); 
                 checkPersistence(); 
                 checkAdminStatus();
+                renderDaoFeed();
             }
         } catch (e) {}
     }
@@ -1593,6 +1565,7 @@ function navigateTo(page, wallet = null) {
   if(page === 'video') { renderVideoGrid(); }
   if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
+  if(page === 'dao') renderDaoFeed();
   window.scrollTo(0,0);
 }
 
@@ -1986,6 +1959,7 @@ window.addEventListener('load', async () => {
     if (provider) { try { const resp = await provider.connect({ onlyIfTrusted: true }); if(resp.publicKey) { publicKey = resp.publicKey.toString(); updateWalletUI(); fetchBalance(); checkPersistence(); checkAdminStatus(); } } catch (e) { checkPersistence(); } }
     else checkPersistence();
     renderVideoGrid();
+    renderDaoFeed();
 });
 </script>
 </body>
