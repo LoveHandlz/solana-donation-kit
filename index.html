@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 6.9.1</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.0</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -287,6 +287,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
     .menu-icon { font-size: 1.8rem; } .menu-title { font-size: 1rem; }
     h2#p-name { font-size: 2rem !important; } .profile-pic { max-width: 150px; }
     #success-box h2 { font-size: 2.5rem !important; } .feed-grid { grid-template-columns: 1fr; }
+    .admin-dao-controls { flex-direction: column; }
 }
 </style>
 </head>
@@ -740,11 +741,8 @@ let feedRenderLimit = 12;
 let activeDaoTab = 'active'; 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-let DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions')) || [
-    { id: 1, title: "SIP-1: Fund NYC Go Skate Day 2026", proposerRank: "Governor", secRank: "Senator", status: "active", tab: "active", desc: "Allocate 20 SOL from the Community Treasury to sponsor obstacles, prizes, and on-site onboarding at the NYC Go Skate Day event.", votesFor: 85, votesAgainst: 15, createdAt: Date.now() - 100000, expiresAt: Date.now() + SEVEN_DAYS_MS },
-    { id: 2, title: "SIP-2: Upgrade Flow Tier Base Reward", proposerRank: "Senator", secRank: "Congressman", status: "active", tab: "active", desc: "Increase the protocol baseline rewards for the Bronze (Flow) tier to better incentivize early-stage adoption for underground skaters.", votesFor: 142, votesAgainst: 130, createdAt: Date.now() - 200000, expiresAt: Date.now() + SEVEN_DAYS_MS },
-    { id: 3, title: "SIP-3: Deploy 3% Master Treasury Fee", proposerRank: "Admin", secRank: null, status: "pending", tab: "active", desc: "Implement a 3% routing fee on all P2P direct blessings, funneled automatically to the master Treasury to build long-term protocol sustainability.", votesFor: 0, votesAgainst: 0, createdAt: Date.now() - 300000, expiresAt: Date.now() + SEVEN_DAYS_MS }
-];
+// FORCING A FRESH LEDGER KEY TO WIPE GHOST DATA
+let DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions_v2')) || [];
 
 // HELIUS API KEY
 const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
@@ -814,7 +812,7 @@ function checkDaoTimers() {
         }
     });
     if (updated) {
-        localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS));
+        localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
     }
 }
 
@@ -847,31 +845,35 @@ function renderDaoFeed() {
                          m.status === 'pending' ? `<span class="dao-status status-pending">● NEEDS SECOND</span>` :
                          `<span class="dao-status" style="background:rgba(255,45,85,0.1); color:var(--accent-red); border:1px solid var(--accent-red);">● ${m.title.includes('EXPIRED') ? 'EXPIRED' : 'VETOED'}</span>`;
 
-        let actionHtml = "";
-        
+        let userControls = "";
         if (m.tab === 'active') {
-            if (isAdmin) {
-                actionHtml = `<div class="dao-actions" style="display: block;">
-                                <button class="vote-btn vote-btn-against" style="width: 100%; margin-bottom: 10px; border-color: var(--accent-red); color: var(--accent-red);" onclick="handleDaoVeto(${m.id})"><i class="fas fa-ban"></i> VETO MOTION</button>
-                                <button class="vote-btn" style="width: 100%; border-color: #555; color: #888;" onclick="handleDaoRemove(${m.id})"><i class="fas fa-trash"></i> REMOVE ENTIRELY (SPAM)</button>
-                              </div>`;
-            } else if (m.status === 'active') {
-                actionHtml = `<div class="dao-actions">
+            if (m.status === 'active') {
+                userControls = `<div class="dao-actions">
                                 <button class="vote-btn vote-btn-for" onclick="handleDaoVote(${m.id}, 'for')">VOTE FOR (0.001 SOL)</button>
                                 <button class="vote-btn vote-btn-against" onclick="handleDaoVote(${m.id}, 'against')">VOTE AGAINST (0.001 SOL)</button>
                               </div>`;
             } else if (m.status === 'pending') {
-                actionHtml = `<div class="dao-actions" style="display: block;">
+                userControls = `<div class="dao-actions" style="display: block;">
                                 <button class="second-btn" onclick="handleDaoSecond(${m.id})" style="width: 100%;">SECOND THIS MOTION (CONGRESSMAN+)</button>
                               </div>`;
             }
-        } else {
-            if (isAdmin) {
-                actionHtml = `<div class="admin-dao-controls">
-                                <button class="vote-btn" style="width: 100%; border-color: #555; color: #888;" onclick="handleDaoRemove(${m.id})"><i class="fas fa-trash"></i> PERMANENTLY PURGE FROM LEDGER</button>
-                              </div>`;
+        }
+
+        let adminControls = "";
+        if (isAdmin) {
+            if (m.tab === 'active') {
+                adminControls = `<div class="admin-dao-controls">
+                                    <button class="vote-btn vote-btn-against" style="width: 100%; border-color: var(--accent-red); color: var(--accent-red);" onclick="handleDaoVeto(${m.id})"><i class="fas fa-ban"></i> VETO MOTION</button>
+                                    <button class="vote-btn" style="width: 100%; border-color: #555; color: #888;" onclick="handleDaoRemove(${m.id})"><i class="fas fa-trash"></i> REMOVE (SPAM)</button>
+                                  </div>`;
+            } else {
+                adminControls = `<div class="admin-dao-controls">
+                                    <button class="vote-btn" style="width: 100%; border-color: #555; color: #888;" onclick="handleDaoRemove(${m.id})"><i class="fas fa-trash"></i> PERMANENTLY PURGE FROM LEDGER</button>
+                                  </div>`;
             }
         }
+
+        let actionHtml = userControls + adminControls;
 
         let timeRemainingStr = "";
         if (m.tab === 'active') {
@@ -953,7 +955,7 @@ async function handleDaoPropose() {
     };
     
     DAO_MOTIONS.push(newMotion);
-    localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS));
+    localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
     renderDaoFeed();
     alert("Motion Proposed! It is now pending a Second from a Congressman or above.");
 }
@@ -986,7 +988,7 @@ async function handleDaoSecond(motionId) {
         if(m) {
             m.status = 'active'; 
             m.secRank = ADMIN_WALLETS.includes(publicKey) ? "Admin" : secGovTitle;
-            localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS)); 
+            localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS)); 
             renderDaoFeed();
         }
         alert(`Successfully seconded Motion SIP-${motionId}. Voting is now ACTIVE.`);
@@ -997,10 +999,9 @@ async function handleDaoSecond(motionId) {
 
 async function handleDaoVote(motionId, choice) {
     if (!publicKey) { alert("Connect Wallet to vote."); return; }
-    if (ADMIN_WALLETS.includes(publicKey)) { alert("Admins cannot participate in standard voting. You only have Veto power."); return; }
 
     const isEligible = await checkDaoEligibility('vote');
-    if (!isEligible) { alert("Access Denied: You must be a registered CITIZEN to vote."); return; }
+    if (!isEligible && !ADMIN_WALLETS.includes(publicKey)) { alert("Access Denied: You must be a registered CITIZEN to vote."); return; }
     
     const confirmVote = confirm(`Casting your vote will route ${VOTE_COST} SOL to the Treasury. Continue?`);
     if(!confirmVote) return;
@@ -1022,7 +1023,7 @@ async function handleDaoVote(motionId, choice) {
         let m = DAO_MOTIONS.find(x => x.id === motionId);
         if(m) {
             if(choice === 'for') m.votesFor++; else m.votesAgainst++;
-            localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
+            localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
         }
         alert(`Your vote has been successfully recorded on-chain!`);
         fetchTreasuryBalance();
@@ -1039,7 +1040,7 @@ function handleDaoVeto(motionId) {
         if(m) {
             m.status = 'vetoed';
             m.tab = 'vetoed';
-            localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS));
+            localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
             renderDaoFeed();
         }
     }
@@ -1050,7 +1051,7 @@ function handleDaoRemove(motionId) {
     const confirmRemove = confirm(`DANGER: This will permanently delete SIP-${motionId} from the JSON array. Use only for spam/scams. Proceed?`);
     if(confirmRemove) {
         DAO_MOTIONS = DAO_MOTIONS.filter(x => x.id !== motionId);
-        localStorage.setItem('sk8_dao_motions', JSON.stringify(DAO_MOTIONS));
+        localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
         renderDaoFeed();
     }
 }
