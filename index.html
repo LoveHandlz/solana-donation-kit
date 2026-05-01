@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.1</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.2</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -945,26 +945,27 @@ async function handleDaoPropose() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AWAITING SIGNATURE...';
 
     try {
-        // ACTUAL ON-CHAIN TRANSACTION FOR PROPOSING
         const payload = JSON.stringify({ sk8dao: "v1", action: "propose", title: title });
         const encoded = new TextEncoder().encode(payload);
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
-        const target = new solanaWeb3.PublicKey(TREASURY_WALLET);
 
+        // FIX: Removed the unnecessary target key and switched to signAndSendTransaction
         const tx = new solanaWeb3.Transaction().add(
             new solanaWeb3.TransactionInstruction({ 
-                keys: [
-                    { pubkey: from, isSigner: true, isWritable: true },
-                    { pubkey: target, isSigner: false, isWritable: false }
-                ], 
+                keys: [{ pubkey: from, isSigner: true, isWritable: true }], 
                 programId: MEMO_PROGRAM_ID, 
                 data: encoded 
             })
         );
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        // FIX: Modern Blockhash fetching
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; 
+        tx.feePayer = from;
+        
+        // FIX: Native Phantom Broadcasting
+        await provider.signAndSendTransaction(tx);
 
         const newMotion = {
             id: DAO_MOTIONS.length > 0 ? Math.max(...DAO_MOTIONS.map(m=>m.id)) + 1 : 1,
@@ -985,7 +986,7 @@ async function handleDaoPropose() {
         renderDaoFeed();
         alert("Motion Proposed on-chain! It is now pending a Second from a Congressman or above.");
     } catch(err) {
-        if (!err.message?.includes("User rejected")) alert("Transaction failed.");
+        if (!err.message?.includes("User rejected")) alert("Transaction failed or was rejected.");
     }
     
     btn.innerHTML = originalText;
@@ -1011,9 +1012,13 @@ async function handleDaoSecond(motionId) {
         const tx = new solanaWeb3.Transaction().add(
             new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
         );
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; 
+        tx.feePayer = from;
+        
+        // FIX: Native Phantom Broadcasting
+        await provider.signAndSendTransaction(tx);
         
         let m = DAO_MOTIONS.find(x => x.id === motionId);
         if(m) {
@@ -1024,7 +1029,7 @@ async function handleDaoSecond(motionId) {
         }
         alert(`Successfully seconded Motion SIP-${motionId}. Voting is now ACTIVE.`);
     } catch(err) {
-        if (!err.message?.includes("User rejected")) alert("Transaction failed.");
+        if (!err.message?.includes("User rejected")) alert("Transaction failed or was rejected.");
     }
 }
 
@@ -1048,8 +1053,12 @@ async function handleDaoVote(motionId, choice) {
             new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
         );
         
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; 
+        tx.feePayer = from;
+        
+        // FIX: Native Phantom Broadcasting
+        await provider.signAndSendTransaction(tx);
         
         let m = DAO_MOTIONS.find(x => x.id === motionId);
         if(m) {
@@ -1059,7 +1068,7 @@ async function handleDaoVote(motionId, choice) {
         alert(`Your vote has been successfully recorded on-chain!`);
         fetchTreasuryBalance();
     } catch(err) {
-        if (!err.message?.includes("User rejected")) alert("Voting transaction failed.");
+        if (!err.message?.includes("User rejected")) alert("Voting transaction failed or was rejected.");
     }
 }
 
@@ -1891,10 +1900,14 @@ async function publishToFeed() {
         if (encoded.length > 566) { alert(`Post too long for Memo! Shorten your text.`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
         
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        // FIX: Native Phantom Broadcasting
+        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; 
+        tx.feePayer = from;
+        await provider.signAndSendTransaction(tx);
+        
         btn.innerText = "POSTED!"; document.getElementById("new-post-text").value = ""; document.getElementById("new-post-link").value = "";
         setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; attemptFeedAccess(); }, 2000);
     } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000); }
@@ -1947,9 +1960,14 @@ async function saveProfileWeb3() {
         if (encoded.length > 566) { alert(`Too large!`); btn.innerText = "SAVE"; return; }
         
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        
+        // FIX: Native Phantom Broadcasting
         const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; 
+        tx.feePayer = from;
+        await provider.signAndSendTransaction(tx);
+        
         btn.innerText = "SAVED!"; setTimeout(() => { closeEditModal(); renderProfile(publicKey); renderVideoGrid(); btn.innerText = "SAVE"; }, 2000);
     } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SAVE", 3000); }
 }
@@ -1970,23 +1988,21 @@ async function sendOnChainReaction(type) {
         
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
-        const target = new solanaWeb3.PublicKey(targetWallet);
-
+        
+        // FIX: Native Phantom Broadcasting
         const tx = new solanaWeb3.Transaction().add(
             new solanaWeb3.TransactionInstruction({ 
-                keys: [
-                    { pubkey: from, isSigner: true, isWritable: true },
-                    { pubkey: target, isSigner: false, isWritable: false } 
-                ], 
+                keys: [{ pubkey: from, isSigner: true, isWritable: true }], 
                 programId: MEMO_PROGRAM_ID, 
                 data: encoded 
             })
         );
         
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; 
+        const { blockhash } = await conn.getLatestBlockhash();
+        tx.recentBlockhash = blockhash; 
         tx.feePayer = from;
         
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        await provider.signAndSendTransaction(tx);
         countSpan.innerText = originalCount + 1; 
         
     } catch (err) {
@@ -2052,9 +2068,14 @@ function sendCustomSponsor() { const amt = parseFloat(document.getElementById('c
 async function sendSOL(amount, dest) {
   try {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+    
+    // FIX: Native Phantom Broadcasting
     const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(dest), lamports: Math.floor(amount * 1e9) }));
-    tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-    await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+    const { blockhash } = await conn.getLatestBlockhash();
+    tx.recentBlockhash = blockhash; 
+    tx.feePayer = from;
+    await provider.signAndSendTransaction(tx);
+    
     document.getElementById('jingle').play().catch(e => {}); closeModal(); closeTreasuryModal();
     if (activeVideoId && publicKey) {
         let u = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
