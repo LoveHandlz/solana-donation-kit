@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.5</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.6</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -617,7 +617,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
 
             <div style="font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 20px; display: flex; justify-content: space-between;">
                 <span>Slippage Tolerance:</span>
-                <span style="color: var(--accent-green); font-weight: bold;">0.5% (Max)</span>
+                <span style="color: var(--accent-green); font-weight: bold;">1.0% (Max)</span>
             </div>
 
             <span id="swap-sol-bal" style="display:none;">0.00</span>
@@ -1258,9 +1258,10 @@ function toggleSwapDirection() {
 
 function debounceQuote() {
     clearTimeout(quoteTimeout);
+    // HACK: Increased from 500ms to 800ms to prevent Jupiter 429 Rate Limiting
     quoteTimeout = setTimeout(() => {
         fetchJupiterQuote();
-    }, 500);
+    }, 800); 
 }
 
 async function fetchJupiterQuote() {
@@ -1273,9 +1274,8 @@ async function fetchJupiterQuote() {
         return;
     }
 
-    outputInput.value = "Fetching route...";
+    outputInput.value = "Routing...";
     
-    // Crucial Fix: SOL has 9 decimals, USDC has 6 decimals.
     const inputDecimals = isSolToUsdc ? 1e9 : 1e6;
     const outputDecimals = isSolToUsdc ? 1e6 : 1e9;
     const amountInLamports = Math.floor(parseFloat(amountInput) * inputDecimals);
@@ -1283,8 +1283,30 @@ async function fetchJupiterQuote() {
     try {
         if (amountInLamports === 0) throw new Error("Amount too small");
 
-        const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=50`);
+        // HACK: Bumped slippage to 100 (1%) to prevent "No Route Found" errors 
+        // Added explicit headers to prevent strict-browser CORS drops
+        const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=100`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        // HACK: Catch rate limits directly so the UI doesn't just look broken
+        if (response.status === 429) {
+            outputInput.value = "Rate Limited (Wait 10s)";
+            currentQuoteResponse = null;
+            return;
+        }
+
         const quoteResponse = await response.json();
+
+        // If Jupiter explicitly returns an error message inside the JSON payload
+        if (quoteResponse.error) {
+            outputInput.value = "Error: " + quoteResponse.error;
+            currentQuoteResponse = null;
+            return;
+        }
 
         if (quoteResponse && quoteResponse.outAmount) {
             currentQuoteResponse = quoteResponse;
@@ -1295,7 +1317,8 @@ async function fetchJupiterQuote() {
             currentQuoteResponse = null;
         }
     } catch (error) {
-        outputInput.value = "Error fetching quote";
+        console.error("Jupiter Quote Error:", error);
+        outputInput.value = "API Connection Failed";
         currentQuoteResponse = null;
     }
 }
