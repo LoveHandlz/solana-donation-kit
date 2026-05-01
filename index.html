@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.0</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.1</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -526,7 +526,7 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
         <p style="color: var(--accent-cyan); font-weight:bold; font-size: 0.8rem; letter-spacing: 1px;">DECENTRALIZED AUTONOMOUS ORGANIZATION</p>
         <p class="hero-subtext" style="font-size:0.9rem; max-width:700px; margin: 15px auto;">Govern the protocol. Shape the future of Skate2Earn. <strong>Pro Rank / Senator (0.10 SOL+)</strong> can propose motions. <strong>Am Rank / Congressman (0.05 SOL+)</strong> can second them. <strong>Citizens</strong> and above can cast their vote. Voting costs 0.001 SOL, sent directly to the Community Treasury.</p>
         
-        <button onclick="handleDaoPropose()" class="wallet-btn" style="margin-top: 15px; font-size: 0.8rem; padding: 12px 25px;"><i class="fas fa-plus" style="margin-right: 8px;"></i> PROPOSE NEW MOTION</button>
+        <button onclick="handleDaoPropose()" id="dao-propose-btn" class="wallet-btn" style="margin-top: 15px; font-size: 0.8rem; padding: 12px 25px;"><i class="fas fa-plus" style="margin-right: 8px;"></i> PROPOSE NEW MOTION</button>
     </div>
 
     <div class="dao-tabs">
@@ -742,7 +742,7 @@ let activeDaoTab = 'active';
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 // FORCING A FRESH LEDGER KEY TO WIPE GHOST DATA
-let DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions_v2')) || [];
+let DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions_v3')) || [];
 
 // HELIUS API KEY
 const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
@@ -812,7 +812,7 @@ function checkDaoTimers() {
         }
     });
     if (updated) {
-        localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
+        localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS));
     }
 }
 
@@ -940,24 +940,55 @@ async function handleDaoPropose() {
     const desc = prompt("Enter Motion Description:");
     if(!desc) return;
 
-    const newMotion = {
-        id: DAO_MOTIONS.length > 0 ? Math.max(...DAO_MOTIONS.map(m=>m.id)) + 1 : 1,
-        title: title,
-        proposerRank: ADMIN_WALLETS.includes(publicKey) ? "Admin" : proposerGovTitle,
-        secRank: null,
-        status: "pending",
-        tab: "active",
-        desc: desc,
-        votesFor: 0,
-        votesAgainst: 0,
-        createdAt: Date.now(),
-        expiresAt: Date.now() + SEVEN_DAYS_MS
-    };
+    const btn = document.getElementById("dao-propose-btn");
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AWAITING SIGNATURE...';
+
+    try {
+        // ACTUAL ON-CHAIN TRANSACTION FOR PROPOSING
+        const payload = JSON.stringify({ sk8dao: "v1", action: "propose", title: title });
+        const encoded = new TextEncoder().encode(payload);
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const target = new solanaWeb3.PublicKey(TREASURY_WALLET);
+
+        const tx = new solanaWeb3.Transaction().add(
+            new solanaWeb3.TransactionInstruction({ 
+                keys: [
+                    { pubkey: from, isSigner: true, isWritable: true },
+                    { pubkey: target, isSigner: false, isWritable: false }
+                ], 
+                programId: MEMO_PROGRAM_ID, 
+                data: encoded 
+            })
+        );
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+
+        const newMotion = {
+            id: DAO_MOTIONS.length > 0 ? Math.max(...DAO_MOTIONS.map(m=>m.id)) + 1 : 1,
+            title: title,
+            proposerRank: ADMIN_WALLETS.includes(publicKey) ? "Admin" : proposerGovTitle,
+            secRank: null,
+            status: "pending",
+            tab: "active",
+            desc: desc,
+            votesFor: 0,
+            votesAgainst: 0,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + SEVEN_DAYS_MS
+        };
+        
+        DAO_MOTIONS.push(newMotion);
+        localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS));
+        renderDaoFeed();
+        alert("Motion Proposed on-chain! It is now pending a Second from a Congressman or above.");
+    } catch(err) {
+        if (!err.message?.includes("User rejected")) alert("Transaction failed.");
+    }
     
-    DAO_MOTIONS.push(newMotion);
-    localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
-    renderDaoFeed();
-    alert("Motion Proposed! It is now pending a Second from a Congressman or above.");
+    btn.innerHTML = originalText;
 }
 
 async function handleDaoSecond(motionId) {
@@ -988,7 +1019,7 @@ async function handleDaoSecond(motionId) {
         if(m) {
             m.status = 'active'; 
             m.secRank = ADMIN_WALLETS.includes(publicKey) ? "Admin" : secGovTitle;
-            localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS)); 
+            localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS)); 
             renderDaoFeed();
         }
         alert(`Successfully seconded Motion SIP-${motionId}. Voting is now ACTIVE.`);
@@ -1023,7 +1054,7 @@ async function handleDaoVote(motionId, choice) {
         let m = DAO_MOTIONS.find(x => x.id === motionId);
         if(m) {
             if(choice === 'for') m.votesFor++; else m.votesAgainst++;
-            localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
+            localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
         }
         alert(`Your vote has been successfully recorded on-chain!`);
         fetchTreasuryBalance();
@@ -1040,7 +1071,7 @@ function handleDaoVeto(motionId) {
         if(m) {
             m.status = 'vetoed';
             m.tab = 'vetoed';
-            localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
+            localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS));
             renderDaoFeed();
         }
     }
@@ -1051,7 +1082,7 @@ function handleDaoRemove(motionId) {
     const confirmRemove = confirm(`DANGER: This will permanently delete SIP-${motionId} from the JSON array. Use only for spam/scams. Proceed?`);
     if(confirmRemove) {
         DAO_MOTIONS = DAO_MOTIONS.filter(x => x.id !== motionId);
-        localStorage.setItem('sk8_dao_motions_v2', JSON.stringify(DAO_MOTIONS));
+        localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS));
         renderDaoFeed();
     }
 }
