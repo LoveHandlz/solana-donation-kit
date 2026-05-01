@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/jup-api/:path*",
-      "destination": "https://quote-api.jup.ag/:path*"
-    }
-  ]
-}
