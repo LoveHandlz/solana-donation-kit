@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.2</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.3</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -741,7 +741,7 @@ let feedRenderLimit = 12;
 let activeDaoTab = 'active'; 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-// FORCING A FRESH LEDGER KEY TO WIPE GHOST DATA
+// FORCING LOCAL STORAGE AS SECONDARY CACHE ONLY
 let DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions_v3')) || [];
 
 // HELIUS API KEY
@@ -823,6 +823,67 @@ function switchDaoTab(tab) {
     renderDaoFeed();
 }
 
+// ON-CHAIN DAO SYNCER
+async function syncDaoFromChain() {
+    const container = document.getElementById("dao-feed-container");
+    if(container) container.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--accent-cyan); border: 1px dashed var(--card-border); border-radius: 12px;"><i class="fas fa-spinner fa-spin" style="margin-right:8px; font-size:1.5rem;"></i> Scanning Solana Blockchain for Motions...</div>';
+
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    let onChainMotions = {};
+
+    try {
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 120 });
+        
+        // Reverse to process chronologically (oldest to newest)
+        sigs.reverse().forEach(s => {
+            if (s.memo && s.memo.includes('"sk8dao":"v1"')) {
+                try {
+                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                    if (d.action === "propose") {
+                        onChainMotions[d.id] = {
+                            id: d.id,
+                            title: d.title,
+                            desc: d.desc || "On-chain proposal.",
+                            proposerRank: "Senator", // Display default until wallet matching is implemented
+                            secRank: null,
+                            status: "pending",
+                            tab: "active",
+                            votesFor: 0,
+                            votesAgainst: 0,
+                            createdAt: d.time || s.blockTime * 1000,
+                            expiresAt: (d.time || s.blockTime * 1000) + SEVEN_DAYS_MS,
+                            voters: [] 
+                        };
+                    } else if (d.action === "second" && onChainMotions[d.id]) {
+                        onChainMotions[d.id].status = "active";
+                        onChainMotions[d.id].secRank = "Congressman";
+                    } else if (d.action === "vote" && onChainMotions[d.id]) {
+                        // Prevent double counting the same signature
+                        if (!onChainMotions[d.id].voters.includes(s.signature)) {
+                            if(d.choice === "for") onChainMotions[d.id].votesFor++;
+                            else if (d.choice === "against") onChainMotions[d.id].votesAgainst++;
+                            onChainMotions[d.id].voters.push(s.signature);
+                        }
+                    }
+                } catch(e) {}
+            }
+        });
+
+        // Convert Map to Array, reverse to newest first, and cache it
+        DAO_MOTIONS = Object.values(onChainMotions).reverse();
+        localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS));
+        
+        checkDaoTimers();
+        renderDaoFeed();
+
+    } catch (err) {
+        console.error("DAO Sync error", err);
+        // Fallback to cache if chain fetch fails
+        DAO_MOTIONS = JSON.parse(localStorage.getItem('sk8_dao_motions_v3')) || [];
+        renderDaoFeed();
+    }
+}
+
 function renderDaoFeed() {
     checkDaoTimers();
     const container = document.getElementById("dao-feed-container");
@@ -832,11 +893,11 @@ function renderDaoFeed() {
     let motionsToRender = DAO_MOTIONS.filter(m => m.tab === activeDaoTab);
 
     if (motionsToRender.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); border: 1px dashed var(--card-border); border-radius: 12px;">No motions found in this section.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); border: 1px dashed var(--card-border); border-radius: 12px;">No motions found on-chain.</div>`;
         return;
     }
 
-    motionsToRender.sort((a,b) => b.createdAt - a.createdAt).forEach(m => {
+    motionsToRender.forEach(m => {
         let total = m.votesFor + m.votesAgainst;
         let pctFor = total > 0 ? (m.votesFor / total * 100).toFixed(1) : 0;
         let pctAgainst = total > 0 ? (m.votesAgainst / total * 100).toFixed(1) : 0;
@@ -945,13 +1006,17 @@ async function handleDaoPropose() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AWAITING SIGNATURE...';
 
     try {
-        const payload = JSON.stringify({ sk8dao: "v1", action: "propose", title: title });
+        // Decentralized ID logic
+        const motionId = Date.now();
+        const payload = JSON.stringify({ sk8dao: "v1", action: "propose", id: motionId, title: title.slice(0,40), desc: desc.slice(0,100) });
         const encoded = new TextEncoder().encode(payload);
+        
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
 
-        // FIX: Removed the unnecessary target key and switched to signAndSendTransaction
+        // V7.3 FIX: Attach a dust transfer to TREASURY to index the transaction without Phantom warnings
         const tx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(TREASURY_WALLET), lamports: 1000 }),
             new solanaWeb3.TransactionInstruction({ 
                 keys: [{ pubkey: from, isSigner: true, isWritable: true }], 
                 programId: MEMO_PROGRAM_ID, 
@@ -959,32 +1024,15 @@ async function handleDaoPropose() {
             })
         );
         
-        // FIX: Modern Blockhash fetching
         const { blockhash } = await conn.getLatestBlockhash();
         tx.recentBlockhash = blockhash; 
         tx.feePayer = from;
         
-        // FIX: Native Phantom Broadcasting
         await provider.signAndSendTransaction(tx);
 
-        const newMotion = {
-            id: DAO_MOTIONS.length > 0 ? Math.max(...DAO_MOTIONS.map(m=>m.id)) + 1 : 1,
-            title: title,
-            proposerRank: ADMIN_WALLETS.includes(publicKey) ? "Admin" : proposerGovTitle,
-            secRank: null,
-            status: "pending",
-            tab: "active",
-            desc: desc,
-            votesFor: 0,
-            votesAgainst: 0,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + SEVEN_DAYS_MS
-        };
-        
-        DAO_MOTIONS.push(newMotion);
-        localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS));
-        renderDaoFeed();
-        alert("Motion Proposed on-chain! It is now pending a Second from a Congressman or above.");
+        alert("Motion Proposed! Syncing with blockchain...");
+        setTimeout(() => syncDaoFromChain(), 2000);
+
     } catch(err) {
         if (!err.message?.includes("User rejected")) alert("Transaction failed or was rejected.");
     }
@@ -1009,7 +1057,9 @@ async function handleDaoSecond(motionId) {
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
 
+        // V7.3 FIX: Attach a dust transfer to index
         const tx = new solanaWeb3.Transaction().add(
+            solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(TREASURY_WALLET), lamports: 1000 }),
             new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
         );
         
@@ -1017,17 +1067,10 @@ async function handleDaoSecond(motionId) {
         tx.recentBlockhash = blockhash; 
         tx.feePayer = from;
         
-        // FIX: Native Phantom Broadcasting
         await provider.signAndSendTransaction(tx);
         
-        let m = DAO_MOTIONS.find(x => x.id === motionId);
-        if(m) {
-            m.status = 'active'; 
-            m.secRank = ADMIN_WALLETS.includes(publicKey) ? "Admin" : secGovTitle;
-            localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS)); 
-            renderDaoFeed();
-        }
-        alert(`Successfully seconded Motion SIP-${motionId}. Voting is now ACTIVE.`);
+        alert(`Motion seconded! Syncing with blockchain...`);
+        setTimeout(() => syncDaoFromChain(), 2000);
     } catch(err) {
         if (!err.message?.includes("User rejected")) alert("Transaction failed or was rejected.");
     }
@@ -1048,6 +1091,7 @@ async function handleDaoVote(motionId, choice) {
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
 
+        // The vote inherently transfers SOL to the treasury, so it already acts as an index point
         const tx = new solanaWeb3.Transaction().add(
             solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(TREASURY_WALLET), lamports: Math.floor(VOTE_COST * 1e9) }),
             new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
@@ -1057,16 +1101,11 @@ async function handleDaoVote(motionId, choice) {
         tx.recentBlockhash = blockhash; 
         tx.feePayer = from;
         
-        // FIX: Native Phantom Broadcasting
         await provider.signAndSendTransaction(tx);
         
-        let m = DAO_MOTIONS.find(x => x.id === motionId);
-        if(m) {
-            if(choice === 'for') m.votesFor++; else m.votesAgainst++;
-            localStorage.setItem('sk8_dao_motions_v3', JSON.stringify(DAO_MOTIONS)); renderDaoFeed();
-        }
-        alert(`Your vote has been successfully recorded on-chain!`);
+        alert(`Your vote has been recorded on-chain! Syncing...`);
         fetchTreasuryBalance();
+        setTimeout(() => syncDaoFromChain(), 2000);
     } catch(err) {
         if (!err.message?.includes("User rejected")) alert("Voting transaction failed or was rejected.");
     }
@@ -1320,7 +1359,7 @@ async function handleWalletAction() {
                 fetchBalance(); 
                 checkPersistence(); 
                 checkAdminStatus();
-                renderDaoFeed();
+                syncDaoFromChain();
             }
         } catch (e) {}
     }
@@ -1441,7 +1480,7 @@ function navigateTo(page, wallet = null) {
   if(page === 'video') { renderVideoGrid(); }
   if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
-  if(page === 'dao') renderDaoFeed();
+  if(page === 'dao') syncDaoFromChain();
   window.scrollTo(0,0);
 }
 
@@ -2111,7 +2150,7 @@ window.addEventListener('load', async () => {
     if (provider) { try { const resp = await provider.connect({ onlyIfTrusted: true }); if(resp.publicKey) { publicKey = resp.publicKey.toString(); updateWalletUI(); fetchBalance(); checkPersistence(); checkAdminStatus(); } } catch (e) { checkPersistence(); } }
     else checkPersistence();
     renderVideoGrid();
-    renderDaoFeed();
+    syncDaoFromChain();
 });
 </script>
 </body>
