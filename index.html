@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.4</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.5</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -576,41 +576,41 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
 
   <div id="swap-content" style="display:none;">
     <div class="hero">
-        <h1 style="font-size: 3rem;">SK8SWAP</h1>
+        <h1 style="font-size: 3rem;">SK8 SWAP</h1>
         <p style="color: var(--accent-green); font-weight:bold; font-size: 0.8rem; letter-spacing: 1px;">DEFI DASHBOARD & ROUTING ENGINE</p>
         <p class="hero-subtext" style="font-size:0.9rem; max-width:700px; margin: 15px auto;">Powered by Jupiter V6. Swap assets, stake your boards, and manage your Web3 inventory. Swaps executed here do not count toward your Skater or Sponsor Governance Rank (Anti-Wash Trading Active).</p>
     </div>
 
     <div class="swap-layout">
         <div class="swap-widget-container">
-            <h2 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 20px; font-family: 'Orbitron';"><i class="fas fa-exchange-alt" style="color: var(--accent-green); margin-right: 10px;"></i>JUPITER SWAP</h2>
+            <h2 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 20px; font-family: 'Orbitron';"><i class="fas fa-exchange-alt" style="color: var(--accent-green); margin-right: 10px;"></i>SK8 SWAP</h2>
             
             <div class="swap-input-group">
                 <div class="swap-input-header">
                     <span>YOU PAY</span>
-                    <span>Bal: <span id="swap-sol-bal">0.00</span></span>
+                    <span>Bal: <span id="swap-input-bal-label">0.00</span></span>
                 </div>
                 <div class="swap-input-row">
                     <input type="number" id="swap-input-amount" class="swap-input" placeholder="0.00" step="0.01" min="0" oninput="debounceQuote()">
                     <div class="swap-token-badge">
-                        <img src="https://cryptologos.cc/logos/solana-sol-logo.png" class="swap-token-icon"> SOL
+                        <img id="swap-input-logo" src="https://cryptologos.cc/logos/solana-sol-logo.png" class="swap-token-icon"> <span id="swap-input-symbol">SOL</span>
                     </div>
                 </div>
             </div>
 
-            <div style="text-align: center; margin: -10px 0 5px; color: var(--card-border); font-size: 1.2rem;">
-                <i class="fas fa-arrow-down"></i>
+            <div style="text-align: center; margin: -10px 0 5px; color: var(--accent-cyan); font-size: 1.5rem; cursor: pointer; transition: 0.3s;" onclick="toggleSwapDirection()" onmouseover="this.style.color='var(--accent-gold)'" onmouseout="this.style.color='var(--accent-cyan)'">
+                <i class="fas fa-sort" style="background: var(--bg-panel); padding: 5px; border-radius: 50%; border: 1px solid var(--card-border);"></i>
             </div>
 
             <div class="swap-input-group">
                 <div class="swap-input-header">
                     <span>YOU RECEIVE (ESTIMATED)</span>
-                    <span>Bal: <span id="swap-usdc-bal">0.00</span></span>
+                    <span>Bal: <span id="swap-output-bal-label">0.00</span></span>
                 </div>
                 <div class="swap-input-row">
                     <input type="text" id="swap-output-amount" class="swap-input" placeholder="0.00" disabled style="color: var(--accent-green);">
                     <div class="swap-token-badge">
-                        <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" class="swap-token-icon"> USDC
+                        <img id="swap-output-logo" src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" class="swap-token-icon"> <span id="swap-output-symbol">USDC</span>
                     </div>
                 </div>
             </div>
@@ -619,6 +619,9 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
                 <span>Slippage Tolerance:</span>
                 <span style="color: var(--accent-green); font-weight: bold;">0.5% (Max)</span>
             </div>
+
+            <span id="swap-sol-bal" style="display:none;">0.00</span>
+            <span id="swap-usdc-bal" style="display:none;">0.00</span>
 
             <button id="execute-swap-btn" class="wallet-btn" style="width: 100%; padding: 15px; font-size: 1rem; background: linear-gradient(135deg, var(--accent-green), #00bfff);" onclick="executeJupiterSwap()">SWAP</button>
         </div>
@@ -824,8 +827,11 @@ let adminAddSelectedRole = "skater";
 // JUPITER SWAP GLOBALS
 let currentQuoteResponse = null;
 let quoteTimeout = null;
+let isSolToUsdc = true; // Swap toggle state
 const SOL_MINT = "So11111111111111111111111111111111111111112";
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+let currentInputMint = SOL_MINT;
+let currentOutputMint = USDC_MINT;
 
 // LEADERBOARD & FEED GLOBALS
 let allTreasurySponsors = [];
@@ -1225,8 +1231,30 @@ function handleDaoRemove(motionId) {
 }
 
 // ==========================================
-// JUPITER V6 INTEGRATION (V0 TRANSACTIONS)
+// JUPITER V6 INTEGRATION & DEFI HUB
 // ==========================================
+
+function toggleSwapDirection() {
+    isSolToUsdc = !isSolToUsdc;
+    currentInputMint = isSolToUsdc ? SOL_MINT : USDC_MINT;
+    currentOutputMint = isSolToUsdc ? USDC_MINT : SOL_MINT;
+    
+    document.getElementById('swap-input-symbol').innerText = isSolToUsdc ? "SOL" : "USDC";
+    document.getElementById('swap-output-symbol').innerText = isSolToUsdc ? "USDC" : "SOL";
+    
+    document.getElementById('swap-input-logo').src = isSolToUsdc ? "https://cryptologos.cc/logos/solana-sol-logo.png" : "https://cryptologos.cc/logos/usd-coin-usdc-logo.png";
+    document.getElementById('swap-output-logo').src = isSolToUsdc ? "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" : "https://cryptologos.cc/logos/solana-sol-logo.png";
+    
+    const solBal = document.getElementById("swap-sol-bal").innerText;
+    const usdcBal = document.getElementById("swap-usdc-bal").innerText;
+    
+    document.getElementById('swap-input-bal-label').innerText = isSolToUsdc ? solBal : usdcBal;
+    document.getElementById('swap-output-bal-label').innerText = isSolToUsdc ? usdcBal : solBal;
+    
+    document.getElementById('swap-input-amount').value = "";
+    document.getElementById('swap-output-amount').value = "";
+    currentQuoteResponse = null;
+}
 
 function debounceQuote() {
     clearTimeout(quoteTimeout);
@@ -1246,16 +1274,22 @@ async function fetchJupiterQuote() {
     }
 
     outputInput.value = "Fetching route...";
-    const amountInLamports = Math.floor(parseFloat(amountInput) * 1e9);
+    
+    // Crucial Fix: SOL has 9 decimals, USDC has 6 decimals.
+    const inputDecimals = isSolToUsdc ? 1e9 : 1e6;
+    const outputDecimals = isSolToUsdc ? 1e6 : 1e9;
+    const amountInLamports = Math.floor(parseFloat(amountInput) * inputDecimals);
 
     try {
-        const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${SOL_MINT}&outputMint=${USDC_MINT}&amount=${amountInLamports}&slippageBps=50`);
+        if (amountInLamports === 0) throw new Error("Amount too small");
+
+        const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=50`);
         const quoteResponse = await response.json();
 
         if (quoteResponse && quoteResponse.outAmount) {
             currentQuoteResponse = quoteResponse;
-            const usdcAmount = (quoteResponse.outAmount / 1e6).toFixed(2);
-            outputInput.value = usdcAmount;
+            const outAmountParsed = (quoteResponse.outAmount / outputDecimals).toFixed(isSolToUsdc ? 2 : 4);
+            outputInput.value = outAmountParsed;
         } else {
             outputInput.value = "Route unavailable";
             currentQuoteResponse = null;
@@ -1303,7 +1337,6 @@ async function executeJupiterSwap() {
         const swapTransactionBuf = buffer.Buffer.from(swapTransaction, 'base64');
         var transaction = solanaWeb3.VersionedTransaction.deserialize(swapTransactionBuf);
         
-        // Execute the V0 Transaction via Phantom
         const signature = await provider.signAndSendTransaction(transaction);
         
         btn.innerHTML = 'SWAP COMPLETE!';
@@ -1316,7 +1349,7 @@ async function executeJupiterSwap() {
         
         setTimeout(() => {
             btn.innerHTML = 'SWAP';
-            fetchBalance();
+            fetchBalance(); 
         }, 3000);
 
     } catch (error) {
@@ -1573,7 +1606,6 @@ function updateWalletUI() {
         
         fetchHeaderDualRank(publicKey);
         
-        // Update swap balances if we are on that screen
         if (document.getElementById('swap-content').style.display === 'block') {
             fetchSwapBalances();
         }
@@ -1585,22 +1617,25 @@ async function fetchSwapBalances() {
     if (!publicKey) return;
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-    document.getElementById("swap-sol-bal").innerText = (balance / 1e9).toFixed(4);
+    const solBalParsed = (balance / 1e9).toFixed(4);
+    document.getElementById("swap-sol-bal").innerText = solBalParsed;
 
+    let usdcBalParsed = "0.00";
     try {
         const usdcAccount = await connection.getParsedTokenAccountsByOwner(
             new solanaWeb3.PublicKey(publicKey),
             { mint: new solanaWeb3.PublicKey(USDC_MINT) }
         );
         if (usdcAccount.value.length > 0) {
-            const usdcBalance = usdcAccount.value[0].account.data.parsed.info.tokenAmount.uiAmount;
-            document.getElementById("swap-usdc-bal").innerText = usdcBalance.toFixed(2);
-        } else {
-            document.getElementById("swap-usdc-bal").innerText = "0.00";
+            usdcBalParsed = usdcAccount.value[0].account.data.parsed.info.tokenAmount.uiAmount.toFixed(2);
         }
-    } catch(e) {
-        document.getElementById("swap-usdc-bal").innerText = "0.00";
-    }
+    } catch(e) {}
+    
+    document.getElementById("swap-usdc-bal").innerText = usdcBalParsed;
+
+    // Update active labels
+    document.getElementById('swap-input-bal-label').innerText = isSolToUsdc ? solBalParsed : usdcBalParsed;
+    document.getElementById('swap-output-bal-label').innerText = isSolToUsdc ? usdcBalParsed : solBalParsed;
 }
 
 async function fetchHeaderDualRank(wallet) {
