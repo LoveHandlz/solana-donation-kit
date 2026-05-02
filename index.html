@@ -939,6 +939,7 @@ async function refreshLeaderboardData() {
     let recentTreasuryHits = [];
     let recentSkaterHits = [];
 
+    // Scan for TREASURY Activity
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 });
         for (let i = 0; i < sigs.length; i += 4) {
@@ -967,6 +968,7 @@ async function refreshLeaderboardData() {
         }
     } catch(e) {}
 
+    // Scan for SKATER Activity (Peer-to-Peer)
     try {
         for (let skaterWallet of SKATER_REGISTRY) {
             const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 5 });
@@ -1096,7 +1098,7 @@ function generateRecentHtml(recentArray, type) {
 }
 
 // ========================================================
-// ON-CHAIN DAO VOTING ENGINE (TIMERS & REMOVALS)
+// ON-CHAIN DAO VOTING ENGINE (FIXED VISIBILITY & TIMERS)
 // ========================================================
 
 function formatTimeRemaining(expiresAt) {
@@ -1115,61 +1117,59 @@ async function refreshDAODashboard() {
     if(daoList) daoList.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain for Proposals...</li>";
 
     let proposals = {};
-    let votes = {};
+    let rawVotes = [];
     let vetoed = [];
 
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 100 });
+        
+        // Anti-Ghosting fix: Extract memos directly from the signature object first
         for (let i = 0; i < sigs.length; i += 5) {
             const chunk = sigs.slice(i, i + 5);
             const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
             
-            for (let tx of txs) {
-                if (tx && tx.transaction && tx.transaction.message) {
-                    const msg = tx.transaction.message;
-                    const keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k=>k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k=>k.toString()) : []);
-                    const sender = keys[0];
-                    
-                    const logMessages = tx.meta.logMessages || [];
-                    for(let log of logMessages) {
-                        if(log.includes('"sk8dao":"v1"')) {
-                            try {
-                                // Aggressive Regex parser to catch JSON even if logs are truncated
-                                let match = log.match(/(\{.*\})/);
-                                if(match) {
-                                    const d = JSON.parse(match[1]);
-                                    
-                                    if(d.action === "propose") {
-                                        proposals[tx.transaction.signatures[0]] = { id: tx.transaction.signatures[0], title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: tx.blockTime || Date.now()/1000 };
-                                    } else if(d.action === "vote" && d.id) {
-                                        if(!votes[d.id]) votes[d.id] = [];
-                                        if(!votes[d.id].includes(sender)) {
-                                            votes[d.id].push(sender);
-                                            if(proposals[d.id]) {
-                                                if(d.vote === "yes") proposals[d.id].yes++;
-                                                if(d.vote === "no") proposals[d.id].no++;
-                                            }
-                                        }
-                                    } else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) {
-                                        vetoed.push(d.id);
-                                    }
-                                }
-                            } catch(e) {}
+            chunk.forEach((s, idx) => {
+                const tx = txs[idx];
+                if (s.memo && s.memo.includes('"sk8dao":"v1"') && tx && tx.transaction) {
+                    try {
+                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                        const msg = tx.transaction.message;
+                        const keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k=>k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k=>k.toString()) : []);
+                        const sender = keys[0];
+
+                        if(d.action === "propose") {
+                            proposals[s.signature] = { id: s.signature, title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: s.blockTime || Date.now()/1000, votedWallets: [] };
+                        } else if(d.action === "vote" && d.id) {
+                            // Store vote to process AFTER all proposals are loaded
+                            rawVotes.push({ id: d.id, vote: d.vote, sender: sender });
+                        } else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) {
+                            vetoed.push(d.id);
                         }
-                    }
+                    } catch(e) {}
                 }
-            }
+            });
             await pingDelay(300);
         }
     } catch(e) {}
+
+    // Process all votes (Solves the newest-to-oldest chronological parsing bug)
+    rawVotes.forEach(v => {
+        if (proposals[v.id]) {
+            if (!proposals[v.id].votedWallets.includes(v.sender)) {
+                proposals[v.id].votedWallets.push(v.sender);
+                if (v.vote === "yes") proposals[v.id].yes++;
+                if (v.vote === "no") proposals[v.id].no++;
+            }
+        }
+    });
 
     activeProposals = [];
     closedProposals = [];
     let now = Date.now() / 1000;
 
-    // Apply 7-Day TTL and Separation
+    // Apply 7-Day Time-To-Live (TTL) and filter vetoes
     Object.values(proposals).forEach(p => {
-        if(vetoed.includes(p.id)) return; // Completely hide removed motions
+        if(vetoed.includes(p.id)) return; 
         
         let expiresAt = p.time + DAO_TTL_SECONDS;
         if (now > expiresAt) {
