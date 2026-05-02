@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8COIN | Skate2Earn Master Protocol 7.8</title>
+  <title>SK8COIN | Skate2Earn Master Protocol 7.9</title>
 
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; audio-src 'self' https:;">
 
@@ -1282,13 +1282,21 @@ async function fetchJupiterQuote() {
     try {
         if (amountInLamports === 0) throw new Error("Amount too small");
 
-        // DIRECT HTTPS FETCH: Since you are on Vercel, CORS is satisfied natively.
-        const url = `https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=100`;
+        const targetUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${currentInputMint}&outputMint=${currentOutputMint}&amount=${amountInLamports}&slippageBps=100`;
+        let response;
 
-        const response = await fetch(url);
+        try {
+            // STRATEGY 1: Direct Mainnet Connection
+            response = await fetch(targetUrl);
+        } catch (networkErr) {
+            // STRATEGY 2: Adblocker/CORS Evasion Proxy
+            console.warn("Browser blocked direct connection. Engaging proxy tunnel...");
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+            response = await fetch(proxyUrl);
+        }
 
         if (response.status === 429) {
-            outputInput.value = "Rate Limited (Wait 10s)";
+            outputInput.value = "Rate Limited (Wait)";
             currentQuoteResponse = null;
             return;
         }
@@ -1315,7 +1323,6 @@ async function fetchJupiterQuote() {
         }
     } catch (error) {
         console.error("Jupiter Quote Error:", error);
-        // DIAGNOSTIC CATCH: Prints the exact error to the UI instead of a generic message
         outputInput.value = "Err: " + error.message;
         currentQuoteResponse = null;
     }
@@ -1337,16 +1344,32 @@ async function executeJupiterSwap() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PREPARING TRANSACTION...';
 
     try {
-        // DIRECT HTTPS POST: Bypassing the Vercel proxy
-        const response = await fetch('https://quote-api.jup.ag/v6/swap', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                quoteResponse: currentQuoteResponse,
-                userPublicKey: publicKey,
-                wrapAndUnwrapSol: true
-            })
-        });
+        const targetUrl = 'https://quote-api.jup.ag/v6/swap';
+        const payload = {
+            quoteResponse: currentQuoteResponse,
+            userPublicKey: publicKey,
+            wrapAndUnwrapSol: true
+        };
+
+        let response;
+
+        try {
+            // STRATEGY 1: Direct Mainnet Post
+            response = await fetch(targetUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } catch (networkErr) {
+            // STRATEGY 2: Proxy Tunnel Post
+            console.warn("Browser blocked direct swap POST. Engaging proxy tunnel...");
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+            response = await fetch(proxyUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        }
 
         if (!response.ok) {
             throw new Error(`Swap API returned ${response.status}`);
