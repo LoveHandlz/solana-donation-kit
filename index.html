@@ -860,7 +860,12 @@ function updateWalletUI() {
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin"></i></span></span> <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>`;
         
         fetchHeaderDualRank(publicKey);
-    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; }
+        
+        if(ADMIN_WALLETS.includes(publicKey) && !window.godmodeNotified) {
+            console.log("⚡ GODMODE ENGAGED: Bypassing Protocol Paywalls & DAO Restrictions");
+            window.godmodeNotified = true;
+        }
+    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; window.godmodeNotified = false; }
     updateDonateButtons();
 }
 
@@ -901,7 +906,7 @@ async function fetchSkaterBalances() {
     const els = document.querySelectorAll('.skater-wallet-bal');
     for (let el of els) {
         if(bannedWallets.includes(el.dataset.address)) {
-            el.parentElement.parentElement.style.display = 'none'; // Hide banned video cards
+            el.parentElement.parentElement.style.display = 'none';
             continue;
         }
         try {
@@ -923,7 +928,6 @@ async function fetchTreasuryBalance() {
 
 // ⚡ GODMODE RENDER OVERRIDE
 function getRankDisplay(amount, isSkater = false, address = null) {
-    // 1. Only God sees God. To everyone else, they look like standard high-tier.
     if(address && ADMIN_WALLETS.includes(address)) {
         if (publicKey && ADMIN_WALLETS.includes(publicKey)) {
             return { title: "GODMODE", color: "var(--accent-red)", icon: '<i class="fas fa-bolt" style="filter: drop-shadow(0 0 5px var(--accent-red));"></i>' };
@@ -1011,7 +1015,6 @@ async function refreshLeaderboardData() {
     } catch(e) {}
 
     try {
-        // Enforce Ban Filter
         const activeRegistry = SKATER_REGISTRY.filter(w => !bannedWallets.includes(w));
         
         for (let skaterWallet of activeRegistry) {
@@ -1045,7 +1048,6 @@ async function refreshLeaderboardData() {
     let rawTreasury = Object.keys(aggTreasury).map(addr => ({ addr, val: aggTreasury[addr] }));
     let rawSkaterSponsors = Object.keys(aggSkaterSponsors).map(addr => ({ addr, val: aggSkaterSponsors[addr] }));
     
-    // ⚡ INCOGNITO TOGGLE LOGIC
     if (adminIncognito) {
         rawTreasury = rawTreasury.filter(s => !ADMIN_WALLETS.includes(s.addr));
         rawSkaterSponsors = rawSkaterSponsors.filter(s => !ADMIN_WALLETS.includes(s.addr));
@@ -1405,7 +1407,8 @@ function toggleIncognito() {
 }
 
 async function adminAction(targetWallet, action) {
-    if(!confirm(`Are you sure you want to ${action.toUpperCase()} this skater?`)) return;
+    if(!targetWallet) { alert("Enter a wallet address first."); return; }
+    if(!confirm(`Are you sure you want to ${action.toUpperCase()} skater ${targetWallet.slice(0,4)}...${targetWallet.slice(-4)}?`)) return;
     try {
         const pData = JSON.stringify({ sk8admin: "v1", action: action, wallet: targetWallet });
         const encoded = new TextEncoder().encode(pData); 
@@ -1421,8 +1424,9 @@ async function adminAction(targetWallet, action) {
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
         
         alert(`Skater ${action === 'ban' ? 'suspended' : 'resurrected'}!`);
+        document.getElementById('admin-target-wallet').value = "";
         await syncAdminState();
-        renderProfile(targetWallet);
+        renderProfile(publicKey); // re-render god's profile to reflect UI
     } catch(e) { alert("Admin action failed."); }
 }
 
@@ -1528,19 +1532,19 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('p-bio').innerText = activeProf.bio;
     document.getElementById('p-wallet').innerText = wallet;
     
-    // ⚡ INJECT ADMIN PANEL LOGIC
+    // ⚡ INJECT ADMIN PANEL LOGIC (Godmode Banner on Admin Profile)
     let adminPanelHtml = "";
-    if (ADMIN_WALLETS.includes(publicKey)) {
-        if (isOwner) {
-            adminPanelHtml = `<button onclick="toggleIncognito()" class="wallet-btn" style="width:100%; margin-top:10px; background:var(--accent-red); color:#fff; font-size:0.7rem;"><i class="fas fa-ghost"></i> TOGGLE INVISIBILITY</button>`;
-        } else {
-            let isBanned = bannedWallets.includes(wallet);
-            if (isBanned) {
-                adminPanelHtml = `<button onclick="adminAction('${wallet}', 'unban')" class="wallet-btn" style="width:100%; margin-top:10px; background:var(--accent-green); color:#000; font-size:0.7rem;"><i class="fas fa-heartbeat"></i> RESURRECT SKATER</button>`;
-            } else {
-                adminPanelHtml = `<button onclick="adminAction('${wallet}', 'ban')" class="wallet-btn" style="width:100%; margin-top:10px; background:var(--accent-red); color:#fff; font-size:0.7rem;"><i class="fas fa-gavel"></i> SUSPEND SKATER</button>`;
-            }
-        }
+    if (ADMIN_WALLETS.includes(publicKey) && isOwner) {
+        adminPanelHtml = `
+        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
+            <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE ADMIN PANEL</h4>
+            <button onclick="toggleIncognito()" class="wallet-btn" style="width:100%; margin-bottom:10px; background:var(--accent-red); color:#fff; font-size:0.7rem;"><i class="fas fa-ghost"></i> TOGGLE INVISIBILITY</button>
+            <input type="text" id="admin-target-wallet" placeholder="Enter Skater Wallet..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-red); border-radius: 5px; font-size: 0.7rem; font-family: monospace;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'ban')" class="tier-btn" style="background:var(--accent-red); color:#fff; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">SUSPEND</button>
+                <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'unban')" class="tier-btn" style="background:var(--accent-green); color:#000; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">RESURRECT</button>
+            </div>
+        </div>`;
     }
 
     if (view === 'skater') {
@@ -1968,7 +1972,6 @@ window.addEventListener('load', async () => {
         }
     }
 
-    // Load Price, Sync Admin State, and Boot Provider
     await getSolPrice(); 
     await syncAdminState();
     
