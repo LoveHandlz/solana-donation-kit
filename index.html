@@ -911,7 +911,7 @@ async function getSkaterNameSafe(wallet) {
 }
 
 // ========================================================
-// ISOLATED LEADERBOARD LOGIC - RULE OF 12 & SLEEK UI
+// ISOLATED LEADERBOARD LOGIC - RULE OF 12 & SEA CREATURES
 // ========================================================
 
 async function refreshLeaderboardData() {
@@ -1014,25 +1014,36 @@ function renderTreasuryFeed() {
         const rank = getRankDisplay(s.val, false);
         const pos = index + 1;
         
-        // Emoji Logic
-        const emoji = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : "🛹";
+        // 1. Sea Creature Hierarchy Logic (Gamified)
+        let emoji = "🐟"; 
+        let creatureName = "FISH";
         
-        // Clean, Sleek Styling (No Ugly Boxes)
+        if (pos === 1) { emoji = "🐋"; creatureName = "BLUE WHALE"; }
+        else if (pos === 2) { emoji = "🐳"; creatureName = "WHALE"; }
+        else if (pos === 3) { emoji = "🦈"; creatureName = "SHARK"; }
+        else if (pos === 4) { emoji = "🐬"; creatureName = "DOLPHIN"; }
+        else if (pos === 5) { emoji = "🦑"; creatureName = "SQUID"; }
+        else if (pos > 5) { emoji = "🦀"; creatureName = "CRAB"; }
+        
+        // 2. Top 5 Special Attention
         let rowStyle = "display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;";
         
-        if (pos === 1) rowStyle += " background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
-        else if (pos === 2) rowStyle += " background: linear-gradient(90deg, rgba(192,192,192,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
-        else if (pos === 3) rowStyle += " background: linear-gradient(90deg, rgba(205,127,50,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
+        if (pos === 1) rowStyle += " background: linear-gradient(90deg, rgba(0,240,255,0.2) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
+        else if (pos === 2) rowStyle += " background: linear-gradient(90deg, rgba(0,240,255,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
+        else if (pos === 3) rowStyle += " background: linear-gradient(90deg, rgba(74,222,128,0.15) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
+        else if (pos === 4) rowStyle += " background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
+        else if (pos === 5) rowStyle += " background: linear-gradient(90deg, rgba(255,149,0,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
 
         list.innerHTML += `
             <li style="${rowStyle}">
                 <div style="display: flex; align-items: center;">
-                    <span style="font-size: 1.2rem; width: 35px; text-align: center; margin-right: 12px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));">
+                    <span style="font-size: 1.4rem; width: 35px; text-align: center; margin-right: 12px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));">
                         ${emoji}
                     </span>
                     <div style="display: flex; flex-direction: column;">
                         <span class="addr-tag clickable" style="color: ${rank.color}; font-weight: bold; font-family: 'Orbitron', sans-serif; cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='var(--accent-cyan)';" onmouseout="this.style.color='${rank.color}';" onclick="navigateTo('profile', '${s.addr}')">
-                            <span style="text-transform: uppercase;">${s.name}</span> <span style="font-size:0.6rem; opacity:0.7; margin-left:5px;">[${rank.title}]</span>
+                            <span style="text-transform: uppercase;">${s.name}</span> 
+                            <span style="font-size:0.6rem; color: var(--text-primary); opacity:0.8; margin-left:5px; letter-spacing: 0.5px;">[${creatureName}]</span>
                         </span> 
                         <a href="https://solscan.io/account/${s.addr}" target="_blank" style="font-family: monospace; font-size: 0.65rem; color: var(--text-secondary); text-decoration: none; margin-top: 4px;" onmouseover="this.style.color='var(--accent-cyan)'" onmouseout="this.style.color='var(--text-secondary)'" onclick="event.stopPropagation();">
                             <i class="fas fa-external-link-alt" style="font-size: 0.55rem; margin-right: 3px;"></i>${s.addr.slice(0,6)}...${s.addr.slice(-4)}
@@ -1045,7 +1056,7 @@ function renderTreasuryFeed() {
             </li>`;
     });
     
-    if(allTreasurySponsors.length === 0) list.innerHTML = "<li class='leader-item'>No global sponsors found.</li>";
+    if(allTreasurySponsors.length === 0) list.innerHTML = "<li class='leader-item'>No global treasury sponsors found.</li>";
 }
 
 function renderSkaterFeed() {
