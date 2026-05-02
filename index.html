@@ -732,12 +732,16 @@ let allTreasurySponsors = [];
 let allSkaterHits = [];
 let activeFeedWallet = "";
 let currentSkaterPosts = [];
-let activeProposals = [];
 
-// RULE OF 12 & CONFIG
+// DAO GLOBALS & CONFIG
+let activeProposals = [];
+let closedProposals = [];
+const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 Days Time-To-Live
+const DAO_VOTE_FEE = 0.001; // SOL Anti-Sybil Fee
+
+// RULE OF 12
 const FEED_LIMIT = 12; 
 let feedRenderLimit = FEED_LIMIT;
-const DAO_VOTE_FEE = 0.001; // SOL Anti-Sybil Fee
 
 const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
@@ -935,7 +939,6 @@ async function refreshLeaderboardData() {
     let recentTreasuryHits = [];
     let recentSkaterHits = [];
 
-    // Scan for TREASURY Activity
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 });
         for (let i = 0; i < sigs.length; i += 4) {
@@ -964,7 +967,6 @@ async function refreshLeaderboardData() {
         }
     } catch(e) {}
 
-    // Scan for SKATER Activity (Peer-to-Peer)
     try {
         for (let skaterWallet of SKATER_REGISTRY) {
             const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 5 });
@@ -1094,8 +1096,18 @@ function generateRecentHtml(recentArray, type) {
 }
 
 // ========================================================
-// ON-CHAIN DAO VOTING ENGINE (FIXED VISIBILITY)
+// ON-CHAIN DAO VOTING ENGINE (TIMERS & REMOVALS)
 // ========================================================
+
+function formatTimeRemaining(expiresAt) {
+    let diff = expiresAt - (Date.now() / 1000);
+    if(diff <= 0) return "Expired";
+    let d = Math.floor(diff / 86400);
+    let h = Math.floor((diff % 86400) / 3600);
+    let m = Math.floor((diff % 3600) / 60);
+    if(d > 0) return `${d}d ${h}h`;
+    return `${h}h ${m}m`;
+}
 
 async function refreshDAODashboard() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
@@ -1122,22 +1134,25 @@ async function refreshDAODashboard() {
                     for(let log of logMessages) {
                         if(log.includes('"sk8dao":"v1"')) {
                             try {
-                                const payloadStr = log.substring(log.indexOf('{'), log.lastIndexOf('}') + 1);
-                                const d = JSON.parse(payloadStr);
-                                
-                                if(d.action === "propose") {
-                                    proposals[tx.transaction.signatures[0]] = { id: tx.transaction.signatures[0], title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: tx.blockTime || Date.now()/1000 };
-                                } else if(d.action === "vote" && d.id) {
-                                    if(!votes[d.id]) votes[d.id] = [];
-                                    if(!votes[d.id].includes(sender)) {
-                                        votes[d.id].push(sender);
-                                        if(proposals[d.id]) {
-                                            if(d.vote === "yes") proposals[d.id].yes++;
-                                            if(d.vote === "no") proposals[d.id].no++;
+                                // Aggressive Regex parser to catch JSON even if logs are truncated
+                                let match = log.match(/(\{.*\})/);
+                                if(match) {
+                                    const d = JSON.parse(match[1]);
+                                    
+                                    if(d.action === "propose") {
+                                        proposals[tx.transaction.signatures[0]] = { id: tx.transaction.signatures[0], title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: tx.blockTime || Date.now()/1000 };
+                                    } else if(d.action === "vote" && d.id) {
+                                        if(!votes[d.id]) votes[d.id] = [];
+                                        if(!votes[d.id].includes(sender)) {
+                                            votes[d.id].push(sender);
+                                            if(proposals[d.id]) {
+                                                if(d.vote === "yes") proposals[d.id].yes++;
+                                                if(d.vote === "no") proposals[d.id].no++;
+                                            }
                                         }
+                                    } else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) {
+                                        vetoed.push(d.id);
                                     }
-                                } else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) {
-                                    vetoed.push(d.id);
                                 }
                             } catch(e) {}
                         }
@@ -1148,35 +1163,54 @@ async function refreshDAODashboard() {
         }
     } catch(e) {}
 
-    activeProposals = Object.values(proposals)
-        .filter(p => !vetoed.includes(p.id))
-        .sort((a, b) => b.time - a.time);
+    activeProposals = [];
+    closedProposals = [];
+    let now = Date.now() / 1000;
+
+    // Apply 7-Day TTL and Separation
+    Object.values(proposals).forEach(p => {
+        if(vetoed.includes(p.id)) return; // Completely hide removed motions
+        
+        let expiresAt = p.time + DAO_TTL_SECONDS;
+        if (now > expiresAt) {
+            p.status = 'closed';
+            closedProposals.push(p);
+        } else {
+            p.status = 'active';
+            p.expiresAt = expiresAt;
+            activeProposals.push(p);
+        }
+    });
+
+    activeProposals.sort((a, b) => b.time - a.time);
+    closedProposals.sort((a, b) => b.time - a.time);
 
     renderDAOList();
 }
 
 function renderDAOList() {
     const list = document.getElementById("dao-proposal-list");
-    if(activeProposals.length === 0) {
-        list.innerHTML = "<div style='color: var(--text-secondary); text-align: center; padding: 20px;'>No active motions on-chain.</div>";
+    let html = "";
+    
+    if(activeProposals.length === 0 && closedProposals.length === 0) {
+        list.innerHTML = "<div style='color: var(--text-secondary); text-align: center; padding: 20px;'>No motions currently on the floor.</div>";
         return;
     }
 
-    let html = "";
+    // Render Active
     activeProposals.forEach(p => {
-        let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-        
         let totalVotes = p.yes + p.no;
         let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0;
         let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0;
+        let timeLeft = formatTimeRemaining(p.expiresAt);
         
-        let vetoBtn = ADMIN_WALLETS.includes(publicKey) ? `<button onclick="vetoProposal('${p.id}')" style="background:transparent; color:var(--accent-red); border:1px solid var(--accent-red); padding:4px 8px; border-radius:4px; font-size:0.6rem; cursor:pointer;">VETO</button>` : '';
+        let vetoBtn = ADMIN_WALLETS.includes(publicKey) ? `<button onclick="removeDAOProposal('${p.id}')" style="background:var(--accent-red); color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.65rem; cursor:pointer;">REMOVE</button>` : '';
 
         html += `
-        <div style="background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; margin-bottom: 15px; transition: border 0.3s;" onmouseover="this.style.borderColor='var(--accent-cyan)'" onmouseout="this.style.borderColor='var(--card-border)'">
+        <div style="background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,240,255,0.05);">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
                 <h3 style="color:var(--text-primary); font-size:1.1rem; margin:0; text-transform: uppercase;">${p.title}</h3>
-                <span style="color:var(--text-secondary); font-size:0.6rem; font-family:'Inter';">${dateStr}</span>
+                <span style="color:var(--accent-orange); font-size:0.7rem; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-hourglass-half"></i> Ends in ${timeLeft}</span>
             </div>
             <p style="color:var(--text-secondary); font-size:0.8rem; line-height:1.5; margin-bottom:15px;">${p.desc}</p>
             
@@ -1202,6 +1236,29 @@ function renderDAOList() {
         </div>`;
     });
 
+    // Render Past (Expired)
+    if(closedProposals.length > 0) {
+        html += `<h3 style="color:var(--text-secondary); font-size:0.8rem; margin-top: 30px; margin-bottom: 10px; text-align:center; letter-spacing: 2px;">PAST MOTIONS</h3>`;
+        closedProposals.forEach(p => {
+            let totalVotes = p.yes + p.no;
+            let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0;
+            let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0;
+            let passed = p.yes > p.no;
+
+            html += `
+            <div style="background: rgba(0,0,0,0.3); border: 1px dashed var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 10px; opacity: 0.7;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="color:var(--text-secondary); font-size:0.9rem; margin:0;">${p.title}</h4>
+                    <span style="font-weight:bold; font-size:0.7rem; color:${passed ? 'var(--accent-green)' : 'var(--accent-red)'}">${passed ? 'PASSED' : 'REJECTED'}</span>
+                </div>
+                <div style="display:flex; gap:15px; margin-top:5px; font-size: 0.65rem; color:var(--text-secondary);">
+                    <span>YES: ${p.yes} (${yesPct}%)</span>
+                    <span>NO: ${p.no} (${noPct}%)</span>
+                </div>
+            </div>`;
+        });
+    }
+
     list.innerHTML = html;
 }
 
@@ -1211,6 +1268,7 @@ function closeProposalModal() { document.getElementById("proposal-modal").style.
 async function submitDAOProposal() {
     if(!publicKey) { alert("Connect Wallet"); return; }
     
+    // Check rank (must be at least PRO / 0.1 SOL donated) to propose motions
     const stats = await fetchWalletStats(publicKey);
     if(stats.outs < 0.1 && !ADMIN_WALLETS.includes(publicKey)) {
         alert("You must be rank PRO (0.1+ SOL donated) to submit motions.");
@@ -1234,7 +1292,7 @@ async function submitDAOProposal() {
         const from = new solanaWeb3.PublicKey(publicKey);
         const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         
-        // BUG FIX: Added a transfer to the Treasury Wallet to ensure the motion is permanently logged to the Treasury's signature history.
+        // Anti-Ghosting Protocol: Includes the SOL transfer to Treasury so the scanner hits it.
         const tx = new solanaWeb3.Transaction()
             .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) }))
             .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
@@ -1272,9 +1330,9 @@ async function castDAOVote(propId, voteType) {
     } catch (err) { alert("Vote Failed."); }
 }
 
-async function vetoProposal(propId) {
+async function removeDAOProposal(propId) {
     if(!ADMIN_WALLETS.includes(publicKey)) return;
-    if(!confirm("ADMIN: Veto and remove this motion?")) return;
+    if(!confirm("ADMIN: Permanently remove this motion from the floor?")) return;
     try {
         const pData = JSON.stringify({ sk8dao: "v1", action: "veto", id: propId });
         const encoded = new TextEncoder().encode(pData); 
@@ -1288,7 +1346,7 @@ async function vetoProposal(propId) {
             
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert("Veto Broadcasted!");
+        alert("Removal Broadcasted!");
         refreshDAODashboard();
     } catch(e) {}
 }
