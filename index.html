@@ -862,7 +862,12 @@ function updateWalletUI() {
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin"></i></span></span> <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>`;
         
         fetchHeaderDualRank(publicKey);
-    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; }
+        
+        if(ADMIN_WALLETS.includes(publicKey) && !window.godmodeNotified) {
+            console.log("⚡ GODMODE ENGAGED: Bypassing Protocol Paywalls & DAO Restrictions");
+            window.godmodeNotified = true;
+        }
+    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; window.godmodeNotified = false; }
     updateDonateButtons();
 }
 
@@ -903,7 +908,7 @@ async function fetchSkaterBalances() {
     const els = document.querySelectorAll('.skater-wallet-bal');
     for (let el of els) {
         if(bannedWallets.includes(el.dataset.address)) {
-            el.parentElement.parentElement.style.display = 'none';
+            el.parentElement.parentElement.style.display = 'none'; // Hide banned video cards
             continue;
         }
         try {
@@ -925,6 +930,7 @@ async function fetchTreasuryBalance() {
 
 // ⚡ GODMODE RENDER OVERRIDE
 function getRankDisplay(amount, isSkater = false, address = null) {
+    // 1. Only God sees God. To everyone else, they look like standard high-tier.
     if(address && ADMIN_WALLETS.includes(address)) {
         if (publicKey && ADMIN_WALLETS.includes(publicKey)) {
             return { title: "GODMODE", color: "var(--accent-red)", icon: '<i class="fas fa-bolt" style="filter: drop-shadow(0 0 5px var(--accent-red));"></i>' };
@@ -983,6 +989,7 @@ async function refreshLeaderboardData() {
     let recentTreasuryHits = [];
     let recentSkaterHits = [];
 
+    // Scan for TREASURY Activity
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 });
         for (let i = 0; i < sigs.length; i += 4) {
@@ -1011,6 +1018,7 @@ async function refreshLeaderboardData() {
         }
     } catch(e) {}
 
+    // Scan for SKATER Activity (Peer-to-Peer)
     try {
         const activeRegistry = SKATER_REGISTRY.filter(w => !bannedWallets.includes(w));
         
@@ -1651,9 +1659,13 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('edit-profile-btn').style.display = isOwner ? 'block' : 'none';
     document.getElementById('profile-donate-btn').style.display = isOwner ? 'none' : 'block';
 
-    // Append Admin UI if applicable
+    // Anti-Duplication Wrap for Admin UI
+    const existingAdmin = document.getElementById('sk8-admin-panel-wrapper');
+    if (existingAdmin) existingAdmin.remove();
+
     if(adminPanelHtml) {
-        document.getElementById('profile-donate-btn').insertAdjacentHTML('afterend', adminPanelHtml);
+        const wrapper = `<div id="sk8-admin-panel-wrapper">${adminPanelHtml}</div>`;
+        document.getElementById('profile-donate-btn').insertAdjacentHTML('afterend', wrapper);
     }
 }
 
