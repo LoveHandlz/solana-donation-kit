@@ -737,7 +737,6 @@ let currentSkaterPosts = [];
 let activeProposals = [];
 let closedProposals = [];
 let bannedWallets = [];
-let globalAdminIncognito = false; // Now pulled universally from the blockchain
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 Days Time-To-Live
 const DAO_VOTE_FEE = 0.001; // SOL Anti-Sybil Fee
 
@@ -779,12 +778,11 @@ function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
 // ========================================================
-// ON-CHAIN ADMIN STATE SYNC (BANS/RESURRECTIONS/INCOGNITO)
+// ON-CHAIN ADMIN STATE SYNC (BANS/RESURRECTIONS)
 // ========================================================
 async function syncAdminState() {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     bannedWallets = [];
-    globalAdminIncognito = false; // Default to visible
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 40 });
         const txs = await Promise.all(sigs.map(s => conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
@@ -799,7 +797,6 @@ async function syncAdminState() {
                                 let d = JSON.parse(match[1]);
                                 if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
                                 if(d.action === "unban") bannedWallets = bannedWallets.filter(w => w !== d.wallet);
-                                if(d.action === "incognito") globalAdminIncognito = d.state; // Resolves to the most recent command universally
                             }
                         } catch(e) {}
                     }
@@ -930,7 +927,6 @@ async function fetchTreasuryBalance() {
 
 // ⚡ GODMODE RENDER OVERRIDE
 function getRankDisplay(amount, isSkater = false, address = null) {
-    // 1. Only God sees God. To everyone else, they look like standard high-tier.
     if(address && ADMIN_WALLETS.includes(address)) {
         if (publicKey && ADMIN_WALLETS.includes(publicKey)) {
             return { title: "GODMODE", color: "var(--accent-red)", icon: '<i class="fas fa-bolt" style="filter: drop-shadow(0 0 5px var(--accent-red));"></i>' };
@@ -1053,12 +1049,6 @@ async function refreshLeaderboardData() {
     let rawTreasury = Object.keys(aggTreasury).map(addr => ({ addr, val: aggTreasury[addr] }));
     let rawSkaterSponsors = Object.keys(aggSkaterSponsors).map(addr => ({ addr, val: aggSkaterSponsors[addr] }));
     
-    // ⚡ UNIVERSAL INCOGNITO FILTER
-    if (globalAdminIncognito) {
-        rawTreasury = rawTreasury.filter(s => !ADMIN_WALLETS.includes(s.addr));
-        rawSkaterSponsors = rawSkaterSponsors.filter(s => !ADMIN_WALLETS.includes(s.addr));
-    }
-
     let topTreasurySponsors = rawTreasury.sort((a, b) => b.val - a.val).slice(0, FEED_LIMIT);
     let topSkaterSponsors = rawSkaterSponsors.sort((a, b) => b.val - a.val).slice(0, FEED_LIMIT);
     let topRecentTreasury = recentTreasuryHits.sort((a, b) => b.time - a.time).slice(0, FEED_LIMIT);
@@ -1408,35 +1398,7 @@ async function removeDAOProposal(propId) {
     } catch(e) {}
 }
 
-// ========================================================
 // ⚡ GODMODE ADMIN ACTIONS
-// ========================================================
-
-async function setIncognitoWeb3(state) {
-    if(!confirm(`Are you sure you want to ${state ? 'HIDE' : 'SHOW'} Godmode on public leaderboards?`)) return;
-    try {
-        const pData = JSON.stringify({ sk8admin: "v1", action: "incognito", state: state });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
-        const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        
-        const tx = new solanaWeb3.Transaction()
-            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 }))
-            .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-            
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        
-        alert(`Visibility updated! Please wait a moment for the blockchain to sync.`);
-        setTimeout(async () => {
-            await syncAdminState();
-            renderProfile(publicKey);
-            refreshLeaderboardData();
-        }, 3000);
-    } catch(e) { alert("Admin action failed."); }
-}
-
 async function adminAction(targetWallet, action) {
     if(!targetWallet) { alert("Enter a wallet address first."); return; }
     if(!confirm(`Are you sure you want to ${action.toUpperCase()} skater ${targetWallet.slice(0,4)}...${targetWallet.slice(-4)}?`)) return;
@@ -1563,18 +1525,23 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('p-bio').innerText = activeProf.bio;
     document.getElementById('p-wallet').innerText = wallet;
     
+    // Make Edit Button Square and match Admin layout
+    const editBtn = document.getElementById('edit-profile-btn');
+    if (editBtn) {
+        editBtn.className = 'tier-btn'; 
+        editBtn.style.background = '#fff';
+        editBtn.style.color = '#000';
+        editBtn.style.padding = '12px';
+        editBtn.style.border = 'none';
+        editBtn.style.marginTop = '10px';
+    }
+
     // ⚡ INJECT ADMIN PANEL LOGIC (Godmode Banner on Admin Profile)
     let adminPanelHtml = "";
     if (ADMIN_WALLETS.includes(publicKey) && isOwner) {
-        let btnColor = globalAdminIncognito ? "var(--accent-green)" : "var(--accent-red)";
-        let btnTextColor = globalAdminIncognito ? "#000" : "#fff";
-        let btnText = globalAdminIncognito ? "GO VISIBLE ON LEADERBOARDS" : "GO INCOGNITO (HIDE)";
-        let nextState = !globalAdminIncognito;
-        
         adminPanelHtml = `
         <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
             <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE ADMIN PANEL</h4>
-            <button onclick="setIncognitoWeb3(${nextState})" class="tier-btn" style="width:100%; margin-bottom:10px; background:${btnColor}; color:${btnTextColor}; border:none; padding:10px;"><i class="fas fa-bolt"></i> ${btnText}</button>
             <input type="text" id="admin-target-wallet" placeholder="Enter Skater Wallet..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-red); border-radius: 5px; font-size: 0.7rem; font-family: monospace;">
             <div style="display: flex; gap: 10px;">
                 <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'ban')" class="tier-btn" style="background:var(--accent-red); color:#fff; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">SUSPEND</button>
