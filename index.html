@@ -728,6 +728,8 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
 
 // GLOBALS
+let allTreasurySponsors = [];
+let allSkaterHits = [];
 let activeFeedWallet = "";
 let currentSkaterPosts = [];
 let activeProposals = [];
@@ -1092,7 +1094,7 @@ function generateRecentHtml(recentArray, type) {
 }
 
 // ========================================================
-// ON-CHAIN DAO VOTING ENGINE (v8.0)
+// ON-CHAIN DAO VOTING ENGINE (FIXED VISIBILITY)
 // ========================================================
 
 async function refreshDAODashboard() {
@@ -1209,7 +1211,6 @@ function closeProposalModal() { document.getElementById("proposal-modal").style.
 async function submitDAOProposal() {
     if(!publicKey) { alert("Connect Wallet"); return; }
     
-    // Check rank (must be at least PRO / 0.1 SOL donated) to propose motions
     const stats = await fetchWalletStats(publicKey);
     if(stats.outs < 0.1 && !ADMIN_WALLETS.includes(publicKey)) {
         alert("You must be rank PRO (0.1+ SOL donated) to submit motions.");
@@ -1231,7 +1232,13 @@ async function submitDAOProposal() {
         
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        
+        // BUG FIX: Added a transfer to the Treasury Wallet to ensure the motion is permanently logged to the Treasury's signature history.
+        const tx = new solanaWeb3.Transaction()
+            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) }))
+            .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+            
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
@@ -1273,7 +1280,12 @@ async function vetoProposal(propId) {
         const encoded = new TextEncoder().encode(pData); 
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        
+        const tx = new solanaWeb3.Transaction()
+            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 }))
+            .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+            
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
         alert("Veto Broadcasted!");
