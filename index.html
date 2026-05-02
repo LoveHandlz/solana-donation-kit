@@ -737,7 +737,7 @@ let currentSkaterPosts = [];
 let activeProposals = [];
 let closedProposals = [];
 let bannedWallets = [];
-let adminIncognito = localStorage.getItem('sk8_incognito') === 'true';
+let globalAdminIncognito = false; // Now pulled universally from the blockchain
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 Days Time-To-Live
 const DAO_VOTE_FEE = 0.001; // SOL Anti-Sybil Fee
 
@@ -779,13 +779,14 @@ function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
 // ========================================================
-// ON-CHAIN ADMIN STATE SYNC (BANS/RESURRECTIONS)
+// ON-CHAIN ADMIN STATE SYNC (BANS/RESURRECTIONS/INCOGNITO)
 // ========================================================
 async function syncAdminState() {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     bannedWallets = [];
+    globalAdminIncognito = false; // Default to visible
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 30 });
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 40 });
         const txs = await Promise.all(sigs.map(s => conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
         
         txs.reverse().forEach(tx => {
@@ -798,6 +799,7 @@ async function syncAdminState() {
                                 let d = JSON.parse(match[1]);
                                 if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
                                 if(d.action === "unban") bannedWallets = bannedWallets.filter(w => w !== d.wallet);
+                                if(d.action === "incognito") globalAdminIncognito = d.state; // Resolves to the most recent command universally
                             }
                         } catch(e) {}
                     }
@@ -860,12 +862,7 @@ function updateWalletUI() {
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin"></i></span></span> <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>`;
         
         fetchHeaderDualRank(publicKey);
-        
-        if(ADMIN_WALLETS.includes(publicKey) && !window.godmodeNotified) {
-            console.log("⚡ GODMODE ENGAGED: Bypassing Protocol Paywalls & DAO Restrictions");
-            window.godmodeNotified = true;
-        }
-    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; window.godmodeNotified = false; }
+    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; }
     updateDonateButtons();
 }
 
@@ -1048,7 +1045,8 @@ async function refreshLeaderboardData() {
     let rawTreasury = Object.keys(aggTreasury).map(addr => ({ addr, val: aggTreasury[addr] }));
     let rawSkaterSponsors = Object.keys(aggSkaterSponsors).map(addr => ({ addr, val: aggSkaterSponsors[addr] }));
     
-    if (adminIncognito) {
+    // ⚡ UNIVERSAL INCOGNITO FILTER
+    if (globalAdminIncognito) {
         rawTreasury = rawTreasury.filter(s => !ADMIN_WALLETS.includes(s.addr));
         rawSkaterSponsors = rawSkaterSponsors.filter(s => !ADMIN_WALLETS.includes(s.addr));
     }
@@ -1086,7 +1084,11 @@ function generateSponsorHtml(sponsorsArray, emptyMessage) {
         const pos = index + 1;
         
         let emoji = "🐟"; let creatureName = "FISH";
-        if (pos === 1) { emoji = "🐋"; creatureName = "BLUE WHALE"; }
+        
+        // ⚡ GODMODE UI OVERRIDE
+        if (ADMIN_WALLETS.includes(s.addr)) {
+            emoji = "⚡"; creatureName = "GODMODE";
+        } else if (pos === 1) { emoji = "🐋"; creatureName = "BLUE WHALE"; }
         else if (pos === 2) { emoji = "🐳"; creatureName = "WHALE"; }
         else if (pos === 3) { emoji = "🦈"; creatureName = "SHARK"; }
         else if (pos === 4) { emoji = "🐬"; creatureName = "DOLPHIN"; }
@@ -1398,12 +1400,33 @@ async function removeDAOProposal(propId) {
     } catch(e) {}
 }
 
-// ⚡ GODMODE ADMIN BAN HAMMER FUNCTION
-function toggleIncognito() {
-    adminIncognito = !adminIncognito;
-    localStorage.setItem('sk8_incognito', adminIncognito);
-    alert("Incognito mode: " + (adminIncognito ? "ON (Hidden from Leaderboards)" : "OFF (Visible on Leaderboards)"));
-    refreshLeaderboardData();
+// ========================================================
+// ⚡ GODMODE ADMIN ACTIONS
+// ========================================================
+
+async function setIncognitoWeb3(state) {
+    if(!confirm(`Are you sure you want to ${state ? 'HIDE' : 'SHOW'} Godmode on public leaderboards?`)) return;
+    try {
+        const pData = JSON.stringify({ sk8admin: "v1", action: "incognito", state: state });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        
+        const tx = new solanaWeb3.Transaction()
+            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 }))
+            .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+            
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        
+        alert(`Visibility updated! Please wait a moment for the blockchain to sync.`);
+        setTimeout(async () => {
+            await syncAdminState();
+            renderProfile(publicKey);
+            refreshLeaderboardData();
+        }, 3000);
+    } catch(e) { alert("Admin action failed."); }
 }
 
 async function adminAction(targetWallet, action) {
@@ -1426,7 +1449,7 @@ async function adminAction(targetWallet, action) {
         alert(`Skater ${action === 'ban' ? 'suspended' : 'resurrected'}!`);
         document.getElementById('admin-target-wallet').value = "";
         await syncAdminState();
-        renderProfile(publicKey); // re-render god's profile to reflect UI
+        renderProfile(publicKey); 
     } catch(e) { alert("Admin action failed."); }
 }
 
@@ -1535,10 +1558,15 @@ async function renderProfile(wallet, forceView = null) {
     // ⚡ INJECT ADMIN PANEL LOGIC (Godmode Banner on Admin Profile)
     let adminPanelHtml = "";
     if (ADMIN_WALLETS.includes(publicKey) && isOwner) {
+        let btnColor = globalAdminIncognito ? "var(--accent-green)" : "var(--accent-red)";
+        let btnTextColor = globalAdminIncognito ? "#000" : "#fff";
+        let btnText = globalAdminIncognito ? "GO VISIBLE ON LEADERBOARDS" : "GO INCOGNITO (HIDE)";
+        let nextState = !globalAdminIncognito;
+        
         adminPanelHtml = `
         <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
             <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE ADMIN PANEL</h4>
-            <button onclick="toggleIncognito()" class="wallet-btn" style="width:100%; margin-bottom:10px; background:var(--accent-red); color:#fff; font-size:0.7rem;"><i class="fas fa-ghost"></i> TOGGLE INVISIBILITY</button>
+            <button onclick="setIncognitoWeb3(${nextState})" class="tier-btn" style="width:100%; margin-bottom:10px; background:${btnColor}; color:${btnTextColor}; border:none; padding:10px;"><i class="fas fa-bolt"></i> ${btnText}</button>
             <input type="text" id="admin-target-wallet" placeholder="Enter Skater Wallet..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-red); border-radius: 5px; font-size: 0.7rem; font-family: monospace;">
             <div style="display: flex; gap: 10px;">
                 <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'ban')" class="tier-btn" style="background:var(--accent-red); color:#fff; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">SUSPEND</button>
@@ -1972,6 +2000,7 @@ window.addEventListener('load', async () => {
         }
     }
 
+    // Load Price, Sync Admin State, and Boot Provider
     await getSolPrice(); 
     await syncAdminState();
     
