@@ -747,6 +747,7 @@ const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
 
+// --- ⚡ GODMODE INITIALIZATION ---
 const ADMIN_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 
@@ -829,7 +830,12 @@ function updateWalletUI() {
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span id="auth-skater-rank" style="color: #fff;"><i class="fas fa-spinner fa-spin"></i></span></span> <button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); color: #000; border: none; padding: 3px 8px; border-radius: 20px; font-size: 0.6rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;">⚙️</button>`;
         
         fetchHeaderDualRank(publicKey);
-    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; }
+        
+        if(ADMIN_WALLETS.includes(publicKey) && !window.godmodeNotified) {
+            console.log("⚡ GODMODE ENGAGED: Bypassing Protocol Paywalls & DAO Restrictions");
+            window.godmodeNotified = true;
+        }
+    } else { document.body.classList.remove("wallet-connected"); btn.innerText = "CONNECT"; balContainer.style.display = "none"; skaterPanel.style.display = "none"; if(protocolLed) protocolLed.style.display = "none"; window.godmodeNotified = false; }
     updateDonateButtons();
 }
 
@@ -841,15 +847,16 @@ async function fetchHeaderDualRank(wallet) {
     let isGen = SKATER_REGISTRY.includes(wallet); 
     let isSpon = SPONSOR_ONLY_WALLETS.includes(wallet);
     
-    let sRank = (isGen && !isSpon) ? getRankDisplay(stats.ins, true) : null;
-    let spRank = (stats.outs > 0 || !isGen || isSpon) ? getRankDisplay(stats.outs, false) : null;
+    // Injecting wallet parameter for Godmode rendering
+    let sRank = (isGen && !isSpon) ? getRankDisplay(stats.ins, true, wallet) : null;
+    let spRank = (stats.outs > 0 || !isGen || isSpon) ? getRankDisplay(stats.outs, false, wallet) : null;
     
     if (isGen && !isSpon && stats.outs > 0) {
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">DUAL RANK: <span style="color:${sRank.color}">${sRank.icon}</span> | <span style="color:${spRank.color}">${spRank.icon}</span></span><button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🛹⚙️</button><button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🤝⚙️</button>`;
     } else if (isGen && !isSpon) {
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${sRank.color}">${sRank.icon} ${sRank.title}</span></span><button onclick="navigateToProfileView('skater')" style="background: var(--accent-cyan); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🛹⚙️</button>`;
     } else {
-        let spDisp = spRank || getRankDisplay(0, false);
+        let spDisp = spRank || getRankDisplay(0, false, wallet);
         skaterPanel.innerHTML = `<span style="font-size: 0.6rem; color: var(--accent-gold); font-weight: bold;">RANK: <span style="color:${spDisp.color}">${spDisp.icon} ${spDisp.title}</span></span><button onclick="navigateToProfileView('sponsor')" style="background: var(--accent-gold); border: none; padding: 3px 8px; border-radius: 20px; cursor: pointer;">🤝⚙️</button>`;
     }
 }
@@ -871,7 +878,7 @@ async function fetchSkaterBalances() {
     for (let el of els) {
         try {
             const bal = await connection.getBalance(new solanaWeb3.PublicKey(el.dataset.address));
-            const sol = bal / 1e9; const rank = getRankDisplay(sol, true);
+            const sol = bal / 1e9; const rank = getRankDisplay(sol, true, el.dataset.address);
             el.innerHTML = `<div style="color:${rank.color}; font-size:0.75rem; margin-bottom:4px; font-weight:900;">${rank.icon} ${rank.title}</div>Blessings: ${sol.toFixed(4)} SOL <span class="usd-val">$${(sol*solPrice).toFixed(2)}</span>`;
         } catch(e) {}
     }
@@ -886,7 +893,9 @@ async function fetchTreasuryBalance() {
     document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
 }
 
-function getRankDisplay(amount, isSkater = false) {
+// ⚡ GODMODE RENDER OVERRIDE
+function getRankDisplay(amount, isSkater = false, address = null) {
+    if(address && ADMIN_WALLETS.includes(address)) return { title: "GODMODE", color: "var(--accent-red)", icon: '<i class="fas fa-bolt" style="filter: drop-shadow(0 0 5px var(--accent-red));"></i>' };
     if(amount >= 0.1) return { title: "PRO", color: "var(--gold-font)", icon: '<i class="fas fa-trophy"></i>' };
     if(amount >= 0.05) return { title: "AM", color: "var(--silver-font)", icon: '<i class="fas fa-medal"></i>' };
     if(amount >= 0.01) return { title: "FLOW", color: "var(--bronze-font)", icon: '<i class="fas fa-medal"></i>' };
@@ -939,7 +948,6 @@ async function refreshLeaderboardData() {
     let recentTreasuryHits = [];
     let recentSkaterHits = [];
 
-    // Scan for TREASURY Activity
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 });
         for (let i = 0; i < sigs.length; i += 4) {
@@ -968,7 +976,6 @@ async function refreshLeaderboardData() {
         }
     } catch(e) {}
 
-    // Scan for SKATER Activity (Peer-to-Peer)
     try {
         for (let skaterWallet of SKATER_REGISTRY) {
             const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 5 });
@@ -1027,7 +1034,7 @@ function generateSponsorHtml(sponsorsArray, emptyMessage) {
     if (sponsorsArray.length === 0) return `<li class='leader-item'>${emptyMessage}</li>`;
 
     sponsorsArray.forEach((s, index) => {
-        const rank = getRankDisplay(s.val, false);
+        const rank = getRankDisplay(s.val, false, s.addr);
         const pos = index + 1;
         
         let emoji = "🐟"; let creatureName = "FISH";
@@ -1098,7 +1105,7 @@ function generateRecentHtml(recentArray, type) {
 }
 
 // ========================================================
-// ON-CHAIN DAO VOTING ENGINE (FIXED VISIBILITY & TIMERS)
+// ON-CHAIN DAO VOTING ENGINE (GODMODE INTEGRATED)
 // ========================================================
 
 function formatTimeRemaining(expiresAt) {
@@ -1123,7 +1130,6 @@ async function refreshDAODashboard() {
     try {
         const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 100 });
         
-        // Anti-Ghosting fix: Extract memos directly from the signature object first
         for (let i = 0; i < sigs.length; i += 5) {
             const chunk = sigs.slice(i, i + 5);
             const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
@@ -1140,7 +1146,6 @@ async function refreshDAODashboard() {
                         if(d.action === "propose") {
                             proposals[s.signature] = { id: s.signature, title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: s.blockTime || Date.now()/1000, votedWallets: [] };
                         } else if(d.action === "vote" && d.id) {
-                            // Store vote to process AFTER all proposals are loaded
                             rawVotes.push({ id: d.id, vote: d.vote, sender: sender });
                         } else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) {
                             vetoed.push(d.id);
@@ -1152,7 +1157,6 @@ async function refreshDAODashboard() {
         }
     } catch(e) {}
 
-    // Process all votes (Solves the newest-to-oldest chronological parsing bug)
     rawVotes.forEach(v => {
         if (proposals[v.id]) {
             if (!proposals[v.id].votedWallets.includes(v.sender)) {
@@ -1167,7 +1171,6 @@ async function refreshDAODashboard() {
     closedProposals = [];
     let now = Date.now() / 1000;
 
-    // Apply 7-Day Time-To-Live (TTL) and filter vetoes
     Object.values(proposals).forEach(p => {
         if(vetoed.includes(p.id)) return; 
         
@@ -1197,14 +1200,14 @@ function renderDAOList() {
         return;
     }
 
-    // Render Active
     activeProposals.forEach(p => {
         let totalVotes = p.yes + p.no;
         let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0;
         let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0;
         let timeLeft = formatTimeRemaining(p.expiresAt);
         
-        let vetoBtn = ADMIN_WALLETS.includes(publicKey) ? `<button onclick="removeDAOProposal('${p.id}')" style="background:var(--accent-red); color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.65rem; cursor:pointer;">REMOVE</button>` : '';
+        // ⚡ GODMODE BYPASS: Render Remove Button 
+        let vetoBtn = ADMIN_WALLETS.includes(publicKey) ? `<button onclick="removeDAOProposal('${p.id}')" style="background:var(--accent-red); color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.65rem; cursor:pointer;"><i class="fas fa-bolt"></i> REMOVE</button>` : '';
 
         html += `
         <div style="background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,240,255,0.05);">
@@ -1236,7 +1239,6 @@ function renderDAOList() {
         </div>`;
     });
 
-    // Render Past (Expired)
     if(closedProposals.length > 0) {
         html += `<h3 style="color:var(--text-secondary); font-size:0.8rem; margin-top: 30px; margin-bottom: 10px; text-align:center; letter-spacing: 2px;">PAST MOTIONS</h3>`;
         closedProposals.forEach(p => {
@@ -1268,8 +1270,9 @@ function closeProposalModal() { document.getElementById("proposal-modal").style.
 async function submitDAOProposal() {
     if(!publicKey) { alert("Connect Wallet"); return; }
     
-    // Check rank (must be at least PRO / 0.1 SOL donated) to propose motions
     const stats = await fetchWalletStats(publicKey);
+    
+    // ⚡ GODMODE BYPASS: Submit without PRO rank.
     if(stats.outs < 0.1 && !ADMIN_WALLETS.includes(publicKey)) {
         alert("You must be rank PRO (0.1+ SOL donated) to submit motions.");
         return;
@@ -1292,7 +1295,6 @@ async function submitDAOProposal() {
         const from = new solanaWeb3.PublicKey(publicKey);
         const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         
-        // Anti-Ghosting Protocol: Includes the SOL transfer to Treasury so the scanner hits it.
         const tx = new solanaWeb3.Transaction()
             .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) }))
             .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
@@ -1369,6 +1371,7 @@ function checkPersistence() {
         
         let unlocked = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
         
+        // ⚡ GODMODE BYPASS: Insta-unlock all videos
         if (isAdmin || unlocked.includes(card.id)) { 
             if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; 
             card.classList.add('unlocked'); 
@@ -1454,7 +1457,7 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('p-wallet').innerText = wallet;
     
     if (view === 'skater') {
-        const rank = getRankDisplay(stats.ins, true); header.innerText = "SKATER IDENTITY & BIO";
+        const rank = getRankDisplay(stats.ins, true, wallet); header.innerText = "SKATER IDENTITY & BIO";
         rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         tags.innerHTML = activeProf.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
         
@@ -1476,7 +1479,7 @@ async function renderProfile(wallet, forceView = null) {
         document.getElementById('p-sponsor-badges-section').style.display = 'none';
     
     } else {
-        const rank = getRankDisplay(stats.outs, false); header.innerText = "SPONSOR IDENTITY & BIO";
+        const rank = getRankDisplay(stats.outs, false, wallet); header.innerText = "SPONSOR IDENTITY & BIO";
         rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
         bEl.innerText = stats.outs.toFixed(4) + " SOL";
         
@@ -1500,7 +1503,7 @@ async function renderProfile(wallet, forceView = null) {
         ];
 
         badgeTiers.forEach(b => {
-            let isUnlocked = stats.outs >= b.threshold;
+            let isUnlocked = stats.outs >= b.threshold || ADMIN_WALLETS.includes(wallet); // ⚡ GODMODE BYPASS: Unlocks all badges
             if (isUnlocked) {
                 let claimBtn = isOwner ? `<button onclick="claimSponsorReward('${b.id}')" style="background: transparent; color: ${b.color}; border: 1px solid ${b.color}; border-radius: 4px; padding: 6px; font-size: 0.65rem; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; width: 100%; margin-top: 10px;" onmouseover="this.style.background='${b.color}'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='${b.color}';">CLAIM REWARD</button>` : '';
                 
@@ -1683,7 +1686,9 @@ async function attemptFeedAccess() {
 }
 
 async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
-    if (ADMIN_WALLETS.includes(sponsorPubKey)) { return true; }
+    // ⚡ GODMODE BYPASS: Always return true for admin viewing private feeds
+    if (ADMIN_WALLETS.includes(sponsorPubKey)) { return true; } 
+
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let totalDonated = 0;
     
