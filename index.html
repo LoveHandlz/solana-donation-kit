@@ -917,11 +917,19 @@ async function getSkaterNameSafe(wallet) {
 async function refreshLeaderboardData() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     
-    const sponsorList = document.getElementById("treasury-sponsors-list");
-    const skaterList = document.getElementById("skater-sponsors-list");
+    // Target lists across BOTH the Leaderboard and Treasury pages
+    const sponsorLists = ["treasury-sponsors-list", "donate-sponsors-list"];
+    const skaterLists = ["skater-sponsors-list", "donate-recent-list"];
     
-    sponsorList.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Calculating Top Sponsors...</li>";
-    skaterList.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain Activity...</li>";
+    sponsorLists.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Calculating Top Sponsors...</li>";
+    });
+    
+    skaterLists.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain Activity...</li>";
+    });
 
     let aggregatedSponsors = {};
     SPONSOR_PROFILES.forEach(sp => { aggregatedSponsors[sp.wallet] = sp.baseline || 0; });
@@ -1007,8 +1015,7 @@ async function refreshLeaderboardData() {
 }
 
 function renderTreasuryFeed() {
-    const list = document.getElementById("treasury-sponsors-list");
-    list.innerHTML = "";
+    let html = "";
     
     allTreasurySponsors.forEach((s, index) => {
         const rank = getRankDisplay(s.val, false);
@@ -1034,7 +1041,7 @@ function renderTreasuryFeed() {
         else if (pos === 4) rowStyle += " background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
         else if (pos === 5) rowStyle += " background: linear-gradient(90deg, rgba(255,149,0,0.1) 0%, transparent 100%); margin-bottom: 4px; border-radius: 8px; border-bottom: none;";
 
-        list.innerHTML += `
+        html += `
             <li style="${rowStyle}">
                 <div style="display: flex; align-items: center;">
                     <span style="font-size: 1.4rem; width: 35px; text-align: center; margin-right: 12px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));">
@@ -1056,18 +1063,24 @@ function renderTreasuryFeed() {
             </li>`;
     });
     
-    if(allTreasurySponsors.length === 0) list.innerHTML = "<li class='leader-item'>No global treasury sponsors found.</li>";
+    if(allTreasurySponsors.length === 0) html = "<li class='leader-item'>No global treasury sponsors found.</li>";
+    
+    // Inject rendered list into BOTH the Leaderboard tab and the Treasury tab
+    const lbList = document.getElementById("treasury-sponsors-list");
+    const donateList = document.getElementById("donate-sponsors-list");
+    
+    if (lbList) lbList.innerHTML = html;
+    if (donateList) donateList.innerHTML = html;
 }
 
 function renderSkaterFeed() {
-    const list = document.getElementById("skater-sponsors-list");
-    list.innerHTML = "";
+    let html = "";
     
     allSkaterHits.forEach((e) => {
         const timeAgo = Math.floor(Date.now() / 1000) - e.time;
         let timeStr = timeAgo < 60 ? "Just now" : timeAgo < 3600 ? Math.floor(timeAgo / 60) + "m ago" : Math.floor(timeAgo / 3600) + "h ago";
 
-        list.innerHTML += `
+        html += `
         <li class="leader-item">
             <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 0.75rem;">
@@ -1081,7 +1094,14 @@ function renderSkaterFeed() {
         </li>`;
     });
     
-    if(allSkaterHits.length === 0) list.innerHTML = "<li class='leader-item'>No recent blessings found.</li>";
+    if(allSkaterHits.length === 0) html = "<li class='leader-item'>No recent blessings found.</li>";
+    
+    // Inject rendered list into BOTH the Leaderboard tab and the Treasury tab
+    const lbList = document.getElementById("skater-sponsors-list");
+    const donateList = document.getElementById("donate-recent-list");
+    
+    if (lbList) lbList.innerHTML = html;
+    if (donateList) donateList.innerHTML = html;
 }
 
 // ========================================================
@@ -1129,8 +1149,14 @@ function navigateTo(page, wallet = null) {
   document.getElementById(page + "-content").style.display = 'block';
   if(page === 'profile' && wallet) renderProfile(wallet, null);
   if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
-  if(page === 'donate') fetchTreasuryBalance();
   if(page === 'leaderboard') refreshLeaderboardData();
+  
+  // TRIGGER BOTH CALLS WHEN NAVIGATING TO TREASURY/DONATE TAB
+  if(page === 'donate') { 
+      fetchTreasuryBalance(); 
+      refreshLeaderboardData(); 
+  }
+  
   window.scrollTo(0,0);
 }
 
@@ -1536,6 +1562,28 @@ async function publishToFeed() {
 }
 
 window.addEventListener('load', async () => {
+    // ---- DYNAMIC UI INJECTION FOR TREASURY PAGE ----
+    // This auto-generates the matching leaderboard directly under your treasury section
+    const donatePage = document.getElementById("donate-content");
+    if(donatePage && !document.getElementById("donate-sponsors-list")) {
+        donatePage.innerHTML += `
+        <div class="leaderboard-container" style="margin-top: 3rem;">
+            <div class="leaderboard-box">
+                <h2>TREASURY LEGENDS (TOP 12) <span class="live-indicator">● LIVE SCAN</span></h2>
+                <ul class="leader-list" id="donate-sponsors-list">
+                    <li class="leader-item">Scanning on-chain history...</li>
+                </ul>
+            </div>
+            <div class="leaderboard-box">
+                <h2>RECENT BLESSINGS <span class="live-indicator">● LIVE SCAN</span></h2>
+                <ul class="leader-list" id="donate-recent-list">
+                    <li class="leader-item">Checking recent hits...</li>
+                </ul>
+            </div>
+        </div>`;
+    }
+    // -------------------------------------------------
+
     await getSolPrice(); provider = getProvider();
     if (provider) { try { const resp = await provider.connect({ onlyIfTrusted: true }); if(resp.publicKey) { publicKey = resp.publicKey.toString(); updateWalletUI(); fetchBalance(); checkPersistence(); } } catch (e) { checkPersistence(); } }
     else checkPersistence();
