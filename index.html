@@ -751,15 +751,16 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 </div>
 
 <audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+
 <script>
 let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
 
-// GLOBALS & NEW SIGNATURE REGISTRY
+// GLOBALS
 let allTreasurySponsors = [], allSkaterHits = [], activeFeedWallet = "", currentSkaterPosts = [];
 let activeProposals = [], closedProposals = [], bannedWallets = [];
 let globalAdminIncognito = false; 
-let globalVideoState = {}; // Unified cache to prevent RPC spam
-let profileCache = {}; // Cache for skater profiles
+let globalVideoState = {}; 
+let profileCache = {}; 
 const processedSignatures = new Set(); // ⚡ CRYPTOGRAPHIC DOUBLE-COUNT PREVENTION
 
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; 
@@ -769,7 +770,7 @@ let feedRenderLimit = FEED_LIMIT;
 
 const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
-const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
+let MEMO_PROGRAM_ID; // Init'd safely on load to prevent global crash
 
 const ADMIN_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
@@ -797,7 +798,6 @@ function isMobile() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile
 function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
-// UNIVERSAL REACTION BAR HTML GENERATOR
 function getReactionHtml(postId, targetWallet, isLocked) {
     let state = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
     let rx = state.reactions;
@@ -860,7 +860,7 @@ async function syncGlobalVideos(wallets) {
                     fetchCount++;
                     
                     for (let s of sigs) {
-                        // REJECT DUPLICATES
+                        // REJECT DUPLICATES TO ENSURE PRECISION
                         if (processedSignatures.has(s.signature)) continue;
                         processedSignatures.add(s.signature);
 
@@ -892,7 +892,7 @@ async function syncGlobalVideos(wallets) {
                 }
             } catch(e) {}
         }));
-        await pingDelay(250); 
+        await pingDelay(200); 
     }
 }
 
@@ -1444,6 +1444,33 @@ async function adminAction(targetWallet, action) {
     } catch(e) { alert("Admin action failed."); }
 }
 
+async function toggleVideoLock(postId, targetWallet, currentlyLocked) {
+    if(!publicKey) return;
+    let newState = !currentlyLocked;
+    let actionText = newState ? "LOCK" : "UNLOCK (Make Free)";
+    if(!confirm(`Are you sure you want to ${actionText} this video?`)) return;
+
+    try {
+        const pData = JSON.stringify({ sk8vid: "v1", post: postId, locked: newState });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert(`Video ${newState ? 'LOCKED' : 'UNLOCKED'}!`);
+        
+        if(!globalVideoState[postId]) globalVideoState[postId] = { reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+        globalVideoState[postId].locked = newState;
+        
+        setTimeout(() => {
+            if(document.getElementById('profile-content').style.display === 'block') { renderProfile(targetWallet); }
+            else if(document.getElementById('feed-content').style.display === 'block') { attemptFeedAccess(); }
+            else { window.location.reload(); }
+        }, 2500);
+    } catch(e) { alert("Action failed."); }
+}
+
 // ⚡ OPTIMIZED: Deep Fetch with Set Registry for ABSOLUTE PRECISION
 async function fetchSkaterFeed(wallet, isBlurred) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
@@ -1467,7 +1494,7 @@ async function fetchSkaterFeed(wallet, isBlurred) {
             fetchCount++;
 
             for (let s of sigs) { 
-                // REJECT DUPLICATES
+                // REJECT DUPLICATES TO ENSURE PRECISION
                 if (seenSigs.has(s.signature)) continue;
                 seenSigs.add(s.signature);
 
@@ -1528,8 +1555,7 @@ function renderFeedGrid(isBlurred) {
 
         let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
         
-        // Use unified reaction bar
-        let vState = globalVideoState[p.id] || { locked: !isOwner }; // Inherit free mode if available
+        let vState = globalVideoState[p.id] || { locked: !isOwner }; 
         let rxHtml = getReactionHtml(p.id, activeFeedWallet, vState.locked);
 
         html += `<div class="feed-grid-item" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
@@ -1579,7 +1605,9 @@ async function publishToFeed() {
 }
 
 window.addEventListener('load', async () => {
-    // Dynamic UI Injectors using safe insertAdjacentHTML so we don't break existing link event listeners
+    // SECURE GLOBAL INIT
+    MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
+
     const donatePage = document.getElementById("donate-content");
     if(donatePage && !document.getElementById("donate-sponsors-list")) {
         donatePage.insertAdjacentHTML('beforeend', `
@@ -1644,3 +1672,4 @@ window.addEventListener('load', async () => {
 </script>
 </body>
 </html>
+  
