@@ -117,14 +117,19 @@
         <i class="fas fa-cube" style="color: #f78e1e;"></i> WAX PORTAL
     </div>
     
-    <div style="display: flex; gap: 15px; align-items: center;">
-        <div class="auth-badge" id="wax-auth-badge">
-          <i class="fas fa-link" style="color:var(--accent-gold);"></i> 
-          MASTER ID LINKED <span id="wax-wallet-display" style="color:#fff; font-family:monospace;"></span>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="auth-badge" id="wax-auth-badge">
+              <i class="fas fa-link" style="color:var(--accent-gold);"></i> 
+              MASTER ID LINKED <span id="wax-wallet-display" style="color:#fff; font-family:monospace;"></span>
+            </div>
+            <button class="wax-login-btn" id="wax-login-btn" onclick="loginWAX()">
+                <i class="fas fa-wallet"></i> CONNECT WAX CLOUD
+            </button>
         </div>
-        <button class="wax-login-btn" id="wax-login-btn" onclick="loginWAX()">
-            <i class="fas fa-wallet"></i> CONNECT WAX CLOUD
-        </button>
+        <div id="login-error-msg" style="display:none; color: var(--accent-red); font-size: 0.65rem; font-weight: bold; text-transform: uppercase;">
+            <i class="fas fa-exclamation-triangle"></i> ALLOW POP-UPS FOR WAX CLOUD WALLET
+        </div>
     </div>
   </div>
 
@@ -144,7 +149,7 @@
       
       <div class="loading-overlay" id="api-loading">
           <i class="fas fa-circle-notch loading-spinner"></i>
-          <p style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: bold; letter-spacing: 2px;">SCANING ATOMIC ASSETS...</p>
+          <p style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: bold; letter-spacing: 2px;">SCANNING ATOMIC ASSETS...</p>
       </div>
     </div>
 
@@ -164,6 +169,7 @@
   </div>
 
 <audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+
 <script>
   // INITIALIZE WAX CLOUD WALLET
   const wax = new waxjs.WaxJS({ rpcEndpoint: 'https://wax.greymass.com' });
@@ -172,10 +178,11 @@
   let activeFilter = 'All';
   let activeAssetId = null;
   let rawInventory = [];
-  let currentWallet = "ufuau.wam"; // Default target wallet as requested
+  let currentWallet = "ufuau.wam"; // Default test wallet
 
-  // LOGIN & AUTHENTICATION
+  // LOGIN & AUTHENTICATION (With Popup Protection)
   async function loginWAX() {
+    document.getElementById('login-error-msg').style.display = 'none';
     try {
       const userAccount = await wax.login();
       currentWallet = userAccount;
@@ -184,44 +191,53 @@
       document.getElementById('wax-wallet-display').innerText = `[ ${userAccount.toUpperCase()} ]`;
       document.getElementById('wax-login-btn').style.display = 'none';
       
-      // Fetch the actual inventory of the logged-in user
       await fetchAtomicAssets(currentWallet);
     } catch (e) {
-      alert("WAX Login Failed. Please try again or check your popup blocker.");
+      console.error("WAX Login Failed:", e);
+      document.getElementById('login-error-msg').style.display = 'block';
     }
   }
 
-  // LIVE FETCH FROM ATOMIC ASSETS API
+  // LIVE FETCH FROM ATOMIC ASSETS API (With Deep Metadata Traversal)
   async function fetchAtomicAssets(walletAddress) {
     const loadingEl = document.getElementById('api-loading');
     loadingEl.style.display = 'flex';
     
     try {
-      // Fetch up to 50 assets from the wallet
       const response = await fetch(`https://wax.api.atomicassets.io/atomicassets/v1/assets?owner=${walletAddress}&page=1&limit=50&order=desc&sort=asset_id`);
       const json = await response.json();
       
       if (json.success) {
         rawInventory = json.data.map(asset => {
-          // Resolve IPFS image hash (using AtomicHub's dedicated IPFS gateway for speed)
-          let imgUrl = asset.data.img ? `https://atomichub-ipfs.com/ipfs/${asset.data.img}` : 'https://via.placeholder.com/150/000000/ffffff?text=NO+IMAGE';
+          
+          // ⚡ DEEP METADATA TRAVERSAL: Check mutable data, then immutable data
+          let rawImgHash = null;
+          if (asset.data && asset.data.img) {
+              rawImgHash = asset.data.img;
+          } else if (asset.template && asset.template.immutable_data && asset.template.immutable_data.img) {
+              rawImgHash = asset.template.immutable_data.img;
+          }
+
+          // Resolve IPFS image hash 
+          let imgUrl = rawImgHash 
+            ? `https://atomichub-ipfs.com/ipfs/${rawImgHash}` 
+            : 'https://via.placeholder.com/150/0f1a47/00f0ff?text=NO+IMAGE';
           
           return {
             id: asset.asset_id,
-            name: asset.data.name || asset.schema.schema_name,
+            name: (asset.data && asset.data.name) ? asset.data.name : asset.schema.schema_name,
             collection: asset.collection.collection_name,
             schema: asset.schema.schema_name,
             template: asset.template ? asset.template.template_id : 'N/A',
             mint: asset.template_mint || 'N/A',
             img: imgUrl,
-            // Fallbacks for mapping schema types to our filter categories
-            type: determineCategory(asset.schema.schema_name, asset.data.name),
-            rarity: asset.data.rarity || 'Common',
-            wear: asset.data.wear || 0
+            type: determineCategory(asset.schema.schema_name, asset.data ? asset.data.name : ''),
+            rarity: (asset.data && asset.data.rarity) ? asset.data.rarity : 'Common',
+            wear: (asset.data && asset.data.wear) ? asset.data.wear : 0
           };
         });
         
-        // Reset state and render
+        // Reset UI state
         activeAssetId = null;
         activeFilter = 'All';
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -242,9 +258,9 @@
     }
   }
 
-  // HELPER: Maps random NFT names/schemas to our portal categories
+  // HELPER: Maps random NFT schemas to our portal categories
   function determineCategory(schema, name) {
-    let s = (schema + " " + name).toLowerCase();
+    let s = (schema + " " + (name || "")).toLowerCase();
     if (s.includes('deck') || s.includes('board')) return 'deck';
     if (s.includes('wheel')) return 'wheels';
     if (s.includes('truck')) return 'trucks';
@@ -255,7 +271,7 @@
 
   // HELPER: Assign colors based on rarity metadata
   function getRarityColor(rarity) {
-    let r = rarity.toLowerCase();
+    let r = String(rarity).toLowerCase();
     if(r.includes('common')) return 'var(--rarity-common)';
     if(r.includes('rare')) return 'var(--rarity-rare)';
     if(r.includes('epic')) return 'var(--rarity-epic)';
@@ -269,13 +285,12 @@
     const gridEl = document.getElementById('grid');
     let html = '';
 
-    // Filter logic
     let filteredItems = rawInventory;
     if (activeFilter !== 'All') {
       filteredItems = rawInventory.filter(item => item.type === activeFilter);
     }
 
-    // Always render EXACTLY 12 slots to maintain the GameFi UI structure
+    // Always render exactly 12 slots
     for (let i = 0; i < TOTAL_SLOTS; i++) {
       if (i < filteredItems.length) {
         const item = filteredItems[i];
@@ -291,7 +306,6 @@
           </div>
         `;
       } else {
-        // Render Empty Placeholder
         html += `<div class="slot empty"><i class="fas fa-plus" style="color:rgba(255,255,255,0.05); font-size:1.5rem;"></i></div>`;
       }
     }
@@ -299,17 +313,16 @@
   }
 
   function selectAsset(assetId) {
-    document.getElementById('jingle').play().catch(e => {}); // UI Feedback
+    document.getElementById('jingle').play().catch(e => {}); 
     activeAssetId = assetId;
-    renderGrid(); // Update active border highlight
+    renderGrid(); 
     renderInspector();
   }
 
   function setFilter(type) {
     activeFilter = type;
-    activeAssetId = null; // Reset selection on filter change
+    activeAssetId = null; 
     
-    // Update button visual states
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 
@@ -335,11 +348,11 @@
     const item = rawInventory.find(i => i.id === activeAssetId);
     const rColor = getRarityColor(item.rarity);
 
-    // Show external link to AtomicHub
+    // Deep Link to AtomicHub
     ahLink.href = `https://wax.atomichub.io/explorer/asset/wax-mainnet/${item.id}`;
     ahLink.style.display = 'inline-flex';
 
-    // Conditional buttons based on type (Only parts can be blended)
+    // Conditional UI Buttons
     let blendBtn = '';
     if (['deck', 'wheels', 'trucks', 'bearings'].includes(item.type)) {
       blendBtn = `<button class="action-btn btn-craft" onclick="triggerAction('CRAFT')"><i class="fas fa-hammer"></i> BLEND / CRAFT SET</button>`;
@@ -386,7 +399,6 @@
     if (actionType === 'CRAFT') {
       alert(`[WAX BLEND INIT] \n\nSending Asset ${item.id} (${item.name}) to the NeftyBlocks Blend Contract. Select matching parts to forge a Complete Setup.`);
     } else if (actionType === 'SELL') {
-      // Deep link routing to NeftyBlocks sell page
       const sellUrl = `https://neftyblocks.com/collection/${item.collection}/manage/assets`;
       alert(`[MARKET ROUTING] \n\nRedirecting to NeftyBlocks to list Asset ID: ${item.id} (${item.name}).`);
       window.open(sellUrl, '_blank');
@@ -395,7 +407,7 @@
     }
   }
 
-  // AUTO-LOAD THE DEFAULT WALLET ON BOOT
+  // AUTO-LOAD THE TEST WALLET ON BOOT
   window.addEventListener('load', () => {
     fetchAtomicAssets(currentWallet);
   });
