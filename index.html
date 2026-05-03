@@ -752,24 +752,40 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
 <audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
 <script>
-let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
+// ========== RPC RESILIENCE CONFIGURATION ==========
+const RPC_CONFIG = {
+    primary: "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb",
+    timeoutMsg: "RPC_TIMEOUT",
+    readTimeout: 8000, // Max 8 seconds for a read before giving up
+    fastTimeout: 3000, // Max 3 seconds for individual inner loops
+    rateLimitDelay: 300 // 300ms pause between heavy batches
+};
 
-// GLOBALS
+const pingDelay = ms => new Promise(res => setTimeout(res, ms));
+
+// Timeout Wrapper: Forces a promise to resolve/reject within a time limit
+async function fetchWithTimeout(promise, timeoutMs) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(RPC_CONFIG.timeoutMsg)), timeoutMs))
+    ]);
+}
+
+// ========== STATE GLOBALS ==========
+let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
 let allTreasurySponsors = [], allSkaterHits = [], activeFeedWallet = "", currentSkaterPosts = [];
 let activeProposals = [], closedProposals = [], bannedWallets = [];
 let globalAdminIncognito = false; 
-let globalVideoState = {}; // Unified cache to prevent RPC spam
-let profileCache = {}; // Cache for skater profiles
+let globalVideoState = {}; 
+let profileCache = {}; 
 
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; 
 const DAO_VOTE_FEE = 0.001; 
-const FEED_LIMIT = 12; // Mandated Standard Capacity
+const FEED_LIMIT = 12; 
 let feedRenderLimit = FEED_LIMIT;
 
-const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
 const MEMO_PROGRAM_ID = new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
-
 const ADMIN_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 
@@ -848,6 +864,7 @@ async function renderProfile(wallet, viewType) {
     let isOwner = (publicKey === wallet);
     let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
 
+    // Using wrapped timeout fetches
     const stats = await fetchWalletStats(wallet);
     const prof = await getSkaterProfileSafe(wallet);
     let profileData = prof.profileData || {};
@@ -968,16 +985,16 @@ function renderSponsorBadges(solAmount, isOwner) {
     document.getElementById("sponsor-badge-grid").innerHTML = html;
 }
 
-// BATCH FETCH VIDEO STATES (REACTIONS & LOCKS) - Sequenced to prevent RPC 429 Errors
+// TIMEOUT PROTECTED: Fetching Video States
 async function syncGlobalVideos(wallets) {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     let uniqueWallets = [...new Set(wallets)];
     
     for(let i = 0; i < uniqueWallets.length; i+= 5) {
         let chunk = uniqueWallets.slice(i, i+5);
         await Promise.all(chunk.map(async (wallet) => {
             try {
-                const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 50 });
+                const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 50 }), RPC_CONFIG.readTimeout);
                 for (let s of sigs) {
                     if(s.memo) {
                         if (s.memo.includes('"sk8vid":"v1"')) {
@@ -999,18 +1016,19 @@ async function syncGlobalVideos(wallets) {
                         }
                     }
                 }
-            } catch(e) {}
+            } catch(e) { /* silent fail on timeout to keep loop alive */ }
         }));
-        await pingDelay(250); // Small pause respects RPC limits
+        await pingDelay(RPC_CONFIG.rateLimitDelay);
     }
 }
 
+// TIMEOUT PROTECTED: Fetching Admin State
 async function syncAdminState() {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     bannedWallets = []; globalAdminIncognito = false; 
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 40 });
-        const txs = await Promise.all(sigs.map(s => conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
+        const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 40 }), RPC_CONFIG.readTimeout);
+        const txs = await Promise.all(sigs.map(s => fetchWithTimeout(conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }), RPC_CONFIG.fastTimeout).catch(() => null)));
         txs.reverse().forEach(tx => {
             if(tx && tx.meta && tx.meta.logMessages) {
                 for(let log of tx.meta.logMessages) {
@@ -1031,25 +1049,28 @@ async function syncAdminState() {
     } catch(e) {}
 }
 
+// TIMEOUT PROTECTED: Fetch Wallet Stats
 async function fetchWalletStats(wallet) {
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     let ins = 0; let outs = 0; let txCount = 0;
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 100 });
+        const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 100 }), RPC_CONFIG.readTimeout);
         for (let s of sigs) {
-            const tx = await connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
-            if (tx && tx.meta) {
-                const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
-                const wIdx = accountKeys.indexOf(wallet);
-                if(wIdx !== -1) {
-                    const pre = tx.meta.preBalances[wIdx]; const post = tx.meta.postBalances[wIdx];
-                    const diff = (post - pre) / 1e9;
-                    if (diff < -0.001) { outs += Math.abs(diff); txCount++; }
-                    else if (diff > 0.001) ins += diff;        
+            try {
+                const tx = await fetchWithTimeout(conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }), RPC_CONFIG.fastTimeout);
+                if (tx && tx.meta) {
+                    const accountKeys = tx.transaction.message.staticAccountKeys ? tx.transaction.message.staticAccountKeys.map(k=>k.toString()) : [];
+                    const wIdx = accountKeys.indexOf(wallet);
+                    if(wIdx !== -1) {
+                        const pre = tx.meta.preBalances[wIdx]; const post = tx.meta.postBalances[wIdx];
+                        const diff = (post - pre) / 1e9;
+                        if (diff < -0.001) { outs += Math.abs(diff); txCount++; }
+                        else if (diff > 0.001) ins += diff;        
+                    }
                 }
-            }
+            } catch(innerErr) { /* ignore inner timeout */ }
         }
-    } catch(e) {}
+    } catch(e) { console.warn("Timeout reading stats for", wallet); }
     
     let sponsorProf = SPONSOR_PROFILES.find(sp => sp.wallet === wallet);
     if(sponsorProf && sponsorProf.baseline) {
@@ -1059,13 +1080,13 @@ async function fetchWalletStats(wallet) {
     return { ins, outs, txCount };
 }
 
-// SAFELY CACHED PROFILE FETCHER
+// TIMEOUT PROTECTED: Safely Cached Profile Fetcher
 async function getSkaterProfileSafe(wallet) {
     if(profileCache[wallet]) return profileCache[wallet];
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     let isFree = false; let profileData = null;
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
+        const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 }), RPC_CONFIG.readTimeout);
         for (let s of sigs) { 
             if(s.memo && s.memo.includes('"sk8":"v1"')) { 
                 profileData = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
@@ -1073,7 +1094,7 @@ async function getSkaterProfileSafe(wallet) {
                 break;
             } 
         }
-    } catch(e) {}
+    } catch(e) { console.warn("Timeout reading profile for", wallet); }
     profileCache[wallet] = { isFree, profileData };
     return profileCache[wallet];
 }
@@ -1127,25 +1148,28 @@ async function fetchHeaderDualRank(wallet) {
     }
 }
 
+// TIMEOUT PROTECTED: Balance Fetches
 async function fetchBalance() {
     if (!publicKey) return;
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    const balance = await connection.getBalance(new solanaWeb3.PublicKey(publicKey));
-    const solVal = balance / solanaWeb3.LAMPORTS_PER_SOL;
-    document.getElementById("sol-balance").innerText = solVal.toFixed(4) + " SOL";
-    if (solPrice === 0) await getSolPrice();
-    document.getElementById("usd-balance").innerText = "$" + (solVal * solPrice).toFixed(2) + " USD";
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
+    try {
+        const balance = await fetchWithTimeout(conn.getBalance(new solanaWeb3.PublicKey(publicKey)), RPC_CONFIG.readTimeout);
+        const solVal = balance / solanaWeb3.LAMPORTS_PER_SOL;
+        document.getElementById("sol-balance").innerText = solVal.toFixed(4) + " SOL";
+        if (solPrice === 0) await getSolPrice();
+        document.getElementById("usd-balance").innerText = "$" + (solVal * solPrice).toFixed(2) + " USD";
+    } catch(e) {}
 }
 
 async function fetchSkaterBalances() {
     if (solPrice === 0) await getSolPrice();
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     const els = document.querySelectorAll('.skater-rank-icon');
     for (let el of els) {
         let targetAddr = el.dataset.address;
         if(bannedWallets.includes(targetAddr)) { el.closest('.video-card').style.display = 'none'; continue; }
         try {
-            const bal = await connection.getBalance(new solanaWeb3.PublicKey(targetAddr));
+            const bal = await fetchWithTimeout(conn.getBalance(new solanaWeb3.PublicKey(targetAddr)), RPC_CONFIG.fastTimeout);
             const sol = bal / 1e9; const rank = getRankDisplay(sol, true, targetAddr);
             el.innerHTML = `<span style="color:${rank.color}; margin-left:8px;" title="${sol.toFixed(2)} SOL Donated">${rank.icon}</span>`;
         } catch(e) {}
@@ -1154,11 +1178,13 @@ async function fetchSkaterBalances() {
 
 async function fetchTreasuryBalance() {
     if (solPrice === 0) await getSolPrice();
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    const balance = await connection.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET));
-    const sol = balance / 1e9;
-    document.getElementById("treasury-sol-balance").innerText = sol.toFixed(4) + " SOL";
-    document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
+    try {
+        const balance = await fetchWithTimeout(conn.getBalance(new solanaWeb3.PublicKey(TREASURY_WALLET)), RPC_CONFIG.readTimeout);
+        const sol = balance / 1e9;
+        document.getElementById("treasury-sol-balance").innerText = sol.toFixed(4) + " SOL";
+        document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
+    } catch(e) {}
 }
 
 // FIXED: God Mode visibility check now resolves based on the address being parsed, NOT strictly the local viewer
@@ -1178,22 +1204,22 @@ async function resolveWalletName(wallet) {
     let sp = SPONSOR_PROFILES.find(s => s.wallet === wallet); if (sp) return sp.name;
     let sk = SKATER_PROFILES.find(s => s.wallet === wallet); if (sk) return sk.name;
     try {
-        const sigs = await new solanaWeb3.Connection(RPC_URL, "confirmed").getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 5 });
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
+        const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 5 }), RPC_CONFIG.readTimeout);
         for (let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) { const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, '')); if(d.name) return d.name; } }
     } catch(e) {} 
     return "Anon Sponsor";
 }
 
-const pingDelay = ms => new Promise(res => setTimeout(res, ms));
 let nameCache = {};
 async function getSkaterNameSafe(wallet) {
     if(nameCache[wallet]) return nameCache[wallet];
     let name = await resolveWalletName(wallet); nameCache[wallet] = name; return name;
 }
 
-// BOARDROOM & TREASURY DONATION REFRESHER
+// TIMEOUT PROTECTED: Leaderboard Scanner
 async function refreshLeaderboardData() {
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     const loaderHtml = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain Activity...</li>";
     ["treasury-sponsors-list", "donate-sponsors-list", "skater-sponsors-list", "donate-recent-list"].forEach(id => {
         const el = document.getElementById(id); if(el) el.innerHTML = loaderHtml;
@@ -1204,10 +1230,10 @@ async function refreshLeaderboardData() {
     let recentTreasuryHits = []; let recentSkaterHits = [];
 
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 });
+        const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 20 }), RPC_CONFIG.readTimeout);
         for (let i = 0; i < sigs.length; i += 4) {
             const chunk = sigs.slice(i, i + 4);
-            const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
+            const txs = await Promise.all(chunk.map(s => fetchWithTimeout(conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }), RPC_CONFIG.fastTimeout).catch(() => null)));
             for (let tx of txs) {
                 if (tx && tx.meta && !tx.meta.err && tx.transaction && tx.transaction.message) {
                     const msg = tx.transaction.message;
@@ -1225,16 +1251,16 @@ async function refreshLeaderboardData() {
                     }
                 }
             }
-            await pingDelay(300); 
+            await pingDelay(RPC_CONFIG.rateLimitDelay); 
         }
     } catch(e) {}
 
     try {
         const activeRegistry = SKATER_REGISTRY.filter(w => !bannedWallets.includes(w));
         for (let skaterWallet of activeRegistry) {
-            const sSigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 5 });
+            const sSigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterWallet), { limit: 5 }), RPC_CONFIG.fastTimeout);
             const chunk = sSigs.slice(0, 5);
-            const txs = await Promise.all(chunk.map(ss => connection.getTransaction(ss.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
+            const txs = await Promise.all(chunk.map(ss => fetchWithTimeout(conn.getTransaction(ss.signature, { maxSupportedTransactionVersion: 0 }), RPC_CONFIG.fastTimeout).catch(() => null)));
             for (let sTx of txs) {
                 if (sTx && sTx.meta && !sTx.meta.err && sTx.transaction && sTx.transaction.message) {
                     const msg = sTx.transaction.message;
@@ -1252,7 +1278,7 @@ async function refreshLeaderboardData() {
                     }
                 }
             }
-            await pingDelay(300); 
+            await pingDelay(RPC_CONFIG.rateLimitDelay); 
         }
     } catch(e) {}
 
@@ -1405,7 +1431,7 @@ async function sendCustomSponsor() {
 
 async function sendTransaction(toAddr, amountSOL) {
     try {
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
         const from = new solanaWeb3.PublicKey(publicKey);
         const to = new solanaWeb3.PublicKey(toAddr);
         const tx = new solanaWeb3.Transaction().add(
@@ -1479,7 +1505,7 @@ async function saveProfileWeb3() {
             isFree: document.getElementById('edit-free-toggle').checked
         };
         const encoded = new TextEncoder().encode(JSON.stringify(data));
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
         const from = new solanaWeb3.PublicKey(publicKey);
         const tx = new solanaWeb3.Transaction().add(
             new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded })
@@ -1514,7 +1540,6 @@ async function attemptFeedAccess() {
     let unlocked = false;
     if(isOwner || isAdmin || isFree) { unlocked = true; }
     else {
-        // Enforces AM Tier (0.05) strictly via local/chain cache combo
         let userUnlocks = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
         if(userUnlocks.includes(activeFeedWallet)) unlocked = true;
     }
@@ -1528,26 +1553,25 @@ async function attemptFeedAccess() {
 
 function loadMoreFeed() {
     feedRenderLimit += FEED_LIMIT;
-    // Real implementation would pull deeper into the history array
     alert("Scrubbing deeper into on-chain history...");
 }
 
 async function publishToFeed() {
     alert("Publishing to feed via Memo Program initialized...");
-    // Future integration goes here.
 }
 
+// TIMEOUT PROTECTED: DAO Scan
 async function refreshDAODashboard() {
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed");
     const daoList = document.getElementById("dao-proposal-list");
     if(daoList) daoList.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain for Proposals...</li>";
 
     let proposals = {}; let rawVotes = []; let vetoed = [];
     try {
-        const sigs = await connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 100 });
+        const sigs = await fetchWithTimeout(conn.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 100 }), RPC_CONFIG.readTimeout);
         for (let i = 0; i < sigs.length; i += 5) {
             const chunk = sigs.slice(i, i + 5);
-            const txs = await Promise.all(chunk.map(s => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
+            const txs = await Promise.all(chunk.map(s => fetchWithTimeout(conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }), RPC_CONFIG.fastTimeout).catch(() => null)));
             chunk.forEach((s, idx) => {
                 const tx = txs[idx];
                 if (s.memo && s.memo.includes('"sk8dao":"v1"') && tx && tx.transaction) {
@@ -1562,7 +1586,7 @@ async function refreshDAODashboard() {
                     } catch(e) {}
                 }
             });
-            await pingDelay(300);
+            await pingDelay(RPC_CONFIG.rateLimitDelay);
         }
     } catch(e) {}
 
@@ -1663,7 +1687,7 @@ async function submitDAOProposal() {
         const encoded = new TextEncoder().encode(pData); 
         if (encoded.length > 566) { alert(`Proposal too long for Memo!`); btn.innerText = "SIGN & BROADCAST"; return; }
         
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
@@ -1680,7 +1704,7 @@ async function castDAOVote(propId, voteType) {
     try {
         const pData = JSON.stringify({ sk8dao: "v1", action: "vote", id: propId, vote: voteType });
         const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
@@ -1694,7 +1718,7 @@ async function removeDAOProposal(propId) {
     try {
         const pData = JSON.stringify({ sk8dao: "v1", action: "veto", id: propId });
         const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
@@ -1707,7 +1731,7 @@ async function setIncognitoWeb3(state) {
     try {
         const pData = JSON.stringify({ sk8admin: "v1", action: "incognito", state: state });
         const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
@@ -1722,7 +1746,7 @@ async function adminAction(targetWallet, action) {
     try {
         const pData = JSON.stringify({ sk8admin: "v1", action: action, wallet: targetWallet });
         const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
         const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
@@ -1739,7 +1763,7 @@ async function toggleVideoLock(postId, targetWallet, currentlyLocked) {
     try {
         const pData = JSON.stringify({ sk8vid: "v1", post: postId, locked: newState });
         const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
         const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
@@ -1761,7 +1785,7 @@ async function castReaction(postId, targetWallet, reactType, cost) {
     try {
         const pData = JSON.stringify({ sk8react: "v1", post: postId, react: reactType });
         const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(targetWallet);
+        const conn = new solanaWeb3.Connection(RPC_CONFIG.primary, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(targetWallet);
         const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(cost * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
