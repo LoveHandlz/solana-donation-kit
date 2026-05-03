@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SK8 PORTAL | Zero-Fail WAX Engine</title>
+  <title>SK8 PORTAL | Live SkateCoin Inventory</title>
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -14,27 +15,49 @@
       --accent-cyan: #00f0ff;
       --accent-gold: #ffd700; 
       --accent-red: #ff2d55;
+      --text-primary: #e0f7ff;
+      --text-secondary: #a5d8ff;
       --card-border: rgba(0,240,255,0.14);
     }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: var(--bg-deep); color: #e0f7ff; font-family: 'Inter', sans-serif; padding: 2rem; min-height: 100vh; }
+    body { background: var(--bg-deep); color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 2rem; min-height: 100vh; overflow-x: hidden; }
+    
     .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 1rem; margin-bottom: 2rem; }
-    .header-title { font-family: 'Orbitron'; font-size: 1.8rem; color: var(--accent-cyan); font-weight: 900; }
-    .wax-login-btn { background: linear-gradient(135deg, #f78e1e, #ffb347); color: #000; border: none; padding: 12px 25px; border-radius: 50px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; }
+    .header-title { font-family: 'Orbitron'; font-size: 2rem; color: var(--accent-cyan); font-weight: 900; }
+    
+    .wax-login-btn { background: linear-gradient(135deg, #f78e1e, #ffb347); color: #000; border: none; padding: 12px 25px; border-radius: 50px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(247, 142, 30, 0.3); }
+    .auth-badge { background: rgba(0,240,255,0.05); border: 1px solid var(--accent-cyan); padding: 8px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; display: none; align-items: center; gap: 10px; }
+    
     .portal-layout { display: grid; grid-template-columns: 2.5fr 1fr; gap: 2rem; max-width: 1300px; margin: 0 auto; }
-    .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-    .slot { aspect-ratio: 1 / 1; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-    .slot-img { width: 80%; height: 80%; object-fit: contain; }
-    .inspector-panel { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; position: sticky; top: 2rem; min-height: 500px; text-align: center; }
-    #system-message { display:none; padding: 15px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-align: center; margin-bottom: 15px; font-family: 'Orbitron'; border: 1px solid var(--accent-red); color: var(--accent-red); background: rgba(255, 45, 85, 0.1); }
-    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.9); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
+    .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+    
+    .slot { aspect-ratio: 1 / 1; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); position: relative; cursor: pointer; transition: 0.3s; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .slot:hover { border-color: var(--accent-cyan); transform: translateY(-3px); }
+    .slot-img { width: 70%; height: 70%; object-fit: contain; }
+    .slot-name { position: absolute; bottom: 0; width: 100%; background: rgba(10,19,47,0.9); padding: 5px; font-size: 0.55rem; text-align: center; font-weight: bold; text-transform: uppercase; }
+
+    .inspector-panel { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; position: sticky; top: 2rem; min-height: 500px; }
+    .inspector-header { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--accent-gold); border-bottom: 1px solid var(--card-border); padding-bottom: 10px; margin-bottom: 15px; }
+    
+    .action-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: bold; font-size: 0.75rem; cursor: pointer; border: none; background: var(--accent-cyan); color: #000; }
+
+    #system-message { display:none; padding: 15px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-align: center; margin-bottom: 15px; font-family: 'Orbitron'; border: 1px solid var(--accent-red); color: var(--accent-red); background: rgba(255, 45, 85, 0.1); word-break: break-all; }
+    
+    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.95); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
+    
+    @media (max-width: 900px) { .portal-layout { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
   <div class="header-bar">
     <div class="header-title">SK8 PORTAL</div>
-    <div id="wax-auth-container">
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="auth-badge" id="wax-auth-badge">
+          <i class="fas fa-link" style="color:var(--accent-gold);"></i> 
+          <span id="wax-wallet-display" style="color:#fff; font-family:monospace;"></span>
+        </div>
         <button class="wax-login-btn" id="wax-login-btn" onclick="masterBootSequence()">CONNECT WAX</button>
     </div>
   </div>
@@ -45,63 +68,99 @@
     <div style="position: relative;">
       <div class="inventory-grid" id="grid"></div>
       <div class="loading-overlay" id="api-loading">
-          <i class="fas fa-circle-notch fa-spin" style="font-size:2rem; color:var(--accent-cyan); margin-bottom:1rem;"></i>
-          <p>SYNCING BLOCKCHAIN...</p>
+          <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:var(--accent-cyan); margin-bottom:1rem;"></i>
+          <p style="font-family: 'Orbitron'; letter-spacing: 2px;">SCANNING ATOMIC CHAIN...</p>
       </div>
     </div>
-    <div class="inspector-panel" id="inspector-content">
-        <i class="fas fa-mouse-pointer" style="font-size: 3rem; margin-top: 5rem; opacity: 0.2;"></i>
-        <p style="margin-top: 1rem; opacity: 0.5;">Select a skatecoinwax NFT</p>
+
+    <div class="inspector-panel">
+      <div class="inspector-header">ASSET INSPECTOR</div>
+      <div id="inspector-content" style="text-align: center; opacity: 0.5; padding-top: 2rem;">
+          <i class="fas fa-mouse-pointer" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+          <p>Select a <b style="color:var(--accent-cyan)">skatecoinwax</b> NFT</p>
+      </div>
     </div>
   </div>
 
+<audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+
 <script>
-  let wax = null;
+  let waxInstance = null;
   const COLLECTION = "skatecoinwax";
   let inventory = [];
 
-  // ⚡ THE MASTER BOOT: Forced Script Injection
+  // ⚡ MASTER BOOT SEQUENCE: Raw script injection ensures timing is flawless on Vercel
   async function masterBootSequence() {
       const btn = document.getElementById('wax-login-btn');
       const errorBox = document.getElementById('system-message');
-      btn.innerText = "LOADING ENGINE...";
+      btn.innerText = "INJECTING ENGINE...";
       errorBox.style.display = 'none';
 
-      if (typeof window.waxjs === 'undefined') {
-          console.log("WaxJS missing. Injecting now...");
-          const script = document.createElement('script');
-          script.src = "https://unpkg.com/@waxio/waxjs@1.3.0/dist/index.js";
-          script.onload = () => initiateLogin();
-          script.onerror = () => {
+      // FORCE INJECT SCRIPT DIRECTLY
+      const script = document.createElement('script');
+      script.src = "https://unpkg.com/@waxio/waxjs@1.3.0/dist/index.js";
+      script.async = true;
+
+      script.onload = () => {
+          console.log("Script loaded. Searching for WaxJS global...");
+          // Try to find the constructor under any possible name the CDN gave it
+          const constructor = window.waxjs || window.wax || (window.waxjs ? window.waxjs.WaxJS : null);
+          
+          if (constructor || typeof window.waxjs !== 'undefined') {
+              initiateLogin();
+          } else {
               btn.innerText = "CONNECT WAX";
-              errorBox.innerText = "ENGINE FAILED TO DOWNLOAD. CHECK CONNECTION.";
+              errorBox.innerText = "ENGINE ATTACH ERROR: Library loaded but global 'waxjs' is missing. Try refreshing.";
               errorBox.style.display = 'block';
-          };
-          document.head.appendChild(script);
-      } else {
-          initiateLogin();
-      }
+          }
+      };
+
+      script.onerror = () => {
+          btn.innerText = "CONNECT WAX";
+          errorBox.innerText = "NETWORK ERROR: Could not reach WAX CDN.";
+          errorBox.style.display = 'block';
+      };
+
+      document.head.appendChild(script);
   }
 
+  // ⚡ HARDENED AUTHENTICATION
   async function initiateLogin() {
       try {
-          wax = new window.waxjs.WaxJS({ 
+          // Robust constructor check
+          const WAX_CLASS = (typeof waxjs !== 'undefined' && waxjs.WaxJS) ? waxjs.WaxJS : window.waxjs;
+          
+          if (!WAX_CLASS) {
+              throw new Error("WaxJS class not found in window object.");
+          }
+
+          waxInstance = new WAX_CLASS({ 
               rpcEndpoint: 'https://wax.greymass.com',
               tryAutoLogin: false 
           });
-          const user = await wax.login();
-          document.getElementById('wax-auth-container').innerHTML = `<span style="font-family:monospace; color:var(--accent-gold); font-weight:bold;">${user.toUpperCase()}</span>`;
+
+          const user = await waxInstance.login();
+          document.getElementById('wax-auth-badge').style.display = 'flex';
+          document.getElementById('wax-wallet-display').innerText = user.toUpperCase();
+          document.getElementById('wax-login-btn').style.display = 'none';
           fetchAssets(user);
       } catch (e) {
           document.getElementById('wax-login-btn').innerText = "CONNECT WAX";
-          document.getElementById('system-message').innerText = "LOGIN ERROR: " + e.message;
+          document.getElementById('system-message').innerText = "WAX AUTH ERROR: " + e.message;
           document.getElementById('system-message').style.display = 'block';
       }
   }
 
+  // ⚡ MULTI-NODE FALLBACK INDEXING
   async function fetchAssets(wallet) {
     document.getElementById('api-loading').style.display = 'flex';
-    const nodes = ["https://wax.api.atomicassets.io", "https://atomic.wax.eosrio.io", "https://atomic.3dkrender.com"];
+    // Load balancing across 4 major Atomic nodes
+    const nodes = [
+        "https://wax.api.atomicassets.io", 
+        "https://atomic.wax.eosrio.io", 
+        "https://atomic.3dkrender.com",
+        "https://wax-atomic.api.taco.io"
+    ];
     let dataFetched = false;
 
     for (let node of nodes) {
@@ -114,12 +173,12 @@
                 dataFetched = true;
                 break;
             }
-        } catch (err) { console.warn("Node blocked, trying next..."); }
+        } catch (err) { console.warn(`Node ${node} failed, trying next...`); }
     }
 
     document.getElementById('api-loading').style.display = 'none';
     if (!dataFetched) {
-        document.getElementById('system-message').innerText = "WAX NETWORK UNREACHABLE. REFRESH.";
+        document.getElementById('system-message').innerText = "BLOCKCHAIN DATA UNREACHABLE. REFRESH PAGE.";
         document.getElementById('system-message').style.display = 'block';
     }
   }
@@ -130,8 +189,7 @@
         const hash = item.data.img || (item.template && item.template.immutable_data.img);
         return `
             <div class="slot" onclick="inspect('${item.asset_id}')">
-                <img src="https://atomichub-ipfs.com/ipfs/${hash}" class="slot-img" onerror="this.src='https://via.placeholder.com/150/0f1a47/ff2d55?text=ERROR'">
-                <div class="slot-name" style="display:none">${item.data.name}</div>
+                <img src="https://atomichub-ipfs.com/ipfs/${hash}" class="slot-img" onerror="this.src='https://via.placeholder.com/150/0f1a47/ff2d55?text=IMG+ERR'">
             </div>`;
     }).join('') + Array(Math.max(0, 12 - inventory.length)).fill('<div class="slot" style="opacity:0.1;"><i class="fas fa-plus"></i></div>').join('');
   }
@@ -141,9 +199,9 @@
       const hash = item.data.img || (item.template && item.template.immutable_data.img);
       document.getElementById('inspector-content').innerHTML = `
           <img src="https://atomichub-ipfs.com/ipfs/${hash}" style="width:100%; border-radius:12px; margin-bottom:1rem; border: 1px solid var(--card-border);">
-          <h2 style="font-family:'Bangers'; font-size:2rem; color:var(--accent-gold);">${item.data.name || 'SK8 NFT'}</h2>
+          <h2 style="font-family:'Bangers'; font-size:2.2rem; color:var(--accent-gold);">${item.data.name || 'SK8 NFT'}</h2>
           <p style="font-family:monospace; font-size:0.7rem; margin: 1rem 0;">ID: ${item.asset_id}<br>MINT: #${item.template_mint}</p>
-          <button class="wax-login-btn" style="width:100%;" onclick="window.open('https://neftyblocks.com/collection/${COLLECTION}/blends', '_blank')">CRAFT / BLEND</button>
+          <button class="action-btn" onclick="window.open('https://neftyblocks.com/collection/${COLLECTION}/blends', '_blank')">CRAFT / BLEND</button>
       `;
   }
 </script>
