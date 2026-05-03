@@ -37,4 +37,149 @@
     .slot-img { width: 70%; height: 70%; object-fit: contain; }
     .slot-name { position: absolute; bottom: 0; width: 100%; background: rgba(10,19,47,0.9); padding: 5px; font-size: 0.55rem; text-align: center; font-weight: bold; text-transform: uppercase; }
 
-    .inspector-panel { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; position: sticky
+    .inspector-panel { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; position: sticky; top: 2rem; min-height: 500px; }
+    .inspector-header { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--accent-gold); border-bottom: 1px solid var(--card-border); padding-bottom: 10px; margin-bottom: 15px; }
+    
+    .action-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: bold; font-size: 0.75rem; cursor: pointer; border: none; background: var(--accent-cyan); color: #000; }
+
+    #system-message { display:none; padding: 15px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; text-align: center; margin-bottom: 15px; font-family: 'Orbitron'; border: 1px solid var(--accent-red); color: var(--accent-red); background: rgba(255, 45, 85, 0.1); word-break: break-all; }
+    
+    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.95); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
+    
+    @media (max-width: 900px) { .portal-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="header-title">SK8 PORTAL</div>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="auth-badge" id="wax-auth-badge">
+          <i class="fas fa-link" style="color:var(--accent-gold);"></i> 
+          <span id="wax-wallet-display" style="color:#fff; font-family:monospace;"></span>
+        </div>
+        <button class="wax-login-btn" id="wax-login-btn">CONNECT WAX</button>
+    </div>
+  </div>
+
+  <div id="system-message"></div>
+
+  <div class="portal-layout">
+    <div style="position: relative;">
+      <div class="inventory-grid" id="grid"></div>
+      <div class="loading-overlay" id="api-loading">
+          <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:var(--accent-cyan); margin-bottom:1rem;"></i>
+          <p style="font-family: 'Orbitron'; letter-spacing: 2px;">SCANNING ATOMIC CHAIN...</p>
+      </div>
+    </div>
+
+    <div class="inspector-panel">
+      <div class="inspector-header">ASSET INSPECTOR</div>
+      <div id="inspector-content" style="text-align: center; opacity: 0.5; padding-top: 2rem;">
+          <i class="fas fa-mouse-pointer" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+          <p>Select a <b style="color:var(--accent-cyan)">skatecoinwax</b> NFT</p>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  import * as waxjsModule from 'https://esm.sh/@waxio/waxjs@1.3.0';
+  
+  const WaxJS = waxjsModule.WaxJS || waxjsModule.default.WaxJS || waxjsModule.default;
+
+  let waxInstance = null;
+  const COLLECTION = "skatecoinwax";
+  let inventory = [];
+
+  const loginBtn = document.getElementById('wax-login-btn');
+  const errorBox = document.getElementById('system-message');
+
+  loginBtn.addEventListener('click', async () => {
+      errorBox.style.display = 'none';
+
+      try {
+          if (!waxInstance) {
+              waxInstance = new WaxJS({ 
+                  rpcEndpoint: 'https://wax.greymass.com',
+                  tryAutoLogin: false 
+              });
+          }
+
+          loginBtn.innerText = "AWAITING WALLET...";
+          
+          const user = await waxInstance.login();
+          
+          document.getElementById('wax-auth-badge').style.display = 'flex';
+          document.getElementById('wax-wallet-display').innerText = user.toUpperCase();
+          loginBtn.style.display = 'none';
+          
+          fetchAssets(user);
+      } catch (e) {
+          loginBtn.innerText = "CONNECT WAX";
+          errorBox.innerText = "WAX AUTH ERROR: " + e.message;
+          errorBox.style.display = 'block';
+      }
+  });
+
+  async function fetchAssets(wallet) {
+    document.getElementById('api-loading').style.display = 'flex';
+    
+    const nodes = [
+        "https://wax.api.atomicassets.io", 
+        "https://atomic.wax.eosrio.io", 
+        "https://atomic.3dkrender.com",
+        "https://wax-atomic.api.taco.io"
+    ];
+    let dataFetched = false;
+
+    for (let node of nodes) {
+        try {
+            const r = await fetch(`${node}/atomicassets/v1/assets?owner=${wallet}&collection_name=${COLLECTION}&limit=12&order=desc&sort=asset_id`);
+            const j = await r.json();
+            if (j.success) {
+                inventory = j.data;
+                renderUI();
+                dataFetched = true;
+                break;
+            }
+        } catch (err) { console.warn(`Node ${node} failed, trying next...`); }
+    }
+
+    document.getElementById('api-loading').style.display = 'none';
+    if (!dataFetched) {
+        errorBox.innerText = "BLOCKCHAIN DATA UNREACHABLE. REFRESH PAGE.";
+        errorBox.style.display = 'block';
+    } else if (inventory.length === 0) {
+        errorBox.innerText = `NO '${COLLECTION}' NFTS FOUND IN WALLET: ${wallet}`;
+        errorBox.style.display = 'block';
+        renderUI();
+    }
+  }
+
+  function renderUI() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = inventory.map(item => {
+        const hash = item.data.img || (item.template && item.template.immutable_data && item.template.immutable_data.img) || "";
+        return `
+            <div class="slot" onclick="window.inspect('${item.asset_id}')">
+                <img src="https://atomichub-ipfs.com/ipfs/${hash}" class="slot-img" onerror="this.src='https://via.placeholder.com/150/0f1a47/ff2d55?text=IMG+ERR'">
+                <div class="slot-name" style="display:none">${item.data.name || 'SK8 NFT'}</div>
+            </div>`;
+    }).join('') + Array(Math.max(0, 12 - inventory.length)).fill('<div class="slot" style="opacity:0.1;"><i class="fas fa-plus"></i></div>').join('');
+  }
+
+  // Globally exposed inspector function
+  window.inspect = function(id) {
+      const item = inventory.find(x => x.asset_id === id);
+      const hash = item.data.img || (item.template && item.template.immutable_data && item.template.immutable_data.img) || "";
+      document.getElementById('inspector-content').innerHTML = `
+          <img src="https://atomichub-ipfs.com/ipfs/${hash}" style="width:100%; border-radius:12px; margin-bottom:1rem; border: 1px solid var(--card-border);" onerror="this.src='https://via.placeholder.com/150/0f1a47/ff2d55?text=IMG+ERR'">
+          <h2 style="font-family:'Bangers'; font-size:2.2rem; color:var(--accent-gold);">${item.data.name || item.schema.schema_name || 'SK8 NFT'}</h2>
+          <p style="font-family:monospace; font-size:0.7rem; margin: 1rem 0; color: var(--text-secondary);">ID: ${item.asset_id}<br>MINT: #${item.template_mint || 'N/A'}</p>
+          <button class="action-btn" onclick="window.open('https://neftyblocks.com/collection/${COLLECTION}/blends', '_blank')">CRAFT / BLEND</button>
+          <button class="action-btn" style="background:transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);" onclick="window.open('https://wax.atomichub.io/explorer/asset/wax-mainnet/${item.asset_id}', '_blank')">VIEW ON ATOMIC</button>
+      `;
+  }
+</script>
+</body>
+</html>
