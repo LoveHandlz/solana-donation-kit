@@ -187,6 +187,10 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 .feed-bless-btn { background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 8px; border-radius: 6px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: auto; transition: 0.3s; text-transform: uppercase; }
 .feed-bless-btn:hover { background: var(--accent-gold); color: #000; }
 
+.reaction-btn { background:none; border:none; cursor:pointer; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 2px; filter:grayscale(1) opacity(0.5); transition:0.2s; }
+.reaction-btn:hover { filter:none; transform:scale(1.1); }
+.reaction-btn.has-votes { filter: none; opacity: 1; }
+
 @media (max-width: 1200px) { .video-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 900px) { 
     .footer-inner { grid-template-columns: 1fr; gap: 2rem; text-align: center; } 
@@ -722,7 +726,8 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 </div>
 
 <audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
-<script>
+
+  <script>
 let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
 
 // GLOBALS
@@ -735,8 +740,9 @@ let currentSkaterPosts = [];
 let activeProposals = [];
 let closedProposals = [];
 let bannedWallets = [];
-const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 Days Time-To-Live
-const DAO_VOTE_FEE = 0.001; // SOL Anti-Sybil Fee
+let globalAdminIncognito = false; 
+const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; 
+const DAO_VOTE_FEE = 0.001; 
 
 // RULE OF 12
 const FEED_LIMIT = 12; 
@@ -775,12 +781,10 @@ function isMobile() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile
 function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
-// ========================================================
-// ON-CHAIN ADMIN STATE SYNC
-// ========================================================
 async function syncAdminState() {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     bannedWallets = [];
+    globalAdminIncognito = false; 
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 40 });
         const txs = await Promise.all(sigs.map(s => conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
@@ -795,6 +799,7 @@ async function syncAdminState() {
                                 let d = JSON.parse(match[1]);
                                 if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
                                 if(d.action === "unban") bannedWallets = bannedWallets.filter(w => w !== d.wallet);
+                                if(d.action === "incognito") globalAdminIncognito = d.state; 
                             }
                         } catch(e) {}
                     }
@@ -920,7 +925,6 @@ async function fetchTreasuryBalance() {
     document.getElementById("treasury-usd-balance").innerText = "$" + (sol * solPrice).toFixed(2);
 }
 
-// ⚡ GODMODE RENDER OVERRIDE
 function getRankDisplay(amount, isSkater = false, address = null) {
     if(address && ADMIN_WALLETS.includes(address)) {
         if (publicKey && ADMIN_WALLETS.includes(publicKey)) {
@@ -956,10 +960,6 @@ async function getSkaterNameSafe(wallet) {
     nameCache[wallet] = name;
     return name;
 }
-
-// ========================================================
-// ISOLATED LEADERBOARD LOGIC - RULE OF 12 & SEA CREATURES
-// ========================================================
 
 async function refreshLeaderboardData() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
@@ -1042,6 +1042,11 @@ async function refreshLeaderboardData() {
     let rawTreasury = Object.keys(aggTreasury).map(addr => ({ addr, val: aggTreasury[addr] }));
     let rawSkaterSponsors = Object.keys(aggSkaterSponsors).map(addr => ({ addr, val: aggSkaterSponsors[addr] }));
     
+    if (globalAdminIncognito) {
+        rawTreasury = rawTreasury.filter(s => !ADMIN_WALLETS.includes(s.addr));
+        rawSkaterSponsors = rawSkaterSponsors.filter(s => !ADMIN_WALLETS.includes(s.addr));
+    }
+
     let topTreasurySponsors = rawTreasury.sort((a, b) => b.val - a.val).slice(0, FEED_LIMIT);
     let topSkaterSponsors = rawSkaterSponsors.sort((a, b) => b.val - a.val).slice(0, FEED_LIMIT);
     let topRecentTreasury = recentTreasuryHits.sort((a, b) => b.time - a.time).slice(0, FEED_LIMIT);
@@ -1076,7 +1081,6 @@ function generateSponsorHtml(sponsorsArray, emptyMessage) {
         
         let emoji = "🐟"; let creatureName = "FISH";
         
-        // ⚡ GODMODE UI OVERRIDE
         if (ADMIN_WALLETS.includes(s.addr)) {
             emoji = "⚡"; creatureName = "GODMODE";
         } else if (pos === 1) { emoji = "🐋"; creatureName = "BLUE WHALE"; }
@@ -1144,10 +1148,6 @@ function generateRecentHtml(recentArray, type) {
     });
     return html;
 }
-
-// ========================================================
-// ON-CHAIN DAO VOTING ENGINE 
-// ========================================================
 
 function formatTimeRemaining(expiresAt) {
     let diff = expiresAt - (Date.now() / 1000);
@@ -1391,6 +1391,31 @@ async function removeDAOProposal(propId) {
     } catch(e) {}
 }
 
+async function setIncognitoWeb3(state) {
+    if(!confirm(`Are you sure you want to ${state ? 'HIDE' : 'SHOW'} Godmode on public leaderboards?`)) return;
+    try {
+        const pData = JSON.stringify({ sk8admin: "v1", action: "incognito", state: state });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        
+        const tx = new solanaWeb3.Transaction()
+            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 }))
+            .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+            
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        
+        alert(`Visibility updated! Please wait a moment for the blockchain to sync.`);
+        setTimeout(async () => {
+            await syncAdminState();
+            renderProfile(publicKey);
+            refreshLeaderboardData();
+        }, 3000);
+    } catch(e) { alert("Admin action failed."); }
+}
+
 async function adminAction(targetWallet, action) {
     if(!targetWallet) { alert("Enter a wallet address first."); return; }
     if(!confirm(`Are you sure you want to ${action.toUpperCase()} skater ${targetWallet.slice(0,4)}...${targetWallet.slice(-4)}?`)) return;
@@ -1414,10 +1439,6 @@ async function adminAction(targetWallet, action) {
         renderProfile(publicKey); 
     } catch(e) { alert("Admin action failed."); }
 }
-
-// ========================================================
-// CORE PERSISTENCE & NAVIGATION
-// ========================================================
 
 function checkPersistence() {
     let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
@@ -1519,7 +1540,6 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('p-bio').innerText = activeProf.bio;
     document.getElementById('p-wallet').innerText = wallet;
     
-    // UI Override: Make Edit Button Square and match Admin layout
     const editBtn = document.getElementById('edit-profile-btn');
     if (editBtn) {
         editBtn.className = 'tier-btn'; 
@@ -1531,12 +1551,17 @@ async function renderProfile(wallet, forceView = null) {
         editBtn.style.borderRadius = '6px';
     }
 
-    // ⚡ INJECT ADMIN PANEL LOGIC (Godmode Banner on Admin Profile)
     let adminPanelHtml = "";
     if (ADMIN_WALLETS.includes(publicKey) && isOwner) {
+        let btnColor = globalAdminIncognito ? "var(--accent-green)" : "var(--accent-red)";
+        let btnTextColor = globalAdminIncognito ? "#000" : "#fff";
+        let btnText = globalAdminIncognito ? "GO VISIBLE ON LEADERBOARDS" : "GO INCOGNITO (HIDE)";
+        let nextState = !globalAdminIncognito;
+        
         adminPanelHtml = `
         <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
             <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE ADMIN PANEL</h4>
+            <button onclick="setIncognitoWeb3(${nextState})" class="tier-btn" style="width:100%; margin-bottom:10px; background:${btnColor}; color:${btnTextColor}; border:none; padding:10px;"><i class="fas fa-bolt"></i> ${btnText}</button>
             <input type="text" id="admin-target-wallet" placeholder="Enter Skater Wallet..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-red); border-radius: 5px; font-size: 0.7rem; font-family: monospace;">
             <div style="display: flex; gap: 10px;">
                 <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'ban')" class="tier-btn" style="background:var(--accent-red); color:#fff; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">SUSPEND</button>
@@ -1583,7 +1608,6 @@ async function renderProfile(wallet, forceView = null) {
         
         let badgesHtml = "";
         
-        // Expansion to 12 Badges incorporating creative/controversial metric tracking
         const badgeTiers = [
             { id: 'flow', isUnlocked: stats.outs >= 0.01, icon: '🥉', title: 'FLOW', color: 'var(--bronze-font)', desc: '0.01 SOL' },
             { id: 'am', isUnlocked: stats.outs >= 0.05, icon: '🥈', title: 'SILVER', color: 'var(--silver-font)', desc: '0.05 SOL' },
@@ -1600,7 +1624,7 @@ async function renderProfile(wallet, forceView = null) {
         ];
 
         badgeTiers.forEach(b => {
-            let isUnlocked = b.isUnlocked || ADMIN_WALLETS.includes(wallet); // ⚡ GODMODE BYPASS
+            let isUnlocked = b.isUnlocked || ADMIN_WALLETS.includes(wallet);
             if (isUnlocked) {
                 let claimBtn = isOwner ? `<button onclick="claimSponsorReward('${b.id}')" style="background: transparent; color: ${b.color}; border: 1px solid ${b.color}; border-radius: 4px; padding: 6px; font-size: 0.65rem; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; width: 100%; margin-top: 10px;" onmouseover="this.style.background='${b.color}'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='${b.color}';">CLAIM REWARD</button>` : '';
                 
@@ -1629,7 +1653,6 @@ async function renderProfile(wallet, forceView = null) {
     document.getElementById('edit-profile-btn').style.display = isOwner ? 'block' : 'none';
     document.getElementById('profile-donate-btn').style.display = isOwner ? 'none' : 'block';
 
-    // Anti-Duplication Wrap for Admin UI
     const existingAdmin = document.getElementById('sk8-admin-panel-wrapper');
     if (existingAdmin) existingAdmin.remove();
 
@@ -1639,9 +1662,7 @@ async function renderProfile(wallet, forceView = null) {
     }
 }
 
-function claimSponsorReward(tierId) {
-    alert(`Initiating Web3 claim for ${tierId.toUpperCase()} tier reward (NFTs / $SKATE). Contract linking pending...`);
-}
+function claimSponsorReward(tierId) { alert(`Initiating Web3 claim for ${tierId.toUpperCase()} tier reward (NFTs / $SKATE). Contract linking pending...`); }
 
 function openEditModal() {
     document.getElementById('edit-name').value = document.getElementById('p-name').innerText;
@@ -1741,34 +1762,30 @@ async function sendSOL(amount, dest) {
   } catch (err) {}
 }
 
-async function castReaction(postId, emoji) {
+async function castReaction(postId, emoji, costStr) {
     if(!publicKey) { alert("Connect Wallet to react!"); return; }
+    const costSOL = parseFloat(costStr);
     
-    // Set a tiny minimum micro-tx fee for reactions to prevent network spam
-    const MIN_REACT_FEE = 0.0001; 
-    
-    if(!confirm(`Drop a ${emoji} reaction? Requires a ${MIN_REACT_FEE} SOL micro-tip to the skater.`)) return;
+    if(!confirm(`Drop a ${emoji} reaction? Requires a ${costSOL} SOL tip to the skater.`)) return;
 
     try {
-        // Tag the transaction to the specific Post ID
         const pData = JSON.stringify({ sk8react: "v1", post: postId, react: emoji });
         const encoded = new TextEncoder().encode(pData); 
         
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(activeFeedWallet); // Goes directly to the skater
+        const to = new solanaWeb3.PublicKey(activeFeedWallet); 
         
         const tx = new solanaWeb3.Transaction()
-            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(MIN_REACT_FEE * 1e9) }))
+            .add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(costSOL * 1e9) }))
             .add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
             
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert(`Reaction ${emoji} permanently locked on-chain!`);
-        
+        alert(`Reaction ${emoji} locked on-chain!`);
         attemptFeedAccess();
-    } catch (err) { alert("Reaction transaction failed or was rejected."); }
+    } catch (err) { alert("Reaction failed."); }
 }
 
 function createConfetti() {
@@ -1862,16 +1879,50 @@ async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
 async function fetchSkaterFeed(wallet, isBlurred) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     currentSkaterPosts = [];
+    
+    // Memory map for aggregating reactions
+    let reactionMap = {};
+
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 60 });
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 80 });
         for (let s of sigs) { 
-            if(s.memo && s.memo.includes('"sk8post":"v1"')) { 
-                const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, time: s.blockTime, totalDonated: 0 });
+            if(s.memo) {
+                if(s.memo.includes('"sk8post":"v1"')) { 
+                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                    currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, time: s.blockTime, totalDonated: 0 });
+                }
+                else if (s.memo.includes('"sk8react":"v1"')) {
+                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                    if(!reactionMap[d.post]) reactionMap[d.post] = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0, totalSOL: 0 };
+                    
+                    if(reactionMap[d.post][d.react] !== undefined) {
+                        reactionMap[d.post][d.react]++;
+                        
+                        // Increment internal totalDonated based on the emoji's cost
+                        let cost = 0;
+                        if(d.react === '🔥') cost = 0.001;
+                        if(d.react === '🤮') cost = 0.002;
+                        if(d.react === '⭐') cost = 0.006;
+                        if(d.react === '🧈') cost = 0.018;
+                        if(d.react === '🥩') cost = 0.054;
+                        if(d.react === '💪') cost = 0.100;
+                        reactionMap[d.post].totalSOL += cost;
+                    }
+                }
             }
         }
     } catch(e) {}
     
+    // Map aggregated reactions back to the posts
+    currentSkaterPosts.forEach(p => {
+        if(reactionMap[p.id]) {
+            p.reactions = reactionMap[p.id];
+            p.totalDonated = reactionMap[p.id].totalSOL;
+        } else {
+            p.reactions = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0 };
+        }
+    });
+
     renderFeedGrid(isBlurred);
 }
 
@@ -1906,6 +1957,8 @@ function renderFeedGrid(isBlurred) {
 
         let donatedSOL = p.totalDonated || 0;
         let usdVal = (donatedSOL * solPrice).toFixed(2);
+        
+        let rx = p.reactions;
 
         let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
 
@@ -1917,16 +1970,28 @@ function renderFeedGrid(isBlurred) {
                         
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
                             <span style="color:var(--text-secondary); font-size: 0.65rem; text-transform: uppercase;">Clip Treasury:</span>
-                            <span style="color:var(--accent-green); font-family:monospace; font-weight:bold;">${donatedSOL.toFixed(2)} SOL <span style="color:#888;">($${usdVal})</span></span>
+                            <span style="color:var(--accent-green); font-family:monospace; font-weight:bold;">${donatedSOL.toFixed(4)} SOL <span style="color:#888;">($${usdVal})</span></span>
                         </div>
                         
                         <div style="display:flex; justify-content:space-between; margin-bottom: ${isOwner ? '0' : '15px'}; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px;">
-                            <button onclick="castReaction('${p.id}', '🔥')" title="Fire" style="background:none; border:none; cursor:pointer; filter:grayscale(1) opacity(0.5); transition:0.2s;" onmouseover="this.style.filter='none'; this.style.transform='scale(1.2)';" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'; this.style.transform='scale(1)';">🔥</button>
-                            <button onclick="castReaction('${p.id}', '🤮')" title="Gross Style" style="background:none; border:none; cursor:pointer; filter:grayscale(1) opacity(0.5); transition:0.2s;" onmouseover="this.style.filter='none'; this.style.transform='scale(1.2)';" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'; this.style.transform='scale(1)';">🤮</button>
-                            <button onclick="castReaction('${p.id}', '⭐')" title="Great" style="background:none; border:none; cursor:pointer; filter:grayscale(1) opacity(0.5); transition:0.2s;" onmouseover="this.style.filter='none'; this.style.transform='scale(1.2)';" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'; this.style.transform='scale(1)';">⭐</button>
-                            <button onclick="castReaction('${p.id}', '🧈')" title="Steeze / Butter" style="background:none; border:none; cursor:pointer; filter:grayscale(1) opacity(0.5); transition:0.2s;" onmouseover="this.style.filter='none'; this.style.transform='scale(1.2)';" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'; this.style.transform='scale(1)';">🧈</button>
-                            <button onclick="castReaction('${p.id}', '🥩')" title="Hall of Meat" style="background:none; border:none; cursor:pointer; filter:grayscale(1) opacity(0.5); transition:0.2s;" onmouseover="this.style.filter='none'; this.style.transform='scale(1.2)';" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'; this.style.transform='scale(1)';">🥩</button>
-                            <button onclick="castReaction('${p.id}', '💪')" title="Flex" style="background:none; border:none; cursor:pointer; filter:grayscale(1) opacity(0.5); transition:0.2s;" onmouseover="this.style.filter='none'; this.style.transform='scale(1.2)';" onmouseout="this.style.filter='grayscale(1) opacity(0.5)'; this.style.transform='scale(1)';">💪</button>
+                            <button onclick="castReaction('${p.id}', '🔥', '0.001')" class="reaction-btn ${rx['🔥']>0 ? 'has-votes' : ''}" title="Fire (0.001 SOL)">
+                                <span style="font-size: 1.1rem;">🔥</span><span>${rx['🔥']||0}</span>
+                            </button>
+                            <button onclick="castReaction('${p.id}', '🤮', '0.002')" class="reaction-btn ${rx['🤮']>0 ? 'has-votes' : ''}" title="Gross Style (0.002 SOL)">
+                                <span style="font-size: 1.1rem;">🤮</span><span>${rx['🤮']||0}</span>
+                            </button>
+                            <button onclick="castReaction('${p.id}', '⭐', '0.006')" class="reaction-btn ${rx['⭐']>0 ? 'has-votes' : ''}" title="Great (0.006 SOL)">
+                                <span style="font-size: 1.1rem;">⭐</span><span>${rx['⭐']||0}</span>
+                            </button>
+                            <button onclick="castReaction('${p.id}', '🧈', '0.018')" class="reaction-btn ${rx['🧈']>0 ? 'has-votes' : ''}" title="Butter (0.018 SOL)">
+                                <span style="font-size: 1.1rem;">🧈</span><span>${rx['🧈']||0}</span>
+                            </button>
+                            <button onclick="castReaction('${p.id}', '🥩', '0.054')" class="reaction-btn ${rx['🥩']>0 ? 'has-votes' : ''}" title="Hall of Meat (0.054 SOL)">
+                                <span style="font-size: 1.1rem;">🥩</span><span>${rx['🥩']||0}</span>
+                            </button>
+                            <button onclick="castReaction('${p.id}', '💪', '0.100')" class="reaction-btn ${rx['💪']>0 ? 'has-votes' : ''}" title="Flex (0.1 SOL)">
+                                <span style="font-size: 1.1rem;">💪</span><span>${rx['💪']||0}</span>
+                            </button>
                         </div>
                         
                         ${blessBtn}
@@ -2030,6 +2095,50 @@ window.addEventListener('load', async () => {
         </div>`);
         
         document.body.insertAdjacentHTML('beforeend', `
+        <div
+        window.addEventListener('load', async () => {
+    // ---- DYNAMIC UI INJECTION FOR TREASURY PAGE ----
+    const donatePage = document.getElementById("donate-content");
+    if(donatePage && !document.getElementById("donate-sponsors-list")) {
+        donatePage.insertAdjacentHTML('beforeend', `
+        <div class="leaderboard-container" style="margin-top: 3rem;">
+            <div class="leaderboard-box">
+                <h2>TREASURY LEGENDS (TOP 12) <span class="live-indicator">● LIVE SCAN</span></h2>
+                <ul class="leader-list" id="donate-sponsors-list">
+                    <li class="leader-item">Scanning on-chain history...</li>
+                </ul>
+            </div>
+            <div class="leaderboard-box">
+                <h2>RECENT TREASURY DONATIONS <span class="live-indicator">● LIVE SCAN</span></h2>
+                <ul class="leader-list" id="donate-recent-list">
+                    <li class="leader-item">Checking recent hits...</li>
+                </ul>
+            </div>
+        </div>`);
+    }
+
+    // ---- DYNAMIC UI INJECTION FOR DAO PAGE ----
+    const mainBody = document.querySelector("main");
+    if(mainBody && !document.getElementById("dao-content")) {
+        mainBody.insertAdjacentHTML('beforeend', `
+        <div id="dao-content" style="display:none;">
+            <div class="hero">
+                <h1 style="font-size: 2.5rem;">THE SENATE</h1>
+                <p style="color: var(--accent-cyan); font-weight:bold; font-size: 0.8rem;">ON-CHAIN DECENTRALIZED GOVERNANCE</p>
+                <p class="hero-subtext" style="font-size:0.9rem; max-width:700px; margin: 15px auto;">Propose, debate, and vote on the future of Skate2Earn. High-ranking sponsors (Pro/Senator) dictate motions, while the community decides the outcome. Voting requires a ${DAO_VOTE_FEE} SOL anti-sybil fee.</p>
+                <button onclick="openProposalModal()" class="wallet-btn" style="margin-top: 10px; font-size: 0.8rem;">SUBMIT MOTION</button>
+            </div>
+            <div class="leaderboard-container" style="max-width: 800px; margin: 0 auto; display: block;">
+                <div class="leaderboard-box" style="margin-bottom: 2rem;">
+                    <h2>ACTIVE MOTIONS <span class="live-indicator">● LIVE SCAN</span></h2>
+                    <div id="dao-proposal-list" style="margin-top: 15px;">
+                        <div style="color: var(--text-secondary); text-align: center; padding: 20px;">Scanning on-chain history...</div>
+                    </div>
+                </div>
+            </div>
+        </div>`);
+        
+        document.body.insertAdjacentHTML('beforeend', `
         <div id="proposal-modal" class="modal-overlay">
             <div class="modal-content" style="text-align: left;">
                 <h3 style="color:var(--accent-cyan); margin-bottom: 15px; text-align:center; font-size: 1.1rem;">DRAFT NEW MOTION</h3>
@@ -2059,3 +2168,5 @@ window.addEventListener('load', async () => {
 </script>
 </body>
 </html>
+
+        
