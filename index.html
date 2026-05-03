@@ -82,8 +82,6 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 .card-info { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
 .card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
 
-.usd-val { color: var(--accent-green); font-weight: 600; margin-left: 8px; font-family: 'Inter', sans-serif; font-size: 0.8rem; }
-
 .donate-btn { background: var(--accent-gold); color: #000; border: none; padding: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.75rem; cursor: pointer; width: 100%; margin-top: auto;}
 .view-profile-btn { background: transparent; color: var(--text-secondary); border: 1px solid var(--card-border); margin-top: 8px; padding: 8px; font-size: 0.7rem; cursor: pointer; width: 100%; text-transform: uppercase; font-family: 'Orbitron'; transition: 0.3s; border-radius: 6px; }
 .view-profile-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
@@ -140,6 +138,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
 .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100vh; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; }
 .modal-content { background:var(--bg-panel); padding:2rem; border-radius:15px; border:1px solid var(--accent-gold); width:92%; max-width:400px; text-align: center; position: relative; margin: 0 auto; box-sizing: border-box; max-height: 90vh; overflow-y: auto; }
+
 .tier-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-weight: bold; border-radius: 6px; font-size: 0.8rem;}
 .tier-btn:hover { background: var(--accent-gold); color: #000; }
 .tier-flow { border-color: var(--bronze-font) !important; color: var(--bronze-font) !important; }
@@ -148,6 +147,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 .tier-am:hover { background: var(--silver-font) !important; color: #000 !important; }
 .tier-pro { border-color: var(--gold-font) !important; color: var(--gold-font) !important; }
 .tier-pro:hover { background: var(--gold-font) !important; color: #000 !important; }
+
 .confetti { position: fixed; width: 10px; height: 10px; top: -10px; animation: fall 3s linear forwards; z-index: 2000; }
 @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
@@ -760,6 +760,7 @@ let allTreasurySponsors = [], allSkaterHits = [], activeFeedWallet = "", current
 let activeProposals = [], closedProposals = [], bannedWallets = [];
 let globalAdminIncognito = false; 
 let globalVideoState = {}; // Unified cache to prevent RPC spam
+let profileCache = {}; // Cache for skater profiles
 
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; 
 const DAO_VOTE_FEE = 0.001; 
@@ -796,7 +797,7 @@ function isMobile() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile
 function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
 function updateDonateButtons() { document.querySelectorAll('#video-content .donate-btn').forEach(btn => { if (publicKey && btn.dataset.address === publicKey) btn.style.display = 'none'; else btn.style.display = ''; }); }
 
-// UNIVERSAL REACTION BAR HTML GENERATOR
+// UNIVERSAL REACTION BAR & LOCK TOGGLE HTML GENERATOR
 function getReactionHtml(postId, targetWallet, isLocked) {
     let state = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
     let rx = state.reactions;
@@ -804,6 +805,7 @@ function getReactionHtml(postId, targetWallet, isLocked) {
     let isOwner = (publicKey === targetWallet);
     let isAdmin = ADMIN_WALLETS.includes(publicKey);
     
+    // Default to passed parameter if state is undefined
     let effectivelyLocked = state.locked !== undefined ? state.locked : isLocked; 
     
     let toggleHtml = "";
@@ -842,7 +844,7 @@ async function syncGlobalVideos(wallets) {
     
     await Promise.all(uniqueWallets.map(async (wallet) => {
         try {
-            const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 50 });
+            const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 60 });
             for (let s of sigs) {
                 if(s.memo) {
                     if (s.memo.includes('"sk8vid":"v1"')) {
@@ -923,11 +925,11 @@ async function fetchWalletStats(wallet) {
 }
 
 async function getSkaterProfileSafe(wallet) {
+    if(profileCache[wallet]) return profileCache[wallet];
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let isFree = false; 
-    let profileData = null;
+    let isFree = false; let profileData = null;
     try {
-        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 15 });
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 20 });
         for (let s of sigs) { 
             if(s.memo && s.memo.includes('"sk8":"v1"')) { 
                 profileData = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
@@ -936,7 +938,8 @@ async function getSkaterProfileSafe(wallet) {
             } 
         }
     } catch(e) {}
-    return { isFree, profileData };
+    profileCache[wallet] = { isFree, profileData };
+    return profileCache[wallet];
 }
 
 async function handleWalletAction() {
@@ -1456,11 +1459,14 @@ async function checkPersistence() {
 
         let postId = card.id;
         let vState = globalVideoState[postId] || { locked: true };
-        let isFree = !vState.locked;
+        
+        // Merge Profile IsFree setting vs specific video state
+        let prof = await getSkaterProfileSafe(targetWallet);
+        let isFree = prof.isFree ? true : !vState.locked;
         
         let rxDiv = card.querySelector('.reaction-container');
         if (rxDiv) {
-            rxDiv.innerHTML = getReactionHtml(postId, targetWallet, vState.locked);
+            rxDiv.innerHTML = getReactionHtml(postId, targetWallet, !isFree);
         }
 
         if (!publicKey) { 
