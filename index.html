@@ -838,7 +838,9 @@ footer { background: #020513; border-top: 1px solid var(--card-border); padding:
 // ==========================================
 // MASTER CONFIGURATION & GLOBALS
 // ==========================================
-const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
+const RPC_URL = const HELIUS_KEY = "29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
+const RPC_URL = `https://beta.helius-rpc.com/?api-key=${HELIUS_KEY}`;
+const REST_API_BASE = `https://api-mainnet.helius-rpc.com/v0/addresses`;
 const HELIUS_RPC = RPC_URL;
 
 let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
