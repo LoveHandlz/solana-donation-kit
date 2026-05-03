@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WAX PORTAL | SkateCoin Inventory</title>
+  <title>WAX PORTAL | SkateCoin Live</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -22,438 +22,163 @@
       --text-primary: #e0f7ff;
       --text-secondary: #a5d8ff;
       --card-border: rgba(0,240,255,0.14);
-      
-      --rarity-common: #a5d8ff;
-      --rarity-rare: #00f0ff;
-      --rarity-epic: #b142ff;
       --rarity-legendary: #ffd700;
-      --rarity-mythic: #ff2d55;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; overflow-x: hidden; }
-    body { background: var(--bg-deep); color: var(--text-primary); font-family: 'Inter', sans-serif; line-height: 1.6; padding: 2rem; min-height: 100vh; }
-    h1, h2, h3, .brand-font { font-family: 'Orbitron', sans-serif; }
+    body { background: var(--bg-deep); color: var(--text-primary); font-family: 'Inter', sans-serif; padding: 2rem; min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
 
     .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 1rem; margin-bottom: 2rem; }
-    .header-title { font-size: 2.2rem; color: var(--accent-cyan); font-weight: 900; display: flex; align-items: center; gap: 15px; }
+    .header-title { font-size: 2rem; color: var(--accent-cyan); font-weight: 900; }
     
-    .wax-login-btn { background: linear-gradient(135deg, #f78e1e, #ffb347); color: #000; border: none; padding: 10px 20px; border-radius: 50px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.8rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 15px rgba(247, 142, 30, 0.3); }
-    .wax-login-btn:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(247, 142, 30, 0.6); background: linear-gradient(135deg, #ffb347, #f78e1e); }
-    
+    .wax-login-btn { background: linear-gradient(135deg, #f78e1e, #ffb347); color: #000; border: none; padding: 12px 25px; border-radius: 50px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(247, 142, 30, 0.3); }
     .auth-badge { background: rgba(0,240,255,0.05); border: 1px solid var(--accent-cyan); padding: 8px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; display: none; align-items: center; gap: 10px; }
     
     .portal-layout { display: grid; grid-template-columns: 2.5fr 1fr; gap: 2rem; max-width: 1300px; margin: 0 auto; }
-    
-    /* LEFT SIDE: INVENTORY */
-    .filter-bar { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .filter-btn { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.3s; text-transform: uppercase; }
-    .filter-btn:hover, .filter-btn.active { background: var(--accent-cyan); color: #000; font-weight: bold; }
-
     .inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
     
     .slot { aspect-ratio: 1 / 1; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); position: relative; cursor: pointer; transition: 0.3s; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-    .slot:hover { border-color: var(--accent-cyan); background: rgba(0,240,255,0.05); transform: translateY(-3px); }
-    .slot.active { border: 2px solid var(--accent-gold); box-shadow: 0 0 20px rgba(255,215,0,0.3); background: rgba(255,215,0,0.05); transform: scale(1.02); z-index: 5; }
-    .slot.empty { cursor: default; opacity: 0.5; }
-    .slot.empty:hover { border-color: rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); transform: none; }
+    .slot.active { border: 2px solid var(--accent-gold); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+    .slot-img { width: 70%; height: 70%; object-fit: contain; }
+    .slot-name { position: absolute; bottom: 0; width: 100%; background: rgba(10,19,47,0.9); padding: 5px; font-size: 0.55rem; text-align: center; font-weight: bold; text-transform: uppercase; }
 
-    .slot-img { width: 60%; height: 60%; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); transition: 0.3s; }
-    .slot:hover .slot-img { transform: scale(1.1); }
+    .inspector-panel { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; position: sticky; top: 2rem; min-height: 500px; }
+    .inspector-header { font-size: 0.8rem; color: var(--accent-gold); border-bottom: 1px solid var(--card-border); padding-bottom: 10px; margin-bottom: 15px; }
     
-    .slot-name { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10,19,47,0.9); padding: 5px; font-size: 0.60rem; text-align: center; font-weight: bold; text-transform: uppercase; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-top: 1px solid rgba(255,255,255,0.1); }
-    .slot-mint { position: absolute; top: 5px; left: 5px; font-size: 0.55rem; color: #fff; font-family: monospace; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 4px; }
-    
-    .rarity-bar { position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
-
-    /* RIGHT SIDE: INSPECTOR */
-    .inspector-panel { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; height: 100%; min-height: 550px; position: sticky; top: 2rem; }
-    .inspector-header { font-size: 0.8rem; color: var(--accent-gold); border-bottom: 1px solid var(--card-border); padding-bottom: 10px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Orbitron'; display: flex; justify-content: space-between; align-items: center; }
-    
-    .empty-inspector { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-secondary); opacity: 0.5; text-align: center; padding: 20px; }
-    .empty-inspector i { font-size: 3rem; margin-bottom: 15px; }
-
-    .item-hero { text-align: center; margin-bottom: 20px; }
-    .item-hero-img { width: 150px; height: 150px; object-fit: contain; margin: 0 auto 15px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); border-radius: 8px; }
-    .item-title { font-family: 'Bangers', cursive; font-size: 1.8rem; letter-spacing: 1px; line-height: 1.1; margin-bottom: 8px; word-wrap: break-word; }
-    .item-rarity { font-size: 0.65rem; text-transform: uppercase; font-weight: bold; padding: 4px 12px; border-radius: 50px; display: inline-block; letter-spacing: 1px; }
-
-    .stats-box { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-    .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 4px; }
-    .stat-row:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-    .stat-label { color: var(--text-secondary); text-transform: uppercase; font-size: 0.65rem; }
-    .stat-val { font-family: monospace; font-weight: bold; color: var(--accent-green); text-align: right; }
-
-    .action-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: 0.3s; text-transform: uppercase; border: none; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .action-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; font-family: 'Orbitron'; font-weight: bold; font-size: 0.75rem; cursor: pointer; border: none; }
     .btn-craft { background: var(--accent-cyan); color: #000; }
-    .btn-craft:hover { background: #fff; box-shadow: 0 0 15px var(--accent-cyan); }
-    .btn-market { background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); }
-    .btn-market:hover { background: var(--accent-gold); color: #000; }
-    .btn-stake { background: transparent; color: var(--accent-green); border: 1px solid var(--accent-green); }
-    .btn-stake:hover { background: var(--accent-green); color: #000; }
+
+    #system-message { display:none; padding: 15px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: 15px; font-family: 'Orbitron'; border: 1px solid var(--accent-red); color: var(--accent-red); background: rgba(255, 45, 85, 0.1); }
     
-    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.9); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; border-radius: 12px; }
-    .loading-spinner { font-size: 3rem; color: var(--accent-cyan); margin-bottom: 15px; animation: spin 1s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .loading-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,19,47,0.9); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
 
-    /* SYSTEM MESSAGES */
-    #system-message { display:none; padding: 15px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: 15px; font-family: 'Orbitron'; text-transform: uppercase; word-wrap: break-word;}
-    .msg-error { background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red); }
-    .msg-warn { background: rgba(255, 149, 0, 0.1); border: 1px solid var(--accent-orange); color: var(--accent-orange); }
-
-    @media (max-width: 1024px) {
-      .inventory-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 900px) {
-      .portal-layout { grid-template-columns: 1fr; }
-      .inspector-panel { position: relative; top: 0; min-height: auto; }
-    }
-    @media (max-width: 600px) {
-      .inventory-grid { grid-template-columns: repeat(2, 1fr); }
-      .header-bar { flex-direction: column; align-items: flex-start; gap: 15px; }
-      .header-title { font-size: 1.5rem; }
-    }
+    @media (max-width: 900px) { .portal-layout { grid-template-columns: 1fr; } .inventory-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
 
   <div class="header-bar">
-    <div class="header-title">
-        <i class="fas fa-cube" style="color: #f78e1e;"></i> SKATECOINWAX PORTAL
-    </div>
-    
-    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
-        <div style="display: flex; gap: 15px; align-items: center;">
-            <div class="auth-badge" id="wax-auth-badge">
-              <i class="fas fa-link" style="color:var(--accent-gold);"></i> 
-              WALLET LINKED <span id="wax-wallet-display" style="color:#fff; font-family:monospace;"></span>
-            </div>
-            <button class="wax-login-btn" id="wax-login-btn" onclick="loginWAX()">
-                <i class="fas fa-wallet"></i> CONNECT WAX CLOUD
-            </button>
+    <div class="header-title">SK8 PORTAL</div>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="auth-badge" id="wax-auth-badge">
+          <i class="fas fa-link" style="color:var(--accent-gold);"></i> 
+          <span id="wax-wallet-display" style="color:#fff; font-family:monospace;"></span>
         </div>
+        <button class="wax-login-btn" id="wax-login-btn" onclick="loginWAX()">CONNECT WAX</button>
     </div>
   </div>
 
   <div id="system-message"></div>
 
   <div class="portal-layout">
-    
     <div style="position: relative;">
-      <div class="filter-bar" id="filters">
-        <button class="filter-btn active" onclick="setFilter('All')">ALL SK8 ASSETS</button>
-        <button class="filter-btn" onclick="setFilter('deck')">DECKS</button>
-        <button class="filter-btn" onclick="setFilter('wheels')">WHEELS</button>
-        <button class="filter-btn" onclick="setFilter('trucks')">TRUCKS</button>
-        <button class="filter-btn" onclick="setFilter('bearings')">BEARINGS</button>
-      </div>
-
-      <div class="inventory-grid" id="grid">
-        </div>
-      
+      <div class="inventory-grid" id="grid"></div>
       <div class="loading-overlay" id="api-loading">
-          <i class="fas fa-circle-notch loading-spinner"></i>
-          <p style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: bold; letter-spacing: 2px;">SYNCING ATOMIC ASSETS...</p>
+          <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:var(--accent-cyan); margin-bottom:1rem;"></i>
+          <p>FETCHING ATOMIC DATA...</p>
       </div>
     </div>
 
     <div class="inspector-panel">
-      <div class="inspector-header">
-          <span><i class="fas fa-search"></i> ASSET INSPECTOR</span>
-          <a id="atomic-hub-link" href="#" target="_blank" style="display: none; color: var(--text-secondary); text-decoration: none; font-size: 0.65rem;"><i class="fas fa-external-link-alt"></i> View on AtomicHub</a>
-      </div>
-      <div id="inspector-content">
-        <div class="empty-inspector" id="inspector-default-msg">
-          <i class="fas fa-mouse-pointer"></i>
-          <p>Login and select a SKATECOINWAX asset to view metadata and smart contract actions.</p>
-        </div>
+      <div class="inspector-header">ASSET INSPECTOR</div>
+      <div id="inspector-content" style="text-align: center; opacity: 0.5;">
+          <i class="fas fa-mouse-pointer" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+          <p>Select a skatecoinwax NFT</p>
       </div>
     </div>
-
   </div>
 
-<audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
-
 <script>
-  // ⚡ FIX 1: tryAutoLogin: false disables strict session checks that freeze on Vercel
-  const wax = new waxjs.WaxJS({ 
-      rpcEndpoint: 'https://wax.greymass.com',
-      tryAutoLogin: false 
-  });
-  
-  const TOTAL_SLOTS = 12;
+  // SECURE INITIALIZATION
+  let wax = null;
   const TARGET_COLLECTION = "skatecoinwax"; 
-  let activeFilter = 'All';
-  let activeAssetId = null;
   let rawInventory = [];
-  let currentWallet = "ufuau.wam"; // Fallback Test Wallet
 
-  function showMessage(msg, type) {
-      const el = document.getElementById('system-message');
-      el.innerText = msg;
-      el.className = type === 'error' ? 'msg-error' : 'msg-warn';
-      el.style.display = 'block';
-  }
-  function hideMessage() {
-      document.getElementById('system-message').style.display = 'none';
+  function initWax() {
+      if (!wax) {
+          wax = new waxjs.WaxJS({ 
+              rpcEndpoint: 'https://wax.greymass.com',
+              tryAutoLogin: false 
+          });
+      }
   }
 
-  // ⚡ ENHANCED LOGIN & ERROR EXPOSURE
   async function loginWAX() {
-    hideMessage();
+    document.getElementById('system-message').style.display = 'none';
+    initWax(); // Ensure wax is ready before calling it
     try {
       const userAccount = await wax.login();
-      currentWallet = userAccount;
-      
       document.getElementById('wax-auth-badge').style.display = 'flex';
-      document.getElementById('wax-wallet-display').innerText = `[ ${userAccount.toUpperCase()} ]`;
+      document.getElementById('wax-wallet-display').innerText = userAccount.toUpperCase();
       document.getElementById('wax-login-btn').style.display = 'none';
-      
-      await fetchAtomicAssets(currentWallet);
+      fetchAtomicAssets(userAccount);
     } catch (e) {
-      console.error("WAX Login Failed:", e);
-      // Expose the raw error string to the UI so we know EXACTLY what is failing
-      showMessage(`AUTH ERROR: ${e.message || "Pop-up blocked or closed early."}`, 'error');
+      document.getElementById('system-message').innerText = "AUTH ERROR: " + e.message;
+      document.getElementById('system-message').style.display = 'block';
     }
   }
 
-  // ⚡ FIX 2: MULTI-NODE FALLBACK ROUTING TO AVOID VERCEL 403 BLOCKS
-  async function fetchAtomicAssets(walletAddress) {
+  async function fetchAtomicAssets(wallet) {
     const loadingEl = document.getElementById('api-loading');
     loadingEl.style.display = 'flex';
-    hideMessage();
     
-    // Matrix of commercial Atomic nodes. If one blocks Vercel, the next will catch it.
-    const apiEndpoints = [
-        "https://wax.api.atomicassets.io", // Primary (Pink.gg)
-        "https://atomic.wax.eosrio.io",    // Backup 1 (EOSRio)
-        "https://atomic.3dkrender.com"     // Backup 2 (3DKRender)
-    ];
+    // Multiple API Fallbacks for Vercel
+    const nodes = ["https://wax.api.atomicassets.io", "https://atomic.wax.eosrio.io", "https://atomic.3dkrender.com"];
+    let found = false;
 
-    let success = false;
-
-    for (let baseApi of apiEndpoints) {
+    for (let node of nodes) {
         try {
-          const endpoint = `${baseApi}/atomicassets/v1/assets?owner=${walletAddress}&collection_name=${TARGET_COLLECTION}&page=1&limit=50&order=desc&sort=asset_id`;
-          console.log("Pinging Node:", endpoint);
-          
-          const response = await fetch(endpoint);
-          
-          if (!response.ok) {
-              console.warn(`Node ${baseApi} rejected request (Status: ${response.status}). Trying next node...`);
-              continue; // Jump to the next node in the array
-          }
-          
-          const json = await response.json();
-          
-          if (json.success) {
-            success = true; // We successfully hit a node
-            
-            if (json.data.length === 0) {
-                showMessage(`NO '${TARGET_COLLECTION}' ASSETS FOUND IN WALLET: ${walletAddress}`, 'warn');
-                rawInventory = [];
-            } else {
-                rawInventory = json.data.map(asset => {
-                  // Metadata Deep Traversal
-                  let rawImgHash = null;
-                  if (asset.data && asset.data.img) {
-                      rawImgHash = asset.data.img;
-                  } else if (asset.template && asset.template.immutable_data && asset.template.immutable_data.img) {
-                      rawImgHash = asset.template.immutable_data.img;
-                  }
-
-                  let imgUrl = rawImgHash 
-                    ? `https://atomichub-ipfs.com/ipfs/${rawImgHash}` 
-                    : 'https://via.placeholder.com/150/0f1a47/00f0ff?text=NO+IMAGE';
-                  
-                  let assetName = (asset.data && asset.data.name) ? asset.data.name : asset.schema.schema_name;
-
-                  return {
-                    id: asset.asset_id,
-                    name: assetName,
-                    collection: asset.collection.collection_name,
-                    schema: asset.schema.schema_name,
-                    template: asset.template ? asset.template.template_id : 'N/A',
-                    mint: asset.template_mint || 'N/A',
-                    img: imgUrl,
-                    type: determineCategory(asset.schema.schema_name, assetName),
-                    rarity: (asset.data && asset.data.rarity) ? asset.data.rarity : 'Common',
-                    wear: (asset.data && asset.data.wear) ? asset.data.wear : 0
-                  };
-                });
+            const r = await fetch(`${node}/atomicassets/v1/assets?owner=${wallet}&collection_name=${TARGET_COLLECTION}&limit=12`);
+            const j = await r.json();
+            if (j.success) {
+                rawInventory = j.data;
+                renderGrid();
+                found = true;
+                break;
             }
-            
-            // Reset UI state
-            activeAssetId = null;
-            activeFilter = 'All';
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.innerText === "ALL SK8 ASSETS") btn.classList.add('active');
-            });
-            
-            renderGrid();
-            renderInspector();
-            break; // Stop looping, we got the data
-          }
-        } catch (error) {
-          console.warn(`Node ${baseApi} failed with network error.`);
-        }
+        } catch (err) { console.warn("Node failed: " + node); }
     }
 
     loadingEl.style.display = 'none';
-
-    // If we exhausted all 3 nodes and still failed
-    if (!success) {
-        showMessage("CRITICAL: ALL ATOMIC NODES FAILED OR BLOCKED THIS DOMAIN.", 'error');
+    if (!found) {
+        document.getElementById('system-message').innerText = "NO NFTS FOUND IN THIS COLLECTION";
+        document.getElementById('system-message').style.display = 'block';
     }
   }
 
-  // HELPER: Maps schemas to portal categories
-  function determineCategory(schema, name) {
-    let s = (schema + " " + (name || "")).toLowerCase();
-    if (s.includes('deck') || s.includes('board')) return 'deck';
-    if (s.includes('wheel')) return 'wheels';
-    if (s.includes('truck')) return 'trucks';
-    if (s.includes('bearing')) return 'bearings';
-    if (s.includes('complete')) return 'complete';
-    return 'other';
-  }
-
-  // HELPER: Assign colors based on rarity metadata
-  function getRarityColor(rarity) {
-    let r = String(rarity).toLowerCase();
-    if(r.includes('common')) return 'var(--rarity-common)';
-    if(r.includes('rare')) return 'var(--rarity-rare)';
-    if(r.includes('epic')) return 'var(--rarity-epic)';
-    if(r.includes('legend')) return 'var(--rarity-legendary)';
-    if(r.includes('mythic')) return 'var(--rarity-mythic)';
-    return '#fff'; 
-  }
-
-  // RENDER THE 12-SLOT GRID
   function renderGrid() {
     const gridEl = document.getElementById('grid');
-    let html = '';
-
-    let filteredItems = rawInventory;
-    if (activeFilter !== 'All') {
-      filteredItems = rawInventory.filter(item => item.type === activeFilter);
-    }
-
-    for (let i = 0; i < TOTAL_SLOTS; i++) {
-      if (i < filteredItems.length) {
-        const item = filteredItems[i];
-        const isActive = item.id === activeAssetId ? 'active' : '';
-        const rarityColor = getRarityColor(item.rarity);
-        
-        html += `
-          <div class="slot ${isActive}" onclick="selectAsset('${item.id}')">
-            <div class="rarity-bar" style="background-color: ${rarityColor}"></div>
-            <div class="slot-mint">#${item.mint}</div>
-            <img src="${item.img}" class="slot-img" alt="NFT Asset" onerror="this.src='https://via.placeholder.com/150/0f1a47/ff2d55?text=IMG+ERROR'">
-            <div class="slot-name">${item.name}</div>
-          </div>
-        `;
-      } else {
-        html += `<div class="slot empty"><i class="fas fa-plus" style="color:rgba(255,255,255,0.05); font-size:1.5rem;"></i></div>`;
-      }
-    }
-    gridEl.innerHTML = html;
-  }
-
-  function selectAsset(assetId) {
-    activeAssetId = assetId;
-    renderGrid(); 
-    renderInspector();
-  }
-
-  function setFilter(type) {
-    activeFilter = type;
-    activeAssetId = null; 
+    gridEl.innerHTML = '';
     
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-
-    renderGrid();
-    renderInspector();
-  }
-
-  // RENDER THE RIGHT-SIDE METADATA PANEL
-  function renderInspector() {
-    const inspectorEl = document.getElementById('inspector-content');
-    const ahLink = document.getElementById('atomic-hub-link');
-    
-    if (!activeAssetId) {
-      ahLink.style.display = 'none';
-      inspectorEl.innerHTML = `
-        <div class="empty-inspector">
-          <i class="fas fa-mouse-pointer"></i>
-          <p>Select a ${TARGET_COLLECTION} asset to view metadata and available smart contract actions.</p>
-        </div>`;
-      return;
-    }
-
-    const item = rawInventory.find(i => i.id === activeAssetId);
-    const rColor = getRarityColor(item.rarity);
-
-    ahLink.href = `https://wax.atomichub.io/explorer/asset/wax-mainnet/${item.id}`;
-    ahLink.style.display = 'inline-flex';
-
-    let blendBtn = '';
-    if (['deck', 'wheels', 'trucks', 'bearings'].includes(item.type)) {
-      blendBtn = `<button class="action-btn btn-craft" onclick="triggerAction('CRAFT')"><i class="fas fa-hammer"></i> BLEND / CRAFT SET</button>`;
-    }
-
-    inspectorEl.innerHTML = `
-      <div class="item-hero">
-        <img src="${item.img}" class="item-hero-img" onerror="this.src='https://via.placeholder.com/150/0f1a47/ff2d55?text=IMG+ERROR'">
-        <div class="item-title" style="color: ${rColor}">${item.name}</div>
-        <div class="item-rarity" style="background: ${rColor}20; border: 1px solid ${rColor}; color: ${rColor}">${item.rarity}</div>
-      </div>
-
-      <div class="stats-box">
-        <div class="stat-row">
-          <span class="stat-label">Collection</span>
-          <span class="stat-val" style="color:var(--text-primary); text-transform:uppercase;">${item.collection}</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Schema</span>
-          <span class="stat-val" style="color:var(--text-secondary); text-transform:uppercase;">${item.schema}</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Asset ID</span>
-          <span class="stat-val">${item.id}</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Mint Number</span>
-          <span class="stat-val">#${item.mint}</span>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        ${blendBtn}
-        <button class="action-btn btn-market" onclick="triggerAction('SELL')"><i class="fas fa-store"></i> LIST ON NEFTYBLOCKS</button>
-        <button class="action-btn btn-stake" onclick="triggerAction('STAKE')"><i class="fas fa-lock"></i> STAKE FOR $SKATE</button>
-      </div>
-    `;
-  }
-
-  function triggerAction(actionType) {
-    const item = rawInventory.find(i => i.id === activeAssetId);
-    
-    if (actionType === 'CRAFT') {
-      const blendUrl = `https://neftyblocks.com/collection/${TARGET_COLLECTION}/blends`;
-      alert(`[WAX BLEND INIT] \n\nRouting to NeftyBlocks Blend Contract to forge a Complete Setup using Asset ID: ${item.id}`);
-      window.open(blendUrl, '_blank');
-    } else if (actionType === 'SELL') {
-      const sellUrl = `https://neftyblocks.com/collection/${TARGET_COLLECTION}/manage/assets`;
-      alert(`[MARKET ROUTING] \n\nRedirecting to NeftyBlocks to list Asset ID: ${item.id} (${item.name}).`);
-      window.open(sellUrl, '_blank');
-    } else if (actionType === 'STAKE') {
-      alert(`[STAKING PROTOCOL] \n\nLocking ${item.name} in the staking pool. Generating daily $SKATE yield.`);
+    // Fill 12 slots
+    for (let i = 0; i < 12; i++) {
+        if (i < rawInventory.length) {
+            const item = rawInventory[i];
+            const img = item.data.img || item.template.immutable_data.img;
+            gridEl.innerHTML += `
+                <div class="slot" onclick="inspect('${item.asset_id}')">
+                    <img src="https://atomichub-ipfs.com/ipfs/${img}" class="slot-img">
+                    <div class="slot-name">${item.data.name || 'SK8 NFT'}</div>
+                </div>`;
+        } else {
+            gridEl.innerHTML += `<div class="slot" style="opacity:0.2;"><i class="fas fa-plus"></i></div>`;
+        }
     }
   }
 
+  function inspect(id) {
+      const item = rawInventory.find(x => x.asset_id === id);
+      const img = item.data.img || item.template.immutable_data.img;
+      const content = document.getElementById('inspector-content');
+      content.style.opacity = "1";
+      content.innerHTML = `
+          <img src="https://atomichub-ipfs.com/ipfs/${img}" style="width:100%; border-radius:10px; margin-bottom:1rem;">
+          <h2 style="font-family:'Bangers'; font-size:2rem; color:var(--accent-gold);">${item.data.name}</h2>
+          <p style="font-size:0.7rem; margin-bottom:1rem;">ID: ${item.asset_id}</p>
+          <button class="action-btn btn-craft" onclick="window.open('https://neftyblocks.com/collection/skatecoinwax/blends', '_blank')">OPEN BLENDER</button>
+      `;
+  }
 </script>
 </body>
 </html>
