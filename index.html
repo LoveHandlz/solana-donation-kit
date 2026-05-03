@@ -836,7 +836,7 @@ function getReactionHtml(postId, targetWallet, isLocked) {
     `;
 }
 
-// BATCH FETCH VIDEO STATES (REACTIONS & LOCKS) - Sequenced to prevent RPC 429 Errors
+// OPTIMIZED: Zero getTransaction calls. Extracts states directly from memos.
 async function syncGlobalVideos(wallets) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let uniqueWallets = [...new Set(wallets)];
@@ -849,51 +849,51 @@ async function syncGlobalVideos(wallets) {
                 for (let s of sigs) {
                     if(s.memo) {
                         if (s.memo.includes('"sk8vid":"v1"')) {
-                            const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                            if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: d.locked, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-                            if(globalVideoState[d.post].locked === undefined) globalVideoState[d.post].locked = d.locked;
+                            try {
+                                const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                                if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: d.locked, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+                                // Honor most recent state
+                                if(globalVideoState[d.post].locked === undefined) globalVideoState[d.post].locked = d.locked;
+                            } catch(e){}
                         }
                         else if (s.memo.includes('"sk8react":"v1"')) {
-                            const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                            if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-                            
-                            if(globalVideoState[d.post].reactions[d.react] !== undefined) {
-                                globalVideoState[d.post].reactions[d.react]++;
-                                let cost = 0;
-                                if(d.react === '🔥') cost = 0.001; if(d.react === '🤮') cost = 0.002; if(d.react === '⭐') cost = 0.006;
-                                if(d.react === '🧈') cost = 0.018; if(d.react === '🥩') cost = 0.054; if(d.react === '💪') cost = 0.100;
-                                globalVideoState[d.post].totalSOL += cost;
-                            }
+                            try {
+                                const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                                if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+                                
+                                if(globalVideoState[d.post].reactions[d.react] !== undefined) {
+                                    globalVideoState[d.post].reactions[d.react]++;
+                                    let cost = 0;
+                                    if(d.react === '🔥') cost = 0.001; if(d.react === '🤮') cost = 0.002; if(d.react === '⭐') cost = 0.006;
+                                    if(d.react === '🧈') cost = 0.018; if(d.react === '🥩') cost = 0.054; if(d.react === '💪') cost = 0.100;
+                                    globalVideoState[d.post].totalSOL += cost;
+                                }
+                            } catch(e){}
                         }
                     }
                 }
             } catch(e) {}
         }));
-        await pingDelay(250); // Small pause respects RPC limits
+        await pingDelay(200); 
     }
 }
 
+// OPTIMIZED: Instantly parses Admin bans and incognito modes from memos
 async function syncAdminState() {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     bannedWallets = []; globalAdminIncognito = false; 
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 40 });
-        const txs = await Promise.all(sigs.map(s => conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null)));
-        txs.reverse().forEach(tx => {
-            if(tx && tx.meta && tx.meta.logMessages) {
-                for(let log of tx.meta.logMessages) {
-                    if(log.includes('"sk8admin":"v1"')) {
-                        try {
-                            let match = log.match(/(\{.*\})/);
-                            if(match) {
-                                let d = JSON.parse(match[1]);
-                                if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
-                                if(d.action === "unban") bannedWallets = bannedWallets.filter(w => w !== d.wallet);
-                                if(d.action === "incognito") globalAdminIncognito = d.state; 
-                            }
-                        } catch(e) {}
-                    }
-                }
+        sigs.reverse().forEach(s => {
+            if(s.memo && s.memo.includes('"sk8admin":"v1"')) {
+                try {
+                    let match = s.memo.match(/(\{.*\})/);
+                    let jsonStr = match ? match[1] : s.memo.replace(/^\[\d+\]\s*/, '');
+                    let d = JSON.parse(jsonStr);
+                    if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
+                    if(d.action === "unban") bannedWallets = bannedWallets.filter(w => w !== d.wallet);
+                    if(d.action === "incognito") globalAdminIncognito = d.state; 
+                } catch(e) {}
             }
         });
     } catch(e) {}
@@ -1042,13 +1042,21 @@ function getRankDisplay(amount, isSkater = false, address = null) {
     return amount > 0 ? { title: "SUPPORTER", color: "var(--text-secondary)", icon: '<i class="fas fa-handshake"></i>' } : { title: "POSER", color: "var(--accent-red)", icon: '🚫' };
 }
 
+// OPTIMIZED: Fetches profile names instantly without requesting the full transaction payload
 async function resolveWalletName(wallet) {
     if (wallet === TREASURY_WALLET) return "Protocol Treasury";
     let sp = SPONSOR_PROFILES.find(s => s.wallet === wallet); if (sp) return sp.name;
     let sk = SKATER_PROFILES.find(s => s.wallet === wallet); if (sk) return sk.name;
     try {
         const sigs = await new solanaWeb3.Connection(RPC_URL, "confirmed").getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 5 });
-        for (let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) { const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, '')); if(d.name) return d.name; } }
+        for (let s of sigs) { 
+            if(s.memo && s.memo.includes('"sk8":"v1"')) { 
+                try {
+                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, '')); 
+                    if(d.name) return d.name; 
+                } catch(e){}
+            } 
+        }
     } catch(e) {} 
     return "Anon Sponsor";
 }
@@ -1436,6 +1444,11 @@ async function toggleVideoLock(postId, targetWallet, currentlyLocked) {
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
         alert(`Video ${newState ? 'LOCKED' : 'UNLOCKED'}!`);
+        
+        // Optimistically update the cache to prevent needing a full reload
+        if(!globalVideoState[postId]) globalVideoState[postId] = { reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+        globalVideoState[postId].locked = newState;
+        
         setTimeout(() => {
             if(document.getElementById('profile-content').style.display === 'block') { renderProfile(targetWallet); }
             else if(document.getElementById('feed-content').style.display === 'block') { attemptFeedAccess(); }
@@ -1511,6 +1524,460 @@ function navigateTo(page, wallet = null) {
   if(page === 'donate') { fetchTreasuryBalance(); refreshLeaderboardData(); }
   if(page === 'dao') { refreshDAODashboard(); }
   window.scrollTo(0,0);
+}
+
+async function renderProfile(wallet, forceView = null) {
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const picEl = document.getElementById('p-img'); const rEl = document.getElementById('p-rank'); const bEl = document.getElementById('p-blessings');
+    const header = document.getElementById('profile-header-text'); const tags = document.getElementById('p-tags'); const gear = document.getElementById('p-gear');
+    
+    rEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...'; bEl.innerText = "SYNCING..."; tags.innerHTML = ""; gear.innerHTML = "";
+    
+    const isOwner = publicKey === wallet; const stats = await fetchWalletStats(wallet);
+    let isGen = SKATER_REGISTRY.includes(wallet); let isSpon = SPONSOR_ONLY_WALLETS.includes(wallet);
+    let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
+    
+    let view = forceView || (isGen ? 'skater' : 'sponsor'); if (!isGen && view === 'skater') view = 'sponsor';
+
+    let sk = SKATER_PROFILES.find(s => s.wallet === wallet); let sp = SPONSOR_PROFILES.find(s => s.wallet === wallet);
+    let fallbackName = await resolveWalletName(wallet);
+    
+    if(!sk && view === 'skater') sk = { name: fallbackName, styles: ["New Skater"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Raw street talent." };
+    if(!sp && view === 'sponsor') sp = { name: fallbackName, pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Legendary Sponsor fueling the movement." };
+
+    let activeProf = view === 'skater' ? sk : sp;
+    let isFreeToggle = false;
+
+    // Use unified safe fetch
+    let { isFree, profileData } = await getSkaterProfileSafe(wallet);
+    if(profileData) {
+        activeProf.name = profileData.name || activeProf.name; 
+        activeProf.pic = profileData.pic || activeProf.pic; 
+        activeProf.bio = profileData.bio || activeProf.bio;
+        if(view === 'skater') { 
+            activeProf.stance = profileData.stance; activeProf.deck = profileData.deck; 
+            activeProf.trucks = profileData.trucks; activeProf.spot = profileData.spot; 
+            activeProf.yt = profileData.yt; 
+            isFreeToggle = isFree;
+        }
+    }
+
+    const toggleEl = document.getElementById('edit-free-toggle');
+    if(toggleEl && isOwner) toggleEl.checked = isFreeToggle;
+
+    document.getElementById('p-name').innerText = activeProf.name; picEl.src = activeProf.pic; 
+    document.getElementById('p-bio').innerText = activeProf.bio; document.getElementById('p-wallet').innerText = wallet;
+    
+    const editBtn = document.getElementById('edit-profile-btn');
+    if (editBtn) { editBtn.className = 'tier-btn'; editBtn.style.background = '#fff'; editBtn.style.color = '#000'; editBtn.style.padding = '12px'; editBtn.style.border = 'none'; editBtn.style.marginTop = '10px'; editBtn.style.borderRadius = '6px'; }
+
+    let adminPanelHtml = "";
+    if (ADMIN_WALLETS.includes(publicKey) && isOwner) {
+        let btnColor = globalAdminIncognito ? "var(--accent-green)" : "var(--accent-red)"; let btnTextColor = globalAdminIncognito ? "#000" : "#fff"; let btnText = globalAdminIncognito ? "GO VISIBLE ON LEADERBOARDS" : "GO INCOGNITO (HIDE)"; let nextState = !globalAdminIncognito;
+        adminPanelHtml = `
+        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
+            <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE ADMIN PANEL</h4>
+            <button onclick="setIncognitoWeb3(${nextState})" class="tier-btn" style="width:100%; margin-bottom:10px; background:${btnColor}; color:${btnTextColor}; border:none; padding:10px;"><i class="fas fa-bolt"></i> ${btnText}</button>
+            <input type="text" id="admin-target-wallet" placeholder="Enter Skater Wallet..." style="width: 100%; padding: 8px; margin-bottom: 10px; background: #000; color: #fff; border: 1px solid var(--accent-red); border-radius: 5px; font-size: 0.7rem; font-family: monospace;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'ban')" class="tier-btn" style="background:var(--accent-red); color:#fff; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">SUSPEND</button>
+                <button onclick="adminAction(document.getElementById('admin-target-wallet').value, 'unban')" class="tier-btn" style="background:var(--accent-green); color:#000; border:none; padding:8px; font-size:0.65rem; margin-bottom:0;">RESURRECT</button>
+            </div>
+        </div>`;
+    }
+
+    if (view === 'skater') {
+        const rank = getRankDisplay(stats.ins, true, wallet); header.innerText = "SKATER IDENTITY & BIO";
+        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        tags.innerHTML = activeProf.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
+        try { const bal = await conn.getBalance(new solanaWeb3.PublicKey(wallet)); bEl.innerText = (bal / 1e9).toFixed(4) + " SOL"; } catch(e) {}
+        
+        let gHtml = ""; gear.dataset.stance = activeProf.stance; gear.dataset.deck = activeProf.deck; gear.dataset.trucks = activeProf.trucks; gear.dataset.spot = activeProf.spot; gear.dataset.yt = activeProf.yt; 
+        if(activeProf.stance) gHtml += `<div class="gear-tag"><i class="fas fa-shoe-prints"></i> ${activeProf.stance}</div>`;
+        if(activeProf.deck) gHtml += `<div class="gear-tag"><i class="fas fa-layer-group"></i> ${activeProf.deck}</div>`;
+        if(activeProf.trucks) gHtml += `<div class="gear-tag"><i class="fas fa-wrench"></i> ${activeProf.trucks}</div>`;
+        if(activeProf.spot) gHtml += `<div class="gear-tag"><i class="fas fa-map-marker-alt"></i> ${activeProf.spot}</div>`;
+        gear.innerHTML = gHtml;
+        
+        let vidSection = document.getElementById('p-sponsor-video-section');
+        let vidIframe = document.getElementById('p-sponsor-video');
+        
+        if(activeProf.yt) {
+            vidSection.style.display = 'block';
+            if (isFreeToggle || isOwner || isAdmin || await verifySponsorshipTier(publicKey, wallet, 0.05)) {
+                vidSection.classList.remove('locked');
+                vidIframe.src = `https://www.youtube.com/embed/${activeProf.yt}`;
+                let pOverlay = document.getElementById('sponsor-tape-paywall');
+                if(pOverlay) pOverlay.remove();
+            } else {
+                vidIframe.src = "";
+                if(!document.getElementById('sponsor-tape-paywall')) {
+                    vidSection.style.position = "relative";
+                    vidSection.insertAdjacentHTML('beforeend', `
+                    <div id="sponsor-tape-paywall" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(10,19,47,0.98); backdrop-filter:blur(8px); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10; border-radius:16px;">
+                        <i class="fas fa-lock" style="font-size:2rem; color:var(--silver-font); margin-bottom:10px;"></i>
+                        <h4 style="color:var(--silver-font); font-family:'Bangers'; letter-spacing:1px; font-size:1.5rem;">AM TIER REQUIRED</h4>
+                    </div>`);
+                }
+            }
+            
+            // Sync specific reactions for the Sponsor Me Tape
+            let tapeId = "yt-" + activeProf.yt;
+            await syncGlobalVideos([wallet]);
+            let rxDiv = document.getElementById('sponsor-tape-reactions');
+            if(rxDiv) {
+                let vState = globalVideoState[tapeId] || { locked: !isFreeToggle };
+                rxDiv.innerHTML = getReactionHtml(tapeId, wallet, vState.locked);
+            }
+            
+        } else {
+            vidSection.style.display = 'none';
+        }
+        
+        document.getElementById('skater-mini-badges-section').style.display = 'block'; document.getElementById('private-feed-btn').style.display = 'block'; document.getElementById('p-sponsor-badges-section').style.display = 'none';
+    } else {
+        const rank = getRankDisplay(stats.outs, false, wallet); header.innerText = "SPONSOR IDENTITY & BIO";
+        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color; bEl.innerText = stats.outs.toFixed(4) + " SOL";
+        tags.innerHTML = `<span class="style-tag" style="border-color:var(--accent-gold); color:var(--accent-gold);"><i class="fas fa-star" style="margin-right:5px;"></i> ON-CHAIN SPONSOR</span>`; gear.innerHTML = ""; 
+        document.getElementById('p-sponsor-video-section').style.display = 'none'; document.getElementById('skater-mini-badges-section').style.display = 'none'; document.getElementById('private-feed-btn').style.display = 'none'; document.getElementById('p-sponsor-badges-section').style.display = 'block';
+        
+        let badgesHtml = "";
+        const badgeTiers = [
+            { id: 'flow', isUnlocked: stats.outs >= 0.01, icon: '🥉', title: 'FLOW', color: 'var(--bronze-font)', desc: '0.01 SOL' }, { id: 'am', isUnlocked: stats.outs >= 0.05, icon: '🥈', title: 'SILVER', color: 'var(--silver-font)', desc: '0.05 SOL' }, { id: 'pro', isUnlocked: stats.outs >= 0.1, icon: '🥇', title: 'PRO', color: 'var(--gold-font)', desc: '0.10 SOL' }, { id: 'diamond', isUnlocked: stats.outs >= 1.0, icon: '💎', title: 'DIAMOND', color: 'var(--diamond-font)', desc: '1.0 SOL' }, { id: 'whale', isUnlocked: stats.outs >= 50.0, icon: '🐋', title: 'WHALE', color: 'var(--accent-cyan)', desc: '50 SOL' }, { id: 'sellout', isUnlocked: stats.outs >= 100.0, icon: '🕴️', title: 'CORP SELLOUT', color: 'var(--accent-red)', desc: '100 SOL' }, { id: 'homie', isUnlocked: stats.txCount >= 10, icon: '🤜', title: 'LOCAL HOMIE', color: '#4ade80', desc: '10 BLESSINGS' }, { id: 'plug', isUnlocked: stats.txCount >= 50, icon: '🔌', title: 'THE PLUG', color: '#ff9500', desc: '50 BLESSINGS' }, { id: 'sugar', isUnlocked: stats.txCount >= 100, icon: '🍬', title: 'SUGAR DADDY', color: '#ff2d55', desc: '100 BLESSINGS' }, { id: 'cult', isUnlocked: stats.txCount >= 500, icon: '👁️', title: 'CULT LEADER', color: '#a5d8ff', desc: '500 BLESSINGS' }, { id: 'meat', isUnlocked: stats.txCount >= 1000, icon: '🥩', title: 'HALL OF MEAT', color: '#ff2d55', desc: '1K BLESSINGS' }, { id: 'degen', isUnlocked: stats.outs >= 1000.0, icon: '🐸', title: 'DEGEN DEITY', color: '#4ade80', desc: '1000 SOL' }
+        ];
+
+        badgeTiers.forEach(b => {
+            let isUnlocked = b.isUnlocked || ADMIN_WALLETS.includes(wallet); 
+            if (isUnlocked) {
+                let claimBtn = isOwner ? `<button onclick="claimSponsorReward('${b.id}')" style="background: transparent; color: ${b.color}; border: 1px solid ${b.color}; border-radius: 4px; padding: 6px; font-size: 0.65rem; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; width: 100%; margin-top: 10px;" onmouseover="this.style.background='${b.color}'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='${b.color}';">CLAIM REWARD</button>` : '';
+                badgesHtml += `
+                    <div style="background: rgba(0,0,0,0.4); border: 1px solid ${b.color}; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 0 15px ${b.color}20; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="font-size: 2rem; margin-bottom: 10px; filter: drop-shadow(0 0 8px ${b.color});">${b.icon}</div>
+                            <div style="font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; font-weight: bold;">Unlocked</div>
+                            <div style="font-size: 0.8rem; color: ${b.color}; font-weight: 900;">${b.title}</div>
+                        </div>
+                        ${claimBtn}
+                    </div>`;
+            } else {
+                badgesHtml += `
+                    <div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center; opacity: 0.5; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="font-size: 1.5rem; color: #555; margin-bottom: 10px;"><i class="fas fa-lock"></i></div>
+                        <div style="font-size: 0.55rem; color: #777; text-transform: uppercase; font-weight: bold;">Requires ${b.desc}</div>
+                        <div style="font-size: 0.8rem; color: #555; font-weight: 900;">${b.title}</div>
+                    </div>`;
+            }
+        });
+        document.getElementById('sponsor-badge-grid').innerHTML = badgesHtml;
+    }
+    
+    document.getElementById('edit-profile-btn').style.display = isOwner ? 'block' : 'none';
+    document.getElementById('profile-donate-btn').style.display = isOwner ? 'none' : 'block';
+
+    const existingAdmin = document.getElementById('sk8-admin-panel-wrapper');
+    if (existingAdmin) existingAdmin.remove();
+
+    if(adminPanelHtml) {
+        const wrapper = `<div id="sk8-admin-panel-wrapper">${adminPanelHtml}</div>`;
+        document.getElementById('profile-donate-btn').insertAdjacentHTML('afterend', wrapper);
+    }
+}
+
+function claimSponsorReward(tierId) { alert(`Initiating Web3 claim for ${tierId.toUpperCase()} tier reward (NFTs / $SKATE). Contract linking pending...`); }
+
+function openEditModal() {
+    document.getElementById('edit-name').value = document.getElementById('p-name').innerText;
+    document.getElementById('edit-pic').value = document.getElementById('p-img').src;
+    document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
+    const isSponOnly = SPONSOR_ONLY_WALLETS.includes(publicKey);
+    document.getElementById('edit-skater-gear-section').style.display = isSponOnly ? 'none' : 'block';
+    
+    if (!isSponOnly) {
+        const d = document.getElementById('p-gear').dataset;
+        document.getElementById('edit-stance').value = d.stance || ""; 
+        document.getElementById('edit-deck').value = d.deck || "";
+        document.getElementById('edit-trucks').value = d.trucks || ""; 
+        document.getElementById('edit-spot').value = d.spot || "";
+        document.getElementById('edit-yt').value = d.yt ? "https://youtu.be/" + d.yt : "";
+    }
+    document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
+
+async function saveProfileWeb3() {
+    if(!publicKey) return; const btn = document.getElementById("save-web3-btn"); btn.innerText = "AWAITING SIGNATURE...";
+    try {
+        const name = document.getElementById("edit-name").value; const pic = document.getElementById("edit-pic").value; const bio = document.getElementById("edit-bio").value; 
+        let stance = "", deck = "", trucks = "", spot = "", yt = "", isFree = false;
+        
+        if (!SPONSOR_ONLY_WALLETS.includes(publicKey)) {
+            stance = document.getElementById("edit-stance").value; deck = document.getElementById("edit-deck").value; trucks = document.getElementById("edit-trucks").value; spot = document.getElementById("edit-spot").value; 
+            isFree = document.getElementById("edit-free-toggle").checked;
+            const rawYt = document.getElementById("edit-yt").value;
+            if (rawYt) { const m = rawYt.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); yt = (m && m[2].length === 11) ? m[2] : ""; }
+        }
+
+        const pData = JSON.stringify({ sk8: "v1", name, pic, bio, stance, deck, trucks, spot, yt, isFree });
+        const encoded = new TextEncoder().encode(pData); 
+        if (encoded.length > 566) { alert(`Too large!`); btn.innerText = "SAVE"; return; }
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        btn.innerText = "SAVED!"; 
+        
+        // Optimistically update cache
+        profileCache[publicKey] = { isFree: isFree, profileData: { name, pic, bio, stance, deck, trucks, spot, yt, isFree } };
+        setTimeout(() => { closeEditModal(); renderProfile(publicKey); btn.innerText = "SAVE"; }, 2000);
+    } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SAVE", 3000); }
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.classList.contains('donate-btn') && e.target.id !== 'profile-donate-btn') {
+      if(!publicKey) { alert("Connect Wallet First"); return; }
+      if(e.target.dataset.address === publicKey) { alert("Cannot sponsor yourself."); return; }
+      currentSkaterTarget = e.target.dataset.address; activeVideoId = e.target.dataset.target || null;
+      document.getElementById("sponsor-modal").style.display = "flex";
+  }
+});
+
+function openSponsorshipModalFromProfile() {
+    currentSkaterTarget = document.getElementById('p-wallet').innerText;
+    if (currentSkaterTarget === publicKey) { alert("Cannot sponsor yourself."); return; }
+    activeVideoId = null; document.getElementById('sponsor-modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
+function closeTreasuryModal() { document.getElementById("treasury-modal").style.display = "none"; }
+function closeSuccessModal() { document.getElementById("success-modal").style.display = "none"; }
+function openTreasuryModal() { if(!publicKey) { alert("Connect Wallet First"); return; } document.getElementById("treasury-modal").style.display = "flex"; }
+function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
+function sendDonation(amt) { sendSOL(amt, TREASURY_WALLET); }
+function sendCustomTreasury() { const amt = parseFloat(document.getElementById('custom-treasury-amt').value); if(amt > 0) sendDonation(amt); }
+function sendCustomSponsor() { const amt = parseFloat(document.getElementById('custom-sponsor-amt').value); if(amt > 0) selectAmount(amt); }
+
+async function sendSOL(amount, dest) {
+  try {
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+    const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(dest), lamports: Math.floor(amount * 1e9) }));
+    tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+    await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+    document.getElementById('jingle').play().catch(e => {}); closeModal(); closeTreasuryModal();
+    if (activeVideoId && publicKey) {
+        let u = JSON.parse(localStorage.getItem('sk8_unlocks_' + publicKey) || "[]");
+        if (!u.includes(activeVideoId)) { u.push(activeVideoId); localStorage.setItem('sk8_unlocks_' + publicKey, JSON.stringify(u)); }
+    }
+    setTimeout(() => { 
+        document.getElementById("success-modal").style.display = "flex"; createConfetti(); fetchBalance(); checkPersistence(); 
+        if(document.getElementById('profile-content').style.display === 'block') renderProfile(document.getElementById('p-wallet').innerText); 
+        if(document.getElementById('feed-content').style.display === 'block') attemptFeedAccess();
+        fetchHeaderDualRank(publicKey); 
+    }, 1500);
+  } catch (err) {}
+}
+
+async function castReaction(postId, targetWallet, emoji, costSOL) {
+    if(!publicKey) { alert("Connect Wallet to react!"); return; }
+    if(!confirm(`Drop a ${emoji} reaction? Requires a ${costSOL} SOL tip to the skater.`)) return;
+
+    try {
+        const pData = JSON.stringify({ sk8react: "v1", post: postId, react: emoji });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(targetWallet); 
+        const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(costSOL * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert(`Reaction ${emoji} locked on-chain!`); 
+        
+        if(!globalVideoState[postId]) globalVideoState[postId] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+        globalVideoState[postId].reactions[emoji]++;
+        globalVideoState[postId].totalSOL += costSOL;
+
+        if(document.getElementById('feed-content').style.display === 'block') attemptFeedAccess();
+        else if (document.getElementById('profile-content').style.display === 'block') renderProfile(targetWallet);
+        else checkPersistence(); // Update front page
+    } catch (err) { alert("Reaction failed."); }
+}
+
+function createConfetti() {
+  for (let i = 0; i < 50; i++) {
+    const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 95 + '%'; 
+    c.style.backgroundColor = ['#ff2d55','#ff9500','#00f0ff','#ffd700'][Math.floor(Math.random() * 4)];
+    c.style.animationDuration = (Math.random() * 3 + 2) + 's'; document.body.appendChild(c); setTimeout(() => c.remove(), 5000);
+  }
+}
+
+function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
+
+async function attemptFeedAccess() {
+    if(!publicKey) { alert("Connect Wallet First"); return; }
+    activeFeedWallet = document.getElementById('p-wallet').innerText;
+    let skaterName = document.getElementById('p-name').innerText;
+    
+    document.getElementById('mobile-nav').classList.remove('open');
+    ["home", "video", "leaderboard", "donate", "profile", "dao"].forEach(id => {
+        let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none';
+    });
+    let feedContent = document.getElementById("feed-content"); if(feedContent) feedContent.style.display = 'block'; window.scrollTo(0,0);
+
+    let feedTitle = document.getElementById('feed-header-title'); if(feedTitle) feedTitle.innerText = `${skaterName}'S FEED`;
+    let postBox = document.getElementById('post-create-box'); if(postBox) postBox.style.display = 'none';
+    let paywall = document.getElementById('feed-paywall-overlay'); if(paywall) paywall.style.display = 'none';
+    let loadBtn = document.getElementById('load-more-feed-btn'); if(loadBtn) loadBtn.style.display = 'none';
+    let feedItems = document.getElementById('actual-feed-items'); if(feedItems) feedItems.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain history...</div>';
+
+    feedRenderLimit = FEED_LIMIT; currentSkaterPosts = [];
+    let isOwner = (publicKey === activeFeedWallet); let hasAccess = isOwner;
+
+    // Apply the Free Toggle Logic here for the feed access
+    let { isFree } = await getSkaterProfileSafe(activeFeedWallet);
+
+    if (!isOwner && !isFree) {
+        const requiredSOL = 0.05; 
+        hasAccess = await verifySponsorshipTier(publicKey, activeFeedWallet, requiredSOL);
+    } else if (isFree) {
+        hasAccess = true;
+    }
+
+    if (hasAccess) { if(isOwner && postBox) postBox.style.display = 'block'; fetchSkaterFeed(activeFeedWallet, false); } 
+    else { if(paywall) paywall.style.display = 'flex'; fetchSkaterFeed(activeFeedWallet, true); }
+}
+
+async function verifySponsorshipTier(sponsorPubKey, skaterPubKey, requiredSOL) {
+    if (ADMIN_WALLETS.includes(sponsorPubKey)) { return true; }
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); let totalDonated = 0;
+    try {
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(skaterPubKey), { limit: 50 });
+        for(let s of sigs) {
+            const tx = await conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 });
+            if(tx) {
+                const keys = tx.transaction.message.staticAccountKeys.map(k=>k.toString());
+                if(keys[0] === sponsorPubKey) { 
+                    const skaterIdx = keys.indexOf(skaterPubKey);
+                    if(skaterIdx !== -1) {
+                        const pre = tx.meta.preBalances[skaterIdx]; const post = tx.meta.postBalances[skaterIdx];
+                        const diff = (post - pre) / solanaWeb3.LAMPORTS_PER_SOL; if (diff > 0) totalDonated += diff;
+                    }
+                }
+            }
+        }
+    } catch(e) {}
+    const buffer = 0.001; return totalDonated >= (requiredSOL - buffer);
+}
+
+// OPTIMIZED: Fetches entire feed and all reactions in 1 single RPC call payload
+async function fetchSkaterFeed(wallet, isBlurred) {
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    currentSkaterPosts = []; let reactionMap = {};
+
+    try {
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 80 });
+        for (let s of sigs) { 
+            if(s.memo) {
+                if(s.memo.includes('"sk8post":"v1"')) { 
+                    try {
+                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                        currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, time: s.blockTime, totalDonated: 0 });
+                    } catch(e){}
+                }
+                else if (s.memo.includes('"sk8react":"v1"')) {
+                    try {
+                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                        if(!reactionMap[d.post]) reactionMap[d.post] = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0, totalSOL: 0 };
+                        
+                        if(reactionMap[d.post][d.react] !== undefined) {
+                            reactionMap[d.post][d.react]++;
+                            let cost = 0;
+                            if(d.react === '🔥') cost = 0.001; if(d.react === '🤮') cost = 0.002; if(d.react === '⭐') cost = 0.006;
+                            if(d.react === '🧈') cost = 0.018; if(d.react === '🥩') cost = 0.054; if(d.react === '💪') cost = 0.100;
+                            reactionMap[d.post].totalSOL += cost;
+                        }
+                    } catch(e){}
+                }
+            }
+        }
+    } catch(e) {}
+    
+    currentSkaterPosts.forEach(p => {
+        if(reactionMap[p.id]) { p.reactions = reactionMap[p.id]; p.totalDonated = reactionMap[p.id].totalSOL; } 
+        else { p.reactions = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0 }; }
+    });
+
+    renderFeedGrid(isBlurred);
+}
+
+function renderFeedGrid(isBlurred) {
+    const container = document.getElementById('actual-feed-items'); const loadMoreBtn = document.getElementById('load-more-feed-btn');
+    if (currentSkaterPosts.length === 0) { if(container) container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`; return; }
+
+    let toRender = currentSkaterPosts.slice(0, feedRenderLimit); let html = ""; let isOwner = (publicKey === activeFeedWallet);
+
+    toRender.forEach(p => {
+        let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        let mediaHtml = ""; let platformIcon = "";
+        
+        if(p.yt) {
+            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-youtube" style="color:#ff2d55;"></i></div>`;
+            mediaHtml = `<div class="feed-grid-media">${platformIcon}<iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe></div>`;
+        } else if (p.ig) {
+            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-instagram" style="color:#ff2d55;"></i></div>`;
+            mediaHtml = `<div class="feed-grid-media">${platformIcon}<iframe src="https://www.instagram.com/p/${p.ig}/embed" scrolling="no" allowtransparency="true"></iframe></div>`;
+        } else {
+            mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex; align-items:center; justify-content:center;"><i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
+        }
+
+        let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
+        
+        // Use unified reaction bar
+        let vState = globalVideoState[p.id] || { locked: !isOwner }; // Inherit free mode if available
+        let rxHtml = getReactionHtml(p.id, activeFeedWallet, vState.locked);
+
+        html += `<div class="feed-grid-item" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
+                    ${mediaHtml}
+                    <div class="feed-grid-content">
+                        <div class="feed-grid-text">${p.text || ""}</div>
+                        <div class="feed-grid-date" style="margin-bottom: 10px;">${dateStr}</div>
+                        ${rxHtml}
+                        ${blessBtn}
+                    </div>
+                 </div>`;
+    });
+    if(container) container.innerHTML = html;
+    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) { if(loadMoreBtn) loadMoreBtn.style.display = "block"; } else { if(loadMoreBtn) loadMoreBtn.style.display = "none"; }
+}
+
+function loadMoreFeed() { feedRenderLimit += FEED_LIMIT; renderFeedGrid(false); }
+
+function openSponsorshipModalFromFeed(postId) { currentSkaterTarget = activeFeedWallet; activeVideoId = postId || null; document.getElementById('sponsor-modal').style.display = 'flex'; }
+
+async function publishToFeed() {
+    if(!publicKey) return; const btn = document.getElementById("publish-feed-btn"); btn.innerText = "AWAITING SIGNATURE...";
+    try {
+        const text = document.getElementById("new-post-text").value; const rawLink = document.getElementById("new-post-link").value;
+        let yt = ""; let ig = "";
+        
+        if (rawLink) { 
+            const ytMatch = rawLink.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/); 
+            if (ytMatch && ytMatch[2].length === 11) yt = ytMatch[2]; 
+            const igMatch = rawLink.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
+            if (igMatch) ig = igMatch[1];
+        }
+        
+        if(!text && !yt && !ig) { alert("Cannot post empty data."); btn.innerText = "SIGN & POST TO CHAIN"; return; }
+
+        const pData = JSON.stringify({ sk8post: "v1", text, yt, ig });
+        const encoded = new TextEncoder().encode(pData); 
+        if (encoded.length > 566) { alert(`Post too long for Memo! Shorten your text.`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const tx = new solanaWeb3.Transaction().add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        btn.innerText = "POSTED!"; document.getElementById("new-post-text").value = ""; document.getElementById("new-post-link").value = "";
+        setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; attemptFeedAccess(); }, 2000);
+    } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000); }
 }
 
 window.addEventListener('load', async () => {
