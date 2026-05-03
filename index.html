@@ -751,7 +751,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 </div>
 
 <audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
-
 <script>
 let publicKey = null; let provider = null; let solPrice = 0; let activeVideoId = null; let currentSkaterTarget = "";
 
@@ -761,6 +760,8 @@ let activeProposals = [], closedProposals = [], bannedWallets = [];
 let globalAdminIncognito = false; 
 let globalVideoState = {}; 
 let profileCache = {}; 
+let MEMO_PROGRAM_ID; // Safely initialized inside window.onload
+
 const processedSignatures = new Set(); // ⚡ CRYPTOGRAPHIC DOUBLE-COUNT PREVENTION
 
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; 
@@ -770,7 +771,6 @@ let feedRenderLimit = FEED_LIMIT;
 
 const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
 const TREASURY_WALLET = "5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc";
-let MEMO_PROGRAM_ID; // Init'd safely on load to prevent global crash
 
 const ADMIN_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
 const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"]; 
@@ -849,7 +849,7 @@ async function syncGlobalVideos(wallets) {
                 let lastSig = null;
                 let fetchCount = 0;
                 
-                while (hasMore && fetchCount < 5) { // Deep fetch up to 250 sigs per wallet
+                while (hasMore && fetchCount < 5) { // Deep fetch up to 250 sigs per wallet safely
                     let options = { limit: 50 };
                     if (lastSig) options.before = lastSig;
                     
@@ -1476,7 +1476,7 @@ async function fetchSkaterFeed(wallet, isBlurred) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     currentSkaterPosts = []; 
     let reactionMap = {};
-    let seenSigs = new Set();
+    let seenFeedSigs = new Set();
     
     let hasMore = true;
     let lastSig = null;
@@ -1495,8 +1495,8 @@ async function fetchSkaterFeed(wallet, isBlurred) {
 
             for (let s of sigs) { 
                 // REJECT DUPLICATES TO ENSURE PRECISION
-                if (seenSigs.has(s.signature)) continue;
-                seenSigs.add(s.signature);
+                if (seenFeedSigs.has(s.signature)) continue;
+                seenFeedSigs.add(s.signature);
 
                 if(s.memo) {
                     if(s.memo.includes('"sk8post":"v1"')) { 
@@ -1672,4 +1672,3 @@ window.addEventListener('load', async () => {
 </script>
 </body>
 </html>
-  
