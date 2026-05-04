@@ -423,6 +423,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
           <div class="video-mask"><i class="fas fa-lock"></i><p>Sponsor to Unlock</p></div>
           <iframe data-src="https://www.youtube.com/embed/qqPjQpTe9W4" allowfullscreen></iframe>
         </div>
+      
         <div class="card-info">
           <div class="card-title">Jonny Giger Street Part</div>
           <div class="skater-wallet-bal" data-address="5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm">Blessings: ...</div>
@@ -670,6 +671,20 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
   <div style="text-align: center; margin-top: 2rem; font-size: 0.65rem; color: #555; letter-spacing: 1px;">&copy; 2026 SKATE2EARN PROTOCOL.</div>
 </footer>
 
+<div id="wallet-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 350px;">
+    <h3 style="color:var(--accent-gold); font-family:'Bangers'; font-size:2.2rem; margin-bottom:10px;">CONNECT WALLET</h3>
+    <p style="color:var(--text-secondary); font-size:0.75rem; margin-bottom:20px;">Choose your Web3 provider to enter the protocol.</p>
+    <button onclick="connectPhantom()" class="tier-btn" style="background:#512DA8; color:#fff; border:none; display:flex; align-items:center; justify-content:center; gap:10px; font-size:0.9rem;">
+        <img src="https://cryptologos.cc/logos/phantom-logo.png" style="height:20px; filter:brightness(0) invert(1);"> PHANTOM
+    </button>
+    <button onclick="alert('More wallet integrations dropping soon!')" class="tier-btn" style="background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.1); margin-top:10px;">
+        OTHER WALLETS
+    </button>
+    <button onclick="document.getElementById('wallet-modal').style.display='none'" style="width: 100%; background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.7rem; margin-top: 15px;">[ Cancel ]</button>
+  </div>
+</div>
+
 <div id="onboarding-modal" class="modal-overlay">
   <div class="modal-content" id="onboard-step-1">
     <h2 style="color:var(--accent-gold); font-family:'Bangers'; font-size:2.5rem;">WELCOME TO THE PROTOCOL</h2>
@@ -835,6 +850,10 @@ let globalAdminIncognito = false;
 let globalVideoState = {}; 
 let onboardingRole = 'skater';
 
+// SMART CACHE: Prevents RPC Death Loops
+let txCache = {}; 
+const CACHE_TTL = 5 * 60 * 1000; // 5 Minutes
+
 const DAO_TTL_SECONDS = 7 * 24 * 60 * 60; 
 const DAO_VOTE_FEE = 0.001; 
 const FEED_LIMIT = 12; 
@@ -854,17 +873,18 @@ const SPONSOR_ONLY_WALLETS = ["Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6"];
 const SPONSOR_PROFILES = [{ wallet: "Gek2TJ4ya1uU87jexKg38ao1eTbaGDkYUjBaVbBrLGE6", name: "DONNY T", baseline: 0.15 }];
 const SKATER_REGISTRY = ["FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW","GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ","4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi","6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW","BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi","9smXB7M5NYXQRm4h6hrw3gdfNYs7tQgTgATGBvuLBozH","5dCFGUTNAxCVJGbGUFSUEukTGKBd4ffUm9Q425efXZzm","9W8TxzG3ThA8i5bH6XCgXSF6wjf6D629dcfkUkNKj8Dj","HrXXR5VUKrH5ozCXsL6v5YCTTiVuKWp7KHuTYTiqHdCq","DwvZscExkDYdiHEus2moUWUGxfchwZ2RnrXZEgBfih2b","E7tz7UK3obmpySK8ubyww8XWrVfZz4gLRwwyuHmTPWT7"];
 
-const SKATER_PROFILES = [
-    { wallet: "FqEnog4mFG3tGqnqG2dVwPHwPitxTRenr1zfvBxQZMsW", name: "GREG VALENCIA", styles: ["Street", "Flow"], stance: "Goofy", deck: "8.25 FA", trucks: "Indys 149", spot: "LA Courthouse", yt: "TkiDuln_Q28", pic: "https://i.pravatar.cc/400?img=11", bio: "Original Sk8Coin pioneer." },
-    { wallet: "GzTbU3tnUCm6Y55Jxo1cPoBNkEzvRPeM3HDYcZqyCqPZ", name: "GAP KILLER", styles: ["Gaps", "Stairs"], stance: "Regular", deck: "8.5 Baker", trucks: "Thunders", spot: "El Toro", yt: "3JZ_D3ELwOQ", pic: "https://i.pravatar.cc/400?img=12", bio: "Sending it over every stair set in sight." },
-    { wallet: "4GtFZZj2KCoLnNhKH9SoNH7jsapzToiEYKpNyhnT6RWi", name: "MANUAL MIKE", styles: ["Balance", "Flatground"], stance: "Regular", deck: "8.0 Primitive", trucks: "Ventures", spot: "Muni", yt: "", pic: "https://i.pravatar.cc/400?img=13", bio: "Wheelie king of the local park." },
-    { wallet: "6LjficeW9qWXd6Wa9ygn8yidteU7aRExgLbxFdMgByiW", name: "VERT VICTOR", styles: ["Vert", "Transition"], stance: "Goofy", deck: "8.75 Anti-Hero", trucks: "Indys 159", spot: "Vans Park", yt: "", pic: "https://i.pravatar.cc/400?img=14", bio: "Highest airs in the revolution." },
-    { wallet: "BxEQSVXxYojLMijwnactZcHZKUMdVWryWXxZVqmgyRgi", name: "SHREDDER 5", styles: ["Park", "Flow"], stance: "Regular", deck: "8.25 Girl", trucks: "Crailtap", spot: "Stoner Park", yt: "", pic: "https://i.pravatar.cc/400?img=15", bio: "Style and flow over everything." }
-];
-
 const pingDelay = ms => new Promise(res => setTimeout(res, ms));
 
+// =========================================================================
+// SMART CACHED DEEP HISTORY SCRAPER
+// =========================================================================
 async function fetchDeepHistory(wallet, maxLimit = 1000) {
+    let now = Date.now();
+    // Return from RAM if we fetched this wallet in the last 5 minutes (stops the death loop)
+    if (txCache[wallet] && (now - txCache[wallet].timestamp < CACHE_TTL)) {
+        return txCache[wallet].txs;
+    }
+
     let allTxs = []; let beforeSig = null; let chunks = Math.ceil(maxLimit / 100);
     for (let i = 0; i < chunks; i++) {
         let url = `${REST_API_BASE}/${wallet}/transactions/?api-key=${HELIUS_KEY}&limit=100`;
@@ -878,8 +898,11 @@ async function fetchDeepHistory(wallet, maxLimit = 1000) {
             beforeSig = data[data.length - 1].signature;
             if (data.length < 100) break;
         } catch(e) { break; }
-        await pingDelay(20); // Prevent REST rate limits
+        await pingDelay(20); // Micro-throttle
     }
+    
+    // Save to Cache
+    txCache[wallet] = { timestamp: now, txs: allTxs };
     return allTxs;
 }
 
@@ -907,6 +930,7 @@ function getReactionHtml(postId, targetWallet, isLocked) {
 
     let reactionBar = "";
     if (isOwner) {
+        // Read-only stats for the owner (No Wash Trading)
         reactionBar = `
         <div style="display:flex; justify-content:space-between; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px; opacity:0.6; pointer-events:none;">
             <div class="reaction-btn ${rx['🔥']>0 ? 'has-votes' : ''}"><span style="font-size: 1rem;">🔥</span><span>${rx['🔥']||0}</span></div>
@@ -917,6 +941,7 @@ function getReactionHtml(postId, targetWallet, isLocked) {
             <div class="reaction-btn ${rx['💪']>0 ? 'has-votes' : ''}"><span style="font-size: 1rem;">💪</span><span>${rx['💪']||0}</span></div>
         </div>`;
     } else {
+        // Interactive bar for sponsors
         reactionBar = `
         <div style="display:flex; justify-content:space-between; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px;">
             <button onclick="castReaction('${postId}', '${targetWallet}', '🔥', 0.001)" class="reaction-btn ${rx['🔥']>0 ? 'has-votes' : ''}" title="Fire (0.001 SOL)"><span style="font-size: 1rem;">🔥</span><span>${rx['🔥']||0}</span></button>
@@ -963,6 +988,7 @@ function renderSponsorBadges(solAmount, isOwner) {
     if (grid) grid.innerHTML = html;
 }
 
+// MACRO THROTTLED PURE MEMO SWEEPS
 async function syncGlobalVideos(wallets) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     let uniqueWallets = [...new Set(wallets)];
@@ -1006,14 +1032,13 @@ async function syncGlobalVideos(wallets) {
     }
 }
 
-// 100% PURE MEMO READ - ELIMINATED GETTRANSACTION CRASH LOOP
 async function syncAdminState() {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     bannedWallets = []; globalAdminIncognito = false; 
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 100 });
         sigs.forEach(s => {
-            if (s.memo && s.memo.includes('"sk8admin":"v1"')) {
+            if(s.memo && s.memo.includes('"sk8admin":"v1"')) {
                 try {
                     let d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
                     if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
@@ -1047,6 +1072,9 @@ async function fetchWalletStats(wallet) {
     return { ins, outs, txCount };
 }
 
+// ----------------------------------------------------
+// ONBOARDING & WALLET ENGINE
+// ----------------------------------------------------
 async function checkRegistration() {
     if(!publicKey) return true; 
     if(ADMIN_WALLETS.includes(publicKey)) return true;
@@ -1055,9 +1083,10 @@ async function checkRegistration() {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     try {
         const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(publicKey), { limit: 100 });
-        for(let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) return true; }
+        for(let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) return true; } // Registered
     } catch(e) {}
     
+    // Trap Unregistered Users
     document.getElementById('onboarding-modal').style.display = 'flex';
     document.getElementById('onboard-step-1').style.display = 'block';
     document.getElementById('onboard-step-2').style.display = 'none';
@@ -1094,6 +1123,7 @@ async function completeOnboarding() {
         const from = new solanaWeb3.PublicKey(publicKey);
         const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
         btn.innerText = "REGISTERED!";
         setTimeout(() => { document.getElementById('onboarding-modal').style.display = 'none'; navigateToProfileView(onboardingRole); }, 1500);
@@ -1101,21 +1131,31 @@ async function completeOnboarding() {
 }
 
 async function handleWalletAction() {
-    if (publicKey) { try { if (provider && provider.disconnect) await provider.disconnect(); } catch(e) {} publicKey = null; updateWalletUI(); checkPersistence(); } 
-    else { 
-        provider = getProvider(); 
-        if (!provider) { 
-            if(isMobile()) { const dAppUrl = encodeURIComponent(window.location.href); window.location.href = `https://phantom.app/ul/browse/${dAppUrl}?ref=${encodeURIComponent(window.location.origin)}`; } 
-            else { alert("Install Phantom Wallet!"); window.open("https://phantom.app/", "_blank"); }
-            return;
-        } 
-        try { 
-            const resp = await provider.connect(); 
-            publicKey = resp.publicKey.toString(); 
-            let isRegistered = await checkRegistration();
-            if (isRegistered) { updateWalletUI(); fetchBalance(); checkPersistence(); }
-        } catch (e) {}
+    if (publicKey) { 
+        try { if (provider && provider.disconnect) await provider.disconnect(); } catch(e) {} 
+        publicKey = null; 
+        updateWalletUI(); 
+        checkPersistence(); 
+        alert("Later skater! Catch you at the next spot. 🛹💨");
+    } else { 
+        document.getElementById('wallet-modal').style.display = 'flex';
     }
+}
+
+async function connectPhantom() {
+    document.getElementById('wallet-modal').style.display = 'none';
+    provider = getProvider(); 
+    if (!provider) { 
+        if(isMobile()) { const dAppUrl = encodeURIComponent(window.location.href); window.location.href = `https://phantom.app/ul/browse/${dAppUrl}?ref=${encodeURIComponent(window.location.origin)}`; } 
+        else { alert("Install Phantom Wallet!"); window.open("https://phantom.app/", "_blank"); }
+        return;
+    } 
+    try { 
+        const resp = await provider.connect(); 
+        publicKey = resp.publicKey.toString(); 
+        let isRegistered = await checkRegistration();
+        if (isRegistered) { updateWalletUI(); fetchBalance(); checkPersistence(); }
+    } catch (e) {}
 }
 
 function updateWalletUI() {
@@ -1376,7 +1416,6 @@ function formatTimeRemaining(expiresAt) {
     if(d > 0) return `${d}d ${h}h`; return `${h}h ${m}m`;
 }
 
-// PURE MEMO READ - ELIMINATED GETTRANSACTION CRASH LOOP FOR DAO
 async function refreshDAODashboard() {
     const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
     const daoList = document.getElementById("dao-proposal-list");
@@ -1526,7 +1565,7 @@ async function removeDAOProposal(propId) {
         const pData = JSON.stringify({ sk8dao: "v1", action: "veto", id: propId });
         const encoded = new TextEncoder().encode(pData); 
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        const tx = new কাশী().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
         alert("Removal Broadcasted!"); refreshDAODashboard();
@@ -1585,7 +1624,6 @@ async function toggleVideoLock(postId, targetWallet, currentlyLocked) {
     } catch(e) { alert("Action failed."); }
 }
 
-// TEST GAMIFICATION: Inject overlay classes based on specific low-threshold triggers
 async function checkPersistence() {
     let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
     const cards = document.querySelectorAll('.video-card');
@@ -1622,13 +1660,11 @@ async function checkPersistence() {
         let vState = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
         let isFree = !vState.locked;
         
-        // --- TEST GAMIFICATION TRIGGERS ---
         card.classList.remove('viral-fire', 'hall-of-meat', 'butter-smooth', 'god-tier');
         if (vState.totalSOL >= 0.1) { card.classList.add('god-tier'); } 
         else if (vState.reactions['🔥'] >= 2) { card.classList.add('viral-fire'); } 
         else if (vState.reactions['🥩'] >= 2) { card.classList.add('hall-of-meat'); } 
         else if (vState.reactions['🧈'] >= 2) { card.classList.add('butter-smooth'); }
-        // ----------------------------------
 
         let rxDiv = card.querySelector('.reaction-container');
         if (rxDiv) { rxDiv.innerHTML = getReactionHtml(postId, targetWallet, !isFree); }
@@ -1654,11 +1690,421 @@ async function checkPersistence() {
     }
 }
 
-// ----------------------------------------------------
-// PUBLIC CLIP MINTING (FRONT PAGE INJECTION)
-// ----------------------------------------------------
-function openNewClipModal() { document.getElementById("new-clip-modal").style.display = "flex"; }
-function closeNewClipModal() { document.getElementById("new-clip-modal").style.display = "none"; }
+function navigateToProfileView(viewType) {
+    if(!publicKey) return; 
+    document.getElementById('mobile-nav').classList.remove('open');
+    let newHash = '#profile/' + publicKey;
+    if(window.location.hash !== newHash) history.pushState(null, null, newHash);
+    
+    ["home", "video", "leaderboard", "donate", "feed", "dao"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
+    document.getElementById("profile-content").style.display = 'block';
+    renderProfile(publicKey, viewType); window.scrollTo(0,0);
+}
+
+function navigateTo(page, wallet = null) {
+  document.getElementById('mobile-nav').classList.remove('open');
+  
+  let newHash = '#' + page + (wallet ? '/' + wallet : '');
+  if(window.location.hash !== newHash) history.pushState(null, null, newHash);
+  
+  ["home", "video", "leaderboard", "donate", "profile", "feed", "dao"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
+  let targetEl = document.getElementById(page + "-content"); if(targetEl) targetEl.style.display = 'block';
+  
+  if(page === 'profile' && wallet) renderProfile(wallet, null);
+  if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
+  if(page === 'leaderboard') refreshLeaderboardData();
+  if(page === 'donate') { fetchTreasuryBalance(); refreshLeaderboardData(); }
+  if(page === 'dao') { refreshDAODashboard(); }
+  window.scrollTo(0,0);
+}
+
+window.addEventListener('hashchange', () => {
+    let hash = window.location.hash.replace('#', '');
+    if(!hash) hash = 'home';
+    let parts = hash.split('/');
+    
+    ["home", "video", "leaderboard", "donate", "profile", "feed", "dao"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
+    let targetEl = document.getElementById(parts[0] + "-content"); if(targetEl) targetEl.style.display = 'block';
+    
+    if(parts[0] === 'profile' && parts[1]) renderProfile(parts[1], null);
+    if(parts[0] === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
+    if(parts[0] === 'leaderboard') refreshLeaderboardData();
+    if(parts[0] === 'donate') { fetchTreasuryBalance(); refreshLeaderboardData(); }
+    if(parts[0] === 'dao') { refreshDAODashboard(); }
+    window.scrollTo(0,0);
+});
+
+async function renderProfile(wallet, forceView = null) {
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const picEl = document.getElementById('p-img');
+    const rEl = document.getElementById('p-rank'); const bEl = document.getElementById('p-blessings');
+    const header = document.getElementById('profile-header-text'); const tags = document.getElementById('p-tags'); const gear = document.getElementById('p-gear');
+    rEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...'; bEl.innerText = "SYNCING..."; tags.innerHTML = ""; gear.innerHTML = "";
+    
+    const isOwner = publicKey === wallet; const stats = await fetchWalletStats(wallet);
+    let isGen = SKATER_REGISTRY.includes(wallet); let isSpon = SPONSOR_ONLY_WALLETS.includes(wallet);
+    let view = forceView || (isGen ? 'skater' : 'sponsor'); if (!isGen && view === 'skater') view = 'sponsor';
+    
+    let sk = SKATER_PROFILES.find(s => s.wallet === wallet); let sp = SPONSOR_PROFILES.find(s => s.wallet === wallet);
+    let fallbackName = await resolveWalletName(wallet);
+    if(!sk && view === 'skater') sk = { name: fallbackName, styles: ["New Skater"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Raw street talent." };
+    if(!sp && view === 'sponsor') sp = { name: fallbackName, pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Legendary Sponsor fueling the movement." };
+    let activeProf = view === 'skater' ? sk : sp;
+    
+    try {
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 });
+        for (let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) { 
+            const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+            activeProf.name = d.name || activeProf.name; activeProf.pic = d.pic || activeProf.pic; activeProf.bio = d.bio || activeProf.bio;
+            if(view === 'skater') { activeProf.stance = d.stance; activeProf.deck = d.deck; activeProf.trucks = d.trucks; activeProf.spot = d.spot; activeProf.yt = d.yt; }
+            break;
+        } }
+    } catch(e) {}
+
+    document.getElementById('p-name').innerText = activeProf.name; picEl.src = activeProf.pic; 
+    document.getElementById('p-bio').innerText = activeProf.bio; document.getElementById('p-wallet').innerText = wallet;
+    
+    const editBtn = document.getElementById('edit-profile-btn');
+    if (editBtn) { editBtn.className = 'tier-btn'; editBtn.style.background = '#fff'; editBtn.style.color = '#000';
+    editBtn.style.padding = '12px'; editBtn.style.border = 'none'; editBtn.style.marginTop = '10px'; editBtn.style.borderRadius = '6px'; }
+
+    let adminPanelHtml = "";
+    if (ADMIN_WALLETS.includes(publicKey)) {
+        if (isOwner) {
+            let nextState = !globalAdminIncognito;
+            adminPanelHtml = `
+            <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
+                <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE: INCOGNITO</h4>
+                <button onclick="setIncognitoWeb3(${nextState})" class="tier-btn" style="width:100%; margin-bottom:10px; background:${globalAdminIncognito ? 'var(--accent-green)' : 'var(--accent-red)'}; color:${globalAdminIncognito ? '#000' : '#fff'}; border:none; padding:10px;"><i class="fas fa-bolt"></i> ${globalAdminIncognito ? 'GO VISIBLE' : 'GO INCOGNITO (HIDE)'}</button>
+            </div>`;
+        } else {
+            let isBanned = bannedWallets.includes(wallet);
+            let action = isBanned ? 'unban' : 'ban';
+            let btnText = isBanned ? 'RESURRECT SKATER' : 'SUSPEND SKATER';
+            let btnColor = isBanned ? 'var(--accent-green)' : 'var(--accent-red)';
+            adminPanelHtml = `
+            <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
+                <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE: MODERATION</h4>
+                <button onclick="adminAction('${wallet}', '${action}')" class="tier-btn" style="background:${btnColor}; color:#000; border:none; padding:8px; font-size:0.65rem; width:100%; margin-bottom:0;">${btnText}</button>
+            </div>`;
+        }
+    }
+
+    if (view === 'skater') {
+        const rank = getRankDisplay(stats.ins, true, wallet); header.innerText = "SKATER IDENTITY & BIO";
+        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        tags.innerHTML = activeProf.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
+        try { const bal = await conn.getBalance(new solanaWeb3.PublicKey(wallet)); bEl.innerText = (bal / 1e9).toFixed(4) + " SOL"; } catch(e) {}
+        
+        let gHtml = ""; gear.dataset.stance = activeProf.stance; gear.dataset.deck = activeProf.deck; gear.dataset.trucks = activeProf.trucks; gear.dataset.spot = activeProf.spot; gear.dataset.yt = activeProf.yt; 
+        if(activeProf.stance) gHtml += `<div class="gear-tag"><i class="fas fa-shoe-prints"></i> ${activeProf.stance}</div>`;
+        if(activeProf.deck) gHtml += `<div class="gear-tag"><i class="fas fa-layer-group"></i> ${activeProf.deck}</div>`;
+        if(activeProf.trucks) gHtml += `<div class="gear-tag"><i class="fas fa-wrench"></i> ${activeProf.trucks}</div>`;
+        if(activeProf.spot) gHtml += `<div class="gear-tag"><i class="fas fa-map-marker-alt"></i> ${activeProf.spot}</div>`;
+        gear.innerHTML = gHtml;
+        
+        document.getElementById('p-sponsor-video-section').style.display = activeProf.yt ? 'block' : 'none';
+        if (activeProf.yt) {
+            document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${activeProf.yt}`;
+            let tapeId = `tape-${wallet}`;
+            await syncGlobalVideos([wallet]); 
+            document.getElementById('sponsor-tape-reactions').innerHTML = getReactionHtml(tapeId, wallet, false);
+            
+            let vState = globalVideoState[tapeId] || { totalSOL: 0, reactions: {'🔥':0, '🥩':0, '🧈':0} };
+            let wrapper = document.querySelector('#p-sponsor-video-section .video-wrapper');
+            wrapper.className = 'video-wrapper'; // reset
+            if (vState.totalSOL >= 0.1) wrapper.classList.add('god-tier');
+            else if (vState.reactions['🔥'] >= 2) wrapper.classList.add('viral-fire');
+            else if (vState.reactions['🥩'] >= 2) wrapper.classList.add('hall-of-meat');
+            else if (vState.reactions['🧈'] >= 2) wrapper.classList.add('butter-smooth');
+        }
+        
+        document.getElementById('skater-mini-badges-section').style.display = 'block'; 
+        document.getElementById('private-feed-btn').style.display = 'block';
+        document.getElementById('p-sponsor-badges-section').style.display = 'block';
+        renderSponsorBadges(stats.ins, isOwner);
+        
+        document.getElementById('add-clip-btn').style.display = isOwner ? 'block' : 'none';
+        
+    } else {
+        const rank = getRankDisplay(stats.outs, false, wallet);
+        header.innerText = "SPONSOR IDENTITY & BIO";
+        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
+        bEl.innerText = stats.outs.toFixed(4) + " SOL";
+        tags.innerHTML = `<span class="style-tag" style="border-color:var(--accent-gold); color:var(--accent-gold);"><i class="fas fa-star" style="margin-right:5px;"></i> ON-CHAIN SPONSOR</span>`; gear.innerHTML = "";
+        
+        document.getElementById('p-sponsor-video-section').style.display = 'none'; 
+        document.getElementById('skater-mini-badges-section').style.display = 'none'; 
+        document.getElementById('private-feed-btn').style.display = 'none'; 
+        document.getElementById('p-sponsor-badges-section').style.display = 'block';
+        renderSponsorBadges(stats.outs, isOwner);
+        
+        document.getElementById('add-clip-btn').style.display = 'none';
+    }
+    
+    document.getElementById('edit-profile-btn').style.display = isOwner ? 'block' : 'none';
+    document.getElementById('profile-donate-btn').style.display = isOwner ? 'none' : 'block';
+
+    const existingAdmin = document.getElementById('sk8-admin-panel-wrapper');
+    if (existingAdmin) existingAdmin.remove();
+
+    if(adminPanelHtml) {
+        const wrapper = `<div id="sk8-admin-panel-wrapper">${adminPanelHtml}</div>`;
+        document.querySelector('.profile-sidebar').insertAdjacentHTML('beforeend', wrapper);
+    }
+}
+
+function openEditModal() {
+    document.getElementById('edit-name').value = document.getElementById('p-name').innerText;
+    document.getElementById('edit-pic').value = document.getElementById('p-img').src;
+    document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
+    const isSponOnly = SPONSOR_ONLY_WALLETS.includes(publicKey);
+    document.getElementById('edit-skater-gear-section').style.display = isSponOnly ? 'none' : 'block';
+    if (!isSponOnly) {
+        const d = document.getElementById('p-gear').dataset;
+        document.getElementById('edit-stance').value = d.stance || "";
+        document.getElementById('edit-deck').value = d.deck || "";
+        document.getElementById('edit-trucks').value = d.trucks || ""; 
+        document.getElementById('edit-spot').value = d.spot || "";
+        document.getElementById('edit-yt').value = d.yt ? "https://youtu.be/" + d.yt : "";
+    }
+    document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
+
+async function saveProfileWeb3() {
+    if(!publicKey) return; const btn = document.getElementById("save-web3-btn"); btn.innerText = "AWAITING SIGNATURE...";
+    try {
+        const name = document.getElementById("edit-name").value; const pic = document.getElementById("edit-pic").value;
+        const bio = document.getElementById("edit-bio").value; 
+        let stance = "", deck = "", trucks = "", spot = "", yt = "";
+        let isFree = document.getElementById("edit-free-toggle") ? document.getElementById("edit-free-toggle").checked : false;
+
+        if (!SPONSOR_ONLY_WALLETS.includes(publicKey)) {
+            stance = document.getElementById("edit-stance").value; deck = document.getElementById("edit-deck").value;
+            trucks = document.getElementById("edit-trucks").value; spot = document.getElementById("edit-spot").value; 
+            const rawYt = document.getElementById("edit-yt").value;
+            if (rawYt) { const m = rawYt.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+                yt = (m && m[2].length === 11) ? m[2] : "";
+            }
+        }
+
+        const pData = JSON.stringify({ sk8: "v1", name, pic, bio, stance, deck, trucks, spot, yt, free: isFree });
+        const encoded = new TextEncoder().encode(pData); 
+        if (encoded.length > 566) { alert(`Too large!`); btn.innerText = "SAVE"; return; }
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        btn.innerText = "SAVED!";
+        setTimeout(() => { closeEditModal(); renderProfile(publicKey); btn.innerText = "SAVE"; }, 2000);
+    } catch (err) { btn.innerText = "FAILED";
+        setTimeout(() => btn.innerText = "SAVE", 3000); }
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.classList.contains('donate-btn') && e.target.id !== 'profile-donate-btn') {
+      if(!publicKey) { alert("Connect Wallet First"); return; }
+      if(e.target.dataset.address === publicKey) { alert("Cannot sponsor yourself."); return; }
+      currentSkaterTarget = e.target.dataset.address; activeVideoId = e.target.dataset.target || null;
+      document.getElementById("sponsor-modal").style.display = "flex";
+  }
+});
+
+function openSponsorshipModalFromProfile() {
+    currentSkaterTarget = document.getElementById('p-wallet').innerText;
+    if (currentSkaterTarget === publicKey) { alert("Cannot sponsor yourself."); return; }
+    activeVideoId = `tape-${currentSkaterTarget}`; 
+    document.getElementById('sponsor-modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
+function closeTreasuryModal() { document.getElementById("treasury-modal").style.display = "none"; }
+function closeSuccessModal() { document.getElementById("success-modal").style.display = "none"; }
+function openTreasuryModal() { if(!publicKey) { alert("Connect Wallet First"); return; } document.getElementById("treasury-modal").style.display = "flex"; }
+function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
+function sendDonation(amt) { sendSOL(amt, TREASURY_WALLET); }
+function sendCustomTreasury() { const amt = parseFloat(document.getElementById('custom-treasury-amt').value); if(amt > 0) sendDonation(amt); }
+function sendCustomSponsor() { const amt = parseFloat(document.getElementById('custom-sponsor-amt').value); if(amt > 0) selectAmount(amt); }
+
+async function sendSOL(amount, dest) {
+  try {
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const from = new solanaWeb3.PublicKey(publicKey);
+    const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(dest), lamports: Math.floor(amount * 1e9) }));
+    
+    if (activeVideoId && dest !== TREASURY_WALLET) {
+        const pData = JSON.stringify({ sk8spon: "v1", post: activeVideoId, amt: amount });
+        const encoded = new TextEncoder().encode(pData);
+        tx.add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+    }
+
+    tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+    await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+    document.getElementById('jingle').play().catch(e => {}); closeModal(); closeTreasuryModal();
+    
+    setTimeout(() => { 
+        document.getElementById("success-modal").style.display = "flex"; createConfetti(); fetchBalance(); checkPersistence(); 
+        if(document.getElementById('profile-content').style.display === 'block') renderProfile(document.getElementById('p-wallet').innerText); 
+        if(document.getElementById('feed-content').style.display === 'block') attemptFeedAccess();
+        fetchHeaderDualRank(publicKey); 
+    }, 1500);
+  } catch (err) {}
+}
+
+async function castReaction(postId, targetWallet, emoji, costStr) {
+    if(!publicKey) { alert("Connect Wallet to react!"); return; }
+    const costSOL = parseFloat(costStr);
+    if(!confirm(`Drop a ${emoji} reaction? Requires a ${costSOL} SOL tip to the skater.`)) return;
+    try {
+        const pData = JSON.stringify({ sk8react: "v1", post: postId, react: emoji });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(targetWallet); 
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(costSOL * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert(`Reaction ${emoji} locked on-chain!`); checkPersistence(); 
+        if(document.getElementById('feed-content').style.display === 'block') attemptFeedAccess();
+    } catch (err) { alert("Reaction failed."); }
+}
+
+function createConfetti() {
+  for (let i = 0; i < 50; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti'; c.style.left = Math.random() * 95 + '%'; 
+    c.style.backgroundColor = ['#ff2d55','#ff9500','#00f0ff','#ffd700'][Math.floor(Math.random() * 4)];
+    c.style.animationDuration = (Math.random() * 3 + 2) + 's'; document.body.appendChild(c); setTimeout(() => c.remove(), 5000);
+  }
+}
+
+function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
+
+async function attemptFeedAccess() {
+    if(!publicKey) { alert("Connect Wallet First"); return; }
+    activeFeedWallet = document.getElementById('p-wallet').innerText;
+    let skaterName = document.getElementById('p-name').innerText;
+    
+    document.getElementById('mobile-nav').classList.remove('open');
+    let newHash = '#feed';
+    if(window.location.hash !== newHash) history.pushState(null, null, newHash);
+
+    ["home", "video", "leaderboard", "donate", "profile", "dao"].forEach(id => {
+        let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none';
+    });
+    let feedContent = document.getElementById("feed-content"); if(feedContent) feedContent.style.display = 'block'; window.scrollTo(0,0);
+
+    let feedTitle = document.getElementById('feed-header-title'); if(feedTitle) feedTitle.innerText = `${skaterName}'S FEED`;
+    let postBox = document.getElementById('post-create-box'); if(postBox) postBox.style.display = 'none';
+    let paywall = document.getElementById('feed-paywall-overlay'); if(paywall) paywall.style.display = 'none';
+    let loadBtn = document.getElementById('load-more-feed-btn');
+    if(loadBtn) loadBtn.style.display = 'none';
+    let feedItems = document.getElementById('actual-feed-items'); if(feedItems) feedItems.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain history...</div>';
+    feedRenderLimit = FEED_LIMIT; currentSkaterPosts = [];
+    let isOwner = (publicKey === activeFeedWallet); let hasAccess = isOwner;
+
+    if (!isOwner) { 
+        let totalDonated = 0;
+        try {
+            let txs = await fetchDeepHistory(publicKey, 1000);
+            txs.forEach(tx => {
+                if(tx.nativeTransfers) {
+                    tx.nativeTransfers.forEach(tf => {
+                        if(tf.fromUserAccount === publicKey && tf.toUserAccount === activeFeedWallet) {
+                            totalDonated += (tf.amount / 1e9);
+                        }
+                    });
+                }
+            });
+        } catch(e) {}
+        hasAccess = ADMIN_WALLETS.includes(publicKey) || totalDonated >= 0.049;
+    }
+
+    if (hasAccess) { if(isOwner && postBox) postBox.style.display = 'block'; fetchSkaterFeed(activeFeedWallet, false); } 
+    else { if(paywall) paywall.style.display = 'flex'; fetchSkaterFeed(activeFeedWallet, true); }
+}
+
+async function fetchSkaterFeed(wallet, isBlurred) {
+    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    currentSkaterPosts = []; 
+    
+    try {
+        const sigs = await conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 });
+        for (let s of sigs) { 
+            if(s.memo) {
+                if(s.memo.includes('"sk8post":"v1"')) { 
+                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                    currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, time: s.blockTime, totalDonated: 0 });
+                }
+            }
+        }
+    } catch(e) {}
+    
+    currentSkaterPosts.sort((a,b) => b.time - a.time);
+    
+    await syncGlobalVideos([wallet]);
+    
+    currentSkaterPosts.forEach(p => {
+        if(globalVideoState[p.id]) { p.reactions = globalVideoState[p.id].reactions; p.totalDonated = globalVideoState[p.id].totalSOL; } 
+        else { p.reactions = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0 }; }
+    });
+
+    renderFeedGrid(isBlurred);
+}
+
+function renderFeedGrid(isBlurred) {
+    const container = document.getElementById('actual-feed-items'); const loadMoreBtn = document.getElementById('load-more-feed-btn');
+    if (currentSkaterPosts.length === 0) { if(container) container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`;
+    return; }
+
+    let toRender = currentSkaterPosts.slice(0, feedRenderLimit); let html = ""; let isOwner = (publicKey === activeFeedWallet);
+    toRender.forEach(p => {
+        let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        let mediaHtml = ""; let platformIcon = "";
+        
+        if(p.yt) {
+            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-youtube" style="color:#ff2d55;"></i></div>`;
+            mediaHtml = `<div class="feed-grid-media">${platformIcon}<iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe></div>`;
+        } 
+        else if (p.ig) {
+            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-instagram" style="color:#ff2d55;"></i></div>`;
+            mediaHtml = `<div class="feed-grid-media">${platformIcon}<iframe src="https://www.instagram.com/p/${p.ig}/embed" scrolling="no" allowtransparency="true"></iframe></div>`;
+        } else {
+            mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex;
+            align-items:center; justify-content:center;"><i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
+        }
+
+        let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
+        let universalReactions = getReactionHtml(p.id, activeFeedWallet, false);
+
+        let fxClass = "";
+        let vState = globalVideoState[p.id] || { totalSOL: 0, reactions: {'🔥':0, '🥩':0, '🧈':0} };
+        if (vState.totalSOL >= 0.1) fxClass = "god-tier";
+        else if (vState.reactions['🔥'] >= 2) fxClass = "viral-fire";
+        else if (vState.reactions['🥩'] >= 2) fxClass = "hall-of-meat";
+        else if (vState.reactions['🧈'] >= 2) fxClass = "butter-smooth";
+
+        html += `<div class="feed-grid-item ${fxClass}" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
+                    ${mediaHtml}
+                    <div class="feed-grid-content">
+                        <div class="feed-grid-text">${p.text || ""}</div>
+                        <div class="feed-grid-date" style="margin-bottom: 10px;">${dateStr}</div>
+                        ${universalReactions}
+                        ${blessBtn}
+                    </div>
+                 </div>`;
+    });
+    
+    if(container) container.innerHTML = html;
+    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) { if(loadMoreBtn) loadMoreBtn.style.display = "block"; } else { if(loadMoreBtn) loadMoreBtn.style.display = "none"; }
+}
+
+function loadMoreFeed() { feedRenderLimit += FEED_LIMIT; renderFeedGrid(false); }
+
+function openSponsorshipModalFromFeed(postId) { currentSkaterTarget = activeFeedWallet; activeVideoId = postId || null; document.getElementById('sponsor-modal').style.display = 'flex'; }
 
 async function publishPublicClip() {
     if(!publicKey) return; const btn = document.getElementById("publish-clip-btn"); btn.innerText = "AWAITING SIGNATURE...";
@@ -1748,7 +2194,6 @@ async function loadPublicClips() {
         hardcoded.forEach(hc => grid.appendChild(hc));
     }
 }
-// ----------------------------------------------------
 
 window.addEventListener('load', async () => {
     // Unblock the main rendering thread so links work instantly
@@ -1765,19 +2210,6 @@ window.addEventListener('load', async () => {
     }
     
     if(initialHash === 'home' || !initialHash || initialHash === 'video') { loadPublicClips(); }
-    
-    provider = getProvider();
-    if (provider) { 
-        try { 
-            const resp = await provider.connect({ onlyIfTrusted: true }); 
-            if(resp.publicKey) { 
-                publicKey = resp.publicKey.toString(); 
-                let isReg = await checkRegistration();
-                if(isReg) { updateWalletUI(); fetchBalance(); checkPersistence(); }
-            } 
-        } catch (e) { checkPersistence(); } 
-    }
-    else checkPersistence();
 });
 </script>
 </body>
