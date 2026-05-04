@@ -810,19 +810,6 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
   </div>
 </div>
 
-  <div id="exit-modal" class="modal-overlay">
-  <div class="modal-content" style="padding: 2.5rem; max-width: 450px; background: linear-gradient(160deg, #0f1a47, #0a132f); border: 2px solid var(--accent-red); box-shadow: 0 0 40px rgba(255,45,85,0.15);">
-    <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 55px; margin-bottom: 20px; filter: grayscale(1);">
-    <h2 style="color:var(--text-primary); font-family:'Bangers'; font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 5px; line-height: 1;">LEAVING SO SOON?</h2>
-    <p style="color:var(--accent-red); font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 20px;">DISCONNECTING SECURE WALLET</p>
-    <p style="color:var(--text-secondary); font-size: 0.85rem; margin-bottom: 30px; line-height: 1.6; font-family: 'Inter', sans-serif;">You are about to unplug from the decentralized Skate2Earn protocol. Head back to the streets, and be safe out there.</p>
-    <button id="modal-disconnect-btn" onclick="executeDisconnect()" class="onboarding-btn" style="background: var(--accent-red); color: #fff;">
-        <i class="fas fa-sign-out-alt"></i> DISCONNECT WALLET
-    </button>
-    <button onclick="closeExitModal()" style="background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; margin-top: 5px; transition: 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#888'">[ Cancel ]</button>
-  </div>
-</div>
-
 <audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
 
 <script>
@@ -1139,28 +1126,16 @@ async function fetchWalletStats(wallet) {
 function triggerOnboarding() { document.getElementById("onboarding-modal").style.display = "flex"; }
 function closeOnboardingModal() { document.getElementById("onboarding-modal").style.display = "none"; }
 
-function closeExitModal() { document.getElementById("exit-modal").style.display = "none"; }
-
 function handleWalletAction() {
     if (publicKey) { 
-        // If already connected, show the exit modal
-        document.getElementById("exit-modal").style.display = "flex";
+        try { if (provider && provider.disconnect) provider.disconnect(); } catch(e) {} 
+        publicKey = null; updateWalletUI(); checkPersistence(); 
     } else { 
-        // If not connected, show the onboarding modal
         triggerOnboarding();
     }
 }
 
-async function executeDisconnect() {
-    const btn = document.getElementById("modal-disconnect-btn");
-    btn.innerHTML = "DISCONNECTING...";
-    try { if (provider && provider.disconnect) await provider.disconnect(); } catch(e) {} 
-    publicKey = null; 
-    updateWalletUI(); 
-    checkPersistence();
-    closeExitModal();
-    btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> DISCONNECT WALLET`; // reset for next time
-}
+async function executeWalletConnection() {
     provider = getProvider();
     const btn = document.getElementById("modal-connect-btn");
     
