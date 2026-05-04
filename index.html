@@ -188,13 +188,45 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 
 /* PARK PASS / DISCLAIMER MODAL */
 #disclaimer-modal { display: none; z-index: 9999; backdrop-filter: blur(15px); background: rgba(0,0,0,0.95); }
-.ticket-box { background: var(--bg-panel); border: 2px solid var(--accent-cyan); border-radius: 16px; padding: 0; width: 92%; max-width: 500px; position: relative; box-shadow: 0 0 50px rgba(0,240,255,0.15); overflow: hidden; margin: auto; }
+.ticket-box { 
+    background: var(--bg-panel); 
+    border: 2px solid var(--accent-cyan); 
+    border-radius: 16px; 
+    padding: 0; 
+    width: 92%; 
+    max-width: 500px; 
+    position: relative; 
+    box-shadow: 0 0 50px rgba(0,240,255,0.15); 
+    margin: auto; 
+    max-height: 85vh; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+}
 .ticket-header { background: repeating-linear-gradient(45deg, #0a132f, #0a132f 10px, #0f1a47 10px, #0f1a47 20px); padding: 2rem 1.5rem; border-bottom: 2px dashed var(--accent-cyan); text-align: center; position: relative; }
 .ticket-header::before, .ticket-header::after { content: ''; position: absolute; bottom: -12px; width: 24px; height: 24px; background: #000; border-radius: 50%; border: 2px solid var(--accent-cyan); }
 .ticket-header::before { left: -14px; }
 .ticket-header::after { right: -14px; }
-.ticket-body { padding: 2rem; background: linear-gradient(to bottom, var(--bg-panel), #050a1f); }
-.terms-text { font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--text-secondary); text-align: left; line-height: 1.6; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--card-border); }
+.ticket-body { 
+    padding: 2rem; 
+    background: linear-gradient(to bottom, var(--bg-panel), #050a1f); 
+    overflow-y: auto; 
+    flex: 1; 
+}
+.terms-text { 
+    font-family: 'Inter', sans-serif; 
+    font-size: 0.8rem; 
+    color: var(--text-secondary); 
+    text-align: left; 
+    line-height: 1.6; 
+    background: rgba(0,0,0,0.4); 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+    border: 1px solid var(--card-border); 
+    max-height: 35vh; 
+    overflow-y: auto; 
+}
 .terms-text strong { color: var(--text-primary); font-family: 'Orbitron'; letter-spacing: 1px; font-size: 0.75rem;}
 .terms-text span.hi { color: var(--accent-gold); font-weight: bold; }
 .check-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; text-align: left; cursor: pointer; background: rgba(0, 240, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px solid transparent; transition: 0.3s; }
@@ -239,6 +271,12 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
     .leader-item { flex-direction: column; align-items: flex-start; gap: 5px; }
     .amt-tag { align-self: flex-start; margin-left: 1.8rem; }
     footer { padding: 2rem 1.2rem 1.2rem; margin-top: 2rem; }
+    
+    /* NEW MOBILE PARK PASS FIXES */
+    .ticket-header { padding: 1.2rem 1rem; }
+    .ticket-header h2 { font-size: 2.2rem !important; }
+    .ticket-body { padding: 1.5rem; }
+    .terms-text { max-height: 30vh; font-size: 0.75rem; padding: 12px; }
 }
 @media (max-width: 480px) {
     .hero h1 { font-size: 1.7rem !important; }
@@ -1869,7 +1907,7 @@ async function renderProfile(wallet, forceView = null) {
         }
     }
 
-    if (view === 'skater') {
+  if (view === 'skater') {
         const rank = getRankDisplay(stats.ins, true, wallet);
         header.innerText = "SKATER IDENTITY & BIO";
         rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
