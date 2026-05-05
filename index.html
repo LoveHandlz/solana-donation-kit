@@ -880,12 +880,12 @@ firstScriptTag.parentNode.insertBefore(ytScriptTag, firstScriptTag);
 
 function onYouTubeIframeAPIReady() {
     ytAudioPlayer = new YT.Player('bg-audio-player', {
-        height: '0', width: '0', videoId: '77BpfYUqKc4', // Skate or Die 2 Theme
+        height: '0', width: '0', videoId: '77BpfYUqKc4', 
         playerVars: { 
             'autoplay': 0, 
             'controls': 0,
             'start': 0,    
-            'end': 45      // Shorten to a 45-second loop
+            'end': 45      
         },
         events: { 
             'onReady': onAudioPlayerReady,
@@ -1410,294 +1410,219 @@ function formatTimeRemaining(expiresAt) {
     if(d > 0) return `${d}d ${h}h`; return `${h}h ${m}m`;
 }
 
-// ========== PROFILE & GAMIFICATION LOGIC ==========
-function getReactionHtml(postId, targetWallet, isLocked) {
-    let state = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-    let rx = state.reactions;
-    let isOwner = (publicKey === targetWallet); let isAdmin = ADMIN_WALLETS.includes(publicKey);
-    let effectivelyLocked = state.locked !== undefined ? state.locked : isLocked;
-    let usdValue = (state.totalSOL * solPrice).toFixed(2);
+// ========== DAO GOVERNANCE LOGIC ==========
+async function refreshDAODashboard() {
+    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
+    const daoList = document.getElementById("dao-proposal-list");
+    if(daoList) daoList.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain for Proposals...</li>";
+
+    let proposals = {}; let rawVotes = []; let vetoed = [];
+    try {
+        const sigs = await rpcMethodWithRetry(() => connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 1000 }));
+        for (let i = 0; i < sigs.length; i += 20) {
+            const chunk = sigs.slice(i, i + 20);
+            const txs = await Promise.all(chunk.map(s => rpcMethodWithRetry(() => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null))));
+            chunk.forEach((s, idx) => {
+                const tx = txs[idx];
+                if (s.memo && s.memo.includes('"sk8dao":"v1"') && tx && tx.transaction) {
+                    try {
+                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                        const msg = tx.transaction.message;
+                        const keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k=>k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k=>k.toString()) : []);
+                        const sender = keys[0];
+                        if(d.action === "propose") { proposals[s.signature] = { id: s.signature, title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: s.blockTime || Date.now()/1000, votedWallets: [] }; } 
+                        else if(d.action === "vote" && d.id) { rawVotes.push({ id: d.id, vote: d.vote, sender: sender }); } 
+                        else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) { vetoed.push(d.id); }
+                    } catch(e) {}
+                }
+            });
+            await pingDelay(20);
+        }
+    } catch(e) {}
+
+    rawVotes.forEach(v => {
+        if (proposals[v.id]) {
+            if (!proposals[v.id].votedWallets.includes(v.sender)) {
+                proposals[v.id].votedWallets.push(v.sender);
+                if (v.vote === "yes") proposals[v.id].yes++;
+                if (v.vote === "no") proposals[v.id].no++;
+            }
+        }
+    });
     
-    let toggleHtml = "";
-    if (isOwner || isAdmin) {
-        toggleHtml = `
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-            <span style="font-size:0.65rem; color:var(--text-secondary); text-transform:uppercase;">${effectivelyLocked ? '<i class="fas fa-lock" style="color:var(--accent-red);"></i> LOCKED' : '<i class="fas fa-unlock" style="color:var(--accent-green);"></i> FREE'}</span>
-            <label class="switch" style="transform: scale(0.8); margin: 0;"><input type="checkbox" onchange="toggleVideoLock('${postId}', '${targetWallet}', ${effectivelyLocked})" ${effectivelyLocked ? '' : 'checked'}><span class="slider"></span></label>
-        </div>`;
-    }
-    
-    return `
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-top: 10px; margin-bottom: 5px;">
-        <span style="color:var(--text-secondary); font-size: 0.60rem; text-transform: uppercase; font-weight: bold;"><i class="fas fa-box-open" style="margin-right: 4px;"></i>Clip Treasury</span>
-        <span style="color:var(--accent-green); font-size: 0.60rem; font-family: 'Inter', sans-serif; font-weight: bold;">$${usdValue}</span>
-    </div>
-    <div style="display:flex; justify-content:space-between; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px;">
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🔥', '0.001')" class="reaction-btn ${rx['🔥']>0 ? 'has-votes' : ''}" title="Fire (0.001 SOL)"><span style="font-size: 1rem;">🔥</span><span>${rx['🔥']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🤮', '0.002')" class="reaction-btn ${rx['🤮']>0 ? 'has-votes' : ''}" title="Sketchy (0.002 SOL)"><span style="font-size: 1rem;">🤮</span><span>${rx['🤮']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '⭐', '0.006')" class="reaction-btn ${rx['⭐']>0 ? 'has-votes' : ''}" title="Rising Star (0.006 SOL)"><span style="font-size: 1rem;">⭐</span><span>${rx['⭐']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🧈', '0.018')" class="reaction-btn ${rx['🧈']>0 ? 'has-votes' : ''}" title="Steezy (0.018 SOL)"><span style="font-size: 1rem;">🧈</span><span>${rx['🧈']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🥩', 0.054)" class="reaction-btn ${rx['🥩']>0 ? 'has-votes' : ''}" title="Ground Beef (0.054 SOL)"><span style="font-size: 1rem;">🥩</span><span>${rx['🥩']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '💪', 0.100)" class="reaction-btn ${rx['💪']>0 ? 'has-votes' : ''}" title="Flex (0.1 SOL)"><span style="font-size: 1rem;">💪</span><span>${rx['💪']||0}</span></button>
-    </div>${toggleHtml}`;
+    activeProposals = []; closedProposals = []; let now = Date.now() / 1000;
+    Object.values(proposals).forEach(p => {
+        if(vetoed.includes(p.id)) return; 
+        let expiresAt = p.time + DAO_TTL_SECONDS;
+        if (now > expiresAt) { p.status = 'closed'; closedProposals.push(p); } 
+        else { p.status = 'active'; p.expiresAt = expiresAt; activeProposals.push(p); }
+    });
+    activeProposals.sort((a, b) => b.time - a.time);
+    closedProposals.sort((a, b) => b.time - a.time);
+    renderDAOList();
 }
 
-function renderSponsorBadges(solAmount, isOwner) {
-    const BADGE_MILESTONES = [
-        { req: 0.01, name: "FLOW TIER", icon: "🛹" }, { req: 0.05, name: "AM TIER", icon: "🥉" },
-        { req: 0.10, name: "PRO STATUS", icon: "🥈" }, { req: 0.25, name: "LOCAL LEGEND", icon: "🥇" },
-        { req: 0.50, name: "STREET KING", icon: "👑" }, { req: 1.00, name: "DECK MASTER", icon: "🛠️" },
-        { req: 2.50, name: "WAX PORTAL", icon: "📦" }, { req: 5.00, name: "VIDEO STAR", icon: "📼" },
-        { req: 10.0, name: "MAG COVER", icon: "📖" }, { req: 25.0, name: "THRASHER", icon: "🔥" },
-        { req: 50.0, name: "HALL OF FAME", icon: "🏆" }, { req: 100.0, name: "PROTOCOL GOD", icon: "⚡" }
-    ];
-    let html = "";
-    BADGE_MILESTONES.forEach(b => {
-        let unlocked = solAmount >= b.req;
-        let rewardBtnHtml = (unlocked && isOwner) ? `<button onclick="alert('Contract linking pending for ${b.name} rewards. Check Discord for updates on NFT and $SKATE token drops.')" style="margin-top: 8px; width: 100%; background: var(--accent-cyan); color: #000; border: none; padding: 4px; border-radius: 4px; font-size: 0.55rem; font-weight: bold; cursor: pointer; text-transform: uppercase;">CLAIM REWARD</button>` : '';
+function renderDAOList() {
+    const list = document.getElementById("dao-proposal-list"); let html = "";
+    if(activeProposals.length === 0 && closedProposals.length === 0) { list.innerHTML = "<div style='color: var(--text-secondary); text-align: center; padding: 20px;'>No motions currently on the floor.</div>"; return; }
+
+    activeProposals.forEach(p => {
+        let totalVotes = p.yes + p.no; let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0; let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0; let timeLeft = formatTimeRemaining(p.expiresAt);
+        let vetoBtn = ADMIN_WALLETS.includes(publicKey) ? `<button onclick="removeDAOProposal('${p.id}')" style="background:var(--accent-red); color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.65rem; cursor:pointer;"><i class="fas fa-bolt"></i> REMOVE</button>` : '';
+
         html += `
-        <div style="background: var(--bg-panel); border: 1px solid ${unlocked ? 'var(--accent-gold)' : 'rgba(0,240,255,0.1)'}; border-radius: 12px; padding: 12px; text-align: center; opacity: ${unlocked ? '1' : '0.4'}; filter: ${unlocked ? 'none' : 'grayscale(1)'}; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="font-size: 1.8rem; margin-bottom: 5px; filter: ${unlocked ? 'drop-shadow(0 0 8px rgba(255,215,0,0.4))' : 'none'};">${unlocked ? b.icon : '🔒'}</div>
-                <div style="font-size: 0.6rem; color: ${unlocked ? 'var(--accent-gold)' : 'var(--text-secondary)'}; font-weight: bold; text-transform: uppercase;">${b.name}</div>
-                <div style="font-size: 0.55rem; color: var(--text-secondary); margin-top: 4px; font-family: monospace;">${b.req} SOL</div>
-            </div>${rewardBtnHtml}
+        <div style="background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,240,255,0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                <h3 style="color:var(--text-primary); font-size:1.1rem; margin:0; text-transform: uppercase;">${p.title}</h3>
+                <span style="color:var(--accent-orange); font-size:0.7rem; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-hourglass-half"></i> Ends in ${timeLeft}</span>
+            </div>
+            <p style="color:var(--text-secondary); font-size:0.8rem; line-height:1.5; margin-bottom:15px;">${p.desc}</p>
+            <div style="background:rgba(0,0,0,0.3); border-radius:8px; padding:10px; margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight:bold; margin-bottom:5px;">
+                    <span style="color:var(--accent-green);">YES (${p.yes}) - ${yesPct}%</span>
+                    <span style="color:var(--accent-red);">NO (${p.no}) - ${noPct}%</span>
+                </div>
+                <div style="width:100%; background:rgba(255,255,255,0.1); height:8px; border-radius:4px; display:flex; overflow:hidden;">
+                    <div style="width:${yesPct}%; background:var(--accent-green); height:100%;"></div>
+                    <div style="width:${noPct}%; background:var(--accent-red); height:100%;"></div>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="castDAOVote('${p.id}', 'yes')" style="flex:1; background:transparent; color:var(--accent-green); border:1px solid var(--accent-green); padding:10px; border-radius:6px; font-weight:bold; font-family:'Orbitron'; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='var(--accent-green)'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='var(--accent-green)';">VOTE YES</button>
+                <button onclick="castDAOVote('${p.id}', 'no')" style="flex:1; background:transparent; color:var(--accent-red); border:1px solid var(--accent-red); padding:10px; border-radius:6px; font-weight:bold; font-family:'Orbitron'; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='var(--accent-red)'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='var(--accent-red)';">VOTE NO</button>
+                ${vetoBtn}
+            </div>
         </div>`;
     });
-    const grid = document.getElementById("sponsor-badge-grid");
-    if (grid) grid.innerHTML = html;
+
+    if(closedProposals.length > 0) {
+        html += `<h3 style="color:var(--text-secondary); font-size:0.8rem; margin-top: 30px; margin-bottom: 10px; text-align:center; letter-spacing: 2px;">PAST MOTIONS</h3>`;
+        closedProposals.forEach(p => {
+            let totalVotes = p.yes + p.no; let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0; let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0; let passed = p.yes > p.no;
+            html += `
+            <div style="background: rgba(0,0,0,0.3); border: 1px dashed var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 10px; opacity: 0.7;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h4 style="color:var(--text-secondary); font-size:0.9rem; margin:0;">${p.title}</h4>
+                    <span style="font-weight:bold; font-size:0.7rem; color:${passed ? 'var(--accent-green)' : 'var(--accent-red)'}">${passed ? 'PASSED' : 'REJECTED'}</span>
+                </div>
+                <div style="display:flex; gap:15px; margin-top:5px; font-size: 0.65rem; color:var(--text-secondary);">
+                    <span>YES: ${p.yes} (${yesPct}%)</span><span>NO: ${p.no} (${noPct}%)</span>
+                </div>
+            </div>`;
+        });
+    }
+    list.innerHTML = html;
 }
 
-// ========== WEB3 SOFT DELETE ENGINE ==========
-async function deleteClipWeb3(signature) {
+function openProposalModal() { if(!publicKey) { triggerOnboarding(); return; } document.getElementById("proposal-modal").style.display = "flex"; }
+function closeProposalModal() { document.getElementById("proposal-modal").style.display = "none"; }
+
+async function submitDAOProposal() {
     if(!publicKey) { triggerOnboarding(); return; }
-    if(!confirm("Are you sure you want to permanently delete this clip from your feed? This cannot be undone.")) return;
-    
+    const stats = await fetchWalletStats(publicKey);
+    if(stats.outs < 0.1 && !ADMIN_WALLETS.includes(publicKey)) { alert("You must be rank PRO (0.1+ SOL donated) to submit motions."); return; }
+
+    const title = document.getElementById("dao-prop-title").value; const desc = document.getElementById("dao-prop-desc").value;
+    if(!title || !desc) { alert("Fill all fields"); return; }
+
+    const btn = document.getElementById("submit-dao-btn"); btn.innerText = "AWAITING SIGNATURE...";
     try {
-        const pData = JSON.stringify({ sk8del: "v1", post: signature });
+        const pData = JSON.stringify({ sk8dao: "v1", action: "propose", title, desc });
+        const encoded = new TextEncoder().encode(pData); 
+        if (encoded.length > 566) { alert(`Proposal too long for Memo!`); btn.innerText = "SIGN & BROADCAST"; return; }
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        btn.innerText = "BROADCASTED!";
+        setTimeout(() => { closeProposalModal(); refreshDAODashboard(); btn.innerText = "SIGN & BROADCAST"; }, 2000);
+    } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SIGN & BROADCAST", 3000); }
+}
+
+async function castDAOVote(propId, voteType) {
+    if(!publicKey) { triggerOnboarding(); return; }
+    if(!confirm(`Cast ${voteType.toUpperCase()} vote? This requires a ${DAO_VOTE_FEE} SOL anti-sybil fee to the Treasury.`)) return;
+    try {
+        const pData = JSON.stringify({ sk8dao: "v1", action: "vote", id: propId, vote: voteType });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert("Vote Cast! Refreshing dashboard..."); refreshDAODashboard();
+    } catch (err) { alert("Vote Failed."); }
+}
+
+async function removeDAOProposal(propId) {
+    if(!ADMIN_WALLETS.includes(publicKey)) return;
+    if(!confirm("ADMIN: Permanently remove this motion from the floor?")) return;
+    try {
+        const pData = JSON.stringify({ sk8dao: "v1", action: "veto", id: propId });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert("Removal Broadcasted!"); refreshDAODashboard();
+    } catch(e) {}
+}
+
+async function setIncognitoWeb3(state) {
+    if(!confirm(`Are you sure you want to ${state ? 'HIDE' : 'SHOW'} Godmode on public leaderboards?`)) return;
+    try {
+        const pData = JSON.stringify({ sk8admin: "v1", action: "incognito", state: state });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert(`Visibility updated! Please wait a moment for the blockchain to sync.`);
+        setTimeout(async () => { await syncAdminState(); renderProfile(publicKey); refreshLeaderboardData(); }, 3000);
+    } catch(e) { alert("Admin action failed."); }
+}
+
+async function adminAction(targetWallet, action) {
+    if(!targetWallet) { alert("Enter a wallet address first."); return; }
+    if(!confirm(`Are you sure you want to ${action.toUpperCase()} skater ${targetWallet.slice(0,4)}...${targetWallet.slice(-4)}?`)) return;
+    try {
+        const pData = JSON.stringify({ sk8admin: "v1", action: action, wallet: targetWallet });
+        const encoded = new TextEncoder().encode(pData); 
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
+        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert(`Skater ${action === 'ban' ? 'suspended' : 'resurrected'}!`);
+        document.getElementById('admin-target-wallet').value = ""; await syncAdminState(); renderProfile(publicKey); 
+    } catch(e) { alert("Admin action failed."); }
+}
+
+async function toggleVideoLock(postId, targetWallet, currentlyLocked) {
+    if(!publicKey) { triggerOnboarding(); return; }
+    let newState = !currentlyLocked;
+    let actionText = newState ? "LOCK" : "UNLOCK (Make Free)";
+    if(!confirm(`Are you sure you want to ${actionText} this video?`)) return;
+    try {
+        const pData = JSON.stringify({ sk8vid: "v1", post: postId, locked: newState });
         const encoded = new TextEncoder().encode(pData); 
         const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
         const from = new solanaWeb3.PublicKey(publicKey);
-        
         const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
         tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        
         await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        
-        // Push immediately to local state for fast UI update
-        deletedPosts.push(signature);
-        attemptFeedAccess(); // Re-render the feed to hide the clip
-    } catch(e) {
-        alert("Deletion failed to broadcast.");
-    }
-}
-
-// ========== FEED LOGIC WITH TIKTOK/IPFS EXTENSIONS ==========
-async function attemptFeedAccess() {
-    if(!publicKey) { triggerOnboarding(); return; }
-    activeFeedWallet = document.getElementById('p-wallet').innerText;
-    let skaterName = document.getElementById('p-name').innerText;
-    
-    document.getElementById('mobile-nav').classList.remove('open');
-    let newHash = '#feed';
-    if(window.location.hash !== newHash) history.pushState(null, null, newHash);
-    ["home", "video", "leaderboard", "donate", "profile", "dao"].forEach(id => {
-        let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none';
-    });
-    let feedContent = document.getElementById("feed-content"); if(feedContent) feedContent.style.display = 'block'; window.scrollTo(0,0);
-
-    let feedTitle = document.getElementById('feed-header-title'); if(feedTitle) feedTitle.innerText = `${skaterName}'S FEED`;
-    let postBox = document.getElementById('post-create-box'); if(postBox) postBox.style.display = 'none';
-    let paywall = document.getElementById('feed-paywall-overlay'); if(paywall) paywall.style.display = 'none';
-    let loadBtn = document.getElementById('load-more-feed-btn');
-    if(loadBtn) loadBtn.style.display = 'none';
-    
-    let feedItems = document.getElementById('actual-feed-items'); 
-    if(feedItems) feedItems.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain history...</div>';
-    feedRenderLimit = FEED_LIMIT; currentSkaterPosts = [];
-    let isOwner = (publicKey === activeFeedWallet); let hasAccess = isOwner;
-
-    if (!isOwner) { 
-        let totalDonated = 0;
-        try {
-            let txs = await fetchDeepHistory(publicKey, 1000, true);
-            txs.forEach(tx => {
-                if(tx.nativeTransfers) {
-                    tx.nativeTransfers.forEach(tf => {
-                        if(tf.fromUserAccount === publicKey && tf.toUserAccount === activeFeedWallet) { totalDonated += (tf.amount / 1e9); }
-                    });
-                }
-            });
-        } catch(e) {}
-        hasAccess = ADMIN_WALLETS.includes(publicKey) || totalDonated >= 0.049;
-    }
-
-    if (hasAccess) { 
-        if(isOwner && postBox) postBox.style.display = 'block';
-        fetchSkaterFeed(activeFeedWallet, false);
-    } else { 
-        if(paywall) paywall.style.display = 'flex'; 
-        fetchSkaterFeed(activeFeedWallet, true);
-    }
-}
-
-async function fetchSkaterFeed(wallet, isBlurred) {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    currentSkaterPosts = [];
-    
-    try {
-        const sigs = await rpcMethodWithRetry(() => conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 }));
-        for (let s of sigs) { 
-            if(s.memo) {
-                // Compile the blocklist
-                if (s.memo.includes('"sk8del":"v1"')) {
-                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                    if(!deletedPosts.includes(d.post)) deletedPosts.push(d.post);
-                }
-                else if(s.memo.includes('"sk8post":"v1"')) { 
-                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                    // Includes tk and ipfs fields now
-                    currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, tk: d.tk, ipfs: d.ipfs, time: s.blockTime, totalDonated: 0 });
-                }
-            }
-        }
-    } catch(e) {}
-    
-    // Web3 Soft Delete filter implementation
-    currentSkaterPosts = currentSkaterPosts.filter(p => !deletedPosts.includes(p.id));
-    
-    currentSkaterPosts.sort((a,b) => b.time - a.time);
-    await syncGlobalVideos([wallet]);
-    
-    currentSkaterPosts.forEach(p => {
-        if(globalVideoState[p.id]) { p.reactions = globalVideoState[p.id].reactions; p.totalDonated = globalVideoState[p.id].totalSOL; } 
-        else { p.reactions = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0 }; }
-    });
-    renderFeedGrid(isBlurred);
-}
-
-function renderFeedGrid(isBlurred) {
-    const container = document.getElementById('actual-feed-items');
-    const loadMoreBtn = document.getElementById('load-more-feed-btn');
-    if (currentSkaterPosts.length === 0) { 
-        if(container) container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`;
-        return; 
-    }
-
-    let toRender = currentSkaterPosts.slice(0, feedRenderLimit); let html = "";
-    let isOwner = (publicKey === activeFeedWallet);
-    
-    toRender.forEach(p => {
-        let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-        let mediaHtml = ""; let platformIcon = "";
-        
-        let deleteBtnHtml = isOwner ? `
-            <button class="delete-clip-btn" title="Delete Clip" onclick="deleteClipWeb3('${p.id}')">
-                <i class="fa-solid fa-trash"></i>
-            </button>` : '';
-
-        // Media rendering order: IPFS -> TikTok -> YouTube -> Instagram -> Fallback
-        if (p.ipfs) {
-            const publicGatewayUrl = `https://cloudflare-ipfs.com/ipfs/${p.ipfs}`;
-            platformIcon = `<div class="feed-platform-icon" title="Decentralized via IPFS"><i class="fa-solid fa-cube"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<video controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border: none;"><source src="${publicGatewayUrl}" type="video/mp4"></video></div>`;
-        }
-        else if (p.tk) {
-            platformIcon = `<div class="feed-platform-icon"><i class="fa-brands fa-tiktok" style="color:#00f0ff;"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<iframe src="https://www.tiktok.com/embed/v2/${p.tk}" allowfullscreen></iframe></div>`;
-        }
-        else if(p.yt) {
-            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-youtube" style="color:#ff2d55;"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe></div>`;
-        } 
-        else if (p.ig) {
-            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-instagram" style="color:#ff2d55;"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<iframe src="https://www.instagram.com/p/${p.ig}/embed" scrolling="no" allowtransparency="true"></iframe></div>`;
-        } else {
-            mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex; align-items:center; justify-content:center;">${deleteBtnHtml}<i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
-        }
-
-        let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
-        let universalReactions = getReactionHtml(p.id, activeFeedWallet, false);
-
-        // STAGE 4: EXTREME FEED OVERLAY THRESHOLDS (10 CLICKS)
-        let fxClass = "";
-        let vState = globalVideoState[p.id] || { totalSOL: 0, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0} };
-
-        if (vState.totalSOL >= 0.1) fxClass = "god-tier";
-        else if (vState.reactions['💪'] >= 10) fxClass = "flex-god";
-        else if (vState.reactions['🥩'] >= 10) fxClass = "hall-of-meat";
-        else if (vState.reactions['🧈'] >= 10) fxClass = "butter-smooth";
-        else if (vState.reactions['⭐'] >= 10) fxClass = "rising-star";
-        else if (vState.reactions['🤮'] >= 10) fxClass = "sketchy";
-        else if (vState.reactions['🔥'] >= 10) fxClass = "viral-fire";
-
-        html += `<div class="feed-grid-item ${fxClass}" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
-                    ${mediaHtml}
-                    <div class="feed-grid-content">
-                        <div class="feed-grid-text">${p.text || ""}</div>
-                        <div class="feed-grid-date" style="margin-bottom: 10px;">${dateStr}</div>
-                        ${universalReactions}
-                        ${blessBtn}
-                    </div>
-                 </div>`;
-    });
-    
-    if(container) container.innerHTML = html;
-    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) { 
-        if(loadMoreBtn) loadMoreBtn.style.display = "block"; 
-    } else { 
-        if(loadMoreBtn) loadMoreBtn.style.display = "none"; 
-    }
-}
-
-function loadMoreFeed() { feedRenderLimit += FEED_LIMIT; renderFeedGrid(false); }
-function openSponsorshipModalFromFeed(postId) { currentSkaterTarget = activeFeedWallet; activeVideoId = postId || null; document.getElementById('sponsor-modal').style.display = 'flex'; }
-
-async function publishToFeed() {
-    if(!publicKey) { triggerOnboarding(); return; }
-    const btn = document.getElementById("publish-feed-btn"); btn.innerText = "AWAITING SIGNATURE...";
-    try {
-        const text = document.getElementById("new-post-text").value;
-        const rawLink = document.getElementById("new-post-link").value;
-        let yt = ""; let ig = ""; let tk = ""; let ipfs = "";
-        
-        if (rawLink) { 
-            // Parsing Logic expanded for IPFS and TikTok
-            if (rawLink.startsWith('ipfs://') || rawLink.startsWith('Qm') || rawLink.startsWith('bafy')) {
-                ipfs = rawLink.replace('ipfs://', '').split('/')[0];
-            } 
-            else if (rawLink.includes('tiktok.com')) {
-                tk = rawLink.split('/video/')[1]?.split('?')[0];
-            }
-            else if (rawLink.includes('youtu')) {
-                const ytMatch = rawLink.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-                if (ytMatch && ytMatch[2].length === 11) yt = ytMatch[2]; 
-            }
-            else if (rawLink.includes('instagram.com')) {
-                const igMatch = rawLink.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
-                if (igMatch) ig = igMatch[1];
-            }
-        }
-        
-        if(!text && !yt && !ig && !tk && !ipfs) { alert("Cannot post empty data. Require text or media link."); btn.innerText = "SIGN & POST TO CHAIN"; return; }
-
-        const pData = JSON.stringify({ sk8post: "v1", text, yt, ig, tk, ipfs });
-        const encoded = new TextEncoder().encode(pData); 
-        if (encoded.length > 566) { alert(`Post too long for Memo! Shorten your text.`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
-        
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-        const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        btn.innerText = "POSTED!"; document.getElementById("new-post-text").value = ""; document.getElementById("new-post-link").value = "";
-        setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; attemptFeedAccess(); }, 2000);
-    } catch (err) { 
-        btn.innerText = "FAILED";
-        setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000);
-    }
+        alert(`Video ${newState ? 'LOCKED' : 'UNLOCKED'}!`);
+        setTimeout(() => {
+            if(document.getElementById('profile-content').style.display === 'block') { renderProfile(targetWallet); }
+            else if(document.getElementById('feed-content').style.display === 'block') { attemptFeedAccess(); }
+            else { window.location.reload(); }
+        }, 2500);
+    } catch(e) { alert("Action failed."); }
 }
 
 // ========== INITIALIZATION ==========
