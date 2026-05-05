@@ -870,7 +870,7 @@ let activeFeedWallet = "";
 const FEED_LIMIT = 12;
 let feedRenderLimit = FEED_LIMIT;
 let currentSkaterPosts = [];
-let deletedPosts = []; // STAGE 1: Array to hold signatures of deleted posts
+let deletedPosts = []; // Array to hold signatures of deleted posts
 
 let isAdmin = false;
 let adminVips = [];
@@ -1034,7 +1034,9 @@ function navigateTo(viewId, targetWallet = null) {
     document.getElementById('donate-content').style.display = 'none';
     document.getElementById('profile-content').style.display = 'none';
     document.getElementById('feed-content').style.display = 'none';
-    document.getElementById('dao-content').style.display = 'none';
+    
+    let daoContent = document.getElementById('dao-content');
+    if (daoContent) daoContent.style.display = 'none';
 
     document.getElementById('mobile-nav').classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1076,18 +1078,18 @@ function navigateTo(viewId, targetWallet = null) {
             document.title = "PRIVATE FEED | CRYPTO CLIPS";
             feedRenderLimit = FEED_LIMIT;
             currentSkaterPosts = [];
-            deletedPosts = []; // STAGE 1 & 2: Reset deleted list on feed load
+            deletedPosts = []; // Reset deleted list on feed load
             renderFeedGrid(); 
             fetchSkaterFeed(targetWallet);
         } else { navigateTo('home'); }
     } else if (viewId === 'dao') {
-        document.getElementById('dao-content').style.display = 'block';
+        if (daoContent) daoContent.style.display = 'block';
         window.history.pushState(null, '', '#dao');
         document.title = "GOVERNANCE | CRYPTO CLIPS";
-        loadProposals();
+        if (typeof loadProposals === 'function') loadProposals();
     }
 }
-</script>
+
 function getRank(solAmount) {
     if (solAmount >= 0.1) return "PRO (0.1+ SOL)";
     if (solAmount >= 0.05) return "AM (0.05+ SOL)";
@@ -1146,7 +1148,6 @@ async function attemptFeedAccess() {
     }
 }
 
-// STAGE 2: THE INDEXER UPGRADE
 // Scanning the blockchain for both posts AND delete tombstones
 async function fetchSkaterFeed(wallet) {
     const grid = document.getElementById('actual-feed-items');
@@ -1204,7 +1205,6 @@ async function fetchSkaterFeed(wallet) {
     }
 }
 
-// STAGE 3: THE UI INJECTION
 // Dynamically injecting the delete button if viewing own feed
 function renderFeedGrid() {
     const grid = document.getElementById('actual-feed-items');
@@ -1335,7 +1335,7 @@ async function publishToFeed() {
     }
 }
 
-// STAGE 4: THE WEB3 ENGINE (Soft Delete Broadcast)
+// THE WEB3 ENGINE (Soft Delete Broadcast)
 async function deleteFeedPost(postId) {
     if (!publicKey) return alert("Connect wallet first!");
     if (!confirm("Are you sure you want to delete this post? This will write a permanent hide instruction to the blockchain.")) return;
@@ -1916,5 +1916,3 @@ window.addEventListener('popstate', () => {
 </script>
 </body>
 </html>
-
-
