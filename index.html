@@ -92,7 +92,6 @@ main { padding-top: 120px; max-width: 1440px; margin: auto; padding-left: 20px; 
 .reaction-btn:hover { filter:none; transform:scale(1.1); }
 .reaction-btn.has-votes { filter: none; opacity: 1; color: var(--accent-gold); }
 
-/* GAMIFICATION VISUAL OVERLAYS (EXTREME EDITION) */
 .viral-fire { border-color: #ff4500 !important; animation: fire-pulse 1s infinite alternate; }
 @keyframes fire-pulse {
     0% { box-shadow: 0 0 10px rgba(255,69,0,0.5), inset 0 0 10px rgba(255,69,0,0.2); }
@@ -201,28 +200,8 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
 .feed-grid-date { font-size: 0.6rem; color: var(--text-secondary); font-family: 'Inter', sans-serif; }
 .feed-bless-btn { background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); padding: 8px; border-radius: 6px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: auto; transition: 0.3s; text-transform: uppercase; }
 .feed-bless-btn:hover { background: var(--accent-gold); color: #000; }
-
-/* NEW DELETE BUTTON STYLING */
-.delete-clip-btn {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(255, 45, 85, 0.7);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
-    padding: 6px 9px;
-    border-radius: 6px;
-    z-index: 15;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.delete-clip-btn:hover {
-    background: var(--accent-red);
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(255, 45, 85, 0.5);
-}
+.feed-delete-btn { background: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); padding: 8px; border-radius: 6px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; transition: 0.3s; text-transform: uppercase; }
+.feed-delete-btn:hover { background: var(--accent-red); color: #fff; box-shadow: 0 0 10px rgba(255,45,85,0.4); }
 
 /* PARK PASS / DISCLAIMER MODAL */
 #disclaimer-modal { display: none; z-index: 9999; backdrop-filter: blur(15px); background: rgba(0,0,0,0.95); }
@@ -639,7 +618,7 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
             <h3 style="color:var(--accent-cyan); font-size: 1rem; margin-bottom: 10px;">UPDATE YOUR FEED</h3>
             <textarea id="new-post-text" placeholder="What went down today? Land a new trick?" rows="3" style="width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid var(--card-border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.85rem; margin-bottom: 10px;"></textarea>
             
-            <input type="text" id="new-post-link" placeholder="Optional: YouTube, TikTok, IPFS, or Instagram URL" style="width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid var(--card-border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 10px;">
+            <input type="text" id="new-post-link" placeholder="Optional: YouTube or Instagram Reel/Post URL" style="width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid var(--card-border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-bottom: 10px;">
             
             <button onclick="publishToFeed()" id="publish-feed-btn" class="tier-btn" style="background: var(--accent-cyan); color: #000; border: none; font-size: 0.8rem;">SIGN & POST TO CHAIN</button>
         </div>
@@ -864,1003 +843,1034 @@ footer { background: var(--bg-panel); border-top: 1px solid var(--card-border); 
   </div>
 </div>
 
-<audio id="jingle" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+<script>
+window.Buffer = buffer.Buffer;
+const web3 = solanaWeb3;
+const RPC_ENDPOINT = "https://mainnet.helius-rpc.com/?api-key=f61b782b-dfab-40a8-b649-62325b15b59a";
+const connection = new web3.Connection(RPC_ENDPOINT, { commitment: 'confirmed' });
+const MEMO_PROGRAM_ID = new web3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
+const TREASURY_WALLET = new web3.PublicKey("5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc");
+const MASTER_WALLET = new web3.PublicKey("Bw2JvQ3BqYF6o3oQ1vC1o7xYmYyM7yG8r1Wb1b3H3U2S");
 
-// ========== DAO GOVERNANCE LOGIC ==========
-async function refreshDAODashboard() {
-    const connection = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    const daoList = document.getElementById("dao-proposal-list");
-    if(daoList) daoList.innerHTML = "<li><i class='fas fa-spinner fa-spin' style='margin-right:8px; color:var(--accent-cyan);'></i> Scanning Chain for Proposals...</li>";
+let provider = null;
+let publicKey = null;
+let solPriceUSD = 0;
+let skaterProfiles = {};
+let skaterDonations = {}; 
+let globalSponsors = {};
+let allTreasurySponsors = [];
+let allSkaterHits = [];
+let activeTarget = ""; 
+let activeTargetAddress = "";
+let currentView = 'home';
+let activeProfileWallet = "";
+let activeFeedWallet = "";
 
-    let proposals = {}; let rawVotes = []; let vetoed = [];
+// GLOBALS FOR THE FEED & SOFT DELETE ARCHITECTURE
+const FEED_LIMIT = 12;
+let feedRenderLimit = FEED_LIMIT;
+let currentSkaterPosts = [];
+let deletedPosts = []; // STAGE 1: Array to hold signatures of deleted posts
+
+let isAdmin = false;
+let adminVips = [];
+let freeModeUsers = [];
+
+function isMobile() { return window.innerWidth <= 768; }
+
+async function getSolPrice() {
     try {
-        const sigs = await rpcMethodWithRetry(() => connection.getSignaturesForAddress(new solanaWeb3.PublicKey(TREASURY_WALLET), { limit: 1000 }));
-        for (let i = 0; i < sigs.length; i += 20) {
-            const chunk = sigs.slice(i, i + 20);
-            const txs = await Promise.all(chunk.map(s => rpcMethodWithRetry(() => connection.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null))));
-            chunk.forEach((s, idx) => {
-                const tx = txs[idx];
-                if (s.memo && s.memo.includes('"sk8dao":"v1"') && tx && tx.transaction) {
-                    try {
-                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                        const msg = tx.transaction.message;
-                        const keys = msg.staticAccountKeys ? msg.staticAccountKeys.map(k=>k.toString()) : (msg.accountKeys ? msg.accountKeys.map(k=>k.toString()) : []);
-                        const sender = keys[0];
-                        if(d.action === "propose") { proposals[s.signature] = { id: s.signature, title: d.title, desc: d.desc, proposer: sender, yes: 0, no: 0, time: s.blockTime || Date.now()/1000, votedWallets: [] }; } 
-                        else if(d.action === "vote" && d.id) { rawVotes.push({ id: d.id, vote: d.vote, sender: sender }); } 
-                        else if(d.action === "veto" && ADMIN_WALLETS.includes(sender)) { vetoed.push(d.id); }
-                    } catch(e) {}
-                }
-            });
-            await pingDelay(20);
-        }
-    } catch(e) {}
-
-    rawVotes.forEach(v => {
-        if (proposals[v.id]) {
-            if (!proposals[v.id].votedWallets.includes(v.sender)) {
-                proposals[v.id].votedWallets.push(v.sender);
-                if (v.vote === "yes") proposals[v.id].yes++;
-                if (v.vote === "no") proposals[v.id].no++;
-            }
-        }
-    });
-    activeProposals = []; closedProposals = []; let now = Date.now() / 1000;
-    Object.values(proposals).forEach(p => {
-        if(vetoed.includes(p.id)) return; 
-        let expiresAt = p.time + DAO_TTL_SECONDS;
-        if (now > expiresAt) { p.status = 'closed'; closedProposals.push(p); } 
-        else { p.status = 'active'; p.expiresAt = expiresAt; activeProposals.push(p); }
-    });
-    activeProposals.sort((a, b) => b.time - a.time);
-    closedProposals.sort((a, b) => b.time - a.time);
-    renderDAOList();
-}
-
-function renderDAOList() {
-    const list = document.getElementById("dao-proposal-list"); let html = "";
-    if(activeProposals.length === 0 && closedProposals.length === 0) { list.innerHTML = "<div style='color: var(--text-secondary); text-align: center; padding: 20px;'>No motions currently on the floor.</div>"; return; }
-
-    activeProposals.forEach(p => {
-        let totalVotes = p.yes + p.no; let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0; let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0; let timeLeft = formatTimeRemaining(p.expiresAt);
-        let vetoBtn = ADMIN_WALLETS.includes(publicKey) ? `<button onclick="removeDAOProposal('${p.id}')" style="background:var(--accent-red); color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:0.65rem; cursor:pointer;"><i class="fas fa-bolt"></i> REMOVE</button>` : '';
-
-        html += `
-        <div style="background: var(--bg-panel); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(0,240,255,0.05);">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-                <h3 style="color:var(--text-primary); font-size:1.1rem; margin:0; text-transform: uppercase;">${p.title}</h3>
-                <span style="color:var(--accent-orange); font-size:0.7rem; font-weight:bold; display:flex; align-items:center; gap:5px;"><i class="fas fa-hourglass-half"></i> Ends in ${timeLeft}</span>
-            </div>
-            <p style="color:var(--text-secondary); font-size:0.8rem; line-height:1.5; margin-bottom:15px;">${p.desc}</p>
-            <div style="background:rgba(0,0,0,0.3); border-radius:8px; padding:10px; margin-bottom:15px;">
-                <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight:bold; margin-bottom:5px;">
-                    <span style="color:var(--accent-green);">YES (${p.yes}) - ${yesPct}%</span>
-                    <span style="color:var(--accent-red);">NO (${p.no}) - ${noPct}%</span>
-                </div>
-                <div style="width:100%; background:rgba(255,255,255,0.1); height:8px; border-radius:4px; display:flex; overflow:hidden;">
-                    <div style="width:${yesPct}%; background:var(--accent-green); height:100%;"></div>
-                    <div style="width:${noPct}%; background:var(--accent-red); height:100%;"></div>
-                </div>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button onclick="castDAOVote('${p.id}', 'yes')" style="flex:1; background:transparent; color:var(--accent-green); border:1px solid var(--accent-green); padding:10px; border-radius:6px; font-weight:bold; font-family:'Orbitron'; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='var(--accent-green)'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='var(--accent-green)';">VOTE YES</button>
-                <button onclick="castDAOVote('${p.id}', 'no')" style="flex:1; background:transparent; color:var(--accent-red); border:1px solid var(--accent-red); padding:10px; border-radius:6px; font-weight:bold; font-family:'Orbitron'; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='var(--accent-red)'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='var(--accent-red)';">VOTE NO</button>
-                ${vetoBtn}
-            </div>
-        </div>`;
-    });
-
-    if(closedProposals.length > 0) {
-        html += `<h3 style="color:var(--text-secondary); font-size:0.8rem; margin-top: 30px; margin-bottom: 10px; text-align:center; letter-spacing: 2px;">PAST MOTIONS</h3>`;
-        closedProposals.forEach(p => {
-            let totalVotes = p.yes + p.no; let yesPct = totalVotes > 0 ? ((p.yes / totalVotes) * 100).toFixed(0) : 0; let noPct = totalVotes > 0 ? ((p.no / totalVotes) * 100).toFixed(0) : 0; let passed = p.yes > p.no;
-            html += `
-            <div style="background: rgba(0,0,0,0.3); border: 1px dashed var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 10px; opacity: 0.7;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h4 style="color:var(--text-secondary); font-size:0.9rem; margin:0;">${p.title}</h4>
-                    <span style="font-weight:bold; font-size:0.7rem; color:${passed ? 'var(--accent-green)' : 'var(--accent-red)'}">${passed ? 'PASSED' : 'REJECTED'}</span>
-                </div>
-                <div style="display:flex; gap:15px; margin-top:5px; font-size: 0.65rem; color:var(--text-secondary);">
-                    <span>YES: ${p.yes} (${yesPct}%)</span><span>NO: ${p.no} (${noPct}%)</span>
-                </div>
-            </div>`;
-        });
-    }
-    list.innerHTML = html;
-}
-
-function openProposalModal() { if(!publicKey) { triggerOnboarding(); return; } document.getElementById("proposal-modal").style.display = "flex"; }
-function closeProposalModal() { document.getElementById("proposal-modal").style.display = "none"; }
-
-async function submitDAOProposal() {
-    if(!publicKey) { triggerOnboarding(); return; }
-    const stats = await fetchWalletStats(publicKey);
-    if(stats.outs < 0.1 && !ADMIN_WALLETS.includes(publicKey)) { alert("You must be rank PRO (0.1+ SOL donated) to submit motions."); return; }
-
-    const title = document.getElementById("dao-prop-title").value; const desc = document.getElementById("dao-prop-desc").value;
-    if(!title || !desc) { alert("Fill all fields"); return; }
-
-    const btn = document.getElementById("submit-dao-btn"); btn.innerText = "AWAITING SIGNATURE...";
-    try {
-        const pData = JSON.stringify({ sk8dao: "v1", action: "propose", title, desc });
-        const encoded = new TextEncoder().encode(pData); 
-        if (encoded.length > 566) { alert(`Proposal too long for Memo!`); btn.innerText = "SIGN & BROADCAST"; return; }
-        
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-        const from = new solanaWeb3.PublicKey(publicKey); const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        btn.innerText = "BROADCASTED!";
-        setTimeout(() => { closeProposalModal(); refreshDAODashboard(); btn.innerText = "SIGN & BROADCAST"; }, 2000);
-    } catch (err) { btn.innerText = "FAILED"; setTimeout(() => btn.innerText = "SIGN & BROADCAST", 3000); }
-}
-
-async function castDAOVote(propId, voteType) {
-    if(!publicKey) { triggerOnboarding(); return; }
-    if(!confirm(`Cast ${voteType.toUpperCase()} vote? This requires a ${DAO_VOTE_FEE} SOL anti-sybil fee to the Treasury.`)) return;
-    try {
-        const pData = JSON.stringify({ sk8dao: "v1", action: "vote", id: propId, vote: voteType });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(DAO_VOTE_FEE * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert("Vote Cast! Refreshing dashboard..."); refreshDAODashboard();
-    } catch (err) { alert("Vote Failed."); }
-}
-
-async function removeDAOProposal(propId) {
-    if(!ADMIN_WALLETS.includes(publicKey)) return;
-    if(!confirm("ADMIN: Permanently remove this motion from the floor?")) return;
-    try {
-        const pData = JSON.stringify({ sk8dao: "v1", action: "veto", id: propId });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert("Removal Broadcasted!"); refreshDAODashboard();
-    } catch(e) {}
-}
-
-async function setIncognitoWeb3(state) {
-    if(!confirm(`Are you sure you want to ${state ? 'HIDE' : 'SHOW'} Godmode on public leaderboards?`)) return;
-    try {
-        const pData = JSON.stringify({ sk8admin: "v1", action: "incognito", state: state });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert(`Visibility updated! Please wait a moment for the blockchain to sync.`);
-        setTimeout(async () => { await syncAdminState(); renderProfile(publicKey); refreshLeaderboardData(); }, 3000);
-    } catch(e) { alert("Admin action failed."); }
-}
-
-async function adminAction(targetWallet, action) {
-    if(!targetWallet) { alert("Enter a wallet address first."); return; }
-    if(!confirm(`Are you sure you want to ${action.toUpperCase()} skater ${targetWallet.slice(0,4)}...${targetWallet.slice(-4)}?`)) return;
-    try {
-        const pData = JSON.stringify({ sk8admin: "v1", action: action, wallet: targetWallet });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(TREASURY_WALLET);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: 1000 })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert(`Skater ${action === 'ban' ? 'suspended' : 'resurrected'}!`);
-        document.getElementById('admin-target-wallet').value = ""; await syncAdminState(); renderProfile(publicKey); 
-    } catch(e) { alert("Admin action failed."); }
-}
-
-async function toggleVideoLock(postId, targetWallet, currentlyLocked) {
-    if(!publicKey) { triggerOnboarding(); return; }
-    let newState = !currentlyLocked;
-    let actionText = newState ? "LOCK" : "UNLOCK (Make Free)";
-    if(!confirm(`Are you sure you want to ${actionText} this video?`)) return;
-    try {
-        const pData = JSON.stringify({ sk8vid: "v1", post: postId, locked: newState });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
-        const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert(`Video ${newState ? 'LOCKED' : 'UNLOCKED'}!`);
-        setTimeout(() => {
-            if(document.getElementById('profile-content').style.display === 'block') { renderProfile(targetWallet); }
-            else if(document.getElementById('feed-content').style.display === 'block') { attemptFeedAccess(); }
-            else { window.location.reload(); }
-        }, 2500);
-    } catch(e) { alert("Action failed."); }
-}
-
-// ========== PROFILE & GAMIFICATION LOGIC ==========
-function getReactionHtml(postId, targetWallet, isLocked) {
-    let state = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-    let rx = state.reactions;
-    let isOwner = (publicKey === targetWallet); let isAdmin = ADMIN_WALLETS.includes(publicKey);
-    let effectivelyLocked = state.locked !== undefined ? state.locked : isLocked;
-    let usdValue = (state.totalSOL * solPrice).toFixed(2);
-    
-    let toggleHtml = "";
-    if (isOwner || isAdmin) {
-        toggleHtml = `
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-            <span style="font-size:0.65rem; color:var(--text-secondary); text-transform:uppercase;">${effectivelyLocked ? '<i class="fas fa-lock" style="color:var(--accent-red);"></i> LOCKED' : '<i class="fas fa-unlock" style="color:var(--accent-green);"></i> FREE'}</span>
-            <label class="switch" style="transform: scale(0.8); margin: 0;"><input type="checkbox" onchange="toggleVideoLock('${postId}', '${targetWallet}', ${effectivelyLocked})" ${effectivelyLocked ? '' : 'checked'}><span class="slider"></span></label>
-        </div>`;
-    }
-    
-    return `
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-top: 10px; margin-bottom: 5px;">
-        <span style="color:var(--text-secondary); font-size: 0.60rem; text-transform: uppercase; font-weight: bold;"><i class="fas fa-box-open" style="margin-right: 4px;"></i>Clip Treasury</span>
-        <span style="color:var(--accent-green); font-size: 0.60rem; font-family: 'Inter', sans-serif; font-weight: bold;">$${usdValue}</span>
-    </div>
-    <div style="display:flex; justify-content:space-between; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 6px;">
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🔥', '0.001')" class="reaction-btn ${rx['🔥']>0 ? 'has-votes' : ''}" title="Fire (0.001 SOL)"><span style="font-size: 1rem;">🔥</span><span>${rx['🔥']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🤮', '0.002')" class="reaction-btn ${rx['🤮']>0 ? 'has-votes' : ''}" title="Sketchy (0.002 SOL)"><span style="font-size: 1rem;">🤮</span><span>${rx['🤮']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '⭐', '0.006')" class="reaction-btn ${rx['⭐']>0 ? 'has-votes' : ''}" title="Rising Star (0.006 SOL)"><span style="font-size: 1rem;">⭐</span><span>${rx['⭐']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🧈', '0.018')" class="reaction-btn ${rx['🧈']>0 ? 'has-votes' : ''}" title="Steezy (0.018 SOL)"><span style="font-size: 1rem;">🧈</span><span>${rx['🧈']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '🥩', 0.054)" class="reaction-btn ${rx['🥩']>0 ? 'has-votes' : ''}" title="Ground Beef (0.054 SOL)"><span style="font-size: 1rem;">🥩</span><span>${rx['🥩']||0}</span></button>
-        <button onclick="castReaction('${postId}', '${targetWallet}', '💪', 0.100)" class="reaction-btn ${rx['💪']>0 ? 'has-votes' : ''}" title="Flex (0.1 SOL)"><span style="font-size: 1rem;">💪</span><span>${rx['💪']||0}</span></button>
-    </div>${toggleHtml}`;
-}
-
-function renderSponsorBadges(solAmount, isOwner) {
-    const BADGE_MILESTONES = [
-        { req: 0.01, name: "FLOW TIER", icon: "🛹" }, { req: 0.05, name: "AM TIER", icon: "🥉" },
-        { req: 0.10, name: "PRO STATUS", icon: "🥈" }, { req: 0.25, name: "LOCAL LEGEND", icon: "🥇" },
-        { req: 0.50, name: "STREET KING", icon: "👑" }, { req: 1.00, name: "DECK MASTER", icon: "🛠️" },
-        { req: 2.50, name: "WAX PORTAL", icon: "📦" }, { req: 5.00, name: "VIDEO STAR", icon: "📼" },
-        { req: 10.0, name: "MAG COVER", icon: "📖" }, { req: 25.0, name: "THRASHER", icon: "🔥" },
-        { req: 50.0, name: "HALL OF FAME", icon: "🏆" }, { req: 100.0, name: "PROTOCOL GOD", icon: "⚡" }
-    ];
-    let html = "";
-    BADGE_MILESTONES.forEach(b => {
-        let unlocked = solAmount >= b.req;
-        let rewardBtnHtml = (unlocked && isOwner) ? `<button onclick="alert('Contract linking pending for ${b.name} rewards. Check Discord for updates on NFT and $SKATE token drops.')" style="margin-top: 8px; width: 100%; background: var(--accent-cyan); color: #000; border: none; padding: 4px; border-radius: 4px; font-size: 0.55rem; font-weight: bold; cursor: pointer; text-transform: uppercase;">CLAIM REWARD</button>` : '';
-        html += `
-        <div style="background: var(--bg-panel); border: 1px solid ${unlocked ? 'var(--accent-gold)' : 'rgba(0,240,255,0.1)'}; border-radius: 12px; padding: 12px; text-align: center; opacity: ${unlocked ? '1' : '0.4'}; filter: ${unlocked ? 'none' : 'grayscale(1)'}; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="font-size: 1.8rem; margin-bottom: 5px; filter: ${unlocked ? 'drop-shadow(0 0 8px rgba(255,215,0,0.4))' : 'none'};">${unlocked ? b.icon : '🔒'}</div>
-                <div style="font-size: 0.6rem; color: ${unlocked ? 'var(--accent-gold)' : 'var(--text-secondary)'}; font-weight: bold; text-transform: uppercase;">${b.name}</div>
-                <div style="font-size: 0.55rem; color: var(--text-secondary); margin-top: 4px; font-family: monospace;">${b.req} SOL</div>
-            </div>${rewardBtnHtml}
-        </div>`;
-    });
-    const grid = document.getElementById("sponsor-badge-grid");
-    if (grid) grid.innerHTML = html;
-}
-
-async function syncGlobalVideos(wallets) {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    let uniqueWallets = [...new Set(wallets)];
-    globalVideoState = {}; 
-    
-    for (let wallet of uniqueWallets) { 
-        try {
-            const sigs = await rpcMethodWithRetry(() => conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 }));
-            for (let s of sigs) {
-                if(s.memo) {
-                    if (s.memo.includes('"sk8vid":"v1"')) {
-                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                        if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: d.locked, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-                        if(globalVideoState[d.post].locked === undefined) globalVideoState[d.post].locked = d.locked;
-                    }
-                    else if (s.memo.includes('"sk8react":"v1"')) {
-                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                        if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-                        if(globalVideoState[d.post].reactions[d.react] !== undefined) {
-                            globalVideoState[d.post].reactions[d.react]++;
-                            let cost = 0;
-                            if(d.react === '🔥') cost = 0.001; if(d.react === '🤮') cost = 0.002;
-                            if(d.react === '⭐') cost = 0.006; if(d.react === '🧈') cost = 0.018; 
-                            if(d.react === '🥩') cost = 0.054; if(d.react === '💪') cost = 0.100;
-                            globalVideoState[d.post].totalSOL += cost;
-                        }
-                    }
-                    else if (s.memo.includes('"sk8spon":"v1"')) {
-                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                        if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-                        globalVideoState[d.post].totalSOL += parseFloat(d.amt || 0);
-                    }
-                }
-            }
-        } catch(e) {}
-        await pingDelay(100);
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+        const data = await response.json();
+        solPriceUSD = data.solana.usd;
+    } catch (error) {
+        console.error("CoinGecko rate limit or error, defaulting to $150.");
+        solPriceUSD = 150;
     }
 }
 
 async function syncAdminState() {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    bannedWallets = []; globalAdminIncognito = false;
     try {
-        const sigs = await rpcMethodWithRetry(() => conn.getSignaturesForAddress(new solanaWeb3.PublicKey(ADMIN_WALLETS[0]), { limit: 100 }));
-        for (let i = 0; i < sigs.length; i += 5) {
-            const chunk = sigs.slice(i, i + 5);
-            const txs = await Promise.all(chunk.map(s => rpcMethodWithRetry(() => conn.getTransaction(s.signature, { maxSupportedTransactionVersion: 0 }).catch(() => null))));
-            txs.forEach(tx => {
-                if(tx && tx.meta && tx.meta.logMessages) {
-                    for(let log of tx.meta.logMessages) {
-                        if(log.includes('"sk8admin":"v1"')) {
-                            try {
-                                let match = log.match(/(\{.*\})/);
-                                if(match) {
-                                    let d = JSON.parse(match[1]);
-                                    if(d.action === "ban" && !bannedWallets.includes(d.wallet)) bannedWallets.push(d.wallet);
-                                    if(d.action === "unban") bannedWallets = bannedWallets.filter(w => w !== d.wallet);
-                                    if(d.action === "incognito") globalAdminIncognito = d.state; 
-                                }
-                            } catch(e) {}
-                        }
+        const sigs = await connection.getSignaturesForAddress(MASTER_WALLET, { limit: 20 });
+        for (let sigInfo of sigs) {
+            try {
+                const tx = await connection.getTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0 });
+                if(!tx || !tx.meta || !tx.meta.logMessages) continue;
+                let memoLog = tx.meta.logMessages.find(log => log.includes('Program log: Memo'));
+                if(memoLog) {
+                    let memoText = memoLog.replace('Program log: Memo (len ', '').split('): "')[1]?.slice(0, -1);
+                    if(memoText) {
+                        try {
+                            const data = JSON.parse(memoText);
+                            if(data.sk8admin === "v1" && data.vips) {
+                                adminVips = data.vips;
+                                freeModeUsers = data.freeMode || [];
+                                break; 
+                            }
+                        } catch(e) {}
                     }
                 }
-            });
-            await pingDelay(200);
+            } catch(e){}
         }
-    } catch(e) {}
+    } catch(error){ console.error("Admin sync failed:", error); }
 }
 
-async function checkPersistence() {
-    let isAdmin = publicKey && ADMIN_WALLETS.includes(publicKey);
-    const cards = document.querySelectorAll('.video-card');
-    let targetWallets = [];
-    for (let card of cards) {
-        let w = card.querySelector('.donate-btn')?.dataset.address;
-        if(w) targetWallets.push(w);
+function getProvider() {
+    if ('phantom' in window) {
+        const provider = window.phantom?.solana;
+        if (provider?.isPhantom) return provider;
     }
-    
-    await syncGlobalVideos(targetWallets);
+    return null;
+}
 
-    let userSponsors = [];
-    if (publicKey && !isAdmin) {
+function handleWalletAction() {
+    if(publicKey) { openDisconnectModal(); } 
+    else { openOnboardingModal(); }
+}
+
+function openOnboardingModal() {
+    if(!getProvider()) {
+        window.open('https://phantom.app/', '_blank');
+        return;
+    }
+    document.getElementById('onboarding-modal').style.display = 'flex';
+}
+
+function closeOnboardingModal() {
+    document.getElementById('onboarding-modal').style.display = 'none';
+}
+
+function openDisconnectModal() { document.getElementById('disconnect-modal').style.display = 'flex'; }
+function closeDisconnectModal() { document.getElementById('disconnect-modal').style.display = 'none'; }
+
+async function executeWalletConnection() {
+    provider = getProvider();
+    if(provider) {
         try {
-            let txs = await fetchDeepHistory(publicKey, 1000, true);
-            txs.forEach(tx => {
-                if(tx.nativeTransfers) {
-                    tx.nativeTransfers.forEach(tf => {
-                        if(tf.fromUserAccount === publicKey && tf.amount > 0) userSponsors.push(tf.toUserAccount);
-                    });
-                }
-            });
-        } catch(e) {}
-    }
-
-    for (let card of cards) {
-        let iframe = card.querySelector('iframe');
-        let targetWallet = card.querySelector('.donate-btn')?.dataset.address;
-        if (!targetWallet) continue;
-
-        let postId = card.id;
-        let vState = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
-        let isFree = !vState.locked;
-        
-        card.classList.remove('viral-fire', 'sketchy', 'rising-star', 'butter-smooth', 'hall-of-meat', 'flex-god', 'god-tier');
-        if (vState.totalSOL >= 0.1) card.classList.add('god-tier');
-        else if (vState.reactions['💪'] >= 10) card.classList.add('flex-god');
-        else if (vState.reactions['🥩'] >= 10) card.classList.add('hall-of-meat');
-        else if (vState.reactions['🧈'] >= 10) card.classList.add('butter-smooth');
-        else if (vState.reactions['⭐'] >= 10) card.classList.add('rising-star');
-        else if (vState.reactions['🤮'] >= 10) card.classList.add('sketchy');
-        else if (vState.reactions['🔥'] >= 10) card.classList.add('viral-fire');
-
-        let rxDiv = card.querySelector('.reaction-container');
-        if (rxDiv) rxDiv.innerHTML = getReactionHtml(postId, targetWallet, !isFree);
-        if (!publicKey) { 
-            if(isFree) { if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; card.classList.add('unlocked'); } 
-            else { card.classList.remove('unlocked'); if (iframe) iframe.src = ""; }
-            continue;
-        }
-        
-        if (isAdmin || isFree || userSponsors.includes(targetWallet) || publicKey === targetWallet) { 
-            if (iframe && iframe.src !== iframe.dataset.src) iframe.src = iframe.dataset.src; card.classList.add('unlocked'); 
-        } else { 
-            card.classList.remove('unlocked'); if (iframe) iframe.src = "";
-        }
+            const resp = await provider.connect();
+            publicKey = resp.publicKey.toString();
+            updateWalletUI();
+            closeOnboardingModal();
+            fetchBalance();
+            checkPersistence();
+        } catch (err) { console.error("Connection failed", err); }
     }
 }
 
-// ========== ROUTING & UI RENDERERS ==========
-function navigateToProfileView(viewType) {
-    if(!publicKey) { triggerOnboarding(); return; }
-    document.getElementById('mobile-nav').classList.remove('open');
-    let newHash = '#profile/' + publicKey;
-    if(window.location.hash !== newHash) history.pushState(null, null, newHash);
-    ["home", "video", "leaderboard", "donate", "feed", "dao", "defi"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
-    document.getElementById("profile-content").style.display = 'block';
-    renderProfile(publicKey, viewType); window.scrollTo(0,0);
+async function executeWalletDisconnect() {
+    if(provider) {
+        await provider.disconnect();
+        publicKey = null;
+        updateWalletUI();
+        closeDisconnectModal();
+        
+        document.getElementById('sol-balance').innerText = "0.0000 SOL";
+        document.getElementById('usd-balance').innerText = "$0.00 USD";
+        document.getElementById('skater-auth-panel').style.display = 'none';
+        
+        if(currentView === 'profile' && activeProfileWallet) { loadProfileWeb3(activeProfileWallet); }
+        if(currentView === 'feed') { navigateTo('home'); }
+    }
 }
 
-function navigateTo(page, wallet = null) {
-  document.getElementById('mobile-nav').classList.remove('open');
-  let newHash = '#' + page + (wallet ? '/' + wallet : '');
-  if(window.location.hash !== newHash) history.pushState(null, null, newHash);
-  ["home", "video", "leaderboard", "donate", "profile", "feed", "dao", "defi"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
-  
-  let targetEl = document.getElementById(page + "-content"); if(targetEl) targetEl.style.display = 'block';
-  
-  if(page === 'profile' && wallet) renderProfile(wallet, null);
-  if(page === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
-  if(page === 'leaderboard' || page === 'defi') refreshLeaderboardData();
-  if(page === 'donate') { fetchTreasuryBalance(); refreshLeaderboardData(); }
-  if(page === 'dao') { refreshDAODashboard(); }
-  window.scrollTo(0,0);
-}
+function updateWalletUI() {
+    const btn = document.getElementById('connect-wallet-btn');
+    const balContainer = document.getElementById('wallet-balance-container');
+    const authPanel = document.getElementById('skater-auth-panel');
 
-window.addEventListener('hashchange', () => {
-    let hash = window.location.hash.replace('#', '');
-    if(!hash) hash = 'home';
-    let parts = hash.split('/');
-    
-    ["home", "video", "leaderboard", "donate", "profile", "feed", "dao", "defi"].forEach(id => { let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none'; });
-    let targetEl = document.getElementById(parts[0] + "-content"); if(targetEl) targetEl.style.display = 'block';
-    
-    if(parts[0] === 'profile' && parts[1]) renderProfile(parts[1], null);
-    if(parts[0] === 'video') { fetchSkaterBalances(); checkPersistence(); updateDonateButtons(); }
-    if(parts[0] === 'leaderboard' || parts[0] === 'defi') refreshLeaderboardData();
-    if(parts[0] === 'donate') { fetchTreasuryBalance(); refreshLeaderboardData(); }
-    if(parts[0] === 'dao') { refreshDAODashboard(); }
-    window.scrollTo(0,0);
-});
-
-async function renderProfile(wallet, forceView = null) {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    const picEl = document.getElementById('p-img');
-    const rEl = document.getElementById('p-rank'); const bEl = document.getElementById('p-blessings');
-    const header = document.getElementById('profile-header-text'); const tags = document.getElementById('p-tags'); const gear = document.getElementById('p-gear');
-    rEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...'; bEl.innerText = "SYNCING..."; tags.innerHTML = ""; gear.innerHTML = "";
-    
-    const isOwner = publicKey === wallet; const stats = await fetchWalletStats(wallet);
-    let isGen = SKATER_REGISTRY.includes(wallet); let isSpon = SPONSOR_ONLY_WALLETS.includes(wallet);
-    let view = forceView || (isGen ? 'skater' : 'sponsor'); if (!isGen && view === 'skater') view = 'sponsor';
-    let sk = SKATER_PROFILES.find(s => s.wallet === wallet); let sp = SPONSOR_PROFILES.find(s => s.wallet === wallet);
-    let fallbackName = await resolveWalletName(wallet);
-    
-    if(!sk && view === 'skater') sk = { name: fallbackName, styles: ["New Skater"], pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Raw street talent." };
-    if(!sp && view === 'sponsor') sp = { name: fallbackName, pic: "https://i.pravatar.cc/400?u=" + wallet, bio: "Legendary Sponsor fueling the movement." };
-    let activeProf = view === 'skater' ? sk : sp;
-    
-    try {
-        const sigs = await rpcMethodWithRetry(() => conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 }));
-        for (let s of sigs) { if(s.memo && s.memo.includes('"sk8":"v1"')) { 
-                const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                activeProf.name = d.name || activeProf.name; activeProf.pic = d.pic || activeProf.pic; activeProf.bio = d.bio || activeProf.bio;
-                if(view === 'skater') { activeProf.stance = d.stance; activeProf.deck = d.deck; activeProf.trucks = d.trucks; activeProf.spot = d.spot; activeProf.yt = d.yt; }
-                break;
-        } }
-    } catch(e) {}
-
-    document.getElementById('p-name').innerText = activeProf.name;
-    picEl.src = activeProf.pic; 
-    document.getElementById('p-bio').innerText = activeProf.bio;
-    document.getElementById('p-wallet').innerText = wallet;
-    
-    const editBtn = document.getElementById('edit-profile-btn');
-    if (editBtn) { editBtn.className = 'tier-btn'; editBtn.style.background = '#fff'; editBtn.style.color = '#000'; editBtn.style.padding = '12px'; editBtn.style.border = 'none'; editBtn.style.marginTop = '10px'; editBtn.style.borderRadius = '6px'; }
-
-    let adminPanelHtml = "";
-    if (ADMIN_WALLETS.includes(publicKey)) {
-        if (isOwner) {
-            let nextState = !globalAdminIncognito;
-            adminPanelHtml = `
-            <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
-                <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE: INCOGNITO</h4>
-                <button onclick="setIncognitoWeb3(${nextState})" class="tier-btn" style="width:100%; margin-bottom:10px; background:${globalAdminIncognito ? 'var(--accent-green)' : 'var(--accent-red)'}; color:${globalAdminIncognito ? '#000' : '#fff'}; border:none; padding:10px;"><i class="fas fa-bolt"></i> ${globalAdminIncognito ? 'GO VISIBLE' : 'GO INCOGNITO (HIDE)'}</button>
-            </div>`;
+    if (publicKey) {
+        document.body.classList.add('wallet-connected');
+        const shortKey = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+        btn.innerText = shortKey;
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.border = '1px solid var(--accent-cyan)';
+        btn.style.padding = '0.5rem 1rem';
+        
+        balContainer.style.display = 'flex';
+        
+        if(adminVips.includes(publicKey)) {
+            isAdmin = true;
+            authPanel.style.display = 'flex';
+            document.getElementById('auth-skater-rank').innerText = "VIP";
         } else {
-            let isBanned = bannedWallets.includes(wallet);
-            let action = isBanned ? 'unban' : 'ban';
-            let btnText = isBanned ? 'RESURRECT SKATER' : 'SUSPEND SKATER';
-            let btnColor = isBanned ? 'var(--accent-green)' : 'var(--accent-red)';
-            adminPanelHtml = `
-            <div style="margin-top: 15px; padding: 15px; background: rgba(255, 45, 85, 0.1); border: 1px solid var(--accent-red); border-radius: 12px; text-align: left;">
-                <h4 style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 10px;"><i class="fas fa-bolt"></i> GODMODE: MODERATION</h4>
-                <button onclick="adminAction('${wallet}', '${action}')" class="tier-btn" style="background:${btnColor}; color:#000; border:none; padding:8px; font-size:0.65rem; width:100%; margin-bottom:0;">${btnText}</button>
-            </div>`;
+            isAdmin = false;
+            authPanel.style.display = 'flex';
+            document.getElementById('auth-skater-rank').innerText = getRank(allTreasurySponsors.find(s => s.address === publicKey)?.amount || 0);
         }
-    }
 
-    if (view === 'skater') {
-        const rank = getRankDisplay(stats.ins, true, wallet);
-        header.innerText = "SKATER IDENTITY & BIO";
-        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
-        tags.innerHTML = activeProf.styles.map(t => `<span class="style-tag">${t}</span>`).join('');
-        
-        try { const bal = await rpcMethodWithRetry(() => conn.getBalance(new solanaWeb3.PublicKey(wallet)));
-        bEl.innerText = (bal / 1e9).toFixed(4) + " SOL"; } catch(e) {}
-        
-        let gHtml = "";
-        gear.dataset.stance = activeProf.stance; gear.dataset.deck = activeProf.deck; gear.dataset.trucks = activeProf.trucks; gear.dataset.spot = activeProf.spot; gear.dataset.yt = activeProf.yt;
-        if(activeProf.stance) gHtml += `<div class="gear-tag"><i class="fas fa-shoe-prints"></i> ${activeProf.stance}</div>`;
-        if(activeProf.deck) gHtml += `<div class="gear-tag"><i class="fas fa-layer-group"></i> ${activeProf.deck}</div>`;
-        if(activeProf.trucks) gHtml += `<div class="gear-tag"><i class="fas fa-wrench"></i> ${activeProf.trucks}</div>`;
-        if(activeProf.spot) gHtml += `<div class="gear-tag"><i class="fas fa-map-marker-alt"></i> ${activeProf.spot}</div>`;
-        gear.innerHTML = gHtml;
-        document.getElementById('p-sponsor-video-section').style.display = activeProf.yt ? 'block' : 'none';
-        
-        if (activeProf.yt) {
-            document.getElementById('p-sponsor-video').src = `https://www.youtube.com/embed/${activeProf.yt}`;
-            let tapeId = `tape-${wallet}`;
-            await syncGlobalVideos([wallet]); 
-            document.getElementById('sponsor-tape-reactions').innerHTML = getReactionHtml(tapeId, wallet, false);
-            
-            let vState = globalVideoState[tapeId] || { totalSOL: 0, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0} };
-            let wrapper = document.querySelector('#p-sponsor-video-section .video-wrapper');
-            wrapper.className = 'video-wrapper';
-            
-            if (vState.totalSOL >= 0.1) wrapper.classList.add('god-tier');
-            else if (vState.reactions['💪'] >= 10) wrapper.classList.add('flex-god');
-            else if (vState.reactions['🥩'] >= 10) wrapper.classList.add('hall-of-meat');
-            else if (vState.reactions['🧈'] >= 10) wrapper.classList.add('butter-smooth');
-            else if (vState.reactions['⭐'] >= 10) wrapper.classList.add('rising-star');
-            else if (vState.reactions['🤮'] >= 10) wrapper.classList.add('sketchy');
-            else if (vState.reactions['🔥'] >= 10) wrapper.classList.add('viral-fire');
-        }
-        
-        document.getElementById('skater-mini-badges-section').style.display = 'block';
-        document.getElementById('private-feed-btn').style.display = 'block';
-        document.getElementById('p-sponsor-badges-section').style.display = 'block';
-        renderSponsorBadges(stats.ins, isOwner);
-        
     } else {
-        const rank = getRankDisplay(stats.outs, false, wallet);
-        header.innerText = "SPONSOR IDENTITY & BIO";
-        rEl.innerHTML = rank.icon + " " + rank.title; rEl.style.color = rank.color; picEl.style.borderColor = rank.color;
-        bEl.innerText = stats.outs.toFixed(4) + " SOL";
-        tags.innerHTML = `<span class="style-tag" style="border-color:var(--accent-gold); color:var(--accent-gold);"><i class="fas fa-star" style="margin-right:5px;"></i> ON-CHAIN SPONSOR</span>`; gear.innerHTML = "";
-        document.getElementById('p-sponsor-video-section').style.display = 'none'; 
-        document.getElementById('skater-mini-badges-section').style.display = 'none'; 
-        document.getElementById('private-feed-btn').style.display = 'none'; 
-        document.getElementById('p-sponsor-badges-section').style.display = 'block';
-        renderSponsorBadges(stats.outs, isOwner);
-    }
-    
-    document.getElementById('edit-profile-btn').style.display = isOwner ? 'block' : 'none';
-    document.getElementById('profile-donate-btn').style.display = isOwner ? 'none' : 'block';
-
-    const existingAdmin = document.getElementById('sk8-admin-panel-wrapper');
-    if (existingAdmin) existingAdmin.remove();
-    if(adminPanelHtml) {
-        const wrapper = `<div id="sk8-admin-panel-wrapper">${adminPanelHtml}</div>`;
-        document.querySelector('.profile-sidebar').insertAdjacentHTML('beforeend', wrapper);
+        document.body.classList.remove('wallet-connected');
+        btn.innerText = 'CONNECT';
+        btn.style.background = 'linear-gradient(135deg, var(--accent-gold), var(--accent-orange))';
+        btn.style.color = '#000';
+        btn.style.border = 'none';
+        btn.style.padding = '.7rem 1.4rem';
+        balContainer.style.display = 'none';
+        authPanel.style.display = 'none';
+        isAdmin = false;
     }
 }
 
-function openEditModal() {
-    document.getElementById('edit-name').value = document.getElementById('p-name').innerText;
-    document.getElementById('edit-pic').value = document.getElementById('p-img').src;
-    document.getElementById('edit-bio').value = document.getElementById('p-bio').innerText;
-    const isSponOnly = SPONSOR_ONLY_WALLETS.includes(publicKey);
-    document.getElementById('edit-skater-gear-section').style.display = isSponOnly ? 'none' : 'block';
-    
-    if (!isSponOnly) {
-        const d = document.getElementById('p-gear').dataset;
-        document.getElementById('edit-stance').value = d.stance || "";
-        document.getElementById('edit-deck').value = d.deck || "";
-        document.getElementById('edit-trucks').value = d.trucks || ""; 
-        document.getElementById('edit-spot').value = d.spot || "";
-        document.getElementById('edit-yt').value = d.yt ? "https://youtu.be/" + d.yt : "";
-    }
-    document.getElementById('edit-modal').style.display = 'flex';
-}
-
-function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
-
-async function saveProfileWeb3() {
-    if(!publicKey) { triggerOnboarding(); return; } 
-    const btn = document.getElementById("save-web3-btn"); btn.innerText = "AWAITING SIGNATURE...";
+async function fetchBalance() {
+    if (!publicKey) return;
     try {
-        const name = document.getElementById("edit-name").value;
-        const pic = document.getElementById("edit-pic").value;
-        const bio = document.getElementById("edit-bio").value; 
-        let stance = "", deck = "", trucks = "", spot = "", yt = "";
-        let isFree = document.getElementById("edit-free-toggle") ? document.getElementById("edit-free-toggle").checked : false;
+        const balance = await connection.getBalance(new web3.PublicKey(publicKey));
+        const solBal = balance / web3.LAMPORTS_PER_SOL;
+        document.getElementById('sol-balance').innerText = solBal.toFixed(4) + " SOL";
+        document.getElementById('usd-balance').innerText = "$" + (solBal * solPriceUSD).toFixed(2) + " USD";
+    } catch (e) { console.error("Balance fetch error:", e); }
+}
 
-        if (!SPONSOR_ONLY_WALLETS.includes(publicKey)) {
-            stance = document.getElementById("edit-stance").value;
-            deck = document.getElementById("edit-deck").value;
-            trucks = document.getElementById("edit-trucks").value; spot = document.getElementById("edit-spot").value; 
-            const rawYt = document.getElementById("edit-yt").value;
-            if (rawYt) { 
-                const m = rawYt.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-                if (m && m[2].length === 11) yt = m[2]; 
+function toggleMenu() {
+    const nav = document.getElementById('mobile-nav');
+    nav.classList.toggle('open');
+}
+
+function navigateTo(viewId, targetWallet = null) {
+    document.getElementById('home-content').style.display = 'none';
+    document.getElementById('video-content').style.display = 'none';
+    document.getElementById('leaderboard-content').style.display = 'none';
+    document.getElementById('donate-content').style.display = 'none';
+    document.getElementById('profile-content').style.display = 'none';
+    document.getElementById('feed-content').style.display = 'none';
+    document.getElementById('dao-content').style.display = 'none';
+
+    document.getElementById('mobile-nav').classList.remove('open');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    currentView = viewId;
+
+    if (viewId === 'home') {
+        document.getElementById('home-content').style.display = 'block';
+        window.history.pushState(null, '', '#home');
+        document.title = "CRYPTO CLIPS | Gamification Test Build";
+    } else if (viewId === 'video') {
+        document.getElementById('video-content').style.display = 'block';
+        window.history.pushState(null, '', '#video');
+        document.title = "SK8 VIDEOS | CRYPTO CLIPS";
+        updateVideoCards();
+    } else if (viewId === 'leaderboard') {
+        document.getElementById('leaderboard-content').style.display = 'block';
+        window.history.pushState(null, '', '#leaderboard');
+        document.title = "THE BOARDROOM | CRYPTO CLIPS";
+        scanLeaderboards();
+    } else if (viewId === 'donate') {
+        document.getElementById('donate-content').style.display = 'block';
+        window.history.pushState(null, '', '#donate');
+        document.title = "TREASURY | CRYPTO CLIPS";
+        updateTreasuryDisplay();
+    } else if (viewId === 'profile') {
+        document.getElementById('profile-content').style.display = 'block';
+        if(targetWallet) {
+            activeProfileWallet = targetWallet;
+            window.history.pushState(null, '', '#profile/' + targetWallet);
+            loadProfileWeb3(targetWallet);
+        } else {
+            navigateTo('home');
+        }
+    } else if (viewId === 'feed') {
+        document.getElementById('feed-content').style.display = 'block';
+        if(targetWallet) {
+            activeFeedWallet = targetWallet;
+            window.history.pushState(null, '', '#feed/' + targetWallet);
+            document.title = "PRIVATE FEED | CRYPTO CLIPS";
+            feedRenderLimit = FEED_LIMIT;
+            currentSkaterPosts = [];
+            deletedPosts = []; // STAGE 1 & 2: Reset deleted list on feed load
+            renderFeedGrid(); 
+            fetchSkaterFeed(targetWallet);
+        } else { navigateTo('home'); }
+    } else if (viewId === 'dao') {
+        document.getElementById('dao-content').style.display = 'block';
+        window.history.pushState(null, '', '#dao');
+        document.title = "GOVERNANCE | CRYPTO CLIPS";
+        loadProposals();
+    }
+}
+</script>
+function getRank(solAmount) {
+    if (solAmount >= 0.1) return "PRO (0.1+ SOL)";
+    if (solAmount >= 0.05) return "AM (0.05+ SOL)";
+    if (solAmount >= 0.01) return "FLOW (0.01+ SOL)";
+    return "SHOP (0 SOL)";
+}
+
+async function attemptFeedAccess() {
+    if(!publicKey) {
+        handleWalletAction();
+        return;
+    }
+    
+    // Admin bypass or Owner bypass
+    if (isAdmin || publicKey === activeProfileWallet || freeModeUsers.includes(activeProfileWallet)) {
+        navigateTo('feed', activeProfileWallet);
+        return;
+    }
+    
+    // Check if user is at least AM tier (0.05 SOL) for this specific skater
+    let isAm = false;
+    try {
+        const sigs = await connection.getSignaturesForAddress(new web3.PublicKey(activeProfileWallet), { limit: 50 });
+        let totalDonatedToThisSkater = 0;
+        
+        for (let sigInfo of sigs) {
+            const tx = await connection.getTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0 });
+            if (!tx || !tx.meta || !tx.meta.logMessages) continue;
+            
+            const isFromUser = tx.transaction.message.accountKeys.some(key => key.pubkey.toString() === publicKey && key.signer);
+            if (isFromUser) {
+                let memoLog = tx.meta.logMessages.find(log => log.includes('Program log: Memo'));
+                if (memoLog) {
+                    let memoText = memoLog.replace('Program log: Memo (len ', '').split('): "')[1]?.slice(0, -1);
+                    if (memoText) {
+                        try {
+                            const data = JSON.parse(memoText);
+                            if (data.sk8bless === "v1" && data.amt) {
+                                totalDonatedToThisSkater += parseFloat(data.amt);
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+        }
+        
+        if (totalDonatedToThisSkater >= 0.05) { isAm = true; }
+        
+    } catch(e) { console.error("Error checking feed access:", e); }
+
+    if (isAm) {
+        navigateTo('feed', activeProfileWallet);
+    } else {
+        document.getElementById('feed-paywall-overlay').style.display = 'flex';
+        navigateTo('feed', activeProfileWallet);
+    }
+}
+
+// STAGE 2: THE INDEXER UPGRADE
+// Scanning the blockchain for both posts AND delete tombstones
+async function fetchSkaterFeed(wallet) {
+    const grid = document.getElementById('actual-feed-items');
+    grid.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Syncing on-chain records...</div>';
+    
+    try {
+        const pubKey = new web3.PublicKey(wallet);
+        const sigs = await connection.getSignaturesForAddress(pubKey, { limit: 100 });
+        
+        let rawPosts = [];
+        let localDeleted = []; // Temporary array to hold delete targets
+
+        for (let sigInfo of sigs) {
+            const tx = await connection.getTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0 });
+            if (!tx || !tx.meta || !tx.meta.logMessages) continue;
+            
+            const isSigner = tx.transaction.message.accountKeys.some(key => key.pubkey.toString() === wallet && key.signer);
+            if (!isSigner) continue;
+
+            let memoLog = tx.meta.logMessages.find(log => log.includes('Program log: Memo'));
+            if (memoLog) {
+                let memoText = memoLog.replace('Program log: Memo (len ', '').split('): "')[1]?.slice(0, -1);
+                if (memoText) {
+                    try {
+                        const data = JSON.parse(memoText);
+                        
+                        // Detect Delete Tombstones
+                        if (data.sk8del === "v1" && data.post) {
+                            localDeleted.push(data.post);
+                        }
+                        
+                        // Detect Standard Posts
+                        if (data.sk8post === "v1") {
+                            rawPosts.push({
+                                id: sigInfo.signature,
+                                text: data.msg || "",
+                                link: data.link || "",
+                                date: new Date(sigInfo.blockTime * 1000).toLocaleDateString()
+                            });
+                        }
+                    } catch(e) {}
+                }
             }
         }
 
-        const pData = JSON.stringify({ sk8: "v1", name, pic, bio, stance, deck, trucks, spot, yt, free: isFree });
-        const encoded = new TextEncoder().encode(pData); 
-        if (encoded.length > 566) { alert(`Too large!`); btn.innerText = "SAVE"; return; }
-        
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-        const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        btn.innerText = "SAVED!";
-        setTimeout(() => { closeEditModal(); renderProfile(publicKey); btn.innerText = "SAVE"; }, 2000);
-    } catch (err) { 
-        btn.innerText = "FAILED";
-        setTimeout(() => btn.innerText = "SAVE", 3000); 
+        // Apply Soft Delete Filter: Remove any post whose ID matches a delete tombstone
+        deletedPosts = localDeleted;
+        currentSkaterPosts = rawPosts.filter(p => !deletedPosts.includes(p.id));
+
+        renderFeedGrid();
+
+    } catch(e) {
+        console.error("Feed fetch error:", e);
+        grid.innerHTML = '<div style="color:var(--accent-red); padding: 2rem; text-align:center; grid-column: 1/-1;">Error loading feed.</div>';
     }
 }
 
-// ========== TRANSACTIONS & ON-CHAIN ACTIONS ==========
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.classList.contains('donate-btn') && e.target.id !== 'profile-donate-btn') {
-      if(!publicKey) { triggerOnboarding(); return; }
-      if(e.target.dataset.address === publicKey) { alert("Cannot sponsor yourself."); return; }
-      currentSkaterTarget = e.target.dataset.address; activeVideoId = e.target.dataset.target || null;
-      document.getElementById("sponsor-modal").style.display = "flex";
-  }
+// STAGE 3: THE UI INJECTION
+// Dynamically injecting the delete button if viewing own feed
+function renderFeedGrid() {
+    const grid = document.getElementById('actual-feed-items');
+    grid.innerHTML = "";
+    
+    if (publicKey === activeFeedWallet) {
+        document.getElementById('post-create-box').style.display = 'block';
+        document.getElementById('feed-paywall-overlay').style.display = 'none';
+        document.getElementById('feed-header-title').innerText = "MY FEED";
+    } else {
+        document.getElementById('post-create-box').style.display = 'none';
+        document.getElementById('feed-header-title').innerText = "PRIVATE FEED";
+    }
+
+    if (currentSkaterPosts.length === 0) {
+        grid.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No posts found on-chain.</div>';
+        document.getElementById('load-more-feed-btn').style.display = 'none';
+        return;
+    }
+
+    const postsToShow = currentSkaterPosts.slice(0, feedRenderLimit);
+
+    postsToShow.forEach(post => {
+        let mediaHtml = "";
+        let platformIcon = "";
+        
+        if (post.link) {
+            let embedUrl = "";
+            if (post.link.includes('youtube.com') || post.link.includes('youtu.be')) {
+                const videoId = post.link.split('v=')[1]?.split('&')[0] || post.link.split('youtu.be/')[1]?.split('?')[0];
+                if(videoId) {
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    platformIcon = '<i class="fab fa-youtube" style="color: #ff0000;"></i>';
+                }
+            } else if (post.link.includes('instagram.com')) {
+                platformIcon = '<i class="fab fa-instagram" style="color: #e1306c;"></i>';
+                embedUrl = post.link + (post.link.endsWith('/') ? 'embed' : '/embed');
+            }
+            
+            if(embedUrl) {
+                mediaHtml = `
+                <div class="feed-grid-media">
+                    <div class="feed-platform-icon">${platformIcon}</div>
+                    <iframe src="${embedUrl}" allowfullscreen></iframe>
+                </div>`;
+            }
+        }
+
+        // Delete button injection logic
+        let deleteBtnHtml = "";
+        if (publicKey === activeFeedWallet) {
+            deleteBtnHtml = `<button class="feed-delete-btn" onclick="deleteFeedPost('${post.id}')"><i class="fas fa-trash"></i> DELETE CLIP</button>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = "feed-grid-item";
+        card.innerHTML = `
+            ${mediaHtml}
+            <div class="feed-grid-content">
+                <p class="feed-grid-text">${post.text}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span class="feed-grid-date">${post.date}</span>
+                </div>
+                ${publicKey !== activeFeedWallet ? `<button onclick="openSponsorshipModalFromFeed()" class="feed-bless-btn">BLESS SKATER</button>` : ''}
+                ${deleteBtnHtml}
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    if (currentSkaterPosts.length > feedRenderLimit) {
+        document.getElementById('load-more-feed-btn').style.display = 'block';
+    } else {
+        document.getElementById('load-more-feed-btn').style.display = 'none';
+    }
+}
+
+function loadMoreFeed() {
+    feedRenderLimit += FEED_LIMIT;
+    renderFeedGrid();
+}
+
+async function publishToFeed() {
+    if (!publicKey) return alert("Connect wallet first!");
+    
+    const text = document.getElementById('new-post-text').value.trim();
+    const link = document.getElementById('new-post-link').value.trim();
+    
+    if (!text && !link) return alert("Add text or a link to post!");
+    if (text.length > 200) return alert("Text too long! Keep it under 200 characters.");
+
+    const postObj = {
+        sk8post: "v1",
+        msg: text,
+        link: link
+    };
+
+    try {
+        const message = new web3.TransactionInstruction({
+            keys: [{ pubkey: new web3.PublicKey(publicKey), isSigner: true, isWritable: true }],
+            programId: MEMO_PROGRAM_ID,
+            data: Buffer.from(JSON.stringify(postObj))
+        });
+
+        const tx = new web3.Transaction().add(message);
+        const { blockhash } = await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new web3.PublicKey(publicKey);
+
+        const btn = document.getElementById('publish-feed-btn');
+        btn.innerText = "SIGNING...";
+        
+        const signed = await provider.signTransaction(tx);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+        
+        document.getElementById('new-post-text').value = "";
+        document.getElementById('new-post-link').value = "";
+        btn.innerText = "SIGN & POST TO CHAIN";
+        
+        triggerConfetti();
+        fetchSkaterFeed(publicKey); // Reload feed
+        
+    } catch (e) {
+        console.error("Feed post error:", e);
+        document.getElementById('publish-feed-btn').innerText = "SIGN & POST TO CHAIN";
+        alert("Transaction failed or rejected.");
+    }
+}
+
+// STAGE 4: THE WEB3 ENGINE (Soft Delete Broadcast)
+async function deleteFeedPost(postId) {
+    if (!publicKey) return alert("Connect wallet first!");
+    if (!confirm("Are you sure you want to delete this post? This will write a permanent hide instruction to the blockchain.")) return;
+
+    const delObj = {
+        sk8del: "v1",
+        post: postId
+    };
+
+    try {
+        const message = new web3.TransactionInstruction({
+            keys: [{ pubkey: new web3.PublicKey(publicKey), isSigner: true, isWritable: true }],
+            programId: MEMO_PROGRAM_ID,
+            data: Buffer.from(JSON.stringify(delObj))
+        });
+
+        const tx = new web3.Transaction().add(message);
+        const { blockhash } = await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new web3.PublicKey(publicKey);
+        
+        const signed = await provider.signTransaction(tx);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+        
+        alert("Clip successfully deleted from indexing.");
+        
+        // Optimistically hide it locally to save a reload wait
+        deletedPosts.push(postId);
+        currentSkaterPosts = currentSkaterPosts.filter(p => p.id !== postId);
+        renderFeedGrid();
+        
+    } catch (e) {
+        console.error("Delete post error:", e);
+        alert("Transaction failed or rejected.");
+    }
+}
+
+async function loadProfileWeb3(walletAddress) {
+    activeTargetAddress = walletAddress;
+    
+    document.getElementById('p-name').innerText = "Loading Name...";
+    document.getElementById('p-bio').innerText = "Scanning chain data...";
+    document.getElementById('p-wallet').innerText = walletAddress;
+    document.getElementById('p-rank').innerText = "Scanning...";
+    document.getElementById('p-blessings').innerText = "0.00 SOL";
+    document.getElementById('p-img').src = "https://i.postimg.cc/QtxcLq2C/sk8-default.png";
+    document.getElementById('p-tags').innerHTML = "";
+    document.getElementById('p-gear').innerHTML = "";
+    document.getElementById('p-sponsor-video-section').style.display = 'none';
+    document.getElementById('skater-mini-badges-section').style.display = 'none';
+    document.getElementById('p-sponsor-badges-section').style.display = 'none';
+    
+    const editBtn = document.getElementById('edit-profile-btn');
+    if (publicKey === walletAddress || isAdmin) { editBtn.style.display = 'block'; } 
+    else { editBtn.style.display = 'none'; }
+    
+    if (publicKey === walletAddress || isAdmin || freeModeUsers.includes(walletAddress)) {
+        document.getElementById('private-feed-btn').style.display = 'block';
+    } else {
+        document.getElementById('private-feed-btn').style.display = 'block'; // Block but gated by attemptFeedAccess
+    }
+
+    try {
+        const pubKey = new web3.PublicKey(walletAddress);
+        const sigs = await connection.getSignaturesForAddress(pubKey, { limit: 100 });
+        
+        let activeProf = null;
+        let totalReceived = 0;
+        let donors = new Set();
+        let sponsorsDict = {};
+
+        for (let sigInfo of sigs) {
+            const tx = await connection.getTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0 });
+            if (!tx || !tx.meta || !tx.meta.logMessages) continue;
+
+            const isSigner = tx.transaction.message.accountKeys.some(key => key.pubkey.toString() === walletAddress && key.signer);
+
+            let memoLog = tx.meta.logMessages.find(log => log.includes('Program log: Memo'));
+            if (memoLog) {
+                let memoText = memoLog.replace('Program log: Memo (len ', '').split('): "')[1]?.slice(0, -1);
+                if (memoText) {
+                    try {
+                        const data = JSON.parse(memoText);
+                        // Extract Profile Data
+                        if (data.sk8 === "v1" && isSigner && !activeProf) {
+                            activeProf = data;
+                        }
+                        // Extract Blessings RECEIVED
+                        if (data.sk8bless === "v1" && data.amt && !isSigner) {
+                            const amtNum = parseFloat(data.amt);
+                            totalReceived += amtNum;
+                            donors.add(tx.transaction.message.accountKeys[0].pubkey.toString());
+                            
+                            const sender = tx.transaction.message.accountKeys[0].pubkey.toString();
+                            if(!sponsorsDict[sender]) sponsorsDict[sender] = 0;
+                            sponsorsDict[sender] += amtNum;
+                        }
+                    } catch(e) {}
+                }
+            }
+        }
+
+        document.getElementById('p-blessings').innerText = totalReceived.toFixed(2) + " SOL";
+        
+        if (totalReceived > 0) {
+            document.getElementById('skater-mini-badges-section').style.display = 'block';
+            document.getElementById('p-sponsor-badges-section').style.display = 'block';
+            renderSponsorBadges(sponsorsDict);
+        }
+
+        if (activeProf) {
+            document.getElementById('p-name').innerText = activeProf.name || "Anon Skater";
+            if (activeProf.bio) document.getElementById('p-bio').innerText = activeProf.bio;
+            if (activeProf.pic && (activeProf.pic.startsWith('http') || activeProf.pic.startsWith('ipfs'))) {
+                let pPic = activeProf.pic;
+                if(pPic.startsWith('ipfs://')) pPic = pPic.replace('ipfs://', 'https://ipfs.io/ipfs/');
+                document.getElementById('p-img').src = pPic;
+            }
+            
+            // Build Tags
+            const tagsDiv = document.getElementById('p-tags');
+            if (activeProf.stance) tagsDiv.innerHTML += `<span class="style-tag">${activeProf.stance}</span>`;
+            if (activeProf.spot) tagsDiv.innerHTML += `<span class="style-tag"><i class="fas fa-map-marker-alt"></i> ${activeProf.spot}</span>`;
+            
+            // Build Gear
+            const gearDiv = document.getElementById('p-gear');
+            if (activeProf.deck) gearDiv.innerHTML += `<span class="gear-tag"><i class="fas fa-layer-group"></i> ${activeProf.deck}</span>`;
+            if (activeProf.trucks) gearDiv.innerHTML += `<span class="gear-tag"><i class="fas fa-tools"></i> ${activeProf.trucks}</span>`;
+
+            // Sponsor Video
+            if (activeProf.yt) {
+                let embedUrl = "";
+                if (activeProf.yt.includes('youtube.com') || activeProf.yt.includes('youtu.be')) {
+                    const videoId = activeProf.yt.split('v=')[1]?.split('&')[0] || activeProf.yt.split('youtu.be/')[1]?.split('?')[0];
+                    if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                }
+                if (embedUrl) {
+                    document.getElementById('p-sponsor-video').src = embedUrl;
+                    document.getElementById('p-sponsor-video-section').style.display = 'block';
+                }
+            }
+        } else {
+            document.getElementById('p-name').innerText = "Unclaimed Wallet";
+            document.getElementById('p-bio').innerText = "This wallet has received blessings but hasn't set up an on-chain profile yet.";
+        }
+        
+        // Determine Rank based on Treasury donations
+        let targetTreasuryRank = getRank(allTreasurySponsors.find(s => s.address === walletAddress)?.amount || 0);
+        document.getElementById('p-rank').innerText = targetTreasuryRank;
+
+    } catch (e) {
+        console.error("Profile load error:", e);
+        document.getElementById('p-name').innerText = "Error Loading Profile";
+    }
+}
+
+async function saveProfileWeb3() {
+    if (!publicKey) return alert("Connect wallet first!");
+
+    const name = document.getElementById('edit-name').value;
+    const pic = document.getElementById('edit-pic').value;
+    const bio = document.getElementById('edit-bio').value;
+    
+    const stance = document.getElementById('edit-stance').value;
+    const deck = document.getElementById('edit-deck').value;
+    const trucks = document.getElementById('edit-trucks').value;
+    const spot = document.getElementById('edit-spot').value;
+    const yt = document.getElementById('edit-yt').value;
+    const isFree = document.getElementById('edit-free-toggle').checked;
+
+    const profileObj = {
+        sk8: "v1", name, pic, bio, stance, deck, trucks, spot, yt,
+        free: isFree
+    };
+
+    try {
+        const message = new web3.TransactionInstruction({
+            keys: [{ pubkey: new web3.PublicKey(publicKey), isSigner: true, isWritable: true }],
+            programId: MEMO_PROGRAM_ID,
+            data: Buffer.from(JSON.stringify(profileObj))
+        });
+
+        const tx = new web3.Transaction().add(message);
+        const { blockhash } = await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new web3.PublicKey(publicKey);
+
+        const btn = document.getElementById('save-web3-btn');
+        btn.innerText = "SIGNING...";
+
+        const signed = await provider.signTransaction(tx);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+        
+        btn.innerText = "SIGN & SAVE TO CHAIN";
+        closeEditModal();
+        triggerConfetti();
+        loadProfileWeb3(publicKey); 
+
+    } catch (e) {
+        console.error("Profile save error:", e);
+        document.getElementById('save-web3-btn').innerText = "SIGN & SAVE TO CHAIN";
+        alert("Transaction failed or rejected.");
+    }
+}
+
+function renderSponsorBadges(sponsorsDict) {
+    const grid = document.getElementById('sponsor-badge-grid');
+    grid.innerHTML = "";
+    
+    Object.entries(sponsorsDict).forEach(([address, amt]) => {
+        let badgeColor = "--silver-font";
+        let tierName = "AM SPONSOR";
+        let icon = "🛹";
+        
+        if (amt >= 0.1) { badgeColor = "--gold-font"; tierName = "PRO SPONSOR"; icon = "👑"; }
+        else if (amt < 0.05) { badgeColor = "--bronze-font"; tierName = "FLOW SPONSOR"; icon = "🔥"; }
+
+        const shortAddr = address.slice(0,4) + '...' + address.slice(-4);
+        
+        grid.innerHTML += `
+        <div style="background:var(--bg-panel); border:1px solid var(${badgeColor}); padding:12px; border-radius:8px; text-align:center; position:relative; overflow:hidden;">
+            <div style="font-size: 1.5rem; margin-bottom: 5px; filter: drop-shadow(0 0 5px var(${badgeColor}));">${icon}</div>
+            <div style="font-size: 0.55rem; color: var(${badgeColor}); font-weight: bold; margin-bottom: 5px;">${tierName}</div>
+            <div style="font-family: monospace; font-size: 0.55rem; color: var(--text-secondary);">${shortAddr}</div>
+            <div style="font-size: 0.65rem; color: #fff; font-weight: bold; margin-top: 5px;">${amt.toFixed(2)} SOL</div>
+        </div>`;
+    });
+}
+
+function updateVideoCards() {
+    let solThreshold = 0;
+    if(isAdmin) { solThreshold = 999; } 
+    else if(publicKey) {
+        let userRank = getRank(allTreasurySponsors.find(s => s.address === publicKey)?.amount || 0);
+        if(userRank.includes("PRO")) solThreshold = 999;
+        else if(userRank.includes("AM")) solThreshold = 0.05;
+        else if(userRank.includes("FLOW")) solThreshold = 0.01;
+    }
+
+    document.querySelectorAll('.video-card').forEach(card => {
+        const mask = card.querySelector('.video-mask');
+        const iframe = card.querySelector('iframe');
+        const requiredRank = parseFloat(card.dataset.req || 0);
+
+        if (solThreshold >= requiredRank) {
+            card.classList.add('unlocked');
+            if (iframe.dataset.src && !iframe.src) {
+                iframe.src = iframe.dataset.src;
+            }
+        } else {
+            card.classList.remove('unlocked');
+            iframe.src = "";
+        }
+    });
+}
+
+async function scanLeaderboards() {
+    document.getElementById('treasury-sponsors-list').innerHTML = '<li class="leader-item">Scanning on-chain history...</li>';
+    document.getElementById('skater-sponsors-list').innerHTML = '<li class="leader-item">Checking recent hits...</li>';
+
+    try {
+        const tSigs = await connection.getSignaturesForAddress(TREASURY_WALLET, { limit: 50 });
+        let tSponsors = {};
+        for (let sig of tSigs) {
+            const tx = await connection.getTransaction(sig.signature, { maxSupportedTransactionVersion: 0 });
+            if (!tx) continue;
+            const msg = tx.transaction.message;
+            const amtTransfer = tx.meta.postBalances[1] - tx.meta.preBalances[1]; 
+            if (amtTransfer > 0) {
+                const sender = msg.accountKeys[0].pubkey.toString();
+                const solAmt = amtTransfer / web3.LAMPORTS_PER_SOL;
+                if(!tSponsors[sender]) tSponsors[sender] = 0;
+                tSponsors[sender] += solAmt;
+            }
+        }
+        
+        allTreasurySponsors = Object.entries(tSponsors)
+            .map(([address, amount]) => ({address, amount}))
+            .sort((a,b) => b.amount - a.amount);
+            
+        updateWalletUI();
+
+        const tList = document.getElementById('treasury-sponsors-list');
+        tList.innerHTML = "";
+        allTreasurySponsors.slice(0,20).forEach((s, index) => {
+            let color = "var(--text-secondary)";
+            let icon = "";
+            if(index === 0) { color = "var(--accent-gold)"; icon = "👑 "; }
+            else if(index === 1) { color = "var(--silver-font)"; icon = "🥈 "; }
+            else if(index === 2) { color = "var(--bronze-font)"; icon = "🥉 "; }
+            
+            tList.innerHTML += `
+            <li class="leader-item">
+                <span class="addr-tag clickable" onclick="navigateTo('profile', '${s.address}')" style="color:${color};"><span style="width:20px; display:inline-block;">${index+1}.</span> ${icon}${s.address.slice(0,6)}...${s.address.slice(-4)}</span>
+                <span class="amt-tag">${s.amount.toFixed(2)} SOL</span>
+            </li>`;
+        });
+
+        const sSigs = await connection.getSignaturesForAddress(MEMO_PROGRAM_ID, { limit: 30 });
+        let recentHits = [];
+        for (let sig of sSigs) {
+            const tx = await connection.getTransaction(sig.signature, { maxSupportedTransactionVersion: 0 });
+            if (!tx || !tx.meta || !tx.meta.logMessages) continue;
+            
+            let memoLog = tx.meta.logMessages.find(log => log.includes('Program log: Memo'));
+            if(memoLog) {
+                let memoText = memoLog.replace('Program log: Memo (len ', '').split('): "')[1]?.slice(0, -1);
+                if(memoText) {
+                    try {
+                        const data = JSON.parse(memoText);
+                        if(data.sk8bless === "v1" && data.amt) {
+                            const sender = tx.transaction.message.accountKeys[0].pubkey.toString();
+                            recentHits.push({ sender: sender, target: data.target || "Unknown", amt: parseFloat(data.amt) });
+                        }
+                    } catch(e) {}
+                }
+            }
+            if(recentHits.length >= 10) break;
+        }
+
+        const sList = document.getElementById('skater-sponsors-list');
+        sList.innerHTML = "";
+        if(recentHits.length === 0) sList.innerHTML = '<li class="leader-item">No recent blessings found.</li>';
+        recentHits.forEach(h => {
+            sList.innerHTML += `
+            <li class="leader-item" style="display:flex; flex-direction:column; align-items:flex-start; gap:4px;">
+                <div style="width:100%; display:flex; justify-content:space-between;">
+                    <span class="addr-tag clickable" onclick="navigateTo('profile', '${h.sender}')" style="color:var(--accent-cyan);">${h.sender.slice(0,4)}...${h.sender.slice(-4)}</span>
+                    <span class="amt-tag" style="color:var(--accent-cyan); font-size: 0.6rem;">BLESSING</span>
+                </div>
+                <div style="width:100%; display:flex; justify-content:space-between; padding-left: 10px; border-left: 2px solid rgba(0,240,255,0.2);">
+                    <span class="addr-tag clickable" onclick="navigateTo('profile', '${h.target}')" style="font-size:0.55rem;">To: ${h.target.slice(0,6)}...</span>
+                    <span class="amt-tag">${h.amt.toFixed(2)} SOL</span>
+                </div>
+            </li>`;
+        });
+
+    } catch(e) { console.error("Leaderboard scan error:", e); }
+}
+
+async function updateTreasuryDisplay() {
+    try {
+        const bal = await connection.getBalance(TREASURY_WALLET);
+        const sol = bal / web3.LAMPORTS_PER_SOL;
+        document.getElementById('treasury-sol-balance').innerText = sol.toFixed(4) + " SOL";
+        document.getElementById('treasury-usd-balance').innerText = "$" + (sol * solPriceUSD).toFixed(2) + " USD";
+    } catch(e) { console.error(e); }
+}
+
+function openTreasuryModal() { document.getElementById('treasury-modal').style.display = 'flex'; }
+function closeTreasuryModal() { document.getElementById('treasury-modal').style.display = 'none'; }
+
+async function sendDonation(amount) {
+    if(!publicKey) return alert("Connect wallet first!");
+    closeTreasuryModal();
+    try {
+        const tx = new web3.Transaction().add(
+            web3.SystemProgram.transfer({
+                fromPubkey: new web3.PublicKey(publicKey),
+                toPubkey: TREASURY_WALLET,
+                lamports: amount * web3.LAMPORTS_PER_SOL
+            })
+        );
+        const { blockhash } = await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new web3.PublicKey(publicKey);
+        
+        const signed = await provider.signTransaction(tx);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+        
+        triggerConfetti();
+        document.getElementById('success-modal').style.display = 'flex';
+        updateTreasuryDisplay();
+        fetchBalance();
+        scanLeaderboards();
+    } catch(e) { console.error(e); alert("Transaction failed."); }
+}
+
+function sendCustomTreasury() {
+    const amt = parseFloat(document.getElementById('custom-treasury-amt').value);
+    if(amt > 0) sendDonation(amt);
+}
+
+document.querySelectorAll('.donate-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        if(!publicKey) { handleWalletAction(); return; }
+        activeTarget = e.target.dataset.target || "video";
+        activeTargetAddress = e.target.dataset.address;
+        
+        if(!activeTargetAddress) return alert("No wallet address linked to this skater!");
+        
+        document.getElementById('modal-skater-title').innerText = `Bless Skater`;
+        document.getElementById('sponsor-modal').style.display = 'flex';
+    });
 });
 
 function openSponsorshipModalFromProfile() {
-    if(!publicKey) { triggerOnboarding(); return; }
-    currentSkaterTarget = document.getElementById('p-wallet').innerText;
-    if (currentSkaterTarget === publicKey) { alert("Cannot sponsor yourself."); return; }
-    activeVideoId = `tape-${currentSkaterTarget}`; 
+    if(!publicKey) { handleWalletAction(); return; }
+    if(activeTargetAddress === publicKey) return alert("You cannot sponsor yourself!");
+    activeTarget = "profile";
+    document.getElementById('modal-skater-title').innerText = `Bless Skater`;
     document.getElementById('sponsor-modal').style.display = 'flex';
 }
 
-function closeModal() { document.getElementById("sponsor-modal").style.display = "none"; }
-function closeTreasuryModal() { document.getElementById("treasury-modal").style.display = "none"; }
-function closeSuccessModal() { document.getElementById("success-modal").style.display = "none"; }
-function openTreasuryModal() { if(!publicKey) { triggerOnboarding(); return; } document.getElementById("treasury-modal").style.display = "flex"; }
-function selectAmount(amt) { sendSOL(amt, currentSkaterTarget); }
-function sendDonation(amt) { sendSOL(amt, TREASURY_WALLET); }
-function sendCustomTreasury() { const amt = parseFloat(document.getElementById('custom-treasury-amt').value); if(amt > 0) sendDonation(amt); }
-function sendCustomSponsor() { const amt = parseFloat(document.getElementById('custom-sponsor-amt').value); if(amt > 0) selectAmount(amt); }
-
-async function sendSOL(amount, dest) {
-  try {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    const from = new solanaWeb3.PublicKey(publicKey);
-    const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: new solanaWeb3.PublicKey(dest), lamports: Math.floor(amount * 1e9) }));
-    if (activeVideoId && dest !== TREASURY_WALLET) {
-        const pData = JSON.stringify({ sk8spon: "v1", post: activeVideoId, amt: amount });
-        const encoded = new TextEncoder().encode(pData);
-        tx.add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-    }
-
-    tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-    await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-    document.getElementById('jingle').play().catch(e => {}); closeModal(); closeTreasuryModal();
-    setTimeout(() => { 
-        document.getElementById("success-modal").style.display = "flex"; createConfetti(); fetchBalance(); checkPersistence(); 
-        if(document.getElementById('profile-content').style.display === 'block') renderProfile(document.getElementById('p-wallet').innerText); 
-        if(document.getElementById('feed-content').style.display === 'block') attemptFeedAccess();
-        fetchHeaderDualRank(publicKey); 
-    }, 1500);
-  } catch (err) {}
+function openSponsorshipModalFromFeed() {
+    if(!publicKey) { handleWalletAction(); return; }
+    activeTargetAddress = activeFeedWallet;
+    if(activeTargetAddress === publicKey) return alert("You cannot sponsor yourself!");
+    activeTarget = "feed";
+    document.getElementById('modal-skater-title').innerText = `Unlock Feed Access`;
+    document.getElementById('sponsor-modal').style.display = 'flex';
 }
 
-async function castReaction(postId, targetWallet, emoji, costStr) {
-    if(!publicKey) { triggerOnboarding(); return; }
-    const costSOL = parseFloat(costStr);
-    if(!confirm(`Drop a ${emoji} reaction? Requires a ${costSOL} SOL tip to the skater.`)) return;
+function closeModal() { document.getElementById('sponsor-modal').style.display = 'none'; }
+
+async function selectAmount(amount) {
+    if(!publicKey) return alert("Connect wallet first!");
+    closeModal();
     try {
-        const pData = JSON.stringify({ sk8react: "v1", post: postId, react: emoji });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); const from = new solanaWeb3.PublicKey(publicKey);
-        const to = new solanaWeb3.PublicKey(targetWallet); 
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(costSOL * 1e9) })).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
+        const toPubkey = new web3.PublicKey(activeTargetAddress);
+        const transferInstruction = web3.SystemProgram.transfer({
+            fromPubkey: new web3.PublicKey(publicKey),
+            toPubkey: toPubkey,
+            lamports: amount * web3.LAMPORTS_PER_SOL
+        });
+
+        const memoData = {
+            sk8bless: "v1",
+            target: activeTargetAddress,
+            amt: amount.toString()
+        };
         
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        alert(`Reaction ${emoji} locked on-chain!`); checkPersistence(); 
-        if(document.getElementById('feed-content').style.display === 'block') attemptFeedAccess();
-    } catch (err) { alert("Reaction failed."); }
+        const memoInstruction = new web3.TransactionInstruction({
+            keys: [{ pubkey: new web3.PublicKey(publicKey), isSigner: true, isWritable: true }],
+            programId: MEMO_PROGRAM_ID,
+            data: Buffer.from(JSON.stringify(memoData))
+        });
+
+        const tx = new web3.Transaction().add(transferInstruction).add(memoInstruction);
+        const { blockhash } = await connection.getLatestBlockhash();
+        tx.recentBlockhash = blockhash;
+        tx.feePayer = new web3.PublicKey(publicKey);
+        
+        const signed = await provider.signTransaction(tx);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(signature);
+        
+        triggerConfetti();
+        document.getElementById('success-modal').style.display = 'flex';
+        fetchBalance();
+        
+        if (currentView === 'profile') { loadProfileWeb3(activeTargetAddress); }
+        if (currentView === 'feed') { attemptFeedAccess(); }
+
+    } catch(e) { console.error(e); alert("Transaction failed."); }
 }
 
-function createConfetti() {
-  for (let i = 0; i < 50; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti'; c.style.left = Math.random() * 95 + '%'; 
-    c.style.backgroundColor = ['#ff2d55','#ff9500','#00f0ff','#ffd700'][Math.floor(Math.random() * 4)];
-    c.style.animationDuration = (Math.random() * 3 + 2) + 's'; document.body.appendChild(c); setTimeout(() => c.remove(), 5000);
-  }
+function sendCustomSponsor() {
+    const amt = parseFloat(document.getElementById('custom-sponsor-amt').value);
+    if(amt > 0) selectAmount(amt);
 }
 
-function copyTreasuryAddress() { navigator.clipboard.writeText(TREASURY_WALLET); alert("Copied!"); }
+function closeSuccessModal() { document.getElementById('success-modal').style.display = 'none'; }
 
-// ========== WEB3 SOFT DELETE ENGINE ==========
-async function deleteClipWeb3(signature) {
-    if(!publicKey) { triggerOnboarding(); return; }
-    if(!confirm("Are you sure you want to permanently delete this clip from your feed? This cannot be undone.")) return;
-    
-    try {
-        const pData = JSON.stringify({ sk8del: "v1", post: signature });
-        const encoded = new TextEncoder().encode(pData); 
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed"); 
-        const from = new solanaWeb3.PublicKey(publicKey);
-        
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        
-        // Push immediately to local state for fast UI update
-        deletedPosts.push(signature);
-        attemptFeedAccess(); // Re-render the feed to hide the clip
-    } catch(e) {
-        alert("Deletion failed to broadcast.");
+function openEditModal() { document.getElementById('edit-modal').style.display = 'flex'; }
+function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
+
+function copyTreasuryAddress() {
+    navigator.clipboard.writeText("5xC5dQwRTqt6GvLurRJ4yxpBPmYM9egXQ1NokH4xFTNc");
+    alert("Treasury address copied to clipboard!");
+}
+
+function triggerConfetti() {
+    for (let i = 0; i < 50; i++) {
+        let conf = document.createElement('div');
+        conf.className = 'confetti';
+        conf.style.left = Math.random() * 100 + 'vw';
+        conf.style.backgroundColor = ['#ff2d55', '#00f0ff', '#ffd700', '#4ade80'][Math.floor(Math.random() * 4)];
+        conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        document.body.appendChild(conf);
+        setTimeout(() => conf.remove(), 5000);
     }
 }
 
-// ========== FEED LOGIC WITH TIKTOK/IPFS EXTENSIONS ==========
-async function attemptFeedAccess() {
-    if(!publicKey) { triggerOnboarding(); return; }
-    activeFeedWallet = document.getElementById('p-wallet').innerText;
-    let skaterName = document.getElementById('p-name').innerText;
-    
-    document.getElementById('mobile-nav').classList.remove('open');
-    let newHash = '#feed';
-    if(window.location.hash !== newHash) history.pushState(null, null, newHash);
-    ["home", "video", "leaderboard", "donate", "profile", "dao", "defi"].forEach(id => {
-        let el = document.getElementById(id + "-content"); if(el) el.style.display = 'none';
-    });
-    let feedContent = document.getElementById("feed-content"); if(feedContent) feedContent.style.display = 'block'; window.scrollTo(0,0);
-
-    let feedTitle = document.getElementById('feed-header-title'); if(feedTitle) feedTitle.innerText = `${skaterName}'S FEED`;
-    let postBox = document.getElementById('post-create-box'); if(postBox) postBox.style.display = 'none';
-    let paywall = document.getElementById('feed-paywall-overlay'); if(paywall) paywall.style.display = 'none';
-    let loadBtn = document.getElementById('load-more-feed-btn');
-    if(loadBtn) loadBtn.style.display = 'none';
-    
-    let feedItems = document.getElementById('actual-feed-items'); 
-    if(feedItems) feedItems.innerHTML = '<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin"></i> Scanning blockchain history...</div>';
-    feedRenderLimit = FEED_LIMIT; currentSkaterPosts = [];
-    let isOwner = (publicKey === activeFeedWallet); let hasAccess = isOwner;
-
-    if (!isOwner) { 
-        let totalDonated = 0;
-        try {
-            let txs = await fetchDeepHistory(publicKey, 1000, true);
-            txs.forEach(tx => {
-                if(tx.nativeTransfers) {
-                    tx.nativeTransfers.forEach(tf => {
-                        if(tf.fromUserAccount === publicKey && tf.toUserAccount === activeFeedWallet) { totalDonated += (tf.amount / 1e9); }
-                    });
-                }
-            });
-        } catch(e) {}
-        hasAccess = ADMIN_WALLETS.includes(publicKey) || totalDonated >= 0.049;
-    }
-
-    if (hasAccess) { 
-        if(isOwner && postBox) postBox.style.display = 'block';
-        fetchSkaterFeed(activeFeedWallet, false);
-    } else { 
-        if(paywall) paywall.style.display = 'flex'; 
-        fetchSkaterFeed(activeFeedWallet, true);
-    }
-}
-
-async function fetchSkaterFeed(wallet, isBlurred) {
-    const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-    currentSkaterPosts = [];
-    
-    try {
-        const sigs = await rpcMethodWithRetry(() => conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 }));
-        for (let s of sigs) { 
-            if(s.memo) {
-                // Compile the blocklist
-                if (s.memo.includes('"sk8del":"v1"')) {
-                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                    if(!deletedPosts.includes(d.post)) deletedPosts.push(d.post);
-                }
-                else if(s.memo.includes('"sk8post":"v1"')) { 
-                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
-                    // Includes tk and ipfs fields now
-                    currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, tk: d.tk, ipfs: d.ipfs, time: s.blockTime, totalDonated: 0 });
-                }
-            }
-        }
-    } catch(e) {}
-    
-    // Web3 Soft Delete filter implementation
-    currentSkaterPosts = currentSkaterPosts.filter(p => !deletedPosts.includes(p.id));
-    
-    currentSkaterPosts.sort((a,b) => b.time - a.time);
-    await syncGlobalVideos([wallet]);
-    
-    currentSkaterPosts.forEach(p => {
-        if(globalVideoState[p.id]) { p.reactions = globalVideoState[p.id].reactions; p.totalDonated = globalVideoState[p.id].totalSOL; } 
-        else { p.reactions = { '🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0 }; }
-    });
-    renderFeedGrid(isBlurred);
-}
-
-function renderFeedGrid(isBlurred) {
-    const container = document.getElementById('actual-feed-items');
-    const loadMoreBtn = document.getElementById('load-more-feed-btn');
-    if (currentSkaterPosts.length === 0) { 
-        if(container) container.innerHTML = `<div style="text-align:center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No feed entries found on-chain.</div>`;
-        return; 
-    }
-
-    let toRender = currentSkaterPosts.slice(0, feedRenderLimit); let html = "";
-    let isOwner = (publicKey === activeFeedWallet);
-    
-    toRender.forEach(p => {
-        let dateStr = new Date(p.time * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-        let mediaHtml = ""; let platformIcon = "";
-        
-        let deleteBtnHtml = isOwner ? `
-            <button class="delete-clip-btn" title="Delete Clip" onclick="deleteClipWeb3('${p.id}')">
-                <i class="fa-solid fa-trash"></i>
-            </button>` : '';
-
-        // Media rendering order: IPFS -> TikTok -> YouTube -> Instagram -> Fallback
-        if (p.ipfs) {
-            const publicGatewayUrl = `https://cloudflare-ipfs.com/ipfs/${p.ipfs}`;
-            platformIcon = `<div class="feed-platform-icon" title="Decentralized via IPFS"><i class="fa-solid fa-cube"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<video controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border: none;"><source src="${publicGatewayUrl}" type="video/mp4"></video></div>`;
-        }
-        else if (p.tk) {
-            platformIcon = `<div class="feed-platform-icon"><i class="fa-brands fa-tiktok" style="color:#00f0ff;"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<iframe src="https://www.tiktok.com/embed/v2/${p.tk}" allowfullscreen></iframe></div>`;
-        }
-        else if(p.yt) {
-            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-youtube" style="color:#ff2d55;"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<iframe src="https://www.youtube.com/embed/${p.yt}" allowfullscreen></iframe></div>`;
-        } 
-        else if (p.ig) {
-            platformIcon = `<div class="feed-platform-icon"><i class="fab fa-instagram" style="color:#ff2d55;"></i></div>`;
-            mediaHtml = `<div class="feed-grid-media">${deleteBtnHtml}${platformIcon}<iframe src="https://www.instagram.com/p/${p.ig}/embed" scrolling="no" allowtransparency="true"></iframe></div>`;
-        } else {
-            mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex; align-items:center; justify-content:center;">${deleteBtnHtml}<i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
-        }
-
-        let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
-        let universalReactions = getReactionHtml(p.id, activeFeedWallet, false);
-
-        // STAGE 4: EXTREME FEED OVERLAY THRESHOLDS (10 CLICKS)
-        let fxClass = "";
-        let vState = globalVideoState[p.id] || { totalSOL: 0, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0} };
-
-        if (vState.totalSOL >= 0.1) fxClass = "god-tier";
-        else if (vState.reactions['💪'] >= 10) fxClass = "flex-god";
-        else if (vState.reactions['🥩'] >= 10) fxClass = "hall-of-meat";
-        else if (vState.reactions['🧈'] >= 10) fxClass = "butter-smooth";
-        else if (vState.reactions['⭐'] >= 10) fxClass = "rising-star";
-        else if (vState.reactions['🤮'] >= 10) fxClass = "sketchy";
-        else if (vState.reactions['🔥'] >= 10) fxClass = "viral-fire";
-
-        html += `<div class="feed-grid-item ${fxClass}" style="${isBlurred ? 'filter: blur(8px); opacity: 0.5;' : ''}">
-                    ${mediaHtml}
-                    <div class="feed-grid-content">
-                        <div class="feed-grid-text">${p.text || ""}</div>
-                        <div class="feed-grid-date" style="margin-bottom: 10px;">${dateStr}</div>
-                        ${universalReactions}
-                        ${blessBtn}
-                    </div>
-                 </div>`;
-    });
-    
-    if(container) container.innerHTML = html;
-    if(!isBlurred && currentSkaterPosts.length > feedRenderLimit) { 
-        if(loadMoreBtn) loadMoreBtn.style.display = "block"; 
-    } else { 
-        if(loadMoreBtn) loadMoreBtn.style.display = "none"; 
-    }
-}
-
-function loadMoreFeed() { feedRenderLimit += FEED_LIMIT; renderFeedGrid(false); }
-function openSponsorshipModalFromFeed(postId) { currentSkaterTarget = activeFeedWallet; activeVideoId = postId || null; document.getElementById('sponsor-modal').style.display = 'flex'; }
-
-async function publishToFeed() {
-    if(!publicKey) { triggerOnboarding(); return; }
-    const btn = document.getElementById("publish-feed-btn"); btn.innerText = "AWAITING SIGNATURE...";
-    try {
-        const text = document.getElementById("new-post-text").value;
-        const rawLink = document.getElementById("new-post-link").value;
-        let yt = ""; let ig = ""; let tk = ""; let ipfs = "";
-        
-        if (rawLink) { 
-            // Parsing Logic expanded for IPFS and TikTok
-            if (rawLink.startsWith('ipfs://') || rawLink.startsWith('Qm') || rawLink.startsWith('bafy')) {
-                ipfs = rawLink.replace('ipfs://', '').split('/')[0];
-            } 
-            else if (rawLink.includes('tiktok.com')) {
-                tk = rawLink.split('/video/')[1]?.split('?')[0];
-            }
-            else if (rawLink.includes('youtu')) {
-                const ytMatch = rawLink.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-                if (ytMatch && ytMatch[2].length === 11) yt = ytMatch[2]; 
-            }
-            else if (rawLink.includes('instagram.com')) {
-                const igMatch = rawLink.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
-                if (igMatch) ig = igMatch[1];
-            }
-        }
-        
-        if(!text && !yt && !ig && !tk && !ipfs) { alert("Cannot post empty data. Require text or media link."); btn.innerText = "SIGN & POST TO CHAIN"; return; }
-
-        const pData = JSON.stringify({ sk8post: "v1", text, yt, ig, tk, ipfs });
-        const encoded = new TextEncoder().encode(pData); 
-        if (encoded.length > 566) { alert(`Post too long for Memo! Shorten your text.`); btn.innerText = "SIGN & POST TO CHAIN"; return; }
-        
-        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
-        const from = new solanaWeb3.PublicKey(publicKey);
-        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
-        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; tx.feePayer = from;
-        
-        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
-        btn.innerText = "POSTED!"; document.getElementById("new-post-text").value = ""; document.getElementById("new-post-link").value = "";
-        setTimeout(() => { btn.innerText = "SIGN & POST TO CHAIN"; attemptFeedAccess(); }, 2000);
-    } catch (err) { 
-        btn.innerText = "FAILED";
-        setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000);
-    }
-}
-
-// ========== INITIALIZATION ==========
-window.addEventListener('load', async () => {
-    document.getElementById('disclaimer-modal').style.display = 'flex';
-    document.getElementById('audio-mute-btn').style.display = 'none';
-
-    const donatePage = document.getElementById("donate-content");
-    if(donatePage && !document.getElementById("donate-sponsors-list")) {
-        donatePage.insertAdjacentHTML('beforeend', `
-        <div class="leaderboard-container" style="margin-top: 3rem;">
-            <div class="leaderboard-box">
-                <h2>TREASURY LEGENDS (TOP ${LEADERBOARD_LIMIT}) <span class="live-indicator">● LIVE SCAN</span></h2>
-                <ul class="leader-list" id="donate-sponsors-list"><li class="leader-item">Scanning on-chain history...</li></ul>
-            </div>
-            <div class="leaderboard-box">
-                <h2>RECENT TREASURY DONATIONS <span class="live-indicator">● LIVE SCAN</span></h2>
-                <ul class="leader-list" id="donate-recent-list"><li class="leader-item">Checking recent hits...</li></ul>
-            </div>
-        </div>`);
-    }
-
-    const mainBody = document.querySelector("main");
-    if(mainBody && !document.getElementById("dao-content")) {
-        mainBody.insertAdjacentHTML('beforeend', `
-        <div id="dao-content" style="display:none;">
-            <div class="hero">
-                <h1 style="font-size: 2.5rem;">THE SENATE</h1>
-                <p style="color: var(--accent-cyan); font-weight:bold; font-size: 0.8rem;">ON-CHAIN DECENTRALIZED GOVERNANCE</p>
-                <p class="hero-subtext" style="font-size:0.9rem; max-width:700px; margin: 15px auto;">Propose, debate, and vote on the future of Skate2Earn. High-ranking sponsors (Pro/Senator) dictate motions, while the community decides the outcome. Voting requires a ${DAO_VOTE_FEE} SOL anti-sybil fee.</p>
-                <button onclick="openProposalModal()" class="wallet-btn" style="margin-top: 10px; font-size: 0.8rem;">SUBMIT MOTION</button>
-            </div>
-            <div class="leaderboard-container" style="max-width: 800px; margin: 0 auto; display: block;">
-                <div class="leaderboard-box" style="margin-bottom: 2rem;">
-                    <h2>ACTIVE MOTIONS <span class="live-indicator">● LIVE SCAN</span></h2>
-                    <div id="dao-proposal-list" style="margin-top: 15px;">
-                        <div style="color: var(--text-secondary); text-align: center; padding: 20px;">Scanning on-chain history...</div>
-                    </div>
-                </div>
-            </div>
-        </div>`);
-        
-        document.body.insertAdjacentHTML('beforeend', `
-        <div id="proposal-modal" class="modal-overlay">
-            <div class="modal-content" style="text-align: left;">
-                <h3 style="color:var(--accent-cyan); margin-bottom: 15px; text-align:center; font-size: 1.1rem;">DRAFT NEW MOTION</h3>
-                <label style="font-size: 0.65rem; color: var(--text-secondary);">MOTION TITLE</label>
-                <input type="text" id="dao-prop-title" placeholder="e.g., Fund the LA Skatepark Tour" style="width: 100%; padding: 10px; margin-bottom: 15px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;">
-                <label style="font-size: 0.65rem; color: var(--text-secondary);">DETAILS / JUSTIFICATION</label>
-                <textarea id="dao-prop-desc" rows="4" placeholder="Explain the impact of this motion..." style="width: 100%; padding: 10px; margin-bottom: 15px; background: #000; color: #fff; border: 1px solid var(--accent-cyan); border-radius: 5px; font-size: 0.8rem;"></textarea>
-                <button onclick="submitDAOProposal()" id="submit-dao-btn" class="tier-btn" style="background: var(--accent-cyan); color: #000; border: none; font-size: 0.8rem;">SIGN & BROADCAST</button>
-                <button onclick="closeProposalModal()" style="width: 100%; background:transparent; color:#888; border:none; cursor:pointer; text-transform: uppercase; font-size: 0.7rem; margin-top: 5px;">[ Cancel ]</button>
-            </div>
-        </div>`);
-        
-        const navUl = document.querySelector("nav#mobile-nav ul");
-        if(navUl && !navUl.innerHTML.includes("GOVERNANCE")) {
-            navUl.insertAdjacentHTML('beforeend', `<li><a href="javascript:void(0)" onclick="navigateTo('dao')" style="color:var(--accent-cyan);">GOVERNANCE</a></li>`);
+function checkPersistence() {
+    const disclaimerAccepted = localStorage.getItem('sk8_disclaimer_accepted');
+    if (!disclaimerAccepted) {
+        document.getElementById('disclaimer-modal').style.display = 'flex';
+    } else {
+        const audio = document.getElementById('bg-audio-player');
+        if (audio && audio.innerHTML === "") {
+            audio.innerHTML = '<iframe src="https://www.youtube.com/embed/5D_0aA9Vq7U?autoplay=1&loop=1&playlist=5D_0aA9Vq7U&controls=0&showinfo=0&autohide=1" allow="autoplay" id="yt-audio-iframe"></iframe>';
         }
     }
+}
 
+function toggleEnterBtn() {
+    const cb = document.getElementById('terms-checkbox');
+    const btn = document.getElementById('enter-park-btn');
+    if (cb.checked) { btn.classList.add('active'); } 
+    else { btn.classList.remove('active'); }
+}
+
+function acceptDisclaimer() {
+    const cb = document.getElementById('terms-checkbox');
+    if (cb.checked) {
+        localStorage.setItem('sk8_disclaimer_accepted', 'true');
+        document.getElementById('disclaimer-modal').style.display = 'none';
+        
+        const audio = document.getElementById('bg-audio-player');
+        audio.innerHTML = '<iframe src="https://www.youtube.com/embed/5D_0aA9Vq7U?autoplay=1&loop=1&playlist=5D_0aA9Vq7U&controls=0&showinfo=0&autohide=1" allow="autoplay" id="yt-audio-iframe"></iframe>';
+        document.getElementById('audio-mute-btn').style.display = 'flex';
+    }
+}
+
+let isMuted = false;
+function toggleMute() {
+    const audioWrapper = document.getElementById('bg-audio-player');
+    const icon = document.getElementById('mute-icon');
+    
+    if (isMuted) {
+        audioWrapper.innerHTML = '<iframe src="https://www.youtube.com/embed/5D_0aA9Vq7U?autoplay=1&loop=1&playlist=5D_0aA9Vq7U&controls=0&showinfo=0&autohide=1" allow="autoplay" id="yt-audio-iframe"></iframe>';
+        icon.className = 'fas fa-volume-up';
+        isMuted = false;
+    } else {
+        audioWrapper.innerHTML = '';
+        icon.className = 'fas fa-volume-mute';
+        isMuted = true;
+    }
+}
+
+window.onload = async () => {
     await getSolPrice(); 
     await syncAdminState();
     
@@ -1868,6 +1878,7 @@ window.addEventListener('load', async () => {
     if(initialHash) {
         let parts = initialHash.split('/');
         if(parts[0] === 'profile' && parts[1]) { navigateTo('profile', parts[1]); }
+        else if (parts[0] === 'feed' && parts[1]) { navigateTo('feed', parts[1]); }
         else { navigateTo(parts[0]); }
     } else {
         navigateTo('home');
@@ -1883,12 +1894,27 @@ window.addEventListener('load', async () => {
                 fetchBalance(); 
                 checkPersistence(); 
             } 
-        } catch (e) { checkPersistence(); } 
+        } catch(e) { checkPersistence(); }
     } else {
         checkPersistence();
+    }
+    
+    scanLeaderboards();
+};
+
+window.addEventListener('popstate', () => {
+    let hash = window.location.hash.replace('#', '');
+    if(hash) {
+        let parts = hash.split('/');
+        if(parts[0] === 'profile' && parts[1]) { navigateTo('profile', parts[1]); }
+        else if(parts[0] === 'feed' && parts[1]) { navigateTo('feed', parts[1]); }
+        else { navigateTo(parts[0]); }
+    } else {
+        navigateTo('home');
     }
 });
 </script>
 </body>
 </html>
+
 
