@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC PORTAL | NATIVE INTEGRATION</title>
-    <script src="https://unpkg.com/@waxio/waxjs/dist-web/waxjs.js"></script>
+    <title>WAC ARTIST COLLABS | VIEW ONLY GRID</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #0a132f;
-            --bg-panel: #0f1a47;
+            --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --accent-red: #ff2d55;
+            --thps-blue: #0066ff;
             --card-border: rgba(0, 240, 255, 0.14);
-            /* Rarity Reward Scale */
+            /* Rarity Tiers */
             --common: #888; --uncommon: #4caf50; --rare: #2196f3; 
             --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; 
             --ridiculous: #00f0ff;
@@ -25,306 +24,249 @@
             font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 20px;
             background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
+            overflow-x: hidden;
         }
 
         header {
             text-align: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px dashed var(--accent-cyan);
-            padding-bottom: 2rem;
-            position: relative;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px dashed var(--card-border);
+            padding-bottom: 1.5rem;
         }
 
         h1 {
             font-family: 'Bangers', cursive;
-            font-size: 3.5rem;
+            font-size: 3.8rem;
             color: #fff;
             margin: 0;
-            -webkit-text-stroke: 1px #0066ff;
-            text-shadow: 4px 4px 0px #0066ff;
+            -webkit-text-stroke: 1px var(--thps-blue);
+            text-shadow: 4px 4px 0px var(--thps-blue);
+            letter-spacing: 2px;
         }
 
-        /* WAX Wallet UI Container */
-        .wallet-ui {
-            position: absolute;
-            top: 0; right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .wax-btn {
-            background: var(--accent-gold);
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .wax-btn:hover { background: #fff; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
-
-        .wallet-address {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 15px;
-            border-radius: 6px;
-            border: 1px solid var(--accent-cyan);
-            font-size: 0.8rem;
-            display: none; /* Hidden until logged in */
-        }
-
-        /* Standardized 12-item feed layout */
+        /* Standard 12-Frame Layout */
         .collab-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
+            gap: 20px;
             max-width: 1440px;
             margin: auto;
+            padding-bottom: 40px;
         }
 
-        .board-card {
+        /* The Data Frame */
+        .data-frame {
             background: var(--bg-panel);
             border: 2px solid #fff;
-            padding: 1.2rem;
-            transition: 0.3s;
+            padding: 15px;
             position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
-            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
         }
-        .board-card:hover { border-color: var(--accent-cyan); transform: scale(1.02); }
 
-        .rarity-tag {
+        .data-frame:hover {
+            border-color: var(--accent-cyan);
+            transform: scale(1.02);
+            box-shadow: 0 5px 25px rgba(0, 240, 255, 0.15);
+            z-index: 10;
+        }
+
+        .rarity-banner {
             position: absolute;
             top: 5px; left: -5px;
             padding: 3px 12px;
             font-weight: 900;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             transform: rotate(-5deg);
-            box-shadow: 2px 2px 0 #000;
-            text-transform: uppercase;
+            box-shadow: 3px 3px 0 #000;
             z-index: 5;
+            text-transform: uppercase;
         }
 
-        .nft-preview { width: 100%; aspect-ratio: 1/1; background: #000; margin-bottom: 1rem; object-fit: contain; }
+        .nft-image {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 12px;
+            object-fit: contain;
+        }
 
-        /* THPS HUD Stats */
+        .board-title {
+            font-family: 'Bangers';
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+            margin: 0;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Stat Bars */
         .stat-group { margin: 8px 0; }
         .stat-label { font-size: 0.55rem; color: var(--accent-cyan); display: flex; justify-content: space-between; font-weight: 900; }
         .bar-bg { background: #000; height: 8px; border: 1px solid #333; margin-top: 2px; }
-        .bar-fill { background: var(--accent-gold); height: 100%; }
+        .bar-fill { background: var(--accent-gold); height: 100%; box-shadow: 0 0 10px var(--accent-gold); }
 
-        .hardware-meta {
+        .metadata-box {
             font-size: 0.55rem;
             background: rgba(0,0,0,0.5);
-            padding: 8px;
+            padding: 10px;
             border-radius: 4px;
             color: #aaa;
             margin: 10px 0;
-            border-left: 2px solid var(--accent-cyan);
+            border-left: 3px solid var(--accent-cyan);
+            line-height: 1.4;
         }
 
-        .reward-area { margin-top: auto; text-align: center; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 12px; }
-        .skate-val { font-weight: 900; color: #fff; font-size: 1.2rem; display: block; }
-        .wax-price { font-size: 0.6rem; color: var(--accent-cyan); font-weight: bold; }
-
-        .action-btn {
-            background: rgba(255,255,255,0.1);
-            color: #888;
-            border: 1px solid #444;
+        .view-btn {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
             padding: 10px;
             width: 100%;
             font-family: 'Orbitron';
             font-weight: 900;
             font-size: 0.7rem;
-            margin-top: 10px;
+            cursor: pointer;
+            margin-top: auto;
             text-transform: uppercase;
-            cursor: not-allowed;
+            transition: 0.3s;
         }
-        
-        /* Activated class when wallet connects */
-        .action-btn.active { background: #fff; color: #000; border-color: #fff; cursor: pointer; }
-        .action-btn.active:hover { background: var(--accent-gold); }
 
-        @media (max-width: 1024px) { .collab-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .collab-grid { grid-template-columns: 1fr; } .wallet-ui { position: relative; justify-content: center; margin-top: 20px;} }
+        .view-btn:hover { background: var(--accent-cyan); color: #000; }
+
+        @media (max-width: 1100px) { .collab-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { .collab-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>WAX NATIVE PORTAL</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">DECENTRALIZED dAPP // SMART CONTRACT ENABLED</p>
-    
-    <div class="wallet-ui">
-        <div id="wallet-address" class="wallet-address"></div>
-        <button id="login-btn" class="wax-btn" onclick="loginToWax()">CONNECT WAX</button>
-    </div>
+    <h1>WAC ARTIST COLLABS</h1>
+    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">VIEW ONLY MODE // 12-FRAME METADATA DISPLAY</p>
 </header>
 
-<div id="board-container" class="collab-grid">
-    <div style="grid-column: 1/-1; text-align: center;">SYNCING 12 ASSETS WITH ATOMIC HUB...</div>
+<div id="grid-mount" class="collab-grid">
+    <div style="grid-column: 1/-1; text-align: center; font-size: 1.2rem; color: var(--accent-cyan); padding: 50px;">
+        SYNCING ASSETS...
+    </div>
 </div>
 
 <script>
-    // ----------------------------------------------------
-    // 1. INITIALIZE WAX WALLET CONNECTION
-    // ----------------------------------------------------
-    const wax = new waxjs.WaxJS({
-        rpcEndpoint: 'https://wax.greymass.com' // Public WAX RPC node
-    });
-
-    async function loginToWax() {
-        try {
-            // Triggers WAX Cloud Wallet popup
-            const userAccount = await wax.login(); 
-            
-            // Update UI
-            document.getElementById('login-btn').style.display = 'none';
-            const addrDisplay = document.getElementById('wallet-address');
-            addrDisplay.style.display = 'block';
-            addrDisplay.innerText = "Logged in: " + userAccount;
-
-            // Activate all "Collect" buttons
-            const btns = document.querySelectorAll('.action-btn');
-            btns.forEach(btn => {
-                btn.classList.add('active');
-                btn.innerText = "COLLECT BOARD";
-                btn.disabled = false;
-            });
-            
-        } catch (e) {
-            console.error("WAX Login Error:", e.message);
-        }
-    }
-
-    // ----------------------------------------------------
-    // 2. SMART CONTRACT TRANSACTION LOGIC
-    // ----------------------------------------------------
-    async function interactWithBoard(assetId) {
-        if (!wax.api) {
-            alert("Connect your WAX Wallet to interact with this asset.");
-            return;
-        }
-
-        try {
-            // Example Transaction: Staking or claiming an NFT
-            const result = await wax.api.transact({
-                actions: [{
-                    account: 'atomicassets',
-                    name: 'transfer',
-                    authorization: [{
-                        actor: wax.userAccount,
-                        permission: 'active',
-                    }],
-                    data: {
-                        from: wax.userAccount,
-                        to: 'YOUR_TREASURY_WALLET', // Replace with your receiving wallet
-                        asset_ids: [assetId],
-                        memo: 'Crypto Clips $SKATE Reward Interaction'
-                    },
-                }]
-            }, {
-                blocksBehind: 3,
-                expireSeconds: 30
-            });
-            
-            alert("Transaction Successful! TX Hash: " + result.transaction_id);
-        } catch (e) {
-            // Often triggers if user cancels the popup or lacks RAM/CPU
-            alert("Transaction Failed: " + e.message);
-        }
-    }
-
-
-    // ----------------------------------------------------
-    // 3. RENDER THE 12-ITEM VISUAL GRID VIA API
-    // ----------------------------------------------------
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
-    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
-    const SKATE_REWARDS = { 'common': 100, 'rare': 500, 'mythic': 1000, 'legendary': 2000, 'epic': 5000 };
 
-    async function loadGrid() {
-        const container = document.getElementById('board-container');
-        const displayList = [];
+    // Your requested list of specific boards
+    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
+
+    async function loadViewOnlyGrid() {
+        const mount = document.getElementById('grid-mount');
+        const displayData = [];
         const artistsFound = new Set();
 
         try {
-            // Backfill 12 slots dynamically
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50`);
-            const json = await res.json();
-
-            if (json.success) {
-                for (let nft of json.data) {
-                    const m = nft.data;
-                    const artist = m.artist || "Pro Artist";
+            // 1. Fetch your highly specific requested items
+            for (let id of TARGET_IDS) {
+                try {
+                    // Check if it's a template ID (short) or an asset ID (long)
+                    const endpoint = id.length < 10 
+                        ? `/assets?template_id=${id}&limit=1` 
+                        : `/assets/${id}`;
                     
-                    if (!artistsFound.has(artist) && displayList.length < 12) {
-                        artistsFound.add(artist);
-                        const rarity = (m.rarity || "common").toLowerCase();
-                        
-                        displayList.push({
-                            id: nft.asset_id,
-                            name: nft.name || m.name,
-                            img: m.img || nft.template.immutable_data.img,
-                            rarity: rarity,
-                            artist: artist,
-                            deck: m.deck || "Hybrid",
-                            speed: parseInt(m.speed) || Math.floor(Math.random()*6)+4,
-                            pop: parseInt(m.pop) || Math.floor(Math.random()*6)+4,
-                            bal: parseInt(m.balance) || Math.floor(Math.random()*6)+4,
-                            trucks: m.trucks || "Standard",
-                            wheels: m.wheels || "Standard",
-                            brg: m.bearings || "RGB",
-                            skate: SKATE_REWARDS[rarity] || 100
-                        });
+                    const response = await fetch(`${ATOMIC_API}${endpoint}`);
+                    const json = await response.json();
+                    
+                    if (json.success) {
+                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
+                        if (nft) processDataFrame(nft, artistsFound, displayData);
+                    }
+                } catch (e) { console.warn(`Failed to sync ID: ${id}`); }
+            }
+
+            // 2. Fetch the remaining items to force the 12-frame grid
+            if (displayData.length < 12) {
+                const response = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=100&order=desc`);
+                const json = await response.json();
+
+                if (json.success) {
+                    for (let nft of json.data) {
+                        if (displayData.length < 12) {
+                            processDataFrame(nft, artistsFound, displayData);
+                        }
                     }
                 }
-                
-                // Build the HTML
-                container.innerHTML = displayList.map(b => `
-                    <div class="board-card">
-                        <span class="rarity-tag" style="background:var(--${b.rarity})">${b.rarity}</span>
-                        <img src="https://ipfs.io/ipfs/${b.img}" class="nft-preview">
-                        
-                        <div style="font-family:'Bangers'; color:var(--accent-gold); font-size:1.5rem; line-height:1;">${b.name}</div>
-                        <div style="font-size:0.5rem; color:#888; margin-bottom:8px;">ARTIST: ${b.artist}</div>
-
-                        <div class="stat-group">
-                            <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
-                            <div class="bar-bg"><div class="bar-fill" style="width:${b.speed * 10}%"></div></div>
-                        </div>
-                        <div class="stat-group">
-                            <div class="stat-label">POP <span>${b.pop}/10</span></div>
-                            <div class="bar-bg"><div class="bar-fill" style="width:${b.pop * 10}%"></div></div>
-                        </div>
-                        <div class="stat-group">
-                            <div class="stat-label">BALANCE <span>${b.bal}/10</span></div>
-                            <div class="bar-bg"><div class="bar-fill" style="width:${b.bal * 10}%"></div></div>
-                        </div>
-
-                        <div class="hardware-meta">
-                            <strong>DECK:</strong> ${b.deck}<br>
-                            <strong>TRUCKS:</strong> ${b.trucks} | <strong>WH:</strong> ${b.wheels}<br>
-                            <strong>BRG:</strong> ${b.brg}
-                        </div>
-
-                        <div class="reward-area">
-                            <span class="skate-val">${b.skate} $SKATE</span>
-                            <button class="action-btn" disabled onclick="interactWithBoard('${b.id}')">CONNECT TO COLLECT</button>
-                        </div>
-                    </div>
-                `).join('');
             }
-        } catch(e) {
-            container.innerHTML = "API Sync Error";
+
+            renderFrames(displayData, mount);
+
+        } catch (error) {
+            mount.innerHTML = `<div style="grid-column:1/-1;">API SYNC ERROR. Please refresh.</div>`;
         }
     }
 
-    loadGrid();
+    function processDataFrame(nft, artistSet, list) {
+        const m = nft.data;
+        const artist = m.artist || "Unknown Legend";
+        
+        // Skip duplicate artists to keep the collection diverse
+        if (artistSet.has(artist)) return;
+        artistSet.add(artist);
+
+        const rarity = (m.rarity || "common").toLowerCase();
+        
+        list.push({
+            id: nft.asset_id,
+            name: nft.name || m.name,
+            img: m.img || nft.template.immutable_data.img,
+            rarity: rarity,
+            artist: artist,
+            deck: m.deck || "Hybrid Creatures",
+            speed: parseInt(m.speed) || Math.floor(Math.random() * 6) + 4,
+            pop: parseInt(m.pop) || Math.floor(Math.random() * 6) + 4,
+            balance: parseInt(m.balance) || Math.floor(Math.random() * 6) + 4,
+            trucks: m.trucks || "Standard",
+            wheels: m.wheels || "Standard",
+            bearings: m.bearings || "Standard"
+        });
+    }
+
+    function renderFrames(list, mount) {
+        mount.innerHTML = list.map(b => `
+            <div class="data-frame">
+                <div class="rarity-banner" style="background:var(--${b.rarity})">${b.rarity}</div>
+                <img src="https://ipfs.io/ipfs/${b.img}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Syncing...'">
+                
+                <div class="board-title">${b.name}</div>
+                <div style="font-size:0.55rem; color:#888; margin-bottom:10px;">ARTIST: ${b.artist}</div>
+
+                <div class="stat-group">
+                    <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${b.speed * 10}%"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-label">POP <span>${b.pop}/10</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${b.pop * 10}%"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-label">BALANCE <span>${b.balance}/10</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${b.balance * 10}%"></div></div>
+                </div>
+
+                <div class="metadata-box">
+                    <strong style="color:#fff;">DECK:</strong> ${b.deck}<br>
+                    <strong style="color:#fff;">TRUCKS:</strong> ${b.trucks}<br>
+                    <strong style="color:#fff;">WHEELS:</strong> ${b.wheels} | <strong style="color:#fff;">BRG:</strong> ${b.bearings}
+                </div>
+
+                <button class="view-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${b.id}', '_blank')">VIEW ON HUB</button>
+            </div>
+        `).join('');
+    }
+
+    loadViewOnlyGrid();
 </script>
 </body>
 </html>
