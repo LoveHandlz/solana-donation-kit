@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SK8COIN | UNIQUE COLLECTOR PORTAL</title>
+    <title>SK8COIN | PRO COLLECTOR PORTAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,6 +12,10 @@
             --accent-gold: #ffd700;
             --cc-red: #ff2d55;
             --card-border: rgba(0, 240, 255, 0.14);
+            /* Rarity Colors */
+            --common: #888; --uncommon: #4caf50; --rare: #2196f3; 
+            --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; 
+            --ridiculous: #00f0ff;
         }
 
         body {
@@ -23,14 +27,14 @@
 
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             border-bottom: 1px solid var(--card-border);
-            padding-bottom: 2rem;
+            padding-bottom: 1rem;
         }
 
         h1 {
             font-family: 'Bangers', cursive;
-            font-size: 3.5rem;
+            font-size: 3rem;
             color: var(--accent-gold);
             margin: 0;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
@@ -47,179 +51,178 @@
         .collector-card {
             background: var(--bg-panel);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 1.2rem;
+            border-radius: 10px;
+            padding: 1rem;
             position: relative;
             display: flex;
             flex-direction: column;
-            transition: 0.3s ease;
+            transition: 0.2s ease-in-out;
         }
 
-        .collector-card:hover {
-            border-color: var(--accent-gold);
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-        }
+        .collector-card:hover { border-color: var(--accent-cyan); transform: translateY(-3px); }
 
-        /* Rarity Dynamic Styling */
         .rarity-tag {
             position: absolute;
             top: 10px; right: 10px;
             font-size: 0.5rem;
-            padding: 3px 6px;
-            border-radius: 4px;
+            padding: 2px 6px;
+            border-radius: 3px;
             font-weight: 900;
             text-transform: uppercase;
-            z-index: 5;
         }
 
         .nft-img {
             width: 100%;
             aspect-ratio: 1/1;
             background: #000;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            border-radius: 5px;
+            margin-bottom: 10px;
             object-fit: contain;
         }
 
-        .artist-label {
-            font-size: 0.55rem;
-            color: var(--accent-cyan);
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
+        .meta-label { font-size: 0.55rem; color: var(--accent-cyan); margin-top: 4px; font-weight: bold;}
+        .meta-val { color: #fff; font-size: 0.65rem; }
 
-        .stats-box {
-            background: rgba(0,0,0,0.3);
-            border-radius: 6px;
-            padding: 8px;
+        .stats-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 5px;
-            margin-bottom: 1rem;
-        }
-
-        .stat { font-size: 0.5rem; text-align: center; color: #888; }
-        .stat-val { display: block; color: #fff; font-weight: bold; font-size: 0.7rem; }
-
-        .reward-banner {
-            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.1), transparent);
-            text-align: center;
-            padding: 8px;
+            gap: 4px;
+            margin: 10px 0;
+            background: rgba(0,0,0,0.2);
+            padding: 5px;
             border-radius: 4px;
-            margin-bottom: 10px;
         }
 
-        .skate-val { color: var(--accent-gold); font-weight: 900; font-size: 1rem; }
+        .stat-item { text-align: center; font-size: 0.5rem; color: #aaa; }
+        .stat-num { display: block; color: var(--accent-gold); font-size: 0.75rem; font-weight: 900; }
+
+        .reward-zone {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+            padding-top: 10px;
+            text-align: center;
+        }
+
+        .skate-amount { color: var(--accent-gold); font-size: 1.1rem; font-weight: 900; }
+        .wax-price { font-size: 0.6rem; color: #4caf50; display: block; margin-bottom: 5px; }
 
         .claim-btn {
             background: var(--accent-gold);
             color: #000;
             border: none;
-            padding: 10px;
-            border-radius: 6px;
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
             font-family: 'Orbitron';
             font-weight: 900;
             font-size: 0.65rem;
             cursor: pointer;
-            text-transform: uppercase;
         }
 
-        .loading-screen { text-align: center; padding: 4rem; color: var(--accent-cyan); }
+        @media (max-width: 1100px) { .collector-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>UNIQUE ARTIST PORTAL</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">COLLECTOR REWARDS // POWERED BY $SKATE</p>
+    <h1>UNIQUE SKATEBOARD COLLECTOR</h1>
+    <p style="color: var(--accent-cyan); font-size: 0.7rem; letter-spacing: 1px;">SYNCING ATOMIC HUB // FILTERING UNIQUE ARTISTS</p>
 </header>
 
 <div id="collector-container" class="collector-grid">
-    <div class="loading-screen">SCANNING METADATA FOR UNIQUE ARTISTS...</div>
+    <div style="grid-column: 1/-1; text-align: center; padding: 50px;">INITIALIZING REWARD ENGINE...</div>
 </div>
 
 <script>
     const HELIUS_KEY = "29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
-    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1/assets";
+    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
 
-    async function fetchUniqueCollectorGrid() {
+    const SKATE_TIERS = {
+        'common': 100, 'uncommon': 250, 'rare': 500,
+        'mythic': 1000, 'legendary': 2000, 'epic': 5000, 'ridiculous': 10000
+    };
+
+    async function fetchPortal() {
         const container = document.getElementById('collector-container');
         const artistsFound = new Set();
-        const displayData = [];
+        const displayList = [];
 
         try {
-            // Fetch initial batch to process
-            const response = await fetch(`${ATOMIC_API}?collection_name=skatecoinwax&schema_name=skateboards&limit=100&order=desc&sort=created&api_key=${HELIUS_KEY}`);
+            // Fetch assets from skateboards schema
+            const response = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=100&order=desc&sort=created&api_key=${HELIUS_KEY}`);
             const result = await response.json();
 
             if (result.success) {
-                // Filter for Unique Artists using metadata
                 for (let nft of result.data) {
-                    const artist = nft.data.artist || nft.template.immutable_data.artist || "Unknown Legend";
-                    
-                    if (!artistsFound.has(artist) && displayData.length < 12) {
+                    const m = nft.data; // Metadata
+                    const artist = m.artist || "Unknown";
+
+                    if (!artistsFound.has(artist) && displayList.length < 12) {
                         artistsFound.add(artist);
                         
-                        // Decipher stats from metadata
-                        const speed = nft.data.speed || Math.floor(Math.random() * 50) + 50;
-                        const pop = nft.data.pop || Math.floor(Math.random() * 50) + 50;
-                        const balance = nft.data.balance || Math.floor(Math.random() * 50) + 50;
-                        const rarity = nft.data.rarity || "Common";
+                        // Parse fixed fields + metadata scores
+                        const rarity = (m.rarity || "common").toLowerCase();
+                        const reward = SKATE_TIERS[rarity] || 100;
+                        
+                        // Attempt to find WAX price (if listed on market)
+                        let waxPrice = "VIEW ON HUB";
+                        if (nft.prices && nft.prices.length > 0) {
+                            waxPrice = `${(nft.prices[0].amount / Math.pow(10, nft.prices[0].token_precision)).toFixed(2)} WAX`;
+                        }
 
-                        // Calculate $SKATE rewards based on rarity and total stats
-                        let baseReward = rarity.toLowerCase() === 'legendary' ? 50 : rarity.toLowerCase() === 'rare' ? 20 : 5;
-                        let statBonus = (speed + pop + balance) / 10;
-                        let totalReward = (baseReward + statBonus).toFixed(2);
-
-                        displayData.push({ nft, artist, speed, pop, balance, rarity, totalReward });
+                        displayList.push({
+                            id: nft.asset_id,
+                            name: nft.name || m.name,
+                            img: m.img || nft.template.immutable_data.img,
+                            rarity: rarity,
+                            artist: artist,
+                            brand: m.brand || "Standard",
+                            deck: m.deck || "Standard",
+                            pop: m.pop || "0",
+                            speed: m.speed || "0",
+                            balance: m.balance || "0",
+                            trucks: m.trucks || "Standard",
+                            wheels: m.wheels || "Standard",
+                            bearings: m.bearings || "Standard",
+                            skateReward: reward,
+                            waxPrice: waxPrice
+                        });
                     }
                 }
-
-                renderGrid(displayData);
+                renderGrid(displayList);
             }
-        } catch (e) {
-            container.innerHTML = "METADATA SYNC ERROR.";
-        }
+        } catch (e) { container.innerHTML = "API SYNC ERROR"; }
     }
 
     function renderGrid(items) {
         const container = document.getElementById('collector-container');
-        let html = '';
-
-        items.forEach(item => {
-            const imgHash = item.nft.data.img || item.nft.template.immutable_data.img;
-            const imgUrl = `https://ipfs.io/ipfs/${imgHash}`;
-            
-            // Dynamic rarity colors
-            const rarityColor = item.rarity.toLowerCase() === 'legendary' ? 'var(--rarity-legendary)' : 
-                                item.rarity.toLowerCase() === 'rare' ? 'var(--accent-cyan)' : '#888';
-
-            html += `
-                <div class="collector-card">
-                    <span class="rarity-tag" style="background:${rarityColor}">${item.rarity}</span>
-                    <div class="artist-label">ARTIST: ${item.artist}</div>
-                    <img src="${imgUrl}" class="nft-img" onerror="this.src='https://via.placeholder.com/300?text=Board+Syncing...'">
-                    
-                    <div class="stats-box">
-                        <div class="stat">SPEED <span class="stat-val">${item.speed}</span></div>
-                        <div class="stat">POP <span class="stat-val">${item.pop}</span></div>
-                        <div class="stat">BAL <span class="stat-val">${item.balance}</span></div>
-                    </div>
-
-                    <div class="reward-banner">
-                        <div style="font-size:0.5rem; color:#888;">COLLECTION REWARD</div>
-                        <div class="skate-val">${item.totalReward} $SKATE</div>
-                    </div>
-
-                    <button class="claim-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${item.nft.asset_id}', '_blank')">CLAIM ASSET</button>
+        container.innerHTML = items.map(item => `
+            <div class="collector-card">
+                <span class="rarity-tag" style="background:var(--${item.rarity})">${item.rarity}</span>
+                <img src="https://ipfs.io/ipfs/${item.img}" class="nft-img">
+                
+                <div class="meta-label">DECK / BRAND</div>
+                <div class="meta-val">${item.deck} / ${item.brand}</div>
+                
+                <div class="stats-row">
+                    <div class="stat-item">POP<span class="stat-num">${item.pop}</span></div>
+                    <div class="stat-item">SPD<span class="stat-num">${item.speed}</span></div>
+                    <div class="stat-item">BAL<span class="stat-num">${item.balance}</span></div>
                 </div>
-            `;
-        });
-        container.innerHTML = html;
+
+                <div class="meta-label">COMPONENTS</div>
+                <div class="meta-val" style="font-size:0.5rem">TRUCKS: ${item.trucks} | WHEELS: ${item.wheels} | BRG: ${item.bearings}</div>
+
+                <div class="reward-zone">
+                    <span class="wax-price">${item.waxPrice}</span>
+                    <div class="skate-amount">${item.skateReward} $SKATE</div>
+                    <button class="claim-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${item.id}', '_blank')">COLLECT</button>
+                </div>
+            </div>
+        `).join('');
     }
 
-    fetchUniqueCollectorGrid();
+    fetchPortal();
 </script>
 </body>
 </html>
