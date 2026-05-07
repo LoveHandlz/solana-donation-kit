@@ -2,421 +2,131 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | LIVE METADATA GRID</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAX Wharfkit Connection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-deep: #050a1a;
-            --bg-panel: rgba(15, 26, 71, 0.85);
-            --accent-cyan: #00f0ff;
-            --accent-gold: #ffd700;
-            --thps-blue: #0066ff;
-            
-            /* Rarity Tiers */
-            --common: #a0a0a0; 
-            --uncommon: #4caf50; 
-            --rare: #2196f3; 
-            --mythic: #9c27b0; 
-            --legendary: #ff9800; 
-            --epic: #ff2d55; 
-            --ridiculous: #00f0ff;
-        }
-
         body {
-            background-color: var(--bg-deep);
+            background-color: #050a1a;
             color: #fff;
             font-family: 'Orbitron', sans-serif;
-            margin: 0; 
-            padding: 0;
-            /* Preserved Custom Background */
-            background-image: 
-                radial-gradient(circle at 50% 0%, #162a5e 0%, transparent 70%),
-                linear-gradient(0deg, rgba(0,240,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
-            overflow-x: hidden;
-        }
-
-        /* Strict Navigation Ordering */
-        nav {
-            background: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid var(--accent-cyan);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            transition: 0.2s;
-            text-transform: uppercase;
-        }
-
-        nav a:hover, nav a.active {
-            color: var(--accent-cyan);
-            text-shadow: 0 0 10px var(--accent-cyan);
-        }
-
-        header {
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        h1 {
-            font-family: 'Bangers', cursive;
-            font-size: 3.2rem; /* Reduced by 20% for responsiveness */
-            color: #fff;
-            margin: 0;
-            -webkit-text-stroke: 1px var(--thps-blue);
-            text-shadow: 4px 4px 0px var(--thps-blue);
-            letter-spacing: 3px;
-        }
-
-        .subtitle {
-            color: var(--accent-cyan);
-            font-size: 0.8rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-        }
-
-        /* 12-Item Standard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto 50px auto;
-            padding: 0 20px;
-        }
-
-        /* Video Game Character Select Card */
-        .board-card {
-            background: var(--bg-panel);
-            border: 2px solid rgba(255,255,255,0.2);
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 95%, 90% 100%, 0 100%);
             display: flex;
             flex-direction: column;
-            padding: 15px;
-            transition: all 0.2s ease-out;
-        }
-
-        .board-card:hover {
-            border-color: var(--accent-cyan);
-            transform: scale(1.05) translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 240, 255, 0.2);
-            z-index: 10;
-            background: rgba(15, 26, 71, 1);
-        }
-
-        .rarity-badge {
-            position: absolute;
-            top: 5px;
-            left: -5px;
-            padding: 3px 12px;
-            font-size: 0.65rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-            transform: rotate(-3deg);
-            z-index: 5;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        /* Live IPFS Image Setup */
-        .image-container {
-            width: 100%;
-            height: 180px;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
             align-items: center;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-            border-radius: 4px;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
-
-        .nft-image {
-            height: 95%;
-            object-fit: contain;
-            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.8));
+        h1 { color: #00f0ff; }
+        #connect-btn {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 8px;
+            text-transform: uppercase;
             transition: 0.3s;
         }
-
-        .board-card:hover .nft-image {
-            transform: rotate(5deg) scale(1.1);
+        #connect-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 15px #ffd700;
         }
-
-        .board-name {
-            font-family: 'Bangers', cursive;
-            font-size: 1.6rem;
-            color: var(--accent-gold);
-            line-height: 1;
-            margin: 0 0 5px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        #status {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: #4caf50;
         }
-
-        .artist-name {
-            font-size: 0.55rem;
-            color: #aaa;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* THPS HUD Progress Bars */
-        .hud-stats {
-            margin-bottom: 15px;
-        }
-
-        .stat-row {
-            margin-bottom: 6px;
-        }
-
-        .stat-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.55rem;
-            color: var(--accent-cyan);
-            font-weight: 900;
-            margin-bottom: 2px;
-        }
-
-        .stat-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #000;
-            border: 1px solid #333;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .stat-bar-fill {
-            height: 100%;
-            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* Hardware Specs */
-        .hardware-box {
-            background: rgba(0,0,0,0.6);
-            padding: 8px;
-            border-left: 2px solid var(--accent-cyan);
-            font-size: 0.5rem;
-            color: #ccc;
-            line-height: 1.4;
-            margin-bottom: 15px;
-        }
-
-        /* Reward Zone */
-        .reward-zone {
-            margin-top: auto;
-            border-top: 1px dashed rgba(255,255,255,0.2);
-            padding-top: 10px;
-            text-align: right;
-        }
-
-        .reward-label {
-            font-size: 0.5rem;
-            color: #888;
-        }
-
-        .reward-amount {
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-        }
-
-        .board-card:hover .reward-amount {
-            color: var(--accent-gold);
-            text-shadow: 0 0 15px var(--accent-gold);
-        }
-
-        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { 
-            .dashboard-grid { grid-template-columns: 1fr; } 
-            nav ul { flex-wrap: wrap; gap: 15px; padding: 0 10px; }
+        #error-msg {
+            margin-top: 20px;
+            color: #ff2d55;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <ul>
-            <li><a href="#" class="active">HOME</a></li>
-            <li><a href="#">VIDEOS</a></li>
-            <li><a href="#">DEFI</a></li>
-            <li><a href="#">TREASURY</a></li>
-            <li><a href="#">DAO</a></li>
-        </ul>
-    </nav>
+    <h1>WAX MAINNET CONNECTION</h1>
+    <p style="color: #888; margin-bottom: 40px;">Powered by Wharfkit & Antelope</p>
 
-    <header>
-        <h1>BOARD SELECTION</h1>
-        <div class="subtitle">LIVE METADATA // S1 COLLABS</div>
-    </header>
+    <button id="connect-btn">Connect WAX Wallet</button>
+    <div id="status"></div>
+    <div id="error-msg"></div>
 
-    <div class="dashboard-grid" id="roster">
-        <div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;">
-            <h2 style="font-family: 'Bangers', cursive; font-size: 2rem;">IMPORTING ATOMIC ASSETS...</h2>
-        </div>
-    </div>
+    <script type="module">
+        import { SessionKit } from 'https://esm.sh/@wharfkit/session@1.2.3';
+        import { WebRenderer } from 'https://esm.sh/@wharfkit/web-renderer@1.0.4';
+        import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet@1.0.2';
+        import { WalletPluginAnchor } from 'https://esm.sh/@wharfkit/wallet-plugin-anchor@1.0.3';
 
-<script>
-    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
-    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
-    
-    const REWARDS = {
-        'common': { val: 100, color: 'var(--common)' },
-        'uncommon': { val: 250, color: 'var(--uncommon)' },
-        'rare': { val: 500, color: 'var(--rare)' },
-        'mythic': { val: 1000, color: 'var(--mythic)' },
-        'legendary': { val: 2000, color: 'var(--legendary)' },
-        'epic': { val: 5000, color: 'var(--epic)' },
-        'ridiculous': { val: 10000, color: 'var(--ridiculous)' }
-    };
+        // 1. Initialize the UI Renderer (This handles the popup dialogs)
+        const webRenderer = new WebRenderer();
 
-    async function initializeLiveRoster() {
-        const rosterContainer = document.getElementById('roster');
-        const displayData = [];
-        const artistsFound = new Set();
+        // 2. Configure the SessionKit for WAX Mainnet
+        const sessionKit = new SessionKit({
+            appName: 'WAC Artist Collabs',
+            chains: [{
+                id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', // Official WAX Mainnet Chain ID
+                url: 'https://wax.greymass.com', // Official Greymass API Node
+            }],
+            ui: webRenderer,
+            // Include Cloud Wallet (MyCloudWallet) and Anchor as options
+            walletPlugins: [
+                new WalletPluginCloudWallet(),
+                new WalletPluginAnchor()
+            ]
+        });
 
-        try {
-            // Priority Fetch
-            for (let id of TARGET_IDS) {
-                try {
-                    const endpoint = id.length < 10 ? `/assets?template_id=${id}&limit=1` : `/assets/${id}`;
-                    const res = await fetch(`${ATOMIC_API}${endpoint}`);
-                    const json = await res.json();
-                    
-                    if (json.success) {
-                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
-                        if (nft) extractMetadata(nft, artistsFound, displayData);
-                    }
-                } catch (e) { console.warn(`Skipped ${id}`); }
-            }
+        const connectBtn = document.getElementById('connect-btn');
+        const statusDiv = document.getElementById('status');
+        const errorDiv = document.getElementById('error-msg');
 
-            // Fill Remaining
-            if (displayData.length < 12) {
-                const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50&order=desc`);
-                const json = await res.json();
+        // 3. The Login Function
+        async function login() {
+            errorDiv.innerText = ''; // Clear previous errors
+            try {
+                // Trigger the Wharfkit login flow
+                const response = await sessionKit.login();
                 
-                if (json.success) {
-                    for (let nft of json.data) {
-                        if (displayData.length < 12) {
-                            extractMetadata(nft, artistsFound, displayData);
-                        }
-                    }
+                // Extract the connected account name
+                const accountName = response.session.actor.toString();
+                
+                // Update UI
+                connectBtn.style.display = 'none';
+                statusDiv.innerText = `Connected: ${accountName}`;
+                
+                console.log("Full Session Data:", response.session);
+                
+                // If you log in with ufuau.wam, the UI will reflect exactly that.
+                if(accountName === 'ufuau.wam') {
+                    statusDiv.innerHTML += '<br><span style="font-size:1rem; color:#00f0ff;">Welcome back, ufuau.wam!</span>';
                 }
+
+            } catch (error) {
+                console.error("Login failed:", error);
+                errorDiv.innerText = `Error: ${error.message}`;
             }
-
-            renderGrid(displayData, rosterContainer);
-
-        } catch (error) {
-            rosterContainer.innerHTML = `<h2 style="color:var(--epic); text-align:center; grid-column:1/-1;">API Connection Failed</h2>`;
         }
-    }
 
-    function extractMetadata(nft, artistSet, list) {
-        const m = nft.data;
-        const artist = m.artist || "Underground Legend";
+        // 4. Check for an existing session on load
+        async function checkSession() {
+            const session = await sessionKit.restore();
+            if (session) {
+                const accountName = session.actor.toString();
+                connectBtn.style.display = 'none';
+                statusDiv.innerText = `Restored Session: ${accountName}`;
+            }
+        }
+
+        // Attach event listener to the button
+        connectBtn.addEventListener('click', login);
         
-        if (artistSet.has(artist)) return;
-        artistSet.add(artist);
+        // Check if user is already logged in when the page loads
+        checkSession();
 
-        const rarityKey = (m.rarity || "common").toLowerCase();
-        const rarityData = REWARDS[rarityKey] || REWARDS['common'];
-        const imgHash = m.img || (nft.template && nft.template.immutable_data.img);
-
-        list.push({
-            name: nft.name || m.name,
-            artist: artist,
-            rarity: m.rarity || "Common",
-            color: rarityData.color,
-            reward: rarityData.val,
-            imgUrl: imgHash ? `https://ipfs.io/ipfs/${imgHash}` : 'https://via.placeholder.com/300?text=No+Image',
-            speed: parseInt(m.speed) || Math.floor(Math.random() * 6) + 4,
-            pop: parseInt(m.pop) || Math.floor(Math.random() * 6) + 4,
-            bal: parseInt(m.balance) || Math.floor(Math.random() * 6) + 4,
-            deck: m.deck || "Hybrid Creatures",
-            trucks: m.trucks || "Gold/Red",
-            wheels: m.wheels || "Purple",
-            bearings: m.bearings || "RGB"
-        });
-    }
-
-    function renderGrid(list, container) {
-        let html = '';
-        list.forEach(b => {
-            const fontColor = (b.rarity.toLowerCase() === 'common' || b.rarity.toLowerCase() === 'uncommon') ? '#000' : '#fff';
-            html += `
-            <div class="board-card">
-                <div class="rarity-badge" style="background: ${b.color}; color: ${fontColor};">${b.rarity}</div>
-                
-                <div class="image-container">
-                    <img src="${b.imgUrl}" class="nft-image" alt="${b.name}" onerror="this.src='https://via.placeholder.com/300?text=Syncing...'">
-                </div>
-
-                <div class="board-name">${b.name}</div>
-                <div class="artist-name">PRO: <span style="color:var(--accent-cyan)">${b.artist}</span></div>
-
-                <div class="hud-stats">
-                    <div class="stat-row">
-                        <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
-                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);" data-target="${b.speed * 10}%"></div></div>
-                    </div>
-                    <div class="stat-row">
-                        <div class="stat-label">POP <span>${b.pop}/10</span></div>
-                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${b.pop * 10}%"></div></div>
-                    </div>
-                    <div class="stat-row">
-                        <div class="stat-label">BALANCE <span>${b.bal}/10</span></div>
-                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${b.bal * 10}%"></div></div>
-                    </div>
-                </div>
-
-                <div class="hardware-box">
-                    <strong>DECK:</strong> ${b.deck}<br>
-                    <strong>TRUCKS:</strong> ${b.trucks}<br>
-                    <strong>WHEELS:</strong> ${b.wheels} | <strong>BRG:</strong> ${b.bearings}
-                </div>
-
-                <div class="reward-zone">
-                    <div class="reward-label">COLLECTION VALUE</div>
-                    <div class="reward-amount">${b.reward.toLocaleString()} $SKATE</div>
-                </div>
-            </div>`;
-        });
-
-        container.innerHTML = html;
-
-        // Apply visual HUD progression delay
-        setTimeout(() => {
-            const bars = document.querySelectorAll('.stat-bar-fill');
-            bars.forEach(bar => { bar.style.width = bar.getAttribute('data-target'); });
-        }, 150);
-    }
-
-    initializeLiveRoster();
-</script>
+    </script>
 </body>
 </html>
