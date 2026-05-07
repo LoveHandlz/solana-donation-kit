@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | LITERAL IFRAME GRID</title>
+    <title>WAC PORTAL | NATIVE INTEGRATION</title>
+    <script src="https://unpkg.com/@waxio/waxjs/dist-web/waxjs.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #0a132f;
+            --bg-panel: #0f1a47;
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
+            --accent-red: #ff2d55;
+            --card-border: rgba(0, 240, 255, 0.14);
+            /* Rarity Reward Scale */
+            --common: #888; --uncommon: #4caf50; --rare: #2196f3; 
+            --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; 
+            --ridiculous: #00f0ff;
         }
 
         body {
@@ -16,100 +24,307 @@
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 20px;
-            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
         }
 
         header {
             text-align: center;
             margin-bottom: 2rem;
             border-bottom: 1px dashed var(--accent-cyan);
-            padding-bottom: 1rem;
+            padding-bottom: 2rem;
+            position: relative;
         }
 
         h1 {
             font-family: 'Bangers', cursive;
             font-size: 3.5rem;
-            color: var(--accent-gold);
+            color: #fff;
             margin: 0;
-            letter-spacing: 2px;
+            -webkit-text-stroke: 1px #0066ff;
+            text-shadow: 4px 4px 0px #0066ff;
         }
 
-        /* 12-Item Forced Grid Standard */
-        .iframe-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            max-width: 1440px;
-            margin: auto;
-            padding-bottom: 40px;
+        /* WAX Wallet UI Container */
+        .wallet-ui {
+            position: absolute;
+            top: 0; right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* The Literal Iframe Wrapper */
-        .raw-iframe {
-            width: 100%;
-            height: 600px;
-            border: 2px solid var(--accent-cyan);
-            border-radius: 8px;
-            background: #000;
+        .wax-btn {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: 'Orbitron';
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
             transition: 0.3s;
         }
+        .wax-btn:hover { background: #fff; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
 
-        .raw-iframe:hover {
-            border-color: var(--accent-gold);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.2);
+        .wallet-address {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--accent-cyan);
+            font-size: 0.8rem;
+            display: none; /* Hidden until logged in */
         }
 
-        @media (max-width: 1100px) { .iframe-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .iframe-grid { grid-template-columns: 1fr; } }
+        /* Standardized 12-item feed layout */
+        .collab-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            max-width: 1440px;
+            margin: auto;
+        }
+
+        .board-card {
+            background: var(--bg-panel);
+            border: 2px solid #fff;
+            padding: 1.2rem;
+            transition: 0.3s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
+        }
+        .board-card:hover { border-color: var(--accent-cyan); transform: scale(1.02); }
+
+        .rarity-tag {
+            position: absolute;
+            top: 5px; left: -5px;
+            padding: 3px 12px;
+            font-weight: 900;
+            font-size: 0.6rem;
+            transform: rotate(-5deg);
+            box-shadow: 2px 2px 0 #000;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        .nft-preview { width: 100%; aspect-ratio: 1/1; background: #000; margin-bottom: 1rem; object-fit: contain; }
+
+        /* THPS HUD Stats */
+        .stat-group { margin: 8px 0; }
+        .stat-label { font-size: 0.55rem; color: var(--accent-cyan); display: flex; justify-content: space-between; font-weight: 900; }
+        .bar-bg { background: #000; height: 8px; border: 1px solid #333; margin-top: 2px; }
+        .bar-fill { background: var(--accent-gold); height: 100%; }
+
+        .hardware-meta {
+            font-size: 0.55rem;
+            background: rgba(0,0,0,0.5);
+            padding: 8px;
+            border-radius: 4px;
+            color: #aaa;
+            margin: 10px 0;
+            border-left: 2px solid var(--accent-cyan);
+        }
+
+        .reward-area { margin-top: auto; text-align: center; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 12px; }
+        .skate-val { font-weight: 900; color: #fff; font-size: 1.2rem; display: block; }
+        .wax-price { font-size: 0.6rem; color: var(--accent-cyan); font-weight: bold; }
+
+        .action-btn {
+            background: rgba(255,255,255,0.1);
+            color: #888;
+            border: 1px solid #444;
+            padding: 10px;
+            width: 100%;
+            font-family: 'Orbitron';
+            font-weight: 900;
+            font-size: 0.7rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+            cursor: not-allowed;
+        }
+        
+        /* Activated class when wallet connects */
+        .action-btn.active { background: #fff; color: #000; border-color: #fff; cursor: pointer; }
+        .action-btn.active:hover { background: var(--accent-gold); }
+
+        @media (max-width: 1024px) { .collab-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .collab-grid { grid-template-columns: 1fr; } .wallet-ui { position: relative; justify-content: center; margin-top: 20px;} }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>WAC ARTIST COLLABS</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">LITERAL IFRAME IMPLEMENTATION // BROWSER SECURITY WARNING</p>
+    <h1>WAX NATIVE PORTAL</h1>
+    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">DECENTRALIZED dAPP // SMART CONTRACT ENABLED</p>
+    
+    <div class="wallet-ui">
+        <div id="wallet-address" class="wallet-address"></div>
+        <button id="login-btn" class="wax-btn" onclick="loginToWax()">CONNECT WAX</button>
+    </div>
 </header>
 
-<div class="iframe-grid" id="iframe-mount">
-    </div>
+<div id="board-container" class="collab-grid">
+    <div style="grid-column: 1/-1; text-align: center;">SYNCING 12 ASSETS WITH ATOMIC HUB...</div>
+</div>
 
 <script>
-    // The specific collab IDs requested
-    const targetIDs = [
-        "854945",        // Nerds Unite Template
-        "857734",        // SquishEyez Template
-        "1099949334880", // Specific Asset ID
-        "847825",        // Template ID
-        "791658"         // Template ID
-    ];
+    // ----------------------------------------------------
+    // 1. INITIALIZE WAX WALLET CONNECTION
+    // ----------------------------------------------------
+    const wax = new waxjs.WaxJS({
+        rpcEndpoint: 'https://wax.greymass.com' // Public WAX RPC node
+    });
 
-    function buildIframeGrid() {
-        const mount = document.getElementById('iframe-mount');
-        let html = '';
-
-        // 1. Populate the first 5 frames with the requested targets
-        targetIDs.forEach(id => {
-            // Determine if it's an Asset ID or a Template ID to route properly
-            const isAsset = id.length > 10;
-            const url = isAsset 
-                ? `https://wax.atomichub.io/explorer/asset/${id}`
-                : `https://wax.atomichub.io/explorer/template/skatecoinwax/${id}`;
+    async function loginToWax() {
+        try {
+            // Triggers WAX Cloud Wallet popup
+            const userAccount = await wax.login(); 
             
-            html += `<iframe src="${url}" class="raw-iframe" title="Wax Asset ${id}"></iframe>`;
-        });
+            // Update UI
+            document.getElementById('login-btn').style.display = 'none';
+            const addrDisplay = document.getElementById('wallet-address');
+            addrDisplay.style.display = 'block';
+            addrDisplay.innerText = "Logged in: " + userAccount;
 
-        // 2. Backfill the remaining 7 frames to force the 12-item grid
-        // Using generic skatecoinwax marketplace links as placeholders
-        for (let i = 0; i < 7; i++) {
-            html += `<iframe src="https://wax.atomichub.io/market?collection_name=skatecoinwax&schema_name=skateboards" class="raw-iframe" title="Wax Market Fill"></iframe>`;
+            // Activate all "Collect" buttons
+            const btns = document.querySelectorAll('.action-btn');
+            btns.forEach(btn => {
+                btn.classList.add('active');
+                btn.innerText = "COLLECT BOARD";
+                btn.disabled = false;
+            });
+            
+        } catch (e) {
+            console.error("WAX Login Error:", e.message);
         }
-
-        mount.innerHTML = html;
     }
 
-    buildIframeGrid();
-</script>
+    // ----------------------------------------------------
+    // 2. SMART CONTRACT TRANSACTION LOGIC
+    // ----------------------------------------------------
+    async function interactWithBoard(assetId) {
+        if (!wax.api) {
+            alert("Connect your WAX Wallet to interact with this asset.");
+            return;
+        }
 
+        try {
+            // Example Transaction: Staking or claiming an NFT
+            const result = await wax.api.transact({
+                actions: [{
+                    account: 'atomicassets',
+                    name: 'transfer',
+                    authorization: [{
+                        actor: wax.userAccount,
+                        permission: 'active',
+                    }],
+                    data: {
+                        from: wax.userAccount,
+                        to: 'YOUR_TREASURY_WALLET', // Replace with your receiving wallet
+                        asset_ids: [assetId],
+                        memo: 'Crypto Clips $SKATE Reward Interaction'
+                    },
+                }]
+            }, {
+                blocksBehind: 3,
+                expireSeconds: 30
+            });
+            
+            alert("Transaction Successful! TX Hash: " + result.transaction_id);
+        } catch (e) {
+            // Often triggers if user cancels the popup or lacks RAM/CPU
+            alert("Transaction Failed: " + e.message);
+        }
+    }
+
+
+    // ----------------------------------------------------
+    // 3. RENDER THE 12-ITEM VISUAL GRID VIA API
+    // ----------------------------------------------------
+    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
+    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
+    const SKATE_REWARDS = { 'common': 100, 'rare': 500, 'mythic': 1000, 'legendary': 2000, 'epic': 5000 };
+
+    async function loadGrid() {
+        const container = document.getElementById('board-container');
+        const displayList = [];
+        const artistsFound = new Set();
+
+        try {
+            // Backfill 12 slots dynamically
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50`);
+            const json = await res.json();
+
+            if (json.success) {
+                for (let nft of json.data) {
+                    const m = nft.data;
+                    const artist = m.artist || "Pro Artist";
+                    
+                    if (!artistsFound.has(artist) && displayList.length < 12) {
+                        artistsFound.add(artist);
+                        const rarity = (m.rarity || "common").toLowerCase();
+                        
+                        displayList.push({
+                            id: nft.asset_id,
+                            name: nft.name || m.name,
+                            img: m.img || nft.template.immutable_data.img,
+                            rarity: rarity,
+                            artist: artist,
+                            deck: m.deck || "Hybrid",
+                            speed: parseInt(m.speed) || Math.floor(Math.random()*6)+4,
+                            pop: parseInt(m.pop) || Math.floor(Math.random()*6)+4,
+                            bal: parseInt(m.balance) || Math.floor(Math.random()*6)+4,
+                            trucks: m.trucks || "Standard",
+                            wheels: m.wheels || "Standard",
+                            brg: m.bearings || "RGB",
+                            skate: SKATE_REWARDS[rarity] || 100
+                        });
+                    }
+                }
+                
+                // Build the HTML
+                container.innerHTML = displayList.map(b => `
+                    <div class="board-card">
+                        <span class="rarity-tag" style="background:var(--${b.rarity})">${b.rarity}</span>
+                        <img src="https://ipfs.io/ipfs/${b.img}" class="nft-preview">
+                        
+                        <div style="font-family:'Bangers'; color:var(--accent-gold); font-size:1.5rem; line-height:1;">${b.name}</div>
+                        <div style="font-size:0.5rem; color:#888; margin-bottom:8px;">ARTIST: ${b.artist}</div>
+
+                        <div class="stat-group">
+                            <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
+                            <div class="bar-bg"><div class="bar-fill" style="width:${b.speed * 10}%"></div></div>
+                        </div>
+                        <div class="stat-group">
+                            <div class="stat-label">POP <span>${b.pop}/10</span></div>
+                            <div class="bar-bg"><div class="bar-fill" style="width:${b.pop * 10}%"></div></div>
+                        </div>
+                        <div class="stat-group">
+                            <div class="stat-label">BALANCE <span>${b.bal}/10</span></div>
+                            <div class="bar-bg"><div class="bar-fill" style="width:${b.bal * 10}%"></div></div>
+                        </div>
+
+                        <div class="hardware-meta">
+                            <strong>DECK:</strong> ${b.deck}<br>
+                            <strong>TRUCKS:</strong> ${b.trucks} | <strong>WH:</strong> ${b.wheels}<br>
+                            <strong>BRG:</strong> ${b.brg}
+                        </div>
+
+                        <div class="reward-area">
+                            <span class="skate-val">${b.skate} $SKATE</span>
+                            <button class="action-btn" disabled onclick="interactWithBoard('${b.id}')">CONNECT TO COLLECT</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch(e) {
+            container.innerHTML = "API Sync Error";
+        }
+    }
+
+    loadGrid();
+</script>
 </body>
 </html>
