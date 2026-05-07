@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC PORTAL | FULL INVENTORY</title>
+    <title>WAC PORTAL | FULL ECOSYSTEM</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,56 +11,33 @@
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
             --thps-blue: #0066ff;
-            
-            /* Rarity Tiers */
-            --common: #a0a0a0; --uncommon: #4caf50; --rare: #2196f3; 
-            --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; --ridiculous: #00f0ff;
+            --epic: #ff2d55;
         }
 
         body {
-            background-color: var(--bg-deep);
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
+            background-color: var(--bg-deep); color: #fff; font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 0;
-            background-image: 
-                radial-gradient(circle at 50% 0%, #162a5e 0%, transparent 70%),
-                linear-gradient(0deg, rgba(0,240,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px);
+            background-image: radial-gradient(circle at 50% 0%, #162a5e 0%, transparent 70%),
+                              linear-gradient(0deg, rgba(0,240,255,0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            overflow-x: hidden; display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Standardized Navigation */
-        nav {
-            background: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid var(--accent-cyan);
-            padding: 15px 0;
-            width: 100%;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
+        /* Navigation */
+        nav { background: rgba(0, 0, 0, 0.8); border-bottom: 2px solid var(--accent-cyan); padding: 15px 0; width: 100%; position: sticky; top: 0; z-index: 100; }
         nav ul { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; gap: 40px; }
-        nav a { color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 900; letter-spacing: 2px; transition: 0.2s; text-transform: uppercase; }
+        nav a { color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; transition: 0.2s; }
         nav a:hover, nav a.active { color: var(--accent-cyan); text-shadow: 0 0 10px var(--accent-cyan); }
 
         header { text-align: center; margin: 2rem 0; }
-        h1 {
-            font-family: 'Bangers', cursive;
-            font-size: 3.5rem;
-            color: #fff;
-            margin: 0;
-            -webkit-text-stroke: 1px var(--thps-blue);
-            text-shadow: 4px 4px 0px var(--thps-blue);
-            letter-spacing: 3px;
-        }
+        h1 { font-family: 'Bangers', cursive; font-size: 3.5rem; color: #fff; margin: 0; -webkit-text-stroke: 1px var(--thps-blue); text-shadow: 4px 4px 0px var(--thps-blue); letter-spacing: 3px; }
 
-        /* Wallet Connection UI */
-        .wallet-ui-container { margin-bottom: 30px; text-align: center; }
+        /* Wallet & DeFi Control Panel */
+        .control-panel {
+            background: rgba(0,0,0,0.6); border: 1px solid var(--accent-cyan); border-radius: 8px;
+            padding: 20px; text-align: center; width: 90%; max-width: 800px; margin-bottom: 30px;
+        }
         
         .connect-btn {
             background: var(--accent-gold); color: #000; border: none; padding: 12px 30px;
@@ -70,45 +47,34 @@
         }
         .connect-btn:hover { background: #fff; box-shadow: 0 0 20px var(--accent-gold); transform: scale(1.05); }
 
-        .status-box {
-            background: rgba(0,0,0,0.5); border-left: 3px solid var(--accent-cyan);
-            padding: 15px 25px; font-size: 1rem; display: none; margin-top: 10px;
-        }
-        .wallet-text { color: var(--accent-cyan); font-weight: 900; font-size: 1.3rem; display: block; margin-top: 5px; }
+        .defi-dashboard { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: center; }
+        .balance-box { background: rgba(15, 26, 71, 0.8); padding: 15px; border-left: 3px solid var(--accent-gold); text-align: left; }
+        .balance-label { font-size: 0.6rem; color: #888; letter-spacing: 2px; }
+        .balance-val { font-size: 1.5rem; font-weight: 900; color: #fff; }
+        .skate-val { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
 
-        /* The Grid: Restored to 4-Columns for Full Inventory */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto 50px auto;
-            padding: 0 20px;
-            width: 100%;
+        .action-btn {
+            background: var(--epic); color: #fff; border: none; padding: 15px; width: 100%;
+            font-family: 'Orbitron'; font-weight: 900; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255, 45, 85, 0.4); transition: 0.3s;
         }
+        .action-btn:hover { background: #fff; color: var(--epic); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); }
+
+        /* The Grid */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto 50px auto; padding: 0 20px; width: 100%; }
 
         /* Video Game Card */
-        .board-card {
-            background: var(--bg-panel); border: 2px solid rgba(255,255,255,0.2); position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%);
-            display: flex; flex-direction: column; padding: 15px; transition: all 0.2s ease-out;
-        }
+        .board-card { background: var(--bg-panel); border: 2px solid rgba(255,255,255,0.2); position: relative; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); display: flex; flex-direction: column; padding: 15px; transition: all 0.2s ease-out; }
         .board-card:hover { border-color: var(--accent-cyan); transform: scale(1.05) translateY(-5px); box-shadow: 0 10px 25px rgba(0, 240, 255, 0.2); z-index: 10; background: rgba(15, 26, 71, 1); }
 
-        .rarity-badge {
-            position: absolute; top: 5px; left: -5px; padding: 3px 12px; font-size: 0.65rem; font-weight: 900;
-            text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,0.5); transform: rotate(-3deg); z-index: 5;
-        }
+        .rarity-badge { position: absolute; top: 5px; left: -5px; padding: 3px 12px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,0.5); transform: rotate(-3deg); z-index: 5; background: #333; color: #fff;}
 
-        .image-container {
-            width: 100%; height: 200px; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
-            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; border-radius: 4px;
-        }
+        .image-container { width: 100%; height: 200px; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; border-radius: 4px; }
         .nft-image { height: 95%; object-fit: contain; filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.8)); transition: 0.3s; }
         .board-card:hover .nft-image { transform: rotate(5deg) scale(1.1); }
 
         .board-name { font-family: 'Bangers', cursive; font-size: 1.4rem; color: var(--accent-gold); line-height: 1; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .artist-name { font-size: 0.55rem; color: #aaa; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .schema-name { font-size: 0.55rem; color: var(--accent-cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
         /* Stats HUD */
         .hud-stats { margin-bottom: 15px; }
@@ -117,13 +83,7 @@
         .stat-bar-bg { width: 100%; height: 6px; background: #000; border: 1px solid #333; border-radius: 2px; overflow: hidden; }
         .stat-bar-fill { height: 100%; transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        .hardware-box { background: rgba(0,0,0,0.6); padding: 8px; border-left: 2px solid var(--accent-cyan); font-size: 0.5rem; color: #ccc; line-height: 1.4; margin-bottom: 15px; }
-        
-        .reward-zone { margin-top: auto; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 10px; text-align: right; }
-        .reward-label { font-size: 0.5rem; color: #888; }
-        .reward-amount { font-size: 1.2rem; font-weight: 900; color: #fff; }
-
-        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } .defi-dashboard { grid-template-columns: 1fr; } }
         @media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; } nav ul { flex-wrap: wrap; gap: 15px; padding: 0 10px; } }
     </style>
 
@@ -146,23 +106,31 @@
     </nav>
 
     <header>
-        <h1>YOUR GARAGE</h1>
-        <div class="subtitle">FULL INVENTORY SCAN</div>
+        <h1>COLLECTION PORTAL</h1>
+        <div class="subtitle" id="portal-subtitle">WCW CONNECTION REQUIRED</div>
     </header>
 
-    <div class="wallet-ui-container">
+    <div class="control-panel">
         <button id="connect-btn" class="connect-btn">CONNECT WALLET</button>
-        <div id="status-box" class="status-box">
-            CONNECTION SECURED
-            <span id="wallet-address" class="wallet-text"></span>
+        
+        <div id="defi-dashboard" class="defi-dashboard">
+            <div class="balance-box">
+                <div class="balance-label">CONNECTED WALLET</div>
+                <div class="balance-val" id="wallet-address" style="color: var(--accent-cyan);">--</div>
+            </div>
+            <div class="balance-box">
+                <div class="balance-label">ALCOR TOKEN BALANCES</div>
+                <div class="balance-val skate-val" id="skate-bal">0.0000 SKATE</div>
+                <div class="balance-val" id="wax-bal" style="font-size: 1rem; margin-top:5px;">0.00000000 WAX</div>
+            </div>
+            <div>
+                <button class="action-btn" id="donate-btn">DONATE 1 WAX</button>
+                <div style="font-size: 0.5rem; color: #888; margin-top: 5px;">TO: SKATECOINWAX TREASURY</div>
+            </div>
         </div>
     </div>
 
-    <div class="dashboard-grid" id="roster">
-        <div id="placeholder-msg" style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 20px;">
-            <p style="letter-spacing: 2px; font-size: 0.8rem;">CONNECT WALLET TO SCAN INVENTORY</p>
-        </div>
-    </div>
+    <div class="dashboard-grid" id="roster"></div>
 
     <script type="module">
         import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
@@ -170,44 +138,35 @@
         import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet?bundle';
         import { WalletPluginAnchor } from 'https://esm.sh/@wharfkit/wallet-plugin-anchor?bundle';
 
+        // --- CONFIGURATION ---
         const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
-        
-        // Custom Reward Scale mapping
-        const REWARDS = {
-            'common': { val: 100, color: 'var(--common)' },
-            'uncommon': { val: 250, color: 'var(--uncommon)' },
-            'rare': { val: 500, color: 'var(--rare)' },
-            'mythic': { val: 1000, color: 'var(--mythic)' },
-            'legendary': { val: 2000, color: 'var(--legendary)' },
-            'epic': { val: 5000, color: 'var(--epic)' },
-            'ridiculous': { val: 10000, color: 'var(--ridiculous)' }
-        };
+        const WAX_RPC = "https://wax.greymass.com";
+        const SKATE_TOKEN_CONTRACT = "YOUR_SKATE_CONTRACT"; // << CHANGE THIS TO YOUR ACTUAL SKATE TOKEN CONTRACT
+        const TREASURY_WALLET = "skatecoinwax"; 
 
         const sessionKit = new SessionKit({
             appName: 'WAC_Garage',
-            chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: 'https://wax.greymass.com' }],
+            chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
             ui: new WebRenderer(),
             walletPlugins: [ new WalletPluginCloudWallet(), new WalletPluginAnchor() ]
         });
 
+        let activeSession = null;
+
+        // UI Elements
         const connectBtn = document.getElementById('connect-btn');
-        const statusBox = document.getElementById('status-box');
+        const defiDash = document.getElementById('defi-dashboard');
         const walletAddressSpan = document.getElementById('wallet-address');
+        const skateBalSpan = document.getElementById('skate-bal');
+        const waxBalSpan = document.getElementById('wax-bal');
         const rosterContainer = document.getElementById('roster');
+        const donateBtn = document.getElementById('donate-btn');
 
         // 1. Wharfkit Login Trigger
         connectBtn.addEventListener('click', async () => {
             try {
                 const response = await sessionKit.login();
-                const accountName = response.session.actor.toString();
-                
-                connectBtn.style.display = 'none';
-                statusBox.style.display = 'inline-block';
-                walletAddressSpan.innerText = accountName;
-                document.getElementById('placeholder-msg').innerHTML = "SCANNING BLOCKCHAIN...";
-
-                fetchUserInventory(accountName);
-
+                activateUserSession(response.session);
             } catch (error) {
                 alert("Login Failed: " + error.message);
             }
@@ -215,102 +174,141 @@
 
         // Auto-Restore Session
         sessionKit.restore().then((session) => {
-            if (session) {
-                const accountName = session.actor.toString();
-                connectBtn.style.display = 'none';
-                statusBox.style.display = 'inline-block';
-                walletAddressSpan.innerText = accountName;
-                document.getElementById('placeholder-msg').innerHTML = "SCANNING BLOCKCHAIN...";
+            if (session) activateUserSession(session);
+        });
+
+        function activateUserSession(session) {
+            activeSession = session;
+            const accountName = session.actor.toString();
+            
+            connectBtn.style.display = 'none';
+            defiDash.style.display = 'grid';
+            walletAddressSpan.innerText = accountName;
+            
+            fetchTokenBalances(accountName);
+            fetchFullCollection(accountName);
+        }
+
+        // 2. Fetch WAX and $SKATE Token Balances via RPC
+        async function fetchTokenBalances(account) {
+            try {
+                // Fetch WAX
+                const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
+                    method: 'POST', body: JSON.stringify({ code: 'eosio.token', account: account, symbol: 'WAX' })
+                });
+                const waxJson = await waxRes.json();
+                waxBalSpan.innerText = waxJson[0] || "0.00000000 WAX";
+
+                // Fetch $SKATE
+                const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
+                    method: 'POST', body: JSON.stringify({ code: SKATE_TOKEN_CONTRACT, account: account, symbol: 'SKATE' })
+                });
+                const skateJson = await skateRes.json();
+                skateBalSpan.innerText = skateJson[0] || "0.0000 SKATE";
+
+            } catch (e) {
+                console.warn("Failed to fetch balances", e);
+            }
+        }
+
+        // 3. Smart Contract Transaction: Donate 1 WAX
+        donateBtn.addEventListener('click', async () => {
+            if(!activeSession) return;
+            try {
+                const action = {
+                    account: 'eosio.token',
+                    name: 'transfer',
+                    authorization: [activeSession.permissionLevel],
+                    data: {
+                        from: activeSession.actor,
+                        to: TREASURY_WALLET,
+                        quantity: '1.00000000 WAX',
+                        memo: 'Crypto Clips Platform Donation'
+                    }
+                };
                 
-                fetchUserInventory(accountName);
+                const result = await activeSession.transact({ action });
+                alert(`Donation Successful!\nTX: ${result.response.transaction_id}`);
+                
+                // Refresh balances after donation
+                fetchTokenBalances(activeSession.actor.toString());
+                
+            } catch (error) {
+                alert("Transaction Failed: " + error.message);
             }
         });
 
-        // 2. Fetch ALL Inventory via AtomicAssets
-        async function fetchUserInventory(ownerAddress) {
+        // 4. Fetch ENTIRE skatecoinwax Collection (No Schema Filter)
+        async function fetchFullCollection(ownerAddress) {
+            rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;"><h2>SYNCING FULL SKATECOINWAX COLLECTION...</h2></div>`;
             try {
-                // Changed limit to 100 to pull the full garage. 
-                const endpoint = `${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&owner=${ownerAddress}&limit=100&order=desc`;
+                // Removed schema_name to pull everything in the collection
+                const endpoint = `${ATOMIC_API}/assets?collection_name=skatecoinwax&owner=${ownerAddress}&limit=100&order=desc`;
                 const res = await fetch(endpoint);
                 const json = await res.json();
 
                 if (json.success) {
                     if (json.data.length === 0) {
-                        rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--epic);">NO BOARDS FOUND IN WALLET: ${ownerAddress}</div>`;
+                        rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--epic);">NO SKATECOINWAX ASSETS FOUND IN WALLET.</div>`;
                         return;
                     }
-                    // Update header to show count
-                    document.querySelector('.subtitle').innerHTML = `FULL INVENTORY SCAN // ${json.data.length} BOARDS DETECTED`;
-                    renderInventory(json.data);
+                    document.getElementById('portal-subtitle').innerText = `FULL INVENTORY // ${json.data.length} ASSETS DETECTED`;
+                    renderFullInventory(json.data);
                 }
             } catch (e) {
                 rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: red;">API SYNC FAILED</div>`;
             }
         }
 
-        // 3. Render the Gamified Data Cards
-        function renderInventory(assets) {
+        // 5. Dynamic Render Logic
+        function renderFullInventory(assets) {
             let html = '';
             
             assets.forEach(nft => {
                 const m = nft.data;
-                const rarityKey = (m.rarity || "common").toLowerCase();
-                const rarityData = REWARDS[rarityKey] || REWARDS['common'];
+                const schema = nft.schema.schema_name;
                 const imgHash = m.img || (nft.template && nft.template.immutable_data.img);
+                const imgUrl = imgHash ? `https://ipfs.io/ipfs/${imgHash}` : 'https://via.placeholder.com/300?text=No+Image';
                 
-                const boardData = {
-                    name: nft.name || m.name,
-                    artist: m.artist || "Pro Artist",
-                    rarity: m.rarity || "Common",
-                    color: rarityData.color,
-                    reward: rarityData.val,
-                    imgUrl: imgHash ? `https://ipfs.io/ipfs/${imgHash}` : 'https://via.placeholder.com/300?text=No+Image',
-                    speed: parseInt(m.speed) || 5,
-                    pop: parseInt(m.pop) || 5,
-                    bal: parseInt(m.balance) || 5,
-                    deck: m.deck || "Hybrid Creatures",
-                    trucks: m.trucks || "Standard",
-                    wheels: m.wheels || "Standard",
-                    bearings: m.bearings || "Standard"
-                };
-
-                const fontColor = (boardData.rarity.toLowerCase() === 'common' || boardData.rarity.toLowerCase() === 'uncommon') ? '#000' : '#fff';
-
                 html += `
                 <div class="board-card">
-                    <div class="rarity-badge" style="background: ${boardData.color}; color: ${fontColor};">${boardData.rarity}</div>
+                    <div class="rarity-badge">${m.rarity || "Standard"}</div>
                     
                     <div class="image-container">
-                        <img src="${boardData.imgUrl}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Error'">
+                        <img src="${imgUrl}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Error'">
                     </div>
 
-                    <div class="board-name">${boardData.name}</div>
-                    <div class="artist-name">PRO: <span style="color:var(--accent-cyan)">${boardData.artist}</span></div>
+                    <div class="board-name">${nft.name || m.name}</div>
+                    <div class="schema-name">SCHEMA: ${schema}</div>`;
 
+                // If it's a skateboard, display the THPS Stats HUD
+                if (schema === 'skateboards' && m.speed) {
+                    html += `
                     <div class="hud-stats">
                         <div class="stat-row">
-                            <div class="stat-label">SPEED <span>${boardData.speed}/10</span></div>
-                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);" data-target="${boardData.speed * 10}%"></div></div>
+                            <div class="stat-label">SPEED <span>${m.speed}/10</span></div>
+                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);" data-target="${m.speed * 10}%"></div></div>
                         </div>
                         <div class="stat-row">
-                            <div class="stat-label">POP <span>${boardData.pop}/10</span></div>
-                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${boardData.pop * 10}%"></div></div>
+                            <div class="stat-label">POP <span>${m.pop}/10</span></div>
+                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${m.pop * 10}%"></div></div>
                         </div>
                         <div class="stat-row">
-                            <div class="stat-label">BALANCE <span>${boardData.bal}/10</span></div>
-                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${boardData.bal * 10}%"></div></div>
+                            <div class="stat-label">BALANCE <span>${m.balance}/10</span></div>
+                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${m.balance * 10}%"></div></div>
                         </div>
                     </div>
+                    <div style="font-size: 0.5rem; color: #ccc; margin-bottom: 10px; line-height: 1.4;">
+                        <strong>TRUCKS:</strong> ${m.trucks || 'Standard'} | <strong>WHEELS:</strong> ${m.wheels || 'Standard'}
+                    </div>`;
+                } else {
+                    // For non-skateboard assets (DeFi bonds, passes, etc.)
+                    html += `<div style="font-size: 0.65rem; color: #888; margin-bottom: 15px; flex: 1;">No performance metadata available for this asset type.</div>`;
+                }
 
-                    <div class="hardware-box">
-                        <strong>DECK:</strong> ${boardData.deck}<br>
-                        <strong>TRUCKS:</strong> ${boardData.trucks}<br>
-                        <strong>WHEELS:</strong> ${boardData.wheels} | <strong>BRG:</strong> ${boardData.bearings}
-                    </div>
-
-                    <div class="reward-zone">
-                        <div class="reward-label">COLLECTION VALUE</div>
-                        <div class="reward-amount">${boardData.reward.toLocaleString()} $SKATE</div>
+                html += `
+                    <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; font-size: 0.5rem; color: #555; text-align: right;">
+                        MINT #${nft.template_mint || "N/A"}
                     </div>
                 </div>`;
             });
