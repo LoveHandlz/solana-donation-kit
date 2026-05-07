@@ -68,7 +68,19 @@
         }
 
         .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; min-height: 70vh; }
-        .grid-header { text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; letter-spacing: 2px; margin-bottom: 30px; font-size: 2.5rem; text-transform: uppercase; }
+        
+        /* --- FILTER BAR --- */
+        .filter-bar {
+            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
+            background: rgba(0, 0, 0, 0.6); padding: 15px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
+        }
+        .filter-bar input, .filter-bar select {
+            background: #000; color: var(--accent-cyan); border: 1px solid var(--accent-cyan);
+            padding: 10px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900;
+            border-radius: 4px; outline: none; text-transform: uppercase;
+        }
+        .filter-bar input::placeholder { color: rgba(0, 240, 255, 0.4); }
         
         .dashboard-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;
@@ -162,8 +174,48 @@
 </div>
 
 <div class="dashboard-wrapper">
-    <h2 id="grid-title" class="grid-header">CONNECT WALLET</h2>
-    <div class="dashboard-grid" id="main-grid"></div>
+    
+    <div class="filter-bar" id="inventory-filters" style="display:none;">
+        <input type="text" id="filter-name" placeholder="SEARCH NAME...">
+        <select id="filter-rarity">
+            <option value="all">ALL RARITIES</option>
+            <option value="common">COMMON</option>
+            <option value="uncommon">UNCOMMON</option>
+            <option value="rare">RARE</option>
+            <option value="mythic">MYTHIC</option>
+            <option value="legendary">LEGENDARY</option>
+            <option value="epic">EPIC</option>
+        </select>
+        <select id="filter-wheel-color">
+            <option value="all">WHEEL COLOR: ALL</option>
+            <option value="red">RED</option>
+            <option value="blue">BLUE</option>
+            <option value="green">GREEN</option>
+            <option value="yellow">YELLOW</option>
+            <option value="purple">PURPLE</option>
+            <option value="pink">PINK</option>
+            <option value="white">WHITE</option>
+            <option value="black">BLACK</option>
+            <option value="gold">GOLD</option>
+        </select>
+        <select id="filter-truck-color">
+            <option value="all">TRUCK COLOR: ALL</option>
+            <option value="red">RED</option>
+            <option value="blue">BLUE</option>
+            <option value="green">GREEN</option>
+            <option value="yellow">YELLOW</option>
+            <option value="purple">PURPLE</option>
+            <option value="pink">PINK</option>
+            <option value="white">WHITE</option>
+            <option value="black">BLACK</option>
+            <option value="silver">SILVER</option>
+            <option value="gold">GOLD</option>
+        </select>
+    </div>
+
+    <div class="dashboard-grid" id="main-grid">
+        <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; text-transform: uppercase;">CONNECT WALLET TO OPEN TRUNK</h3>
+    </div>
 </div>
 
 <footer style="margin-top: 50px; padding: 60px; background: rgba(0,0,0,0.8); border-top: 1px solid var(--card-border); text-align: center;">
@@ -210,7 +262,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.9.0',
+        appName: 'SkateparkV1.9.2',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -219,6 +271,7 @@
     let sWax = 0;
     let currentSession = null;
     let currentSchema = 'skateboards'; 
+    let cachedInventoryData = [];
 
     // --- FRICTIONLESS AUTO-LOGIN ---
     sessionKit.restore().then(s => {
@@ -237,18 +290,14 @@
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${schema}`).classList.add('active');
 
-        const titles = {
-            'skateboards': 'COMPLETE SKATEBOARDS',
-            'decks': 'DECKS',
-            'wheels': 'WHEELS',
-            'trucks': 'TRUCKS'
-        };
-        
+        // Reset Filters
+        document.getElementById('filter-name').value = '';
+        document.getElementById('filter-rarity').value = 'all';
+        document.getElementById('filter-wheel-color').value = 'all';
+        document.getElementById('filter-truck-color').value = 'all';
+
         if (currentSession) {
-            document.getElementById('grid-title').innerText = titles[schema] || schema.toUpperCase();
-            loadInventory(currentSession.actor.toString());
-        } else {
-            document.getElementById('grid-title').innerText = `CONNECT WALLET TO VIEW ${titles[schema] || schema.toUpperCase()}`;
+            fetchInventory(currentSession.actor.toString());
         }
     };
 
@@ -258,7 +307,7 @@
 
         document.getElementById('price-ticker').innerHTML = `
             <div>EXCHANGE RATE: <b>1 WAX = ${skatePerWax.toFixed(4)} $SKATE</b></div>
-            <div style="color:var(--accent-gold);">NETWORK STATUS: <b>SYNCED (MANUAL OVERRIDE)</b></div>
+            <div style="color:var(--accent-gold);">EARLY ALPHA REWARD PANEL</div>
         `;
     }
 
@@ -299,7 +348,6 @@
         document.getElementById('connect-btn').innerText = user.toUpperCase();
         closeModals();
         updateBalances(user);
-        
         switchCategory(currentSchema);
     });
 
@@ -327,13 +375,14 @@
         return map[c] || '#ffffff';
     };
 
-    const renderStat = (label, value, cssClass) => {
+    // Video Game Progress Bar Renderer
+    const renderStat = (label, value, cssClass, max = 20) => {
         const num = parseInt(value) || 0;
-        const pct = Math.min(num * 5, 100); 
+        const pct = Math.min((num / max) * 100, 100); 
         return `
             <div style="margin-bottom: 8px;">
                 <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">
-                    ${label} <span style="color: #fff;">${num}/20</span>
+                    ${label} <span style="color: #fff;">${num}/${max}</span>
                 </div>
                 <div class="stat-bar-container">
                     <div class="stat-bar ${cssClass}" style="width: ${pct}%"></div>
@@ -342,7 +391,50 @@
         `;
     };
 
-    async function loadInventory(user) {
+    // --- FILTER LOGIC ---
+    const applyFilters = () => {
+        const fName = document.getElementById('filter-name').value.toLowerCase();
+        const fRarity = document.getElementById('filter-rarity').value.toLowerCase();
+        const fWheel = document.getElementById('filter-wheel-color').value.toLowerCase();
+        const fTruck = document.getElementById('filter-truck-color').value.toLowerCase();
+
+        const filtered = cachedInventoryData.filter(nft => {
+            const m = nft.data || {};
+            const t = nft.template ? nft.template.immutable_data : {};
+            
+            const name = (nft.name || "").toLowerCase();
+            const rarity = (m.rarity || t.rarity || 'stock').toLowerCase();
+            const itemColor = cleanMeta(m.color || t.color).toLowerCase();
+            const wheelsStr = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase();
+            const trucksStr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
+
+            if (fName && !name.includes(fName)) return false;
+            if (fRarity !== 'all' && rarity !== fRarity) return false;
+            
+            if (fWheel !== 'all') {
+                if (currentSchema === 'skateboards' && !wheelsStr.includes(fWheel)) return false;
+                if (currentSchema === 'wheels' && !itemColor.includes(fWheel) && !name.includes(fWheel)) return false;
+                if (currentSchema !== 'skateboards' && currentSchema !== 'wheels') return false; 
+            }
+            
+            if (fTruck !== 'all') {
+                if (currentSchema === 'skateboards' && !trucksStr.includes(fTruck)) return false;
+                if (currentSchema === 'trucks' && !itemColor.includes(fTruck) && !name.includes(fTruck)) return false;
+                if (currentSchema !== 'skateboards' && currentSchema !== 'trucks') return false;
+            }
+
+            return true;
+        });
+
+        renderGrid(filtered);
+    };
+
+    ['filter-name', 'filter-rarity', 'filter-wheel-color', 'filter-truck-color'].forEach(id => {
+        document.getElementById(id).addEventListener('input', applyFilters);
+    });
+
+    async function fetchInventory(user) {
+        document.getElementById('inventory-filters').style.display = 'none';
         const grid = document.getElementById('main-grid');
         grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING THE TRUNK...</h3>`;
         
@@ -350,127 +442,141 @@
             const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=100`);
             const json = await res.json();
             
-            if (json.success && json.data.length > 0) {
-                grid.innerHTML = json.data.map(nft => {
-                    const m = nft.data || {};
-                    const t = nft.template ? nft.template.immutable_data : {};
-                    
-                    const rarityRaw = m.rarity || t.rarity || 'stock';
-                    const rarity = rarityRaw.toLowerCase();
-                    const imgHash = m.img || t.img || "";
-                    const mintNumber = nft.template_mint || "N/A";
-                    
-                    let hudHtml = "";
-                    let actionZoneHtml = "";
-
-                    if (currentSchema === 'skateboards') {
-                        const speed = m.speed || t.speed || 0;
-                        const pop = m.pop || t.pop || 0;
-                        const balance = m.balance || t.balance || 0;
-                        const grind = m.grind || t.grind || 0;
-
-                        const deck = cleanMeta(m.deck || t.deck, "STOCK");
-                        const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
-                        const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
-                        const brand = cleanMeta(m.brand || t.brand, nft.name); 
-
-                        hudHtml = `
-                            <div class="meta-group">
-                                <div class="meta-title">PERFORMANCE</div>
-                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
-                                    ${renderStat('POP', m.pop || t.pop, 'stat-pop')}
-                                    ${renderStat('BALANCE', m.balance || t.balance, 'stat-balance')}
-                                    ${renderStat('SPEED', m.speed || t.speed, 'stat-speed')}
-                                    ${renderStat('TOTAL POWER', m.grind || t.grind, 'stat-grind')}
-                                </div>
-                            </div>
-                            <div class="meta-group">
-                                <div class="meta-title">SPECS & HARDWARE</div>
-                                <div class="metadata-hud hardware-hud">
-                                    <div>DECK <span>${deck}</span></div>
-                                    <div>TRUCKS <span>${trucks}</span></div>
-                                    <div>WHEELS <span>${wheels}</span></div>
-                                    <div>BRAND <span>${brand}</span></div>
-                                </div>
-                            </div>
-                        `;
-
-                        const skateReward = 1000;
-                        const waxValue = (skateReward * sWax).toFixed(2);
-
-                        actionZoneHtml = `
-                            <div class="claim-zone">
-                                <div>
-                                    <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
-                                    <div class="reward-wax">≈ ${waxValue} WAX</div>
-                                </div>
-                                <button class="wallet-btn" style="padding: 10px 15px;">CLAIM</button>
-                            </div>
-                        `;
-                    } 
-                    else {
-                        const brandRaw = cleanMeta(m.brand || t.brand, nft.name);
-                        const itemColor = cleanMeta(m.color || t.color, "");
-                        
-                        let customColorStyle = "";
-                        if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) {
-                            const safeHex = getSafeColor(itemColor);
-                            customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`;
-                        }
-
-                        let statsHtml = `
-                            <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">
-                                BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span>
-                            </div>
-                        `;
-                        
-                        if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop');
-                        if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance');
-                        if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
-
-                        hudHtml = `
-                            <div class="meta-group">
-                                <div class="meta-title">COMPONENT TRAITS</div>
-                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
-                                    ${statsHtml}
-                                </div>
-                            </div>
-                        `;
-
-                        actionZoneHtml = `
-                            <div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;">
-                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button>
-                            </div>
-                        `;
-                    }
-
-                    return `
-                        <div class="skate-card">
-                            <div class="rarity-header" style="background:var(--rarity-${rarity});">
-                                <div class="mint-badge">#${mintNumber}</div>
-                                <div>${rarity} EDITION</div>
-                                <div style="width:30px;"></div>
-                            </div>
-                            
-                            <div class="img-wrap">
-                                <img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img">
-                            </div>
-                            
-                            <div class="card-body">
-                                <div class="board-name">${nft.name}</div>
-                                ${hudHtml}
-                            </div>
-                            
-                            ${actionZoneHtml}
-                        </div>
-                    `;
-                }).join('');
+            if (json.success) {
+                cachedInventoryData = json.data;
+                document.getElementById('inventory-filters').style.display = 'flex';
+                applyFilters();
             } else {
-                grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO ${currentSchema.toUpperCase()} IN THE TRUNK</h3>`;
+                grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`;
             }
         } catch (e) { 
-            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`; 
+            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR CONNECTING TO BLOCKCHAIN</h3>`; 
         }
+    }
+
+    // --- RENDER GRID HTML ---
+    function renderGrid(dataArray) {
+        const grid = document.getElementById('main-grid');
+        
+        if (dataArray.length === 0) {
+            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO MATCHING ITEMS IN THE TRUNK</h3>`;
+            return;
+        }
+
+        grid.innerHTML = dataArray.map(nft => {
+            const m = nft.data || {};
+            const t = nft.template ? nft.template.immutable_data : {};
+            
+            const rarityRaw = m.rarity || t.rarity || 'stock';
+            const rarity = rarityRaw.toLowerCase();
+            const imgHash = m.img || t.img || "";
+            const mintNumber = nft.template_mint || "N/A";
+            
+            let hudHtml = "";
+            let actionZoneHtml = "";
+
+            if (currentSchema === 'skateboards') {
+                const speed = parseInt(m.speed || t.speed || 0);
+                const pop = parseInt(m.pop || t.pop || 0);
+                const balance = parseInt(m.balance || t.balance || 0);
+                const totalPower = Math.round((speed + pop + balance) / 3); // Scaled cleanly out of 20
+
+                const deck = cleanMeta(m.deck || t.deck, "STOCK");
+                const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
+                const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
+                const brand = cleanMeta(m.brand || t.brand, nft.name); 
+
+                hudHtml = `
+                    <div class="meta-group">
+                        <div class="meta-title">PERFORMANCE</div>
+                        <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
+                            ${renderStat('POP', pop, 'stat-pop')}
+                            ${renderStat('BALANCE', balance, 'stat-balance')}
+                            ${renderStat('SPEED', speed, 'stat-speed')}
+                            ${renderStat('TOTAL POWER', totalPower, 'stat-grind', 20)}
+                        </div>
+                    </div>
+                    <div class="meta-group">
+                        <div class="meta-title">SPECS & HARDWARE</div>
+                        <div class="metadata-hud hardware-hud">
+                            <div>DECK <span>${deck}</span></div>
+                            <div>TRUCKS <span>${trucks}</span></div>
+                            <div>WHEELS <span>${wheels}</span></div>
+                            <div>BRAND <span>${brand}</span></div>
+                        </div>
+                    </div>
+                `;
+
+                const skateReward = 1000;
+                const waxValue = (skateReward * sWax).toFixed(2);
+
+                actionZoneHtml = `
+                    <div class="claim-zone">
+                        <div>
+                            <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
+                            <div class="reward-wax">≈ ${waxValue} WAX</div>
+                        </div>
+                        <button class="wallet-btn" style="padding: 10px 15px;">CLAIM</button>
+                    </div>
+                `;
+            } 
+            else {
+                const brandRaw = cleanMeta(m.brand || t.brand, nft.name);
+                const itemColor = cleanMeta(m.color || t.color, "");
+                
+                let customColorStyle = "";
+                if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) {
+                    const safeHex = getSafeColor(itemColor);
+                    customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`;
+                }
+
+                let statsHtml = `
+                    <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">
+                        BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span>
+                    </div>
+                `;
+                
+                if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop');
+                if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance');
+                if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
+
+                hudHtml = `
+                    <div class="meta-group">
+                        <div class="meta-title">COMPONENT TRAITS</div>
+                        <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
+                            ${statsHtml}
+                        </div>
+                    </div>
+                `;
+
+                actionZoneHtml = `
+                    <div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;">
+                        <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="skate-card">
+                    <div class="rarity-header" style="background:var(--rarity-${rarity});">
+                        <div class="mint-badge">#${mintNumber}</div>
+                        <div>${rarity} EDITION</div>
+                        <div style="width:30px;"></div>
+                    </div>
+                    
+                    <div class="img-wrap">
+                        <img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img">
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="board-name">${nft.name}</div>
+                        ${hudHtml}
+                    </div>
+                    
+                    ${actionZoneHtml}
+                </div>
+            `;
+        }).join('');
     }
 
     syncPrices();
