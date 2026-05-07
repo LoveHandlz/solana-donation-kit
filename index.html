@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | 12 NATIVE IFRAMES</title>
+    <title>WAC ARTIST COLLABS | ISOLATED IMAGES</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,7 +17,6 @@
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 20px;
-            overflow-x: hidden;
             background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
         }
 
@@ -34,130 +33,156 @@
             color: var(--accent-gold);
             margin: 0;
             letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
-        /* The 12-Frame 4-Column Layout */
-        .iframe-grid {
+        /* Standardized 12-Item Layout */
+        .image-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             max-width: 1440px;
             margin: auto;
-            padding-bottom: 50px;
+            padding-bottom: 40px;
         }
 
-        .iframe-container {
+        /* Minimalist Frame for the Isolated Image */
+        .image-card {
             background: var(--bg-panel);
             border: 2px solid var(--accent-cyan);
             border-radius: 12px;
-            padding: 10px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             transition: 0.3s;
-            height: 600px; /* Forces enough height to see the NFT inside the frame */
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
         }
 
-        .iframe-container:hover {
+        .image-card:hover {
             border-color: var(--accent-gold);
             transform: translateY(-5px);
             box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
         }
-        
-        .iframe-label {
+
+        .board-title {
             font-family: 'Bangers';
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             color: #fff;
+            margin-bottom: 15px;
             text-align: center;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .raw-iframe {
             width: 100%;
-            flex: 1;
-            border: none;
-            background: #000;
-            border-radius: 8px;
-            /* Allows scaling down large marketplace pages */
-            transform: scale(0.95);
-            transform-origin: top center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        @media (max-width: 1100px) { .iframe-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 650px) { .iframe-grid { grid-template-columns: 1fr; } }
+        /* The Isolated Image */
+        .isolated-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            background: transparent;
+            /* Adds a subtle drop shadow to the actual skateboard shape */
+            filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.8));
+        }
+
+        @media (max-width: 1100px) { .image-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .image-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
     <h1>WAC ARTIST COLLABS</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">LITERAL 12 IFRAME LAYOUT // NFTHIVE INTEGRATION</p>
+    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">NATIVE IMAGE EXTRACTION VIA IPFS</p>
 </header>
 
-<div class="iframe-grid">
-    <div class="iframe-container">
-        <div class="iframe-label">1. NERDS UNITE</div>
-        <iframe src="https://nfthive.io/template/854945" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">2. SQUISHEYEZ</div>
-        <iframe src="https://nfthive.io/template/857734" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">3. UNIQUE BOARD</div>
-        <iframe src="https://nfthive.io/asset/1099949334880" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">4. COLLAB #847825</div>
-        <iframe src="https://nfthive.io/template/847825" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">5. COLLAB #791658</div>
-        <iframe src="https://nfthive.io/template/791658" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">6. COLLAB #791659</div>
-        <iframe src="https://nfthive.io/template/791659" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">7. COLLAB #791660</div>
-        <iframe src="https://nfthive.io/template/791660" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">8. COLLAB #791661</div>
-        <iframe src="https://nfthive.io/template/791661" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">9. COLLAB #791662</div>
-        <iframe src="https://nfthive.io/template/791662" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">10. COLLAB #791663</div>
-        <iframe src="https://nfthive.io/template/791663" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">11. COLLAB #791664</div>
-        <iframe src="https://nfthive.io/template/791664" class="raw-iframe" scrolling="yes"></iframe>
-    </div>
-
-    <div class="iframe-container">
-        <div class="iframe-label">12. COLLAB #791665</div>
-        <iframe src="https://nfthive.io/template/791665" class="raw-iframe" scrolling="yes"></iframe>
+<div id="image-mount" class="image-grid">
+    <div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;">
+        EXTRACTING IMAGES FROM BLOCKCHAIN...
     </div>
 </div>
+
+<script>
+    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
+
+    // Your requested target IDs
+    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
+
+    async function fetchIsolatedImages() {
+        const mount = document.getElementById('image-mount');
+        const displayData = [];
+        const artistsFound = new Set();
+
+        try {
+            // 1. Extract the specific requested boards
+            for (let id of TARGET_IDS) {
+                try {
+                    const endpoint = id.length < 10 
+                        ? `/assets?template_id=${id}&limit=1` 
+                        : `/assets/${id}`;
+                    
+                    const response = await fetch(`${ATOMIC_API}${endpoint}`);
+                    const json = await response.json();
+                    
+                    if (json.success) {
+                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
+                        if (nft) extractImage(nft, artistsFound, displayData);
+                    }
+                } catch (e) { console.log(`Skipped ID: ${id}`); }
+            }
+
+            // 2. Extract remaining boards to fill the 12-item grid
+            if (displayData.length < 12) {
+                const response = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50&order=desc`);
+                const json = await response.json();
+
+                if (json.success) {
+                    for (let nft of json.data) {
+                        if (displayData.length < 12) {
+                            extractImage(nft, artistsFound, displayData);
+                        }
+                    }
+                }
+            }
+
+            // 3. Render the isolated images
+            renderImages(displayData, mount);
+
+        } catch (error) {
+            mount.innerHTML = `<div style="grid-column:1/-1; text-align:center;">API SYNC ERROR.</div>`;
+        }
+    }
+
+    // Function to isolate just the name and the image hash
+    function extractImage(nft, artistSet, list) {
+        const m = nft.data;
+        const artist = m.artist || "Pro Artist";
+        
+        if (artistSet.has(artist)) return;
+        artistSet.add(artist);
+
+        // This is the critical step: grabbing the raw IPFS image hash
+        const imageHash = m.img || nft.template.immutable_data.img;
+
+        list.push({
+            name: nft.name || m.name,
+            // Wrapping the hash in the public IPFS gateway URL
+            imgUrl: `https://ipfs.io/ipfs/${imageHash}`
+        });
+    }
+
+    function renderImages(list, mount) {
+        mount.innerHTML = list.map(board => `
+            <div class="image-card">
+                <div class="board-title">${board.name}</div>
+                <img src="${board.imgUrl}" class="isolated-img" onerror="this.src='https://via.placeholder.com/300?text=Syncing...'">
+            </div>
+        `).join('');
+    }
+
+    fetchIsolatedImages();
+</script>
 
 </body>
 </html>
