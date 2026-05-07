@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$SKATE REWARDS | THE TRUNK</title>
+    <title>$SKATE REWARDS | DIGITAL GARAGE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Bangers&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -31,7 +31,7 @@
             background-attachment: fixed;
         }
 
-        /* --- TRUNK HEADER & BALANCES --- */
+        /* --- HEADER & BALANCES --- */
         header {
             background: rgba(0, 0, 0, 0.9);
             border-bottom: 2px solid var(--accent-cyan);
@@ -43,35 +43,36 @@
         .header-inner { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; }
         .logo { height: 45px; cursor: pointer; }
         
-        nav ul { display: flex; list-style: none; gap: 30px; margin: 0; padding: 0; }
-        nav a { color: #fff; text-decoration: none; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; }
-        nav a.active { color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); }
+        nav ul { display: flex; list-style: none; gap: 20px; margin: 0; padding: 0; }
+        nav a { 
+            color: #fff; text-decoration: none; font-family: 'Orbitron'; 
+            font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; 
+            padding-bottom: 5px; border-bottom: 2px solid transparent; transition: 0.2s;
+        }
+        nav a:hover { color: var(--accent-cyan); }
+        nav a.active { color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); }
 
         .header-controls { display: flex; align-items: center; gap: 15px; }
         
         .balance-pill {
-            background: rgba(0, 240, 255, 0.05);
-            border: 1px solid var(--accent-cyan);
-            padding: 6px 15px;
-            border-radius: 50px;
-            font-family: 'Orbitron';
-            font-size: 0.65rem;
-            display: flex; gap: 15px;
-            color: #fff;
+            background: rgba(0, 240, 255, 0.05); border: 1px solid var(--accent-cyan);
+            padding: 6px 15px; border-radius: 50px; font-family: 'Orbitron';
+            font-size: 0.65rem; display: flex; gap: 15px; color: #fff;
         }
         .balance-pill span { color: var(--accent-gold); font-weight: 900; }
 
         .ticker-bar {
-            background: rgba(0, 240, 255, 0.05);
-            border-bottom: 1px solid var(--card-border);
+            background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid var(--card-border);
             padding: 10px 0; display: flex; justify-content: center; gap: 40px;
             font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; color: var(--accent-cyan);
         }
 
         /* --- DASHBOARD GRID --- */
+        .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; }
+        .grid-header { text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; letter-spacing: 2px; margin-bottom: 30px; font-size: 2rem; }
+        
         .dashboard-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px; max-width: 1400px; margin: auto; padding: 40px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;
         }
 
         .skate-card {
@@ -87,9 +88,9 @@
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
 
         .card-body { padding: 20px; flex: 1; }
-        .board-name { font-family: 'Bangers'; font-size: 1.8rem; margin: 0 0 15px 0; color: #fff; line-height: 1.1; }
+        .board-name { font-family: 'Bangers'; font-size: 1.8rem; margin: 0 0 15px 0; color: #fff; line-height: 1.1; text-transform: uppercase; }
         
-        /* EXPANDED METADATA HUD */
+        /* METADATA HUD */
         .meta-group { margin-bottom: 12px; }
         .meta-title { font-family: 'Orbitron'; font-size: 0.55rem; color: #555; letter-spacing: 2px; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
         .metadata-hud {
@@ -98,7 +99,7 @@
             font-family: 'Orbitron'; font-size: 0.55rem; color: #888;
         }
         .metadata-hud span { color: var(--accent-cyan); font-weight: 900; float: right; text-transform: uppercase; }
-        .hardware-hud span { color: #fff; } /* Distinct color for hardware parts */
+        .hardware-hud span { color: #fff; }
 
         .claim-zone { padding: 20px; background: rgba(0,0,0,0.6); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
@@ -125,11 +126,10 @@
         <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="location.reload()">
         <nav>
             <ul>
-                <li><a href="#">HOME</a></li>
-                <li><a href="#">VIDEOS</a></li>
-                <li><a href="#" class="active">TRUNK</a></li>
-                <li><a href="#">TREASURY</a></li>
-                <li><a href="#">DAO</a></li>
+                <li><a href="#" onclick="switchCategory('skateboards')" id="nav-skateboards" class="active">TRUNK (BOARDS)</a></li>
+                <li><a href="#" onclick="switchCategory('decks')" id="nav-decks">DECKS</a></li>
+                <li><a href="#" onclick="switchCategory('wheels')" id="nav-wheels">WHEELS</a></li>
+                <li><a href="#" onclick="switchCategory('trucks')" id="nav-trucks">TRUCKS</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -146,8 +146,10 @@
     <div>EXCHANGE RATE: <b>SYNCING PROTOCOL...</b></div>
 </div>
 
-<div class="dashboard-grid" id="main-grid">
-    <h2 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Bangers'; letter-spacing: 2px;">OPEN THE TRUNK TO SCAN INVENTORY</h2>
+<div class="dashboard-wrapper">
+    <h2 id="grid-title" class="grid-header">CONNECT WALLET TO OPEN TRUNK</h2>
+    <div class="dashboard-grid" id="main-grid">
+        </div>
 </div>
 
 <div id="onboarding-modal" class="modal-overlay">
@@ -165,11 +167,10 @@
 
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
     const COLLECTION = "skatecoinwax";
-    const SCHEMA = "skateboards"; // Locked strictly to skateboards
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.7.6',
+        appName: 'SkateTrunkV1.8.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -177,27 +178,50 @@
 
     let sWax = 0;
     let currentSession = null;
+    let currentSchema = 'skateboards'; // Default category
 
-    // DIRECT ALCOR API SYNC
+    // --- CATEGORY ROUTER LOGIC ---
+    window.switchCategory = (schema) => {
+        currentSchema = schema;
+        
+        // Update Nav Styling
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById(`nav-${schema}`).classList.add('active');
+
+        // Update Dynamic Titles based on category
+        const titles = {
+            'skateboards': 'DIGGING THROUGH TRUNK: COMPLETE BOARDS',
+            'decks': 'BROWSING DECK RACK',
+            'wheels': 'CHECKING WHEEL STASH',
+            'trucks': 'SORTING TRUCKS & HARDWARE'
+        };
+        
+        if (currentSession) {
+            document.getElementById('grid-title').innerText = titles[schema] || `LOADING ${schema.toUpperCase()}...`;
+            loadInventory(currentSession.actor.toString());
+        } else {
+            document.getElementById('grid-title').innerText = `CONNECT WALLET TO VIEW ${schema.toUpperCase()}`;
+        }
+    };
+
+    // --- ALCOR API SYNC ---
     async function syncPrices() {
         try {
             const alcorRes = await fetch("https://wax.api.alcor.exchange/api/v2/tickers");
             const alcorData = await alcorRes.json();
-            
             const skateWax = alcorData.find(t => t.base_currency === "SKATE" || t.target_currency === "SKATE");
             sWax = parseFloat(skateWax?.last_price || 0);
 
             document.getElementById('price-ticker').innerHTML = `
                 <div>EXCHANGE RATE: <b>1 $SKATE = ${sWax.toFixed(4)} WAX</b></div>
-                <div style="color:var(--accent-gold);">TRUNK STATUS: <b>SYNCED</b></div>
+                <div style="color:var(--accent-gold);">NETWORK STATUS: <b>SYNCED</b></div>
             `;
         } catch (e) { 
             console.error("Exchange Sync Error", e);
-            document.getElementById('price-ticker').innerHTML = `<div>EXCHANGE RATE: <b>1 $SKATE = 0.0000 WAX</b> <span style="color:#ff3366;">(ALCOR AMM DELAYED)</span></div>`; 
         }
     }
 
-    // ON-CHAIN WALLET BALANCES
+    // --- ON-CHAIN WALLET BALANCES ---
     async function updateBalances(user) {
         try {
             const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
@@ -228,17 +252,19 @@
         document.getElementById('connect-btn').innerText = user.toUpperCase();
         toggleModal();
         updateBalances(user);
-        loadTrunk(user);
+        
+        // Trigger initial load based on currently selected schema
+        switchCategory(currentSchema);
     });
 
-    // ATOMICASSETS INVENTORY: SKATEBOARDS ONLY (WITH FULL METADATA)
-    async function loadTrunk(user) {
+    // --- DYNAMIC ATOMICASSETS INVENTORY FETCH ---
+    async function loadInventory(user) {
         const grid = document.getElementById('main-grid');
-        grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; letter-spacing: 2px;">DIGGING THROUGH THE TRUNK...</h2>`;
+        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING BLOCKCHAIN...</h3>`;
         
         try {
-            // Limited to 12 items standard feed, schema strictly skateboards
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${SCHEMA}&owner=${user}&limit=12`);
+            // Uses dynamic currentSchema variable from the Router
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=12`);
             const json = await res.json();
             
             if (json.success && json.data.length > 0) {
@@ -250,18 +276,18 @@
                     const rarity = rarityRaw.toLowerCase();
                     const imgHash = m.img || t.img || "";
                     
-                    // PERFORMANCE STATS (Mutable + Immutable Fallback)
+                    // Fallback logic covers both Mutable and Immutable data fields
                     const speed = m.speed || t.speed || 0;
                     const pop = m.pop || t.pop || 0;
                     const balance = m.balance || t.balance || 0;
                     const grind = m.grind || t.grind || 0;
 
-                    // HARDWARE SPECS (Mutable + Immutable Fallback)
-                    const deck = m.deck || t.deck || "STOCK";
-                    const wheels = m.wheels || t.wheels || m.wheel || t.wheel || "STOCK";
-                    const trucks = m.trucks || t.trucks || m.truck || t.truck || "STOCK";
+                    const deck = m.deck || t.deck || "N/A";
+                    const wheels = m.wheels || t.wheels || m.wheel || t.wheel || "N/A";
+                    const trucks = m.trucks || t.trucks || m.truck || t.truck || "N/A";
                     const color = m.color || t.color || "STANDARD";
 
+                    // Reward calc
                     const skateReward = 1000;
                     const waxValue = (skateReward * sWax).toFixed(2);
 
@@ -287,7 +313,7 @@
                                 </div>
 
                                 <div class="meta-group">
-                                    <div class="meta-title">HARDWARE LOADOUT</div>
+                                    <div class="meta-title">SPECS & HARDWARE</div>
                                     <div class="metadata-hud hardware-hud">
                                         <div>DECK <span>${deck}</span></div>
                                         <div>WHEELS <span>${wheels}</span></div>
@@ -308,10 +334,10 @@
                     `;
                 }).join('');
             } else {
-                grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Bangers'; letter-spacing: 2px;">NO SKATEBOARDS IN THE TRUNK</h2>`;
+                grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO ${currentSchema.toUpperCase()} IN INVENTORY</h3>`;
             }
         } catch (e) { 
-            grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Bangers';">ERROR OPENING TRUNK</h2>`; 
+            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`; 
         }
     }
 
