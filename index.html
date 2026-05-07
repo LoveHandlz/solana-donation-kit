@@ -31,7 +31,7 @@
         nav a:hover, nav a.active { color: var(--accent-cyan); text-shadow: 0 0 10px var(--accent-cyan); }
 
         header { text-align: center; margin: 2rem 0; }
-        h1 { font-family: 'Bangers', cursive; font-size: 3.5rem; color: #fff; margin: 0; -webkit-text-stroke: 1px var(--thps-blue); text-shadow: 4px 4px 0px var(--thps-blue); letter-spacing: 3px; }
+        h1 { font-family: 'Bangers', cursive; font-size: 3.2rem; color: #fff; margin: 0; -webkit-text-stroke: 1px var(--thps-blue); text-shadow: 4px 4px 0px var(--thps-blue); letter-spacing: 3px; }
 
         /* Wallet & DeFi Control Panel */
         .control-panel {
@@ -125,7 +125,7 @@
             </div>
             <div>
                 <button class="action-btn" id="donate-btn">DONATE 1 WAX</button>
-                <div style="font-size: 0.5rem; color: #888; margin-top: 5px;">TO: SKATECOINWAX TREASURY</div>
+                <div style="font-size: 0.5rem; color: #888; margin-top: 5px;">TO: TREASURY</div>
             </div>
         </div>
     </div>
@@ -141,7 +141,7 @@
         // --- CONFIGURATION ---
         const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
         const WAX_RPC = "https://wax.greymass.com";
-        const SKATE_TOKEN_CONTRACT = "YOUR_SKATE_CONTRACT"; // << CHANGE THIS TO YOUR ACTUAL SKATE TOKEN CONTRACT
+        const SKATE_TOKEN_CONTRACT = "skatecoinwax"; 
         const TREASURY_WALLET = "skatecoinwax"; 
 
         const sessionKit = new SessionKit({
@@ -238,12 +238,11 @@
             }
         });
 
-        // 4. Fetch ENTIRE skatecoinwax Collection (No Schema Filter)
+        // 4. Fetch ENTIRE skatecoinwax Collection with a 12-item display limit
         async function fetchFullCollection(ownerAddress) {
-            rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;"><h2>SYNCING FULL SKATECOINWAX COLLECTION...</h2></div>`;
+            rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;"><h2>SYNCING SKATECOINWAX COLLECTION...</h2></div>`;
             try {
-                // Removed schema_name to pull everything in the collection
-                const endpoint = `${ATOMIC_API}/assets?collection_name=skatecoinwax&owner=${ownerAddress}&limit=100&order=desc`;
+                const endpoint = `${ATOMIC_API}/assets?collection_name=skatecoinwax&owner=${ownerAddress}&limit=12&order=desc`;
                 const res = await fetch(endpoint);
                 const json = await res.json();
 
@@ -252,7 +251,7 @@
                         rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--epic);">NO SKATECOINWAX ASSETS FOUND IN WALLET.</div>`;
                         return;
                     }
-                    document.getElementById('portal-subtitle').innerText = `FULL INVENTORY // ${json.data.length} ASSETS DETECTED`;
+                    document.getElementById('portal-subtitle').innerText = `INVENTORY FEED // DISPLAYING TOP 12 ITEMS`;
                     renderFullInventory(json.data);
                 }
             } catch (e) {
@@ -281,7 +280,6 @@
                     <div class="board-name">${nft.name || m.name}</div>
                     <div class="schema-name">SCHEMA: ${schema}</div>`;
 
-                // If it's a skateboard, display the THPS Stats HUD
                 if (schema === 'skateboards' && m.speed) {
                     html += `
                     <div class="hud-stats">
@@ -302,7 +300,6 @@
                         <strong>TRUCKS:</strong> ${m.trucks || 'Standard'} | <strong>WHEELS:</strong> ${m.wheels || 'Standard'}
                     </div>`;
                 } else {
-                    // For non-skateboard assets (DeFi bonds, passes, etc.)
                     html += `<div style="font-size: 0.65rem; color: #888; margin-bottom: 15px; flex: 1;">No performance metadata available for this asset type.</div>`;
                 }
 
@@ -315,7 +312,6 @@
 
             rosterContainer.innerHTML = html;
 
-            // Trigger progress bar animation
             setTimeout(() => {
                 const bars = document.querySelectorAll('.stat-bar-fill');
                 bars.forEach(bar => { bar.style.width = bar.getAttribute('data-target'); });
