@@ -2,19 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | PREFERRED DECKS</title>
+    <title>WAC ARTIST COLLABS | LITERAL IFRAME GRID</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #0a132f;
-            --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --thps-blue: #0066ff;
-            /* Reward Tiers */
-            --common: #888; --uncommon: #4caf50; --rare: #2196f3; 
-            --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; 
-            --ridiculous: #00f0ff;
         }
 
         body {
@@ -22,231 +16,100 @@
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 20px;
-            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
+            overflow-x: hidden;
         }
 
-        header { text-align: center; margin-bottom: 2rem; }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed var(--accent-cyan);
+            padding-bottom: 1rem;
+        }
+
         h1 {
             font-family: 'Bangers', cursive;
             font-size: 3.5rem;
-            color: #fff;
+            color: var(--accent-gold);
             margin: 0;
-            -webkit-text-stroke: 1px var(--thps-blue);
-            text-shadow: 4px 4px 0px var(--thps-blue);
+            letter-spacing: 2px;
         }
 
-        .pro-grid {
+        /* 12-Item Forced Grid Standard */
+        .iframe-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 15px;
             max-width: 1440px;
             margin: auto;
+            padding-bottom: 40px;
         }
 
-        .skater-card {
-            background: var(--bg-panel);
-            border: 2px solid #fff;
-            padding: 15px;
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .skater-card:hover {
-            border-color: var(--accent-cyan);
-            transform: scale(1.02);
-            z-index: 10;
-        }
-
-        .rarity-banner {
-            position: absolute;
-            top: 5px; left: -5px;
-            padding: 2px 10px;
-            font-weight: 900;
-            font-size: 0.6rem;
-            transform: rotate(-5deg);
-            box-shadow: 2px 2px 0 #000;
-            z-index: 5;
-        }
-
-        .nft-preview {
+        /* The Literal Iframe Wrapper */
+        .raw-iframe {
             width: 100%;
-            aspect-ratio: 1/1;
+            height: 600px;
+            border: 2px solid var(--accent-cyan);
+            border-radius: 8px;
             background: #000;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            object-fit: contain;
+            transition: 0.3s;
         }
 
-        .deck-name {
-            font-family: 'Bangers';
-            font-size: 1.5rem;
-            color: var(--accent-gold);
-            margin: 5px 0;
-            line-height: 1;
+        .raw-iframe:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.2);
         }
 
-        /* Video Game Style Stats */
-        .stat-row { margin: 6px 0; }
-        .stat-label { font-size: 0.55rem; color: var(--accent-cyan); display: flex; justify-content: space-between; font-weight: 900; }
-        .bar-bg { background: #111; height: 6px; border: 1px solid #444; margin-top: 2px; }
-        .bar-fill { background: var(--accent-gold); height: 100%; box-shadow: 0 0 8px var(--accent-gold); }
-
-        .hardware-meta {
-            font-size: 0.55rem;
-            background: rgba(0,0,0,0.5);
-            padding: 8px;
-            border-radius: 4px;
-            color: #aaa;
-            margin: 10px 0;
-            border-left: 2px solid var(--accent-cyan);
-        }
-
-        .reward-zone {
-            margin-top: auto;
-            text-align: center;
-            border-top: 1px dashed rgba(255,255,255,0.2);
-            padding-top: 12px;
-        }
-
-        .skate-val { font-weight: 900; color: #fff; font-size: 1.2rem; display: block; }
-        .wax-price { font-size: 0.6rem; color: var(--accent-cyan); }
-
-        .select-btn {
-            width: 100%;
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 10px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            cursor: pointer;
-            margin-top: 10px;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-        }
-
-        .select-btn:hover { background: var(--accent-gold); }
-
-        @media (max-width: 1024px) { .pro-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .pro-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1100px) { .iframe-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .iframe-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>WAC ARTIST COLLABS: S1</h1>
-    <p style="letter-spacing: 3px; font-size: 0.7rem; color: var(--accent-cyan);">PREFERRED DECKS // $SKATE REWARDS</p>
+    <h1>WAC ARTIST COLLABS</h1>
+    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">LITERAL IFRAME IMPLEMENTATION // BROWSER SECURITY WARNING</p>
 </header>
 
-<div id="grid-container" class="pro-grid">
-    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">INITIALIZING SELECTION...</div>
-</div>
+<div class="iframe-grid" id="iframe-mount">
+    </div>
 
 <script>
-    const HELIUS_KEY = "29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb"; //
-    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
+    // The specific collab IDs requested
+    const targetIDs = [
+        "854945",        // Nerds Unite Template
+        "857734",        // SquishEyez Template
+        "1099949334880", // Specific Asset ID
+        "847825",        // Template ID
+        "791658"         // Template ID
+    ];
 
-    const SKATE_REWARDS = {
-        'common': 100, 'uncommon': 250, 'rare': 500,
-        'mythic': 1000, 'legendary': 2000, 'epic': 5000, 'ridiculous': 10000
-    };
+    function buildIframeGrid() {
+        const mount = document.getElementById('iframe-mount');
+        let html = '';
 
-    // Preferred Asset IDs provided by user
-    const PREFERRED_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
-
-    async function loadCollabGrid() {
-        const artists = new Set();
-        const displayList = [];
-
-        try {
-            // First, fetch the preferred specific boards
-            for (const id of PREFERRED_IDS) {
-                const res = await fetch(`${ATOMIC_API}/assets/${id}`);
-                const json = await res.json();
-                if (json.success) processAsset(json.data, artists, displayList);
-            }
-
-            // Fill the remaining 12 slots with unique artists from the skateboards schema
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50&order=desc&api_key=${HELIUS_KEY}`);
-            const json = await res.json();
-
-            if (json.success) {
-                for (const nft of json.data) {
-                    if (displayList.length < 12) processAsset(nft, artists, displayList);
-                }
-            }
-            render(displayList);
-        } catch (e) { document.getElementById('grid-container').innerHTML = "SYNC FAILED."; }
-    }
-
-    function processAsset(nft, artistSet, list) {
-        const m = nft.data;
-        const artist = m.artist || "Pro Artist";
-        if (artistSet.has(artist)) return;
-        artistSet.add(artist);
-
-        const rarity = (m.rarity || "common").toLowerCase();
-        const reward = SKATE_REWARDS[rarity] || 100;
-
-        list.push({
-            id: nft.asset_id,
-            name: nft.name || m.name,
-            img: `https://ipfs.io/ipfs/${m.img || nft.template.immutable_data.img}`,
-            rarity: rarity,
-            artist: artist,
-            deck: m.deck || "Hybrid Creatures",
-            speed: parseInt(m.speed) || Math.floor(Math.random() * 5) + 5,
-            pop: parseInt(m.pop) || Math.floor(Math.random() * 5) + 5,
-            balance: parseInt(m.balance) || Math.floor(Math.random() * 5) + 5,
-            trucks: m.trucks || "Gold/Red",
-            wheels: m.wheels || "Purple",
-            bearings: m.bearings || "RGB",
-            skate: reward,
-            wax: nft.prices && nft.prices[0] ? (nft.prices[0].amount / 100000000).toFixed(2) + " WAX" : "COLLECTIBLE"
+        // 1. Populate the first 5 frames with the requested targets
+        targetIDs.forEach(id => {
+            // Determine if it's an Asset ID or a Template ID to route properly
+            const isAsset = id.length > 10;
+            const url = isAsset 
+                ? `https://wax.atomichub.io/explorer/asset/${id}`
+                : `https://wax.atomichub.io/explorer/template/skatecoinwax/${id}`;
+            
+            html += `<iframe src="${url}" class="raw-iframe" title="Wax Asset ${id}"></iframe>`;
         });
+
+        // 2. Backfill the remaining 7 frames to force the 12-item grid
+        // Using generic skatecoinwax marketplace links as placeholders
+        for (let i = 0; i < 7; i++) {
+            html += `<iframe src="https://wax.atomichub.io/market?collection_name=skatecoinwax&schema_name=skateboards" class="raw-iframe" title="Wax Market Fill"></iframe>`;
+        }
+
+        mount.innerHTML = html;
     }
 
-    function render(list) {
-        document.getElementById('grid-container').innerHTML = list.map(b => `
-            <div class="skater-card">
-                <div class="rarity-banner" style="background:var(--${b.rarity})">${b.rarity}</div>
-                <img src="${b.img}" class="nft-preview">
-                
-                <div class="deck-name">${b.name}</div>
-                <div style="font-size:0.5rem; color:#888; margin-bottom: 8px;">ARTIST: ${b.artist}</div>
-
-                <div class="stat-row">
-                    <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.speed * 10}%"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">POP <span>${b.pop}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.pop * 10}%"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">BALANCE <span>${b.balance}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.balance * 10}%"></div></div>
-                </div>
-
-                <div class="hardware-meta">
-                    <strong>DECK:</strong> ${b.deck}<br>
-                    <strong>TRUCKS:</strong> ${b.trucks} | <strong>WHEELS:</strong> ${b.wheels}<br>
-                    <strong>BRG:</strong> ${b.bearings}
-                </div>
-
-                <div class="reward-zone">
-                    <span class="wax-price">${b.wax}</span>
-                    <div class="skate-val">${b.skate} $SKATE</div>
-                    <button class="select-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${b.id}')">COLLECT BOARD</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    loadCollabGrid();
+    buildIframeGrid();
 </script>
+
 </body>
 </html>
