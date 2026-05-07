@@ -36,7 +36,7 @@
             overflow-x: hidden;
         }
 
-        /* Standardized Navigation Array */
+        /* Standardized Navigation */
         nav {
             background: rgba(0, 0, 0, 0.8);
             border-bottom: 2px solid var(--accent-cyan);
@@ -91,7 +91,7 @@
             text-transform: uppercase;
         }
 
-        /* 12-Item Standard Grid */
+        /* 12-Item Grid */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -122,30 +122,6 @@
             background: rgba(15, 26, 71, 1);
         }
 
-        /* Abstract SVG Deck Placeholder */
-        .svg-container {
-            width: 100%;
-            height: 180px;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .deck-svg {
-            height: 90%;
-            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.8));
-            transition: 0.3s;
-        }
-        
-        .board-card:hover .deck-svg {
-            transform: rotate(5deg) scale(1.1);
-        }
-
         .rarity-badge {
             position: absolute;
             top: 5px;
@@ -157,8 +133,25 @@
             box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
             transform: rotate(-3deg);
             z-index: 5;
-            color: #000;
+            color: #fff;
             letter-spacing: 1px;
+        }
+
+        /* Live IPFS Image */
+        .nft-image {
+            width: 100%;
+            height: 180px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.8));
+            transition: 0.3s;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .board-card:hover .nft-image {
+            transform: rotate(3deg) scale(1.05);
         }
 
         .board-name {
@@ -181,14 +174,8 @@
         }
 
         /* THPS HUD Progress Bars */
-        .hud-stats {
-            margin-bottom: 15px;
-        }
-
-        .stat-row {
-            margin-bottom: 6px;
-        }
-
+        .hud-stats { margin-bottom: 15px; }
+        .stat-row { margin-bottom: 6px; }
         .stat-label {
             display: flex;
             justify-content: space-between;
@@ -197,7 +184,6 @@
             font-weight: 900;
             margin-bottom: 2px;
         }
-
         .stat-bar-bg {
             width: 100%;
             height: 8px;
@@ -205,14 +191,10 @@
             border: 1px solid #333;
             border-radius: 2px;
             overflow: hidden;
-            position: relative;
         }
-
         .stat-bar-fill {
             height: 100%;
-            background: var(--accent-gold);
-            box-shadow: 0 0 8px var(--accent-gold);
-            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* Hardware Specs */
@@ -233,29 +215,20 @@
             padding-top: 10px;
             text-align: right;
         }
-
-        .reward-label {
-            font-size: 0.5rem;
-            color: #888;
-        }
-
+        .reward-label { font-size: 0.5rem; color: #888; }
         .reward-amount {
             font-size: 1.3rem;
             font-weight: 900;
             color: #fff;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
-
         .board-card:hover .reward-amount {
             color: var(--accent-gold);
             text-shadow: 0 0 15px var(--accent-gold);
         }
 
         @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { 
-            .dashboard-grid { grid-template-columns: 1fr; } 
-            nav ul { flex-wrap: wrap; gap: 15px; padding: 0 10px; }
-        }
+        @media (max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -272,93 +245,149 @@
 
     <header>
         <h1>BOARD SELECTION</h1>
-        <div class="subtitle">CHOOSE YOUR SETUP // S1 COLLABS</div>
+        <div class="subtitle">LIVE BLOCKCHAIN SYNC // PRO METADATA</div>
     </header>
 
     <div class="dashboard-grid" id="roster">
+        <div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;">
+            <h2>DOWNLOADING IPFS ASSETS...</h2>
         </div>
+    </div>
 
 <script>
-    // 12 Requested Specific Skateboards
-    const boardData = [
-        { name: "Nerds Unite", artist: "Nerds", rarity: "Legendary", reward: 2000, speed: 8, pop: 7, bal: 9, color: "var(--legendary)" },
-        { name: "SquishEyez", artist: "Squish", rarity: "Epic", reward: 5000, speed: 9, pop: 9, bal: 8, color: "var(--epic)" },
-        { name: "Hybrid Creature", artist: "HC", rarity: "Mythic", reward: 1000, speed: 7, pop: 8, bal: 7, color: "var(--mythic)" },
-        { name: "Broken Dolls", artist: "BD", rarity: "Rare", reward: 500, speed: 6, pop: 6, bal: 6, color: "var(--rare)" },
-        { name: "Rugg Apes", artist: "RA", rarity: "Uncommon", reward: 250, speed: 5, pop: 5, bal: 5, color: "var(--uncommon)" },
-        { name: "Breadcritter", artist: "BC", rarity: "Legendary", reward: 2000, speed: 8, pop: 9, bal: 7, color: "var(--legendary)" },
-        { name: "WAX DAO", artist: "WD", rarity: "Epic", reward: 5000, speed: 9, pop: 8, bal: 9, color: "var(--epic)" },
-        { name: "Wax Snails", artist: "WS", rarity: "Common", reward: 100, speed: 3, pop: 5, bal: 9, color: "var(--common)" },
-        { name: "Captain Degen", artist: "CD", rarity: "Ridiculous", reward: 10000, speed: 10, pop: 10, bal: 10, color: "var(--ridiculous)" },
-        { name: "MunsterVision", artist: "MV", rarity: "Mythic", reward: 1000, speed: 8, pop: 8, bal: 8, color: "var(--mythic)" },
-        { name: "Labas Deck", artist: "Labas", rarity: "Rare", reward: 500, speed: 6, pop: 7, bal: 6, color: "var(--rare)" },
-        { name: "Base Blank", artist: "Unknown", rarity: "Common", reward: 100, speed: 5, pop: 5, bal: 5, color: "var(--common)" }
-    ];
+    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
+    
+    // Requested Targets
+    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
+    
+    // Fixed Rewards
+    const REWARDS = {
+        'common': { val: 100, color: 'var(--common)' },
+        'uncommon': { val: 250, color: 'var(--uncommon)' },
+        'rare': { val: 500, color: 'var(--rare)' },
+        'mythic': { val: 1000, color: 'var(--mythic)' },
+        'legendary': { val: 2000, color: 'var(--legendary)' },
+        'epic': { val: 5000, color: 'var(--epic)' },
+        'ridiculous': { val: 10000, color: 'var(--ridiculous)' }
+    };
 
-    const rosterContainer = document.getElementById('roster');
+    async function loadLiveRoster() {
+        const rosterContainer = document.getElementById('roster');
+        const displayData = [];
+        const artistsFound = new Set();
 
-    // Abstract SVG Generator for the Decks
-    function generateDeckSVG(color) {
-        return `
-        <svg viewBox="0 0 100 300" class="deck-svg">
-            <path d="M15,40 C15,5 85,5 85,40 L85,260 C85,295 15,295 15,260 Z" fill="${color}" opacity="0.8" stroke="#fff" stroke-width="2"/>
-            <circle cx="50" cy="50" r="10" fill="rgba(0,0,0,0.5)"/>
-            <circle cx="50" cy="250" r="10" fill="rgba(0,0,0,0.5)"/>
-            <path d="M30,100 L70,200 M70,100 L30,200" stroke="#fff" stroke-width="3" opacity="0.3"/>
-        </svg>`;
+        try {
+            // 1. Fetch Priority Boards
+            for (let id of TARGET_IDS) {
+                try {
+                    const endpoint = id.length < 10 ? `/assets?template_id=${id}&limit=1` : `/assets/${id}`;
+                    const res = await fetch(`${ATOMIC_API}${endpoint}`);
+                    const json = await res.json();
+                    
+                    if (json.success) {
+                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
+                        if (nft) processBoard(nft, artistsFound, displayData);
+                    }
+                } catch (e) { console.log(`Skipped ${id}`); }
+            }
+
+            // 2. Fill Remaining Slots
+            if (displayData.length < 12) {
+                const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50&order=desc`);
+                const json = await res.json();
+                if (json.success) {
+                    for (let nft of json.data) {
+                        if (displayData.length < 12) processBoard(nft, artistsFound, displayData);
+                    }
+                }
+            }
+
+            renderRoster(displayData, rosterContainer);
+
+        } catch (error) {
+            rosterContainer.innerHTML = `<h2 style="color:red; text-align:center; grid-column:1/-1;">API Connection Failed</h2>`;
+        }
     }
 
-    // Build the 12-Item Grid
-    let html = '';
-    boardData.forEach(board => {
-        html += `
-        <div class="board-card">
-            <div class="rarity-badge" style="background: ${board.color}; color: ${board.rarity === 'Common' || board.rarity === 'Uncommon' ? '#fff' : '#000'}">${board.rarity}</div>
-            
-            <div class="svg-container">
-                ${generateDeckSVG(board.color)}
-            </div>
+    function processBoard(nft, artistSet, list) {
+        const m = nft.data;
+        const artist = m.artist || "Unknown";
+        
+        if (artistSet.has(artist)) return;
+        artistSet.add(artist);
 
-            <div class="board-name">${board.name}</div>
-            <div class="artist-name">PRO: <span style="color:var(--accent-cyan)">${board.artist}</span></div>
+        const rarityKey = (m.rarity || "common").toLowerCase();
+        const rarityData = REWARDS[rarityKey] || REWARDS['common'];
+        const imgHash = m.img || nft.template.immutable_data.img;
 
-            <div class="hud-stats">
-                <div class="stat-row">
-                    <div class="stat-label">SPEED <span>${board.speed}/10</span></div>
-                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%;" data-target="${board.speed * 10}%"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">POP <span>${board.pop}/10</span></div>
-                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${board.pop * 10}%"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">BALANCE <span>${board.bal}/10</span></div>
-                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${board.bal * 10}%"></div></div>
-                </div>
-            </div>
-
-            <div class="hardware-box">
-                <strong>TRUCKS:</strong> Gold/Red<br>
-                <strong>WHEELS:</strong> Purple | <strong>BRG:</strong> RGB
-            </div>
-
-            <div class="reward-zone">
-                <div class="reward-label">BETA REWARD</div>
-                <div class="reward-amount">${board.reward.toLocaleString()} $SKATE</div>
-            </div>
-        </div>`;
-    });
-
-    rosterContainer.innerHTML = html;
-
-    // Trigger stat bar animation on load
-    setTimeout(() => {
-        const bars = document.querySelectorAll('.stat-bar-fill');
-        bars.forEach(bar => {
-            bar.style.width = bar.getAttribute('data-target');
+        list.push({
+            name: nft.name || m.name,
+            artist: artist,
+            rarity: m.rarity || "Common",
+            color: rarityData.color,
+            reward: rarityData.val,
+            imgUrl: `https://ipfs.io/ipfs/${imgHash}`,
+            speed: parseInt(m.speed) || Math.floor(Math.random() * 6) + 4,
+            pop: parseInt(m.pop) || Math.floor(Math.random() * 6) + 4,
+            bal: parseInt(m.balance) || Math.floor(Math.random() * 6) + 4,
+            deck: m.deck || "Hybrid Creatures",
+            trucks: m.trucks || "Gold/Red",
+            wheels: m.wheels || "Purple",
+            bearings: m.bearings || "RGB"
         });
-    }, 100);
+    }
 
+    function renderRoster(list, container) {
+        let html = '';
+        list.forEach(b => {
+            html += `
+            <div class="board-card">
+                <div class="rarity-badge" style="background: ${b.color}; color: ${b.rarity.toLowerCase() === 'common' ? '#000' : '#fff'}">${b.rarity}</div>
+                
+                <img src="${b.imgUrl}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Syncing...'">
+
+                <div class="board-name">${b.name}</div>
+                <div class="artist-name">PRO: <span style="color:var(--accent-cyan)">${b.artist}</span></div>
+
+                <div class="hud-stats">
+                    <div class="stat-row">
+                        <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
+                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);" data-target="${b.speed * 10}%"></div></div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">POP <span>${b.pop}/10</span></div>
+                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${b.pop * 10}%"></div></div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-label">BALANCE <span>${b.bal}/10</span></div>
+                        <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${b.bal * 10}%"></div></div>
+                    </div>
+                </div>
+
+                <div class="hardware-box">
+                    <strong>DECK:</strong> ${b.deck}<br>
+                    <strong>TRUCKS:</strong> ${b.trucks}<br>
+                    <strong>WHEELS:</strong> ${b.wheels} | <strong>BRG:</strong> ${b.bearings}
+                </div>
+
+                <div class="reward-zone">
+                    <div class="reward-label">COLLECTION VALUE</div>
+                    <div class="reward-amount">${b.reward.toLocaleString()} $SKATE</div>
+                </div>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+
+        // Trigger animations after render
+        setTimeout(() => {
+            const bars = document.querySelectorAll('.stat-bar-fill');
+            bars.forEach(bar => { bar.style.width = bar.getAttribute('data-target'); });
+        }, 100);
+    }
+
+    // Initialize
+    loadLiveRoster();
 </script>
 </body>
 </html>
