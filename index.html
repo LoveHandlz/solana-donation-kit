@@ -82,7 +82,6 @@
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
         .rarity-header { padding: 8px; text-align: center; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; letter-spacing: 2px; }
-        .schema-tag { position: absolute; top: 35px; right: 10px; background: rgba(0,0,0,0.8); color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.55rem; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--accent-cyan); }
         
         .img-wrap { width: 100%; height: 220px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
@@ -90,13 +89,16 @@
         .card-body { padding: 20px; flex: 1; }
         .board-name { font-family: 'Bangers'; font-size: 1.8rem; margin: 0 0 15px 0; color: #fff; line-height: 1.1; }
         
-        /* SIMPLE METADATA HUD */
+        /* EXPANDED METADATA HUD */
+        .meta-group { margin-bottom: 12px; }
+        .meta-title { font-family: 'Orbitron'; font-size: 0.55rem; color: #555; letter-spacing: 2px; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
         .metadata-hud {
             display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-            padding: 12px; background: rgba(0,0,0,0.4); border-radius: 8px;
-            font-family: 'Orbitron'; font-size: 0.6rem; color: #888;
+            padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;
+            font-family: 'Orbitron'; font-size: 0.55rem; color: #888;
         }
-        .metadata-hud span { color: var(--accent-cyan); font-weight: 900; float: right; }
+        .metadata-hud span { color: var(--accent-cyan); font-weight: 900; float: right; text-transform: uppercase; }
+        .hardware-hud span { color: #fff; } /* Distinct color for hardware parts */
 
         .claim-zone { padding: 20px; background: rgba(0,0,0,0.6); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
@@ -163,10 +165,11 @@
 
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
     const COLLECTION = "skatecoinwax";
+    const SCHEMA = "skateboards"; // Locked strictly to skateboards
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.7.5',
+        appName: 'SkateTrunkV1.7.6',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -175,14 +178,12 @@
     let sWax = 0;
     let currentSession = null;
 
-    // DIRECT ALCOR API SYNC - FIXED FOR swap.alcor
+    // DIRECT ALCOR API SYNC
     async function syncPrices() {
         try {
-            // Using WAX-specific Alcor endpoint to prevent node failure
             const alcorRes = await fetch("https://wax.api.alcor.exchange/api/v2/tickers");
             const alcorData = await alcorRes.json();
             
-            // Look for SKATE across all pairs targeting WAX
             const skateWax = alcorData.find(t => t.base_currency === "SKATE" || t.target_currency === "SKATE");
             sWax = parseFloat(skateWax?.last_price || 0);
 
@@ -199,14 +200,12 @@
     // ON-CHAIN WALLET BALANCES
     async function updateBalances(user) {
         try {
-            // WAX Balance
             const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
                 method: 'POST', body: JSON.stringify({ code: "eosio.token", account: user, symbol: "WAX" })
             });
             const waxBal = await waxRes.json();
             document.getElementById('wax-bal').innerText = waxBal[0] ? waxBal[0].replace(' WAX', '') : "0.00";
 
-            // SKATE Balance
             const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
                 method: 'POST', body: JSON.stringify({ code: "skatecoinwax", account: user, symbol: "SKATE" })
             });
@@ -232,48 +231,69 @@
         loadTrunk(user);
     });
 
-    // ATOMICASSETS INVENTORY: BOTH CARDS & SKATEBOARDS
+    // ATOMICASSETS INVENTORY: SKATEBOARDS ONLY (WITH FULL METADATA)
     async function loadTrunk(user) {
         const grid = document.getElementById('main-grid');
         grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; letter-spacing: 2px;">DIGGING THROUGH THE TRUNK...</h2>`;
         
         try {
-            // Removed schema parameter to grab ALL assets (cards and boards) under skatecoinwax
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&owner=${user}&limit=24`);
+            // Limited to 12 items standard feed, schema strictly skateboards
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${SCHEMA}&owner=${user}&limit=12`);
             const json = await res.json();
             
             if (json.success && json.data.length > 0) {
                 grid.innerHTML = json.data.map(nft => {
                     const m = nft.data || {};
                     const t = nft.template ? nft.template.immutable_data : {};
-                    const schemaName = nft.schema ? nft.schema.schema_name : 'asset';
                     
                     const rarityRaw = m.rarity || t.rarity || 'stock';
                     const rarity = rarityRaw.toLowerCase();
-                    const imgHash = m.img || t.img || m.video || "";
+                    const imgHash = m.img || t.img || "";
                     
+                    // PERFORMANCE STATS (Mutable + Immutable Fallback)
+                    const speed = m.speed || t.speed || 0;
+                    const pop = m.pop || t.pop || 0;
+                    const balance = m.balance || t.balance || 0;
+                    const grind = m.grind || t.grind || 0;
+
+                    // HARDWARE SPECS (Mutable + Immutable Fallback)
+                    const deck = m.deck || t.deck || "STOCK";
+                    const wheels = m.wheels || t.wheels || m.wheel || t.wheel || "STOCK";
+                    const trucks = m.trucks || t.trucks || m.truck || t.truck || "STOCK";
+                    const color = m.color || t.color || "STANDARD";
+
                     const skateReward = 1000;
                     const waxValue = (skateReward * sWax).toFixed(2);
 
                     return `
                         <div class="skate-card">
                             <div class="rarity-header" style="background:var(--rarity-${rarity});">${rarity} EDITION</div>
-                            <div class="schema-tag">${schemaName.toUpperCase()}</div>
                             
                             <div class="img-wrap">
-                                ${imgHash.includes('.mp4') 
-                                    ? `<video src="https://ipfs.io/ipfs/${imgHash}" autoplay loop muted style="max-height:85%; max-width:85%;"></video>` 
-                                    : `<img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img">`
-                                }
+                                <img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img">
                             </div>
                             
                             <div class="card-body">
                                 <div class="board-name">${nft.name}</div>
-                                <div class="metadata-hud">
-                                    <div>SPEED <span>${m.speed || t.speed || 0}/10</span></div>
-                                    <div>POP <span>${m.pop || t.pop || 0}/10</span></div>
-                                    <div>BALANCE <span>${m.balance || t.balance || 0}/10</span></div>
-                                    <div>GRIND <span>${m.grind || t.grind || 0}/10</span></div>
+                                
+                                <div class="meta-group">
+                                    <div class="meta-title">PERFORMANCE</div>
+                                    <div class="metadata-hud">
+                                        <div>SPEED <span>${speed}/10</span></div>
+                                        <div>POP <span>${pop}/10</span></div>
+                                        <div>BALANCE <span>${balance}/10</span></div>
+                                        <div>GRIND <span>${grind}/10</span></div>
+                                    </div>
+                                </div>
+
+                                <div class="meta-group">
+                                    <div class="meta-title">HARDWARE LOADOUT</div>
+                                    <div class="metadata-hud hardware-hud">
+                                        <div>DECK <span>${deck}</span></div>
+                                        <div>WHEELS <span>${wheels}</span></div>
+                                        <div>TRUCKS <span>${trucks}</span></div>
+                                        <div>COLOR <span>${color}</span></div>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -288,7 +308,7 @@
                     `;
                 }).join('');
             } else {
-                grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Bangers'; letter-spacing: 2px;">NO GEAR IN THE TRUNK</h2>`;
+                grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Bangers'; letter-spacing: 2px;">NO SKATEBOARDS IN THE TRUNK</h2>`;
             }
         } catch (e) { 
             grid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Bangers';">ERROR OPENING TRUNK</h2>`; 
@@ -296,7 +316,7 @@
     }
 
     syncPrices();
-    setInterval(syncPrices, 60000); // 1 minute auto-refresh to prevent rate limiting
+    setInterval(syncPrices, 60000); 
 </script>
 </body>
 </html>
