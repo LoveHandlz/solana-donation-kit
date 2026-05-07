@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WAX Wharfkit Connection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&display=swap" rel="stylesheet">
+    <title>WAC DASHBOARD | WHARFKIT CONNECTION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #050a1a;
@@ -16,64 +15,97 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            background-image: radial-gradient(circle at 50% 0%, #162a5e 0%, transparent 70%);
         }
-        h1 { color: #00f0ff; }
-        #connect-btn {
+
+        h1 {
+            font-family: 'Bangers', cursive;
+            font-size: 4rem;
+            color: #fff;
+            margin: 0 0 10px 0;
+            -webkit-text-stroke: 1px #0066ff;
+            text-shadow: 4px 4px 0px #0066ff;
+            letter-spacing: 3px;
+        }
+
+        .connect-btn {
             background: #ffd700;
             color: #000;
             border: none;
-            padding: 15px 30px;
+            padding: 15px 35px;
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
             font-size: 1.2rem;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 4px;
             text-transform: uppercase;
             transition: 0.3s;
+            margin-top: 20px;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
         }
-        #connect-btn:hover {
+
+        .connect-btn:hover {
             background: #fff;
-            box-shadow: 0 0 15px #ffd700;
+            box-shadow: 0 0 20px #ffd700;
+            transform: scale(1.05);
         }
-        #status {
-            margin-top: 20px;
+
+        #status-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            border-left: 3px solid #00f0ff;
+            font-size: 1.2rem;
+            text-align: center;
+            display: none;
+        }
+
+        .wallet-text {
+            color: #00f0ff;
+            font-weight: 900;
             font-size: 1.5rem;
-            color: #4caf50;
-        }
-        #error-msg {
-            margin-top: 20px;
-            color: #ff2d55;
-            font-size: 0.9rem;
+            display: block;
+            margin-top: 10px;
         }
     </style>
+
+    <script>
+        window.global = window;
+    </script>
+    <script type="module">
+        import { Buffer } from 'https://esm.sh/buffer?bundle';
+        window.Buffer = Buffer;
+    </script>
 </head>
 <body>
 
-    <h1>WAX MAINNET CONNECTION</h1>
-    <p style="color: #888; margin-bottom: 40px;">Powered by Wharfkit & Antelope</p>
+    <h1>WAC PORTAL</h1>
+    <p style="color: #00f0ff; letter-spacing: 4px;">OFFICIAL WHARFKIT SECURE LOGIN</p>
 
-    <button id="connect-btn">Connect WAX Wallet</button>
-    <div id="status"></div>
-    <div id="error-msg"></div>
+    <button id="connect-btn" class="connect-btn">CONNECT WALLET</button>
+    
+    <div id="status-box">
+        SECURE CONNECTION ESTABLISHED
+        <span id="wallet-address" class="wallet-text"></span>
+    </div>
 
     <script type="module">
-        import { SessionKit } from 'https://esm.sh/@wharfkit/session@1.2.3';
-        import { WebRenderer } from 'https://esm.sh/@wharfkit/web-renderer@1.0.4';
-        import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet@1.0.2';
-        import { WalletPluginAnchor } from 'https://esm.sh/@wharfkit/wallet-plugin-anchor@1.0.3';
+        import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
+        import { WebRenderer } from 'https://esm.sh/@wharfkit/web-renderer?bundle';
+        import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet?bundle';
+        import { WalletPluginAnchor } from 'https://esm.sh/@wharfkit/wallet-plugin-anchor?bundle';
 
-        // 1. Initialize the UI Renderer (This handles the popup dialogs)
+        // 1. Initialize the official UI popup
         const webRenderer = new WebRenderer();
 
-        // 2. Configure the SessionKit for WAX Mainnet
+        // 2. Configure Wharfkit for WAX Mainnet
         const sessionKit = new SessionKit({
-            appName: 'WAC Artist Collabs',
+            appName: 'WAC_Dashboard',
             chains: [{
-                id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', // Official WAX Mainnet Chain ID
-                url: 'https://wax.greymass.com', // Official Greymass API Node
+                id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', // Official WAX Chain ID
+                url: 'https://wax.greymass.com'
             }],
             ui: webRenderer,
-            // Include Cloud Wallet (MyCloudWallet) and Anchor as options
             walletPlugins: [
                 new WalletPluginCloudWallet(),
                 new WalletPluginAnchor()
@@ -81,52 +113,41 @@
         });
 
         const connectBtn = document.getElementById('connect-btn');
-        const statusDiv = document.getElementById('status');
-        const errorDiv = document.getElementById('error-msg');
+        const statusBox = document.getElementById('status-box');
+        const walletAddressSpan = document.getElementById('wallet-address');
 
-        // 3. The Login Function
-        async function login() {
-            errorDiv.innerText = ''; // Clear previous errors
+        // 3. The un-spoofed blockchain login trigger
+        connectBtn.addEventListener('click', async () => {
             try {
-                // Trigger the Wharfkit login flow
+                // Triggers the official Wharfkit modal
                 const response = await sessionKit.login();
                 
-                // Extract the connected account name
+                // Extracts the exact WAX address connected (e.g., ufuau.wam)
                 const accountName = response.session.actor.toString();
                 
-                // Update UI
+                // Update UI to prove the real connection
                 connectBtn.style.display = 'none';
-                statusDiv.innerText = `Connected: ${accountName}`;
-                
-                console.log("Full Session Data:", response.session);
-                
-                // If you log in with ufuau.wam, the UI will reflect exactly that.
-                if(accountName === 'ufuau.wam') {
-                    statusDiv.innerHTML += '<br><span style="font-size:1rem; color:#00f0ff;">Welcome back, ufuau.wam!</span>';
-                }
+                statusBox.style.display = 'block';
+                walletAddressSpan.innerText = accountName;
+
+                // You now have a live session object to sign real transactions
+                console.log("Live Session Data:", response.session);
 
             } catch (error) {
-                console.error("Login failed:", error);
-                errorDiv.innerText = `Error: ${error.message}`;
+                console.error("Connection aborted or failed:", error);
+                alert("Login Failed: " + error.message);
             }
-        }
+        });
 
-        // 4. Check for an existing session on load
-        async function checkSession() {
-            const session = await sessionKit.restore();
+        // 4. Auto-restore the session if the user refreshes the page
+        sessionKit.restore().then((session) => {
             if (session) {
                 const accountName = session.actor.toString();
                 connectBtn.style.display = 'none';
-                statusDiv.innerText = `Restored Session: ${accountName}`;
+                statusBox.style.display = 'block';
+                walletAddressSpan.innerText = accountName;
             }
-        }
-
-        // Attach event listener to the button
-        connectBtn.addEventListener('click', login);
-        
-        // Check if user is already logged in when the page loads
-        checkSession();
-
+        });
     </script>
 </body>
 </html>
