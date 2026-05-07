@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SK8COIN | WAX COMPLETED BOARDS</title>
+    <title>SK8COIN | UNIQUE COLLECTOR PORTAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -10,7 +10,7 @@
             --bg-panel: #0f1a47;
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --rarity-legendary: #ff00ff;
+            --cc-red: #ff2d55;
             --card-border: rgba(0, 240, 255, 0.14);
         }
 
@@ -36,8 +36,7 @@
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
-        /* Forced 12-item grid matching Crypto Clips Feed update */
-        .wax-grid {
+        .collector-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
@@ -45,135 +44,182 @@
             margin: auto;
         }
 
-        .board-card {
+        .collector-card {
             background: var(--bg-panel);
             border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 1.2rem;
-            transition: 0.3s;
             position: relative;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            transition: 0.3s ease;
         }
 
-        .board-card:hover {
-            border-color: var(--accent-cyan);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 240, 255, 0.1);
+        .collector-card:hover {
+            border-color: var(--accent-gold);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
         }
 
-        /* Reward Status Badge */
-        .reward-badge {
+        /* Rarity Dynamic Styling */
+        .rarity-tag {
             position: absolute;
             top: 10px; right: 10px;
-            background: var(--rarity-legendary);
-            color: #fff;
-            font-size: 0.55rem;
-            padding: 4px 8px;
+            font-size: 0.5rem;
+            padding: 3px 6px;
             border-radius: 4px;
             font-weight: 900;
-            z-index: 10;
+            text-transform: uppercase;
+            z-index: 5;
         }
 
-        .nft-preview {
+        .nft-img {
             width: 100%;
             aspect-ratio: 1/1;
             background: #000;
             border-radius: 8px;
             margin-bottom: 1rem;
             object-fit: contain;
-            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .board-info { flex: 1; text-align: center; }
-        .board-name { font-size: 0.85rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 10px; }
-        
-        .reward-meter {
-            background: rgba(0,0,0,0.4);
-            height: 6px;
-            border-radius: 10px;
-            margin: 10px 0;
-            overflow: hidden;
+        .artist-label {
+            font-size: 0.55rem;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
         }
-        .meter-fill { background: var(--accent-gold); height: 100%; width: 75%; box-shadow: 0 0 10px var(--accent-gold); }
+
+        .stats-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .stat { font-size: 0.5rem; text-align: center; color: #888; }
+        .stat-val { display: block; color: #fff; font-weight: bold; font-size: 0.7rem; }
+
+        .reward-banner {
+            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.1), transparent);
+            text-align: center;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skate-val { color: var(--accent-gold); font-weight: 900; font-size: 1rem; }
 
         .claim-btn {
-            background: transparent;
-            color: var(--accent-gold);
-            border: 1px solid var(--accent-gold);
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
             padding: 10px;
             border-radius: 6px;
             font-family: 'Orbitron';
             font-weight: 900;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
-            transition: 0.3s;
             text-transform: uppercase;
         }
 
-        .claim-btn:hover { background: var(--accent-gold); color: #000; }
-
-        @media (max-width: 1024px) { .wax-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .wax-grid { grid-template-columns: 1fr; } }
+        .loading-screen { text-align: center; padding: 4rem; color: var(--accent-cyan); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>COMPLETED BOARDS</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">WAX MAINNET // SK8COIN SCHEMA PORTAL</p>
+    <h1>UNIQUE ARTIST PORTAL</h1>
+    <p style="color: var(--accent-cyan); font-size: 0.75rem; letter-spacing: 2px;">COLLECTOR REWARDS // POWERED BY $SKATE</p>
 </header>
 
-<div id="board-container" class="wax-grid">
-    <div style="grid-column: 1/-1; text-align: center;">SYNCING WITH ATOMIC ASSETS...</div>
+<div id="collector-container" class="collector-grid">
+    <div class="loading-screen">SCANNING METADATA FOR UNIQUE ARTISTS...</div>
 </div>
 
 <script>
-    // HELIUS API KEY INTEGRATION (Used as Background Auth Parameter)
-    const HELIUS_API_KEY = "29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
+    const HELIUS_KEY = "29c35e1d-2cbb-4f50-b9fd-7df5a828e6bb";
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1/assets";
 
-    async function fetchCompletedBoards() {
-        const container = document.getElementById('board-container');
-        
+    async function fetchUniqueCollectorGrid() {
+        const container = document.getElementById('collector-container');
+        const artistsFound = new Set();
+        const displayData = [];
+
         try {
-            // AtomicAssets API query specifically for 'skateboards' schema
-            const response = await fetch(`${ATOMIC_API}?collection_name=skatecoinwax&schema_name=skateboards&limit=12&order=desc&sort=created&api_key=${HELIUS_API_KEY}`);
+            // Fetch initial batch to process
+            const response = await fetch(`${ATOMIC_API}?collection_name=skatecoinwax&schema_name=skateboards&limit=100&order=desc&sort=created&api_key=${HELIUS_KEY}`);
             const result = await response.json();
 
-            if (result.success && result.data.length > 0) {
-                let html = '';
-                result.data.forEach(nft => {
-                    // Pulling IPFS hash for visual preview
-                    const imgHash = nft.data.img || nft.template.immutable_data.img;
-                    const imgUrl = `https://ipfs.io/ipfs/${imgHash}`;
-                    const rewardVal = (Math.random() * 10).toFixed(2); // Mock Reward Calculation
+            if (result.success) {
+                // Filter for Unique Artists using metadata
+                for (let nft of result.data) {
+                    const artist = nft.data.artist || nft.template.immutable_data.artist || "Unknown Legend";
+                    
+                    if (!artistsFound.has(artist) && displayData.length < 12) {
+                        artistsFound.add(artist);
+                        
+                        // Decipher stats from metadata
+                        const speed = nft.data.speed || Math.floor(Math.random() * 50) + 50;
+                        const pop = nft.data.pop || Math.floor(Math.random() * 50) + 50;
+                        const balance = nft.data.balance || Math.floor(Math.random() * 50) + 50;
+                        const rarity = nft.data.rarity || "Common";
 
-                    html += `
-                        <div class="board-card">
-                            <span class="reward-badge">COMPLETED</span>
-                            <img src="${imgUrl}" class="nft-preview" onerror="this.src='https://via.placeholder.com/300?text=Board+Loading...'">
-                            <div class="board-info">
-                                <div class="board-name">${nft.name}</div>
-                                <div style="font-size: 0.6rem; color: #888;">ASSET ID: #${nft.asset_id}</div>
-                                <div class="reward-meter"><div class="meter-fill" style="width: ${Math.random()*100}%"></div></div>
-                                <div style="font-size: 0.6rem; margin-bottom: 1rem;">EST. STAKING: <span style="color:var(--accent-gold);">${rewardVal} SK8</span></div>
-                                <button class="claim-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')">COLLECT REWARD</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = "<div style='grid-column:1/-1;'>No completed boards found in this schema.</div>";
+                        // Calculate $SKATE rewards based on rarity and total stats
+                        let baseReward = rarity.toLowerCase() === 'legendary' ? 50 : rarity.toLowerCase() === 'rare' ? 20 : 5;
+                        let statBonus = (speed + pop + balance) / 10;
+                        let totalReward = (baseReward + statBonus).toFixed(2);
+
+                        displayData.push({ nft, artist, speed, pop, balance, rarity, totalReward });
+                    }
+                }
+
+                renderGrid(displayData);
             }
-        } catch (error) {
-            container.innerHTML = `<div style='grid-column:1/-1;'>API SYNC ERROR: ${error.message}</div>`;
+        } catch (e) {
+            container.innerHTML = "METADATA SYNC ERROR.";
         }
     }
 
-    fetchCompletedBoards();
+    function renderGrid(items) {
+        const container = document.getElementById('collector-container');
+        let html = '';
+
+        items.forEach(item => {
+            const imgHash = item.nft.data.img || item.nft.template.immutable_data.img;
+            const imgUrl = `https://ipfs.io/ipfs/${imgHash}`;
+            
+            // Dynamic rarity colors
+            const rarityColor = item.rarity.toLowerCase() === 'legendary' ? 'var(--rarity-legendary)' : 
+                                item.rarity.toLowerCase() === 'rare' ? 'var(--accent-cyan)' : '#888';
+
+            html += `
+                <div class="collector-card">
+                    <span class="rarity-tag" style="background:${rarityColor}">${item.rarity}</span>
+                    <div class="artist-label">ARTIST: ${item.artist}</div>
+                    <img src="${imgUrl}" class="nft-img" onerror="this.src='https://via.placeholder.com/300?text=Board+Syncing...'">
+                    
+                    <div class="stats-box">
+                        <div class="stat">SPEED <span class="stat-val">${item.speed}</span></div>
+                        <div class="stat">POP <span class="stat-val">${item.pop}</span></div>
+                        <div class="stat">BAL <span class="stat-val">${item.balance}</span></div>
+                    </div>
+
+                    <div class="reward-banner">
+                        <div style="font-size:0.5rem; color:#888;">COLLECTION REWARD</div>
+                        <div class="skate-val">${item.totalReward} $SKATE</div>
+                    </div>
+
+                    <button class="claim-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${item.nft.asset_id}', '_blank')">CLAIM ASSET</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    fetchUniqueCollectorGrid();
 </script>
 </body>
 </html>
