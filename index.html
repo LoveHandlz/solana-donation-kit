@@ -44,50 +44,26 @@
         .logo { height: 45px; cursor: pointer; }
         
         nav ul { display: flex; list-style: none; gap: 20px; margin: 0; padding: 0; }
-        nav a { 
-            color: #fff; text-decoration: none; font-family: 'Orbitron'; 
-            font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; 
-            padding-bottom: 5px; border-bottom: 2px solid transparent; transition: 0.2s;
-        }
+        nav a { color: #fff; text-decoration: none; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; padding-bottom: 5px; border-bottom: 2px solid transparent; transition: 0.2s; }
         nav a:hover { color: var(--accent-cyan); }
         nav a.active { color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); }
 
         .header-controls { display: flex; align-items: center; gap: 15px; }
         
-        .balance-pill {
-            background: rgba(0, 240, 255, 0.05); border: 1px solid var(--accent-cyan);
-            padding: 6px 15px; border-radius: 50px; font-family: 'Orbitron';
-            font-size: 0.65rem; display: flex; gap: 15px; color: #fff;
-        }
+        .balance-pill { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--accent-cyan); padding: 6px 15px; border-radius: 50px; font-family: 'Orbitron'; font-size: 0.65rem; display: flex; gap: 15px; color: #fff; }
         .balance-pill span { color: var(--accent-gold); font-weight: 900; }
 
-        .ticker-bar {
-            background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid var(--card-border);
-            padding: 10px 0; display: flex; justify-content: center; gap: 40px;
-            font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; color: var(--accent-cyan);
-        }
+        .ticker-bar { background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid var(--card-border); padding: 10px 0; display: flex; justify-content: center; gap: 40px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; color: var(--accent-cyan); }
 
         .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; min-height: 70vh; }
         
         /* --- DYNAMIC FILTER BAR --- */
-        .filter-bar {
-            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
-            background: rgba(0, 0, 0, 0.6); padding: 15px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
-        }
-        .filter-bar input, .filter-bar select {
-            background: #000; color: var(--accent-cyan); border: 1px solid var(--accent-cyan);
-            padding: 10px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900;
-            border-radius: 4px; outline: none; text-transform: uppercase;
-        }
+        .filter-bar { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; background: rgba(0, 0, 0, 0.6); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
+        .filter-bar input, .filter-bar select { background: #000; color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 10px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900; border-radius: 4px; outline: none; text-transform: uppercase; }
         
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
 
-        .skate-card {
-            background: var(--bg-panel); border: 1px solid var(--card-border);
-            border-radius: 12px; overflow: hidden; transition: 0.3s;
-            display: flex; flex-direction: column; position: relative;
-        }
+        .skate-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; transition: 0.3s; display: flex; flex-direction: column; position: relative; }
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
         .rarity-header { padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center; }
@@ -130,6 +106,7 @@
         .craft-slot h4 { margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; letter-spacing: 2px; }
         .craft-slot select { width: 100%; padding: 15px; background: #000; color: #fff; border: 1px solid #333; font-family: 'Inter'; font-size: 0.85rem; border-radius: 4px; outline: none; }
         .projected-stats { background: #000; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: space-between; }
+        .nft-visual-thumbnail { width: 70px; height: 70px; object-fit: contain; background: rgba(0,0,0,0.8); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 5px; }
     </style>
 </head>
 <body>
@@ -229,46 +206,27 @@
         <p style="color: #ccc; font-size: 0.8rem; line-height: 1.5; margin-bottom: 25px;">
             Initialize custom fabrication. Enter the exact Name, Brand, or Color for your required components, and select the target Rarity. This data will be logged for the minting protocol.
         </p>
-        
         <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333;">
             <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; margin: 0 0 10px 0; font-size: 0.8rem; letter-spacing: 1px;">DECK SPECS</h4>
             <input type="text" id="bp-deck-name" placeholder="ENTER DECK NAME OR BRAND..." style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: #fff; font-family: 'Inter'; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px; outline: none;">
             <select id="bp-deck-rarity" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; box-sizing: border-box; border-radius: 4px; outline: none;">
-                <option value="common">COMMON</option>
-                <option value="uncommon">UNCOMMON</option>
-                <option value="rare">RARE</option>
-                <option value="mythic">MYTHIC</option>
-                <option value="legendary">LEGENDARY</option>
-                <option value="epic">EPIC</option>
+                <option value="common">COMMON</option><option value="uncommon">UNCOMMON</option><option value="rare">RARE</option><option value="mythic">MYTHIC</option><option value="legendary">LEGENDARY</option><option value="epic">EPIC</option>
             </select>
         </div>
-
         <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333;">
             <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; margin: 0 0 10px 0; font-size: 0.8rem; letter-spacing: 1px;">TRUCK SPECS</h4>
             <input type="text" id="bp-truck-name" placeholder="ENTER TRUCK NAME OR COLOR..." style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: #fff; font-family: 'Inter'; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px; outline: none;">
             <select id="bp-truck-rarity" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; box-sizing: border-box; border-radius: 4px; outline: none;">
-                <option value="common">COMMON</option>
-                <option value="uncommon">UNCOMMON</option>
-                <option value="rare">RARE</option>
-                <option value="mythic">MYTHIC</option>
-                <option value="legendary">LEGENDARY</option>
-                <option value="epic">EPIC</option>
+                <option value="common">COMMON</option><option value="uncommon">UNCOMMON</option><option value="rare">RARE</option><option value="mythic">MYTHIC</option><option value="legendary">LEGENDARY</option><option value="epic">EPIC</option>
             </select>
         </div>
-
         <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #333;">
             <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; margin: 0 0 10px 0; font-size: 0.8rem; letter-spacing: 1px;">WHEEL SPECS</h4>
             <input type="text" id="bp-wheel-name" placeholder="ENTER WHEEL BRAND OR COLOR..." style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: #fff; font-family: 'Inter'; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px; outline: none;">
             <select id="bp-wheel-rarity" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; box-sizing: border-box; border-radius: 4px; outline: none;">
-                <option value="common">COMMON</option>
-                <option value="uncommon">UNCOMMON</option>
-                <option value="rare">RARE</option>
-                <option value="mythic">MYTHIC</option>
-                <option value="legendary">LEGENDARY</option>
-                <option value="epic">EPIC</option>
+                <option value="common">COMMON</option><option value="uncommon">UNCOMMON</option><option value="rare">RARE</option><option value="mythic">MYTHIC</option><option value="legendary">LEGENDARY</option><option value="epic">EPIC</option>
             </select>
         </div>
-
         <button class="wallet-btn" onclick="submitBlueprint()" style="width: 100%; margin-bottom: 15px;">SUBMIT BLUEPRINT REQUEST</button>
         <button onclick="closeModals()" style="background:transparent; color:#888; border:none; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ ABORT ]</button>
     </div>
@@ -284,7 +242,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.9.6',
+        appName: 'SkateparkV1.9.7',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -362,25 +320,10 @@
         const wName = document.getElementById('bp-wheel-name').value;
         const wRarity = document.getElementById('bp-wheel-rarity').value;
 
-        if (!dName || !tName || !wName) {
-            alert("⚠️ SYSTEM ERROR: All component names must be filled to generate a blueprint.");
-            return;
-        }
-
-        // Simulating the backend request log
-        console.log("BLUEPRINT SUBMITTED:", {
-            Deck: { Name: dName, Rarity: dRarity },
-            Trucks: { Name: tName, Rarity: tRarity },
-            Wheels: { Name: wName, Rarity: wRarity }
-        });
-
+        if (!dName || !tName || !wName) { alert("⚠️ SYSTEM ERROR: All component names must be filled to generate a blueprint."); return; }
         alert(`✅ BLUEPRINT LOGGED SUCCESSFULLY!\n\nYour custom specs for [${dName}], [${tName}], and [${wName}] have been saved to the local cache. The minting protocol will process this request.`);
         closeModals();
-        
-        // Reset fields
-        document.getElementById('bp-deck-name').value = '';
-        document.getElementById('bp-truck-name').value = '';
-        document.getElementById('bp-wheel-name').value = '';
+        document.getElementById('bp-deck-name').value = ''; document.getElementById('bp-truck-name').value = ''; document.getElementById('bp-wheel-name').value = '';
     };
 
     document.getElementById('login-trigger').addEventListener('click', async () => {
@@ -409,7 +352,8 @@
                     sel.innerHTML = `<option value="">-- CHOOSE ${label} FROM TRUNK --</option>` + 
                         arr.map(nft => {
                             const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
-                            return `<option value="${nft.asset_id}" data-pop="${m.pop||t.pop||0}" data-speed="${m.speed||t.speed||0}" data-bal="${m.balance||t.balance||0}">
+                            const imgHash = m.img || t.img || "";
+                            return `<option value="${nft.asset_id}" data-img="${imgHash}" data-pop="${m.pop||t.pop||0}" data-speed="${m.speed||t.speed||0}" data-bal="${m.balance||t.balance||0}">
                                 ${nft.name} (#${nft.asset_id})
                             </option>`;
                         }).join('');
@@ -422,20 +366,57 @@
         } catch(e) { console.error("Crafting fetch error", e); }
     }
 
-    const renderStat = (label, value, cssClass, max = 20) => {
+    const renderStat = (label, value, cssClass, max) => {
         const num = parseInt(value) || 0, pct = Math.min((num / max) * 100, 100); 
         return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
     };
 
     window.updateCraftingStats = () => {
-        const d = document.getElementById('craft-deck-select').selectedOptions[0], t = document.getElementById('craft-truck-select').selectedOptions[0], w = document.getElementById('craft-wheel-select').selectedOptions[0];
+        const d = document.getElementById('craft-deck-select').selectedOptions[0];
+        const t = document.getElementById('craft-truck-select').selectedOptions[0];
+        const w = document.getElementById('craft-wheel-select').selectedOptions[0];
+
         if (d.value && t.value && w.value) {
+            // True Math: Adds individual component stats (Assuming max 20 per stat per component)
             const tP = parseInt(d.dataset.pop) + parseInt(t.dataset.pop) + parseInt(w.dataset.pop);
             const tS = parseInt(d.dataset.speed) + parseInt(t.dataset.speed) + parseInt(w.dataset.speed);
             const tB = parseInt(d.dataset.bal) + parseInt(t.dataset.bal) + parseInt(w.dataset.bal);
+            
+            // Total Power is strict addition of the combined stats
             const totalPower = tP + tS + tB;
+            
+            // Total Rewards Calculation (Total Power * 1000)
+            const totalRewards = totalPower * 1000;
 
-            document.getElementById('craft-stats-hud').innerHTML = `${renderStat('PROJECTED POP', tP, 'stat-pop')}${renderStat('PROJECTED BALANCE', tB, 'stat-balance')}${renderStat('PROJECTED SPEED', tS, 'stat-speed')}<div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2);">${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 60)}</div>`;
+            const imgD = d.dataset.img;
+            const imgT = t.dataset.img;
+            const imgW = w.dataset.img;
+
+            // Visual NFT Loading Array
+            const visualHtml = `
+                <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px;">
+                    <img src="https://ipfs.io/ipfs/${imgD}" class="nft-visual-thumbnail">
+                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center; font-size: 1.2rem;">+</span>
+                    <img src="https://ipfs.io/ipfs/${imgT}" class="nft-visual-thumbnail">
+                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center; font-size: 1.2rem;">+</span>
+                    <img src="https://ipfs.io/ipfs/${imgW}" class="nft-visual-thumbnail">
+                </div>
+            `;
+
+            // Max scale recalibrated: 20 * 3 components = 60 max for individual traits. 60 * 3 = 180 max for Total Power.
+            document.getElementById('craft-stats-hud').innerHTML = `
+                ${visualHtml}
+                ${renderStat('PROJECTED POP', tP, 'stat-pop', 60)}
+                ${renderStat('PROJECTED BALANCE', tB, 'stat-balance', 60)}
+                ${renderStat('PROJECTED SPEED', tS, 'stat-speed', 60)}
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2);">
+                    ${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 180)}
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,215,0,0.1); border: 1px solid var(--accent-gold); border-radius: 6px; text-align: center;">
+                    <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.65rem; letter-spacing: 2px; margin-bottom: 5px;">ESTIMATED AIRDROP REWARD</div>
+                    <div style="color: #fff; font-family: 'Bangers'; font-size: 2.2rem; line-height: 1;">🪙 ${totalRewards.toLocaleString()} <span style="font-size: 1rem; color: #888; font-family: 'Inter';">$SKATE</span></div>
+                </div>
+            `;
             document.getElementById('initiate-blend-btn').disabled = false;
         } else {
             document.getElementById('craft-stats-hud').innerHTML = `<div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 3 COMPONENTS<br>TO RUN PROTOCOL MATH</div>`;
@@ -516,17 +497,20 @@
             let hudHtml = "", actionZoneHtml = "";
 
             if (currentSchema === 'skateboards') {
-                const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0), totalPower = speed + pop + balance; 
+                const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0);
+                // Math engine for standard Skateboard render
+                const totalPower = speed + pop + balance; 
+                
                 const deck = cleanMeta(m.deck || t.deck, "STOCK"), trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK"), wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK"), brand = cleanMeta(m.brand || t.brand, nft.name); 
 
-                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop')}${renderStat('BALANCE', balance, 'stat-balance')}${renderStat('SPEED', speed, 'stat-speed')}${renderStat('TOTAL POWER', totalPower, 'stat-grind', 60)}</div></div><div class="meta-group"><div class="meta-title">SPECS & HARDWARE</div><div class="metadata-hud hardware-hud"><div>DECK <span>${deck}</span></div><div>TRUCKS <span>${trucks}</span></div><div>WHEELS <span>${wheels}</span></div><div>BRAND <span>${brand}</span></div></div></div>`;
+                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 60)}${renderStat('BALANCE', balance, 'stat-balance', 60)}${renderStat('SPEED', speed, 'stat-speed', 60)}${renderStat('TOTAL POWER', totalPower, 'stat-grind', 180)}</div></div><div class="meta-group"><div class="meta-title">SPECS & HARDWARE</div><div class="metadata-hud hardware-hud"><div>DECK <span>${deck}</span></div><div>TRUCKS <span>${trucks}</span></div><div>WHEELS <span>${wheels}</span></div><div>BRAND <span>${brand}</span></div></div></div>`;
                 const skateReward = 1000, waxValue = (skateReward * sWax).toFixed(2);
                 actionZoneHtml = `<div class="claim-zone"><div><div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div><div class="reward-wax">≈ ${waxValue} WAX</div></div><button class="wallet-btn" style="padding: 10px 15px;" onclick="openClaimModal()">CLAIM</button></div>`;
             } else {
                 const brandRaw = cleanMeta(m.brand || t.brand, nft.name), itemColor = cleanMeta(m.color || t.color, "");
                 let customColorStyle = ""; if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) { const safeHex = getSafeColor(itemColor); customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`; }
                 let statsHtml = `<div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span></div>`;
-                if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop'); if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance'); if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
+                if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop', 20); if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance', 20); if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed', 20);
                 hudHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${statsHtml}</div></div>`;
                 actionZoneHtml = `<div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button></div>`;
             }
