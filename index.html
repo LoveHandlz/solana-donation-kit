@@ -10,16 +10,16 @@
             --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --accent-green: #00ffaa; /* Crypto-safe green */
+            --accent-green: #00ffaa; 
             --card-border: rgba(0, 240, 255, 0.2);
             
             /* NO RED RARITY PALETTE */
             --rarity-common: #94a3b8;        
-            --rarity-uncommon: #00ffaa;      /* Mint Green */
+            --rarity-uncommon: #00ffaa;      
             --rarity-rare: #2196f3;          
             --rarity-mythic: #a855f7;        
             --rarity-legendary: var(--accent-gold); 
-            --rarity-epic: #d946ef;          /* Fuchsia */
+            --rarity-epic: #d946ef;          
             --rarity-stock: #ffffff;         
         }
 
@@ -171,7 +171,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.8.2',
+        appName: 'SkateTrunkV1.8.3',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -204,9 +204,8 @@
 
     // --- HARDCODED PRICE OVERRIDE ---
     async function syncPrices() {
-        // User requested override: 1 WAX = 7.6897 SKATE
         const skatePerWax = 7.6897;
-        sWax = 1 / skatePerWax; // ~0.130044 WAX per SKATE
+        sWax = 1 / skatePerWax; 
 
         document.getElementById('price-ticker').innerHTML = `
             <div>EXCHANGE RATE: <b>1 WAX = ${skatePerWax.toFixed(4)} $SKATE</b></div>
@@ -268,7 +267,6 @@
                     
                     let hudHtml = "";
 
-                    // LOGIC CHANGE: If Skateboard, show full hardware & performance
                     if (currentSchema === 'skateboards') {
                         const speed = m.speed || t.speed || 0;
                         const pop = m.pop || t.pop || 0;
@@ -301,14 +299,18 @@
                             </div>
                         `;
                     } 
-                    // LOGIC CHANGE: If Components (Deck, Wheel, Truck), show specific traits
                     else {
-                        const brand = m.brand || t.brand || "N/A";
-                        const artist = m['3d artist'] || t['3d artist'] || "";
+                        // HYPHEN CUT-OFF LOGIC
+                        let brandRaw = m.brand || t.brand || "N/A";
+                        let artistRaw = m['3d artist'] || t['3d artist'] || "";
                         
+                        const brand = brandRaw.includes('-') ? brandRaw.split('-')[0].trim() : brandRaw;
+                        const artist = artistRaw.includes('-') ? artistRaw.split('-')[0].trim() : artistRaw;
+                        
+                        // STRICT HUD REORDERING: BRAND, POP, SPEED, BALANCE
                         let statsHtml = `<div>BRAND <span>${brand}</span></div>`;
-                        if (m.speed || t.speed) statsHtml += `<div>SPEED <span>${m.speed || t.speed}</span></div>`;
                         if (m.pop || t.pop) statsHtml += `<div>POP <span>${m.pop || t.pop}</span></div>`;
+                        if (m.speed || t.speed) statsHtml += `<div>SPEED <span>${m.speed || t.speed}</span></div>`;
                         if (m.balance || t.balance) statsHtml += `<div>BALANCE <span>${m.balance || t.balance}</span></div>`;
                         if (artist) statsHtml += `<div>ARTIST <span>${artist}</span></div>`;
 
