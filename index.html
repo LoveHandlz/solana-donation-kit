@@ -13,13 +13,14 @@
             --accent-green: #00ff88;
             --card-border: rgba(0, 240, 255, 0.2);
             
-            --rarity-common: #94a3b8;
-            --rarity-uncommon: #4caf50;
-            --rarity-rare: #2196f3;
-            --rarity-mythic: #a855f7;
-            --rarity-legendary: var(--accent-gold);
-            --rarity-epic: #f43f5e;
-            --rarity-stock: #ffffff;
+            /* UPDATED RARITY PALETTE: NO RED */
+            --rarity-common: #94a3b8;        /* Silver/Gray */
+            --rarity-uncommon: #00ffaa;      /* Crypto-Safe Mint Green */
+            --rarity-rare: #2196f3;          /* Blue */
+            --rarity-mythic: #a855f7;        /* Purple */
+            --rarity-legendary: var(--accent-gold); /* Gold */
+            --rarity-epic: #d946ef;          /* Fuchsia / Magenta (Replaced Red) */
+            --rarity-stock: #ffffff;         /* White */
         }
 
         body {
@@ -126,7 +127,7 @@
         <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="location.reload()">
         <nav>
             <ul>
-                <li><a href="#" onclick="switchCategory('skateboards')" id="nav-skateboards" class="active">TRUNK (BOARDS)</a></li>
+                <li><a href="#" onclick="switchCategory('skateboards')" id="nav-skateboards" class="active">SKATEBOARDS</a></li>
                 <li><a href="#" onclick="switchCategory('decks')" id="nav-decks">DECKS</a></li>
                 <li><a href="#" onclick="switchCategory('wheels')" id="nav-wheels">WHEELS</a></li>
                 <li><a href="#" onclick="switchCategory('trucks')" id="nav-trucks">TRUCKS</a></li>
@@ -170,7 +171,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.8.0',
+        appName: 'SkateTrunkV1.8.1',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -190,7 +191,7 @@
 
         // Update Dynamic Titles based on category
         const titles = {
-            'skateboards': 'DIGGING THROUGH TRUNK: COMPLETE BOARDS',
+            'skateboards': 'DIGGING THROUGH TRUNK: SKATEBOARDS',
             'decks': 'BROWSING DECK RACK',
             'wheels': 'CHECKING WHEEL STASH',
             'trucks': 'SORTING TRUCKS & HARDWARE'
@@ -204,7 +205,7 @@
         }
     };
 
-    // --- ALCOR API SYNC ---
+    // --- ALCOR API SYNC (Direct Swap Pool Target) ---
     async function syncPrices() {
         try {
             const alcorRes = await fetch("https://wax.api.alcor.exchange/api/v2/tickers");
