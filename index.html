@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAX PORTAL | LIVE REWARD SYSTEM</title>
+    <title>WAX PORTAL | SKATE REWARD CENTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,85 +16,118 @@
         }
 
         body {
-            background-color: var(--bg-deep); color: #fff; font-family: 'Orbitron', sans-serif;
-            margin: 0; padding: 0; background-attachment: fixed;
-            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #050a1a 100%);
+            background-color: var(--bg-deep);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0; padding: 0;
+            background-image: 
+                radial-gradient(circle at 50% 50%, #162a5e 0%, #050a1a 100%),
+                repeating-linear-gradient(45deg, rgba(0,240,255,0.02) 0px, rgba(0,240,255,0.02) 1px, transparent 1px, transparent 10px);
+            background-attachment: fixed;
         }
 
-        /* --- FORTNITE NAV --- */
+        /* --- FORTNITE STYLE NAV --- */
         nav {
-            background: rgba(0, 0, 0, 0.9); border-bottom: 3px solid var(--fortnite-blue);
-            padding: 10px 0; display: flex; justify-content: center; gap: 30px;
-            position: sticky; top: 0; z-index: 1000;
-        }
-        nav a { color: #fff; text-decoration: none; font-weight: 900; font-size: 0.7rem; letter-spacing: 2px; padding: 10px 20px; text-transform: uppercase; }
-        nav a.active { background: var(--fortnite-blue); clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); }
-
-        /* --- PRICE & TOKEN FEED --- */
-        .market-ticker {
-            background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--accent-cyan);
-            padding: 5px; font-size: 0.6rem; text-align: center; color: var(--accent-cyan);
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 3px solid var(--fortnite-blue);
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
+        nav a {
+            color: #fff; text-decoration: none; font-weight: 900; font-size: 0.8rem;
+            letter-spacing: 2px; padding: 10px 20px; transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        nav a:hover { background: var(--fortnite-blue); color: #fff; }
+
+        /* --- TOKEN DASHBOARD --- */
         .token-header {
-            display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; padding: 20px;
+            display: flex; justify-content: center; gap: 20px; padding: 20px;
+            background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,240,255,0.2);
         }
 
         .token-pill {
             background: rgba(15, 26, 71, 0.9); border: 2px solid var(--accent-cyan);
-            padding: 10px 20px; border-radius: 8px; text-align: left; min-width: 180px;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+            padding: 10px 25px; border-radius: 50px; text-align: center;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
 
-        .token-label { font-size: 0.5rem; color: #888; text-transform: uppercase; margin-bottom: 4px; }
-        .token-val { font-size: 1.1rem; font-weight: 900; color: var(--accent-gold); }
-        .usd-val { font-size: 0.7rem; color: #4caf50; font-weight: 900; }
+        .token-label { font-size: 0.6rem; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+        .token-val { font-size: 1.2rem; font-weight: 900; color: var(--accent-gold); }
 
-        .refresh-btn {
-            background: var(--accent-cyan); border: none; padding: 10px 20px; font-family: 'Orbitron';
-            font-weight: 900; font-size: 0.7rem; cursor: pointer; border-radius: 4px; color: #000;
-        }
+        header { text-align: center; margin: 40px 0; }
+        h1 { font-family: 'Bangers', cursive; font-size: 5rem; margin: 0; color: #fff; letter-spacing: 4px; text-shadow: 5px 5px 0px var(--fortnite-blue); }
 
-        header { text-align: center; margin: 30px 0; }
-        h1 { font-family: 'Bangers', cursive; font-size: 4rem; margin: 0; text-shadow: 4px 4px 0px var(--fortnite-blue); }
-
-        /* --- ITEM CARDS --- */
+        /* --- ITEM SHOP GRID --- */
         .dashboard-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-            max-width: 1400px; margin: auto; padding: 20px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px;
+            max-width: 1400px; margin: auto; padding: 20px 40px;
         }
 
         .skate-card {
-            background: rgba(15, 26, 71, 0.95); border: 1px solid rgba(255,255,255,0.1);
-            position: relative; transition: 0.3s; display: flex; flex-direction: column;
+            background: var(--bg-panel); border: 2px solid rgba(255,255,255,0.1);
+            position: relative; overflow: hidden; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; cursor: pointer;
         }
-        .skate-card:hover { transform: scale(1.03); border-color: var(--accent-cyan); }
 
-        .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; }
-        .skate-img { height: 90%; object-fit: contain; filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+        .skate-card:hover {
+            transform: scale(1.05); border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+        }
 
-        .card-body { padding: 15px; }
-        .board-name { font-family: 'Bangers'; font-size: 1.6rem; color: #fff; margin: 0; }
+        .rarity-header {
+            height: 6px; width: 100%; background: #ccc;
+        }
 
-        /* HUD STATS */
+        .img-wrap {
+            width: 100%; height: 220px; background: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center; position: relative;
+        }
+
+        .skate-img { height: 90%; object-fit: contain; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); }
+
+        .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; background: rgba(15, 26, 71, 0.8); }
+
+        .board-name { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; margin-bottom: 5px; }
+        
+        /* VIDEO GAME STATS HUD */
         .hud-stats { margin: 10px 0; }
-        .stat-row { margin-bottom: 5px; }
-        .stat-meta { display: flex; justify-content: space-between; font-size: 0.5rem; font-weight: 900; color: var(--accent-cyan); }
-        .stat-bar-bg { height: 5px; background: #000; border-radius: 2px; border: 1px solid #333; overflow: hidden; }
-        .stat-bar-fill { height: 100%; background: var(--accent-gold); width: 0%; transition: width 1s ease-out; }
+        .stat-row { margin-bottom: 8px; }
+        .stat-meta { display: flex; justify-content: space-between; font-size: 0.55rem; font-weight: 900; color: var(--accent-cyan); margin-bottom: 2px; }
+        .stat-bar-bg { height: 6px; background: #000; border-radius: 3px; overflow: hidden; border: 1px solid #333; }
+        .stat-bar-fill { height: 100%; background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); width: 0%; transition: width 1s ease-out; }
 
         .claim-zone {
-            margin-top: auto; padding: 15px; background: rgba(0,0,0,0.4);
+            margin-top: auto; padding: 15px; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .skate-reward { font-family: 'Bangers'; font-size: 1.6rem; color: var(--accent-gold); }
+
+        .skate-reward { font-family: 'Bangers'; font-size: 1.5rem; color: var(--accent-gold); }
+
         .claim-btn {
-            background: var(--accent-cyan); color: #000; border: none; padding: 8px 12px;
-            font-family: 'Orbitron'; font-weight: 900; font-size: 0.6rem; cursor: pointer;
+            background: var(--accent-cyan); color: #000; border: none; padding: 8px 15px;
+            font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; cursor: pointer;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
         }
 
-        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .dashboard-grid { grid-column: 1; } }
+        /* --- CONNECT OVERLAY --- */
+        .connect-hero { text-align: center; padding: 60px; }
+        .big-connect-btn {
+            background: var(--accent-gold); color: #000; border: none; padding: 20px 60px;
+            font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; cursor: pointer;
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.3s;
+        }
+        .big-connect-btn:hover { background: #fff; transform: scale(1.1); box-shadow: 0 0 30px var(--accent-gold); }
+
+        @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } }
     </style>
 
     <script>window.global = window;</script>
@@ -105,37 +138,34 @@
 </head>
 <body>
 
-<div class="market-ticker" id="market-ticker">LOADING ALCOR MARKET PRICES...</div>
-
 <nav>
     <a href="#" class="active">GARAGE</a>
-    <a href="#">REWARDS</a>
-    <a href="#">TREASURY</a>
-    <button class="refresh-btn" id="refresh-trigger" style="margin-left: 20px;">SYNC FEED</button>
+    <a href="#">COMPETITIONS</a>
+    <a href="#">$SKATE STAKING</a>
+    <a href="#">MARKET</a>
 </nav>
 
-<div class="token-header" id="token-header">
+<div class="token-header" id="token-header" style="display: none;">
     <div class="token-pill">
         <div class="token-label">WAX BALANCE</div>
-        <div id="wax-bal" class="token-val">0.00 WAX</div>
-        <div id="wax-usd" class="usd-val">$0.00 USD</div>
+        <div class="token-val" id="wax-bal">0.00000000</div>
     </div>
     <div class="token-pill">
-        <div class="token-label">$SKATE BALANCE</div>
-        <div id="skate-bal" class="token-val">0.00 SKATE</div>
-        <div id="skate-usd" class="usd-val">$0.00 USD</div>
+        <div class="token-label">$SKATE EARNED</div>
+        <div class="token-val" id="skate-bal">0.0000</div>
     </div>
 </div>
 
 <header>
     <h1>SKATE PORTAL</h1>
+    <div style="color: var(--accent-cyan); letter-spacing: 8px; font-weight: 900; font-size: 0.7rem;">SEASON 1 // REWARD PROTOCOL</div>
 </header>
 
-<div class="dashboard-grid" id="main-grid">
-    <div style="grid-column: 1/-1; text-align: center;">
-        <button class="refresh-btn" id="login-trigger" style="font-size: 1.5rem; padding: 20px 40px;">CONNECT WAX WALLET</button>
-    </div>
+<div id="auth-view" class="connect-hero">
+    <button class="big-connect-btn" id="login-trigger">CONNECT WAX WALLET</button>
 </div>
+
+<div class="dashboard-grid" id="main-grid"></div>
 
 <script type="module">
     import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
@@ -144,115 +174,110 @@
 
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
     const WAX_RPC = "https://wax.greymass.com";
-    const SKATE_CONTRACT = "skatecoinwax";
-
-    // Rewards x10 Upgrade
-    const RATES = { 'common': 1000, 'uncommon': 2500, 'rare': 5000, 'mythic': 10000, 'legendary': 25000, 'epic': 50000 };
+    const TOKEN_CONTRACT = "skatecoinwax"; 
 
     const sessionKit = new SessionKit({
-        appName: 'Skate_Portal_Live',
+        appName: 'Skate_Portal_S1',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
-    let activeUser = null;
-    let prices = { wax_usd: 0, skate_wax: 0 };
+    const authView = document.getElementById('auth-view');
+    const tokenHeader = document.getElementById('token-header');
+    const mainGrid = document.getElementById('main-grid');
 
-    // --- PRICE FETCHING ---
-    async function fetchMarketPrices() {
-        try {
-            const res = await fetch("https://api.alcor.exchange/api/v2/tickers");
-            const data = await res.json();
-            
-            // Find WAX/USDC and SKATE/WAX
-            const waxTicker = data.find(t => t.ticker_id === "eosio.token-wax-usdc.alcor-usdc");
-            const skateTicker = data.find(t => t.ticker_id === "skatecoinwax-skate-eosio.token-wax");
-            
-            if (waxTicker) prices.wax_usd = waxTicker.last_price;
-            if (skateTicker) prices.skate_wax = skateTicker.last_price;
-
-            document.getElementById('market-ticker').innerText = 
-                `WAX: $${prices.wax_usd.toFixed(4)} | SKATE: ${prices.skate_wax.toFixed(4)} WAX`;
-        } catch (e) { console.error("Price Sync Failed"); }
-    }
-
-    // --- AUTH ---
     document.getElementById('login-trigger').addEventListener('click', async () => {
         const { session } = await sessionKit.login();
-        activeUser = session.actor.toString();
-        runSync();
+        startApp(session);
     });
 
-    document.getElementById('refresh-trigger').addEventListener('click', () => runSync());
+    sessionKit.restore().then(s => { if(s) startApp(s); });
 
-    async function runSync() {
-        if(!activeUser) return;
-        await fetchMarketPrices();
-        await updateWalletBalances();
-        await fetchInventory();
+    function startApp(session) {
+        authView.style.display = 'none';
+        tokenHeader.style.display = 'flex';
+        const user = session.actor.toString();
+        
+        updateBalances(user);
+        fetchSkateboards(user);
     }
 
-    async function updateWalletBalances() {
-        const wax = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
-            method: 'POST', body: JSON.stringify({ code: 'eosio.token', account: activeUser, symbol: 'WAX' })
-        }).then(r => r.json());
-        
-        const skate = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
-            method: 'POST', body: JSON.stringify({ code: SKATE_CONTRACT, account: activeUser, symbol: 'SKATE' })
-        }).then(r => r.json());
+    async function updateBalances(user) {
+        try {
+            // WAX
+            const wax = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
+                method: 'POST', body: JSON.stringify({ code: 'eosio.token', account: user, symbol: 'WAX' })
+            }).then(r => r.json());
+            document.getElementById('wax-bal').innerText = wax[0] || "0.0000";
 
-        const waxVal = parseFloat(wax[0] || 0);
-        const skateVal = parseFloat(skate[0] || 0);
-
-        document.getElementById('wax-bal').innerText = `${waxVal.toFixed(2)} WAX`;
-        document.getElementById('wax-usd').innerText = `$${(waxVal * prices.wax_usd).toFixed(2)} USD`;
-        
-        document.getElementById('skate-bal').innerText = `${skateVal.toFixed(2)} SKATE`;
-        document.getElementById('skate-usd').innerText = `$${(skateVal * prices.skate_wax * prices.wax_usd).toFixed(2)} USD`;
+            // SKATE
+            const skate = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
+                method: 'POST', body: JSON.stringify({ code: TOKEN_CONTRACT, account: user, symbol: 'SKATE' })
+            }).then(r => r.json());
+            document.getElementById('skate-bal').innerText = skate[0] || "0.0000";
+        } catch (e) {}
     }
 
-    async function fetchInventory() {
-        const grid = document.getElementById('main-grid');
-        grid.innerHTML = `<h2 style="grid-column:1/-1; text-align:center;">SCANNING WALLET...</h2>`;
-
-        const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&owner=${activeUser}&limit=100`);
+    async function fetchSkateboards(user) {
+        mainGrid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan);">LOADING COMPLETED DECKS...</h2>`;
+        
+        // Strictly fetch Completed Skateboards from your collection
+        const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&owner=${user}&limit=100`);
         const json = await res.json();
         
         if (json.success && json.data.length > 0) {
-            grid.innerHTML = json.data.map(nft => {
-                const m = nft.data;
-                const rarity = (m.rarity || 'common').toLowerCase();
-                const reward = RATES[rarity] || 1000;
-                const img = m.img || nft.template.immutable_data.img;
-
-                return `
-                    <div class="skate-card">
-                        <div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img"></div>
-                        <div class="card-body">
-                            <div class="board-name">${nft.name}</div>
-                            <div class="hud-stats">
-                                <div class="stat-row">
-                                    <div class="stat-meta">SPEED <span>${m.speed}/10</span></div>
-                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.speed * 10}%"></div></div>
-                                </div>
-                                <div class="stat-row">
-                                    <div class="stat-meta">POP <span>${m.pop}/10</span></div>
-                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.pop * 10}%; background: var(--fortnite-blue);"></div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="claim-zone">
-                            <div class="skate-reward">${reward.toLocaleString()}</div>
-                            <button class="claim-btn">CLAIM</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            renderShop(json.data);
+        } else {
+            mainGrid.innerHTML = `<h2 style="grid-column: 1/-1; text-align: center;">NO SKATEBOARDS DETECTED.</h2>`;
         }
     }
 
-    fetchMarketPrices();
+    function renderShop(assets) {
+        mainGrid.innerHTML = assets.map(nft => {
+            const m = nft.data;
+            const rarity = (m.rarity || 'common').toLowerCase();
+            const reward = calculateReward(rarity);
+            const img = m.img || nft.template.immutable_data.img;
+
+            return `
+                <div class="skate-card">
+                    <div class="rarity-header" style="background: var(--rarity-${rarity}, #888)"></div>
+                    <div class="img-wrap">
+                        <img src="https://ipfs.io/ipfs/${img}" class="skate-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="board-name">${nft.name}</div>
+                        <div style="font-size: 0.5rem; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 10px;">${rarity} EDITION</div>
+
+                        <div class="hud-stats">
+                            <div class="stat-row">
+                                <div class="stat-meta">SPEED <span>${m.speed}/10</span></div>
+                                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.speed * 10}%"></div></div>
+                            </div>
+                            <div class="stat-row">
+                                <div class="stat-meta">POP <span>${m.pop}/10</span></div>
+                                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.pop * 10}%; background: var(--fortnite-blue); box-shadow: 0 0 10px var(--fortnite-blue);"></div></div>
+                            </div>
+                            <div class="stat-row">
+                                <div class="stat-meta">BALANCE <span>${m.balance}/10</span></div>
+                                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.balance * 10}%; background: var(--epic-purple); box-shadow: 0 0 10px var(--epic-purple);"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="claim-zone">
+                        <div class="skate-reward">${reward} <span style="font-size: 0.6rem;">$SKATE</span></div>
+                        <button class="claim-btn">CLAIM</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function calculateReward(rarity) {
+        const rates = { 'common': 100, 'uncommon': 250, 'rare': 500, 'mythic': 1000, 'legendary': 2500, 'epic': 5000 };
+        return rates[rarity] || 100;
+    }
 </script>
 </body>
 </html>
