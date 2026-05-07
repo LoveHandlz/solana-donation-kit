@@ -74,6 +74,7 @@
         <div class="header-controls">
             <div id="wallet-balances" class="balance-pill" style="display: none;">
                 <div>WAX: <span id="wax-bal">0.00</span></div>
+                <div>SKATE: <span id="skate-bal">0.00</span></div>
             </div>
             <button id="connect-btn" class="wallet-btn" onclick="toggleAuthModal()">CONNECT</button>
         </div>
@@ -157,9 +158,38 @@
 </div>
 
 <div id="onboarding-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan);">SYNC WALLET</h2>
-        <button class="wallet-btn" id="login-trigger" style="width: 100%; margin-top: 20px;">CLOUD WALLET</button>
+    <div class="modal-content" style="border-color: var(--accent-gold);">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
+            Welcome to the new sk8coin NFT reward system for Alpha holders! You are entitled to early investor rewards for completing the crafting process and holding your skateboards.
+        </p>
+        <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT CLOUD WALLET</button>
+        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
+    </div>
+</div>
+
+<div id="disconnect-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: #ff3366;">
+        <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px;">
+            Thank you for supporting the project and holding the line! Your diamond hands are what makes this community elite.
+        </p>
+        <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button>
+        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
+    </div>
+</div>
+
+<div id="claim-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
+        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
+            <p style="margin-top: 0;">Welcome to the <b>sk8coin Closed Beta.</b> The protocol is charging up. Before the custom claim smart contracts go live, we are initiating a massive <b>Airdrop Snapshot</b>.</p>
+            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
+                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
+                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b>
+            </div>
+        </div>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
     </div>
 </div>
 
@@ -173,7 +203,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.22.0',
+        appName: 'SkateparkV1.23.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -184,11 +214,18 @@
     let currentInventoryPage = 1;
     let calculatedWaxFee = 0, selectedAssetIds = [];
 
-    sessionKit.restore().then(s => { if (s) { currentSession = s; document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase(); updateBalances(s.actor.toString()); switchCategory(currentSchema); } });
+    sessionKit.restore().then(s => { 
+        if (s) { 
+            currentSession = s; 
+            document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase(); 
+            updateBalances(s.actor.toString()); 
+            switchCategory(currentSchema); 
+        } 
+    });
 
     window.switchCategory = (schema) => {
         currentSchema = schema;
-        currentInventoryPage = 1; // Reset pagination on tab switch
+        currentInventoryPage = 1;
         document.getElementById('load-more-container').style.display = 'none';
 
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
@@ -213,9 +250,17 @@
     async function updateBalances(user) {
         try {
             const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "eosio.token", account: user, symbol: "WAX" }) });
-            const waxBal = await waxRes.json(); document.getElementById('wax-bal').innerText = waxBal[0] || "0.00";
+            const waxBal = await waxRes.json(); 
+            document.getElementById('wax-bal').innerText = waxBal[0] ? waxBal[0].replace(' WAX', '') : "0.00";
+            
+            const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "skatecoinwax", account: user, symbol: "SKATE" }) });
+            const skateBal = await skateRes.json(); 
+            document.getElementById('skate-bal').innerText = skateBal[0] ? skateBal[0].replace(' SKATE', '') : "0.00";
+            
             document.getElementById('wallet-balances').style.display = 'flex';
-        } catch (e) {}
+        } catch (e) {
+            console.error("Balance fetch error", e);
+        }
     }
 
     // --- SANCTIFIED LEADERBOARD SCANNER ---
@@ -223,13 +268,13 @@
         const list = document.getElementById('leaderboard-list');
         list.innerHTML = `<div style="padding:40px; text-align:center; color:var(--accent-cyan); font-family:'Orbitron';">SCANNING WAX BLOCKCHAIN...</div>`;
         try {
-            // Fetch extra to ensure we have 20 after filtering system accounts
-            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=40`);
+            // Fetch 50 items to ensure we have a solid top 20 after filtering admin/contract accounts
+            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=50`);
             const json = await res.json();
             
             if (json.success) {
-                // Filter out Admin and Contract accounts to preserve player sanctity
-                const excludeAccounts = ['blend.nefty', 'skatecoinwax', 'ufuau.wam'];
+                // Filter out Admin, Owner, and Contract accounts
+                const excludeAccounts = ['blend.nefty', 'skatecoinwax', 'ufuau.wam', 'bridge.wax', 'neftyblocksd'];
                 const validHolders = json.data.filter(user => !excludeAccounts.includes(user.account)).slice(0, 20);
 
                 if (validHolders.length === 0) {
@@ -260,7 +305,6 @@
         return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
     };
 
-    // Deep search tool for metadata truth
     const getMetaTruth = (nft, statKey) => {
         if (nft.data && nft.data[statKey] !== undefined) return parseInt(nft.data[statKey]);
         if (nft.template && nft.template.immutable_data && nft.template.immutable_data[statKey] !== undefined) return parseInt(nft.template.immutable_data[statKey]);
@@ -337,7 +381,6 @@
         } catch(e) {}
     }
 
-    // --- PAGINATED INVENTORY SCANNER ---
     async function fetchInventory(user, append = false) {
         const grid = document.getElementById('main-grid');
         const loadMoreBtn = document.getElementById('load-more-container');
@@ -348,7 +391,6 @@
         }
 
         try {
-            // Strict 12-grid limit per page
             const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&page=${currentInventoryPage}&limit=12`);
             const json = await res.json();
             
@@ -361,14 +403,19 @@
                     const img = (n.data && n.data.img) || (n.template && n.template.immutable_data && n.template.immutable_data.img) || '';
                     
                     let statHtml = "";
+                    let actionHtml = "";
                     if (currentSchema === 'skateboards') {
                         let totalPower = speed + pop + balance;
                         if (totalPower > 60) totalPower = 60;
                         statHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}</div></div>`;
+                        // Enable the claim button functionality for completed boards
+                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-cyan); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="openClaimModal()" style="width: 100%;">CLAIM REWARD</button></div>`;
                     } else {
                         statHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}</div></div>`;
+                        // Regular Atomic Hub link for components
+                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; clip-path: none;">VIEW ON ATOMIC</button></div>`;
                     }
-                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity.toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div></div>`;
+                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity.toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div>${actionHtml}</div>`;
                 }).join('');
 
                 if (!append) {
@@ -381,7 +428,6 @@
                     grid.insertAdjacentHTML('beforeend', htmlCards);
                 }
 
-                // Show/Hide Load More Button
                 if (json.data.length === 12) {
                     loadMoreBtn.style.display = 'block';
                 } else {
@@ -400,8 +446,29 @@
     };
 
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
-    window.toggleAuthModal = () => { if(!currentSession) document.getElementById('onboarding-modal').style.display = 'flex'; else location.reload(); };
-    document.getElementById('login-trigger').addEventListener('click', async () => { const { session } = await sessionKit.login(); location.reload(); });
+    
+    // Toggle Modal based on Auth State
+    window.toggleAuthModal = () => { 
+        if(!currentSession) {
+            document.getElementById('onboarding-modal').style.display = 'flex'; 
+        } else {
+            document.getElementById('disconnect-modal').style.display = 'flex';
+        }
+    };
+    
+    window.openClaimModal = () => {
+        document.getElementById('claim-modal').style.display = 'flex';
+    };
+
+    document.getElementById('login-trigger').addEventListener('click', async () => { 
+        const { session } = await sessionKit.login(); 
+        location.reload(); 
+    });
+
+    document.getElementById('logout-trigger').addEventListener('click', async () => { 
+        await sessionKit.logout(); 
+        location.reload(); 
+    });
 
     window.openCraftConfirmModal = () => {
         document.getElementById('modal-wax-fee').innerText = `${calculatedWaxFee.toLocaleString()} WAX`;
