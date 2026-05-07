@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC PORTAL | FULL ECOSYSTEM</title>
+    <title>WAX PORTAL | REWARD CLAIM SYSTEM</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #050a1a;
-            --bg-panel: rgba(15, 26, 71, 0.85);
+            --bg-panel: rgba(15, 26, 71, 0.9);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --thps-blue: #0066ff;
             --epic: #ff2d55;
         }
 
@@ -21,70 +20,50 @@
                               linear-gradient(0deg, rgba(0,240,255,0.05) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
-            overflow-x: hidden; display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Navigation */
-        nav { background: rgba(0, 0, 0, 0.8); border-bottom: 2px solid var(--accent-cyan); padding: 15px 0; width: 100%; position: sticky; top: 0; z-index: 100; }
-        nav ul { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; gap: 40px; }
-        nav a { color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; transition: 0.2s; }
-        nav a:hover, nav a.active { color: var(--accent-cyan); text-shadow: 0 0 10px var(--accent-cyan); }
-
-        header { text-align: center; margin: 2rem 0; }
-        h1 { font-family: 'Bangers', cursive; font-size: 3.2rem; color: #fff; margin: 0; -webkit-text-stroke: 1px var(--thps-blue); text-shadow: 4px 4px 0px var(--thps-blue); letter-spacing: 3px; }
-
-        /* Wallet & DeFi Control Panel */
-        .control-panel {
-            background: rgba(0,0,0,0.6); border: 1px solid var(--accent-cyan); border-radius: 8px;
-            padding: 20px; text-align: center; width: 90%; max-width: 800px; margin-bottom: 30px;
-        }
+        /* Nav & Header */
+        nav { background: rgba(0, 0, 0, 0.8); border-bottom: 2px solid var(--accent-cyan); padding: 15px 0; width: 100%; text-align: center; }
+        nav a { color: #fff; text-decoration: none; margin: 0 20px; font-weight: 900; font-size: 0.8rem; letter-spacing: 2px; }
         
-        .connect-btn {
-            background: var(--accent-gold); color: #000; border: none; padding: 12px 30px;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.1rem;
-            cursor: pointer; border-radius: 4px; text-transform: uppercase; transition: 0.3s;
-            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+        header { text-align: center; margin: 3rem 0; }
+        h1 { font-family: 'Bangers', cursive; font-size: 3.5rem; color: var(--accent-gold); margin: 0; text-shadow: 3px 3px 0 #000; }
+
+        /* Reward Dashboard */
+        .reward-banner {
+            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.1), transparent);
+            border-top: 1px solid var(--accent-cyan);
+            border-bottom: 1px solid var(--accent-cyan);
+            padding: 20px; text-align: center; margin-bottom: 40px;
         }
-        .connect-btn:hover { background: #fff; box-shadow: 0 0 20px var(--accent-gold); transform: scale(1.05); }
 
-        .defi-dashboard { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: center; }
-        .balance-box { background: rgba(15, 26, 71, 0.8); padding: 15px; border-left: 3px solid var(--accent-gold); text-align: left; }
-        .balance-label { font-size: 0.6rem; color: #888; letter-spacing: 2px; }
-        .balance-val { font-size: 1.5rem; font-weight: 900; color: #fff; }
-        .skate-val { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
-
-        .action-btn {
-            background: var(--epic); color: #fff; border: none; padding: 15px; width: 100%;
+        .claim-all-btn {
+            background: var(--accent-cyan); color: #000; border: none; padding: 15px 40px;
             font-family: 'Orbitron'; font-weight: 900; cursor: pointer; text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255, 45, 85, 0.4); transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); transition: 0.3s;
         }
-        .action-btn:hover { background: #fff; color: var(--epic); box-shadow: 0 0 20px rgba(255, 45, 85, 0.8); }
 
-        /* The Grid */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto 50px auto; padding: 0 20px; width: 100%; }
+        .claim-all-btn:hover { background: #fff; box-shadow: 0 0 20px var(--accent-cyan); }
 
-        /* Video Game Card */
-        .board-card { background: var(--bg-panel); border: 2px solid rgba(255,255,255,0.2); position: relative; clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 0 100%); display: flex; flex-direction: column; padding: 15px; transition: all 0.2s ease-out; }
-        .board-card:hover { border-color: var(--accent-cyan); transform: scale(1.05) translateY(-5px); box-shadow: 0 10px 25px rgba(0, 240, 255, 0.2); z-index: 10; background: rgba(15, 26, 71, 1); }
+        /* Grid & Cards */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; max-width: 1300px; margin: auto; padding: 20px; }
 
-        .rarity-badge { position: absolute; top: 5px; left: -5px; padding: 3px 12px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,0.5); transform: rotate(-3deg); z-index: 5; background: #333; color: #fff;}
+        .reward-card {
+            background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); padding: 20px;
+            position: relative; transition: 0.3s; display: flex; flex-direction: column;
+        }
+        .reward-card:hover { border-color: var(--accent-gold); transform: translateY(-5px); }
 
-        .image-container { width: 100%; height: 200px; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; border-radius: 4px; }
-        .nft-image { height: 95%; object-fit: contain; filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.8)); transition: 0.3s; }
-        .board-card:hover .nft-image { transform: rotate(5deg) scale(1.1); }
+        .token-amount { font-family: 'Bangers'; font-size: 2.5rem; color: var(--accent-gold); margin: 10px 0; }
+        
+        .claim-btn {
+            background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold);
+            padding: 10px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; margin-top: auto;
+        }
+        .claim-btn:hover { background: var(--accent-gold); color: #000; }
+        .claimed { border-color: #555 !important; color: #555 !important; cursor: not-allowed; }
 
-        .board-name { font-family: 'Bangers', cursive; font-size: 1.4rem; color: var(--accent-gold); line-height: 1; margin: 0 0 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .schema-name { font-size: 0.55rem; color: var(--accent-cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Stats HUD */
-        .hud-stats { margin-bottom: 15px; }
-        .stat-row { margin-bottom: 6px; }
-        .stat-label { display: flex; justify-content: space-between; font-size: 0.55rem; color: var(--accent-cyan); font-weight: 900; margin-bottom: 2px; }
-        .stat-bar-bg { width: 100%; height: 6px; background: #000; border: 1px solid #333; border-radius: 2px; overflow: hidden; }
-        .stat-bar-fill { height: 100%; transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } .defi-dashboard { grid-template-columns: 1fr; } }
-        @media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; } nav ul { flex-wrap: wrap; gap: 15px; padding: 0 10px; } }
+        .img-preview { width: 100%; height: 150px; object-fit: contain; margin-bottom: 15px; background: #000; border-radius: 4px; }
     </style>
 
     <script>window.global = window;</script>
@@ -95,228 +74,103 @@
 </head>
 <body>
 
-    <nav>
-        <ul>
-            <li><a href="#" class="active">HOME</a></li>
-            <li><a href="#">VIDEOS</a></li>
-            <li><a href="#">DEFI</a></li>
-            <li><a href="#">TREASURY</a></li>
-            <li><a href="#">DAO</a></li>
-        </ul>
-    </nav>
+<nav>
+    <a href="#">HOME</a>
+    <a href="#">VIDEOS</a>
+    <a href="#">REWARDS</a>
+    <a href="#">DAO</a>
+</nav>
 
-    <header>
-        <h1>COLLECTION PORTAL</h1>
-        <div class="subtitle" id="portal-subtitle">WCW CONNECTION REQUIRED</div>
-    </header>
+<header>
+    <h1>WAX REWARD PORTAL</h1>
+    <p style="color: var(--accent-cyan); letter-spacing: 5px;">CLAIM YOUR $SKATE TOKENS</p>
+</header>
 
-    <div class="control-panel">
-        <button id="connect-btn" class="connect-btn">CONNECT WALLET</button>
-        
-        <div id="defi-dashboard" class="defi-dashboard">
-            <div class="balance-box">
-                <div class="balance-label">CONNECTED WALLET</div>
-                <div class="balance-val" id="wallet-address" style="color: var(--accent-cyan);">--</div>
-            </div>
-            <div class="balance-box">
-                <div class="balance-label">ALCOR TOKEN BALANCES</div>
-                <div class="balance-val skate-val" id="skate-bal">0.0000 SKATE</div>
-                <div class="balance-val" id="wax-bal" style="font-size: 1rem; margin-top:5px;">0.00000000 WAX</div>
-            </div>
-            <div>
-                <button class="action-btn" id="donate-btn">DONATE 1 WAX</button>
-                <div style="font-size: 0.5rem; color: #888; margin-top: 5px;">TO: TREASURY</div>
-            </div>
-        </div>
+<div class="reward-banner">
+    <div id="wallet-info" style="margin-bottom: 15px; font-size: 0.9rem; color: #888;">WALLET NOT CONNECTED</div>
+    <button id="main-connect-btn" class="claim-all-btn">CONNECT WAX WALLET</button>
+</div>
+
+<div class="dashboard-grid" id="reward-roster">
     </div>
 
-    <div class="dashboard-grid" id="roster"></div>
+<script type="module">
+    import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
+    import { WebRenderer } from 'https://esm.sh/@wharfkit/web-renderer?bundle';
+    import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet?bundle';
 
-    <script type="module">
-        import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
-        import { WebRenderer } from 'https://esm.sh/@wharfkit/web-renderer?bundle';
-        import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet?bundle';
-        import { WalletPluginAnchor } from 'https://esm.sh/@wharfkit/wallet-plugin-anchor?bundle';
+    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
+    
+    // Reward multiplier based on Rarity Metadata
+    const RARITY_REWARDS = {
+        'common': 100,
+        'uncommon': 250,
+        'rare': 500,
+        'mythic': 1000,
+        'legendary': 2500,
+        'epic': 5000
+    };
 
-        // --- CONFIGURATION ---
-        const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
-        const WAX_RPC = "https://wax.greymass.com";
-        const SKATE_TOKEN_CONTRACT = "skatecoinwax"; 
-        const TREASURY_WALLET = "skatecoinwax"; 
+    const sessionKit = new SessionKit({
+        appName: 'Skate_Reward_Portal',
+        chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: 'https://wax.greymass.com' }],
+        ui: new WebRenderer(),
+        walletPlugins: [ new WalletPluginCloudWallet() ]
+    });
 
-        const sessionKit = new SessionKit({
-            appName: 'WAC_Garage',
-            chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
-            ui: new WebRenderer(),
-            walletPlugins: [ new WalletPluginCloudWallet(), new WalletPluginAnchor() ]
-        });
+    const connectBtn = document.getElementById('main-connect-btn');
+    const walletInfo = document.getElementById('wallet-info');
+    const roster = document.getElementById('reward-roster');
 
-        let activeSession = null;
+    connectBtn.addEventListener('click', async () => {
+        const { session } = await sessionKit.login();
+        setupUser(session);
+    });
 
-        // UI Elements
-        const connectBtn = document.getElementById('connect-btn');
-        const defiDash = document.getElementById('defi-dashboard');
-        const walletAddressSpan = document.getElementById('wallet-address');
-        const skateBalSpan = document.getElementById('skate-bal');
-        const waxBalSpan = document.getElementById('wax-bal');
-        const rosterContainer = document.getElementById('roster');
-        const donateBtn = document.getElementById('donate-btn');
+    sessionKit.restore().then(s => { if(s) setupUser(s); });
 
-        // 1. Wharfkit Login Trigger
-        connectBtn.addEventListener('click', async () => {
-            try {
-                const response = await sessionKit.login();
-                activateUserSession(response.session);
-            } catch (error) {
-                alert("Login Failed: " + error.message);
-            }
-        });
+    function setupUser(session) {
+        const user = session.actor.toString();
+        walletInfo.innerText = `CONNECTED: ${user}`;
+        connectBtn.innerText = "REFRESH INVENTORY";
+        fetchClaimableAssets(user);
+    }
 
-        // Auto-Restore Session
-        sessionKit.restore().then((session) => {
-            if (session) activateUserSession(session);
-        });
-
-        function activateUserSession(session) {
-            activeSession = session;
-            const accountName = session.actor.toString();
-            
-            connectBtn.style.display = 'none';
-            defiDash.style.display = 'grid';
-            walletAddressSpan.innerText = accountName;
-            
-            fetchTokenBalances(accountName);
-            fetchFullCollection(accountName);
+    async function fetchClaimableAssets(owner) {
+        roster.innerHTML = "SCANNING BLOCKCHAIN...";
+        const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&owner=${owner}&limit=50`);
+        const json = await res.json();
+        
+        if (json.success && json.data.length > 0) {
+            renderRewards(json.data);
+        } else {
+            roster.innerHTML = "NO SKATECOINWAX ASSETS DETECTED IN THIS WALLET.";
         }
+    }
 
-        // 2. Fetch WAX and $SKATE Token Balances via RPC
-        async function fetchTokenBalances(account) {
-            try {
-                // Fetch WAX
-                const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
-                    method: 'POST', body: JSON.stringify({ code: 'eosio.token', account: account, symbol: 'WAX' })
-                });
-                const waxJson = await waxRes.json();
-                waxBalSpan.innerText = waxJson[0] || "0.00000000 WAX";
+    function renderRewards(assets) {
+        roster.innerHTML = assets.map(nft => {
+            const rarity = (nft.data.rarity || 'common').toLowerCase();
+            const rewardAmount = RARITY_REWARDS[rarity] || 100;
+            const img = nft.data.img || (nft.template && nft.template.immutable_data.img);
 
-                // Fetch $SKATE
-                const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
-                    method: 'POST', body: JSON.stringify({ code: SKATE_TOKEN_CONTRACT, account: account, symbol: 'SKATE' })
-                });
-                const skateJson = await skateRes.json();
-                skateBalSpan.innerText = skateJson[0] || "0.0000 SKATE";
-
-            } catch (e) {
-                console.warn("Failed to fetch balances", e);
-            }
-        }
-
-        // 3. Smart Contract Transaction: Donate 1 WAX
-        donateBtn.addEventListener('click', async () => {
-            if(!activeSession) return;
-            try {
-                const action = {
-                    account: 'eosio.token',
-                    name: 'transfer',
-                    authorization: [activeSession.permissionLevel],
-                    data: {
-                        from: activeSession.actor,
-                        to: TREASURY_WALLET,
-                        quantity: '1.00000000 WAX',
-                        memo: 'Crypto Clips Platform Donation'
-                    }
-                };
-                
-                const result = await activeSession.transact({ action });
-                alert(`Donation Successful!\nTX: ${result.response.transaction_id}`);
-                
-                // Refresh balances after donation
-                fetchTokenBalances(activeSession.actor.toString());
-                
-            } catch (error) {
-                alert("Transaction Failed: " + error.message);
-            }
-        });
-
-        // 4. Fetch ENTIRE skatecoinwax Collection with a 12-item display limit
-        async function fetchFullCollection(ownerAddress) {
-            rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;"><h2>SYNCING SKATECOINWAX COLLECTION...</h2></div>`;
-            try {
-                const endpoint = `${ATOMIC_API}/assets?collection_name=skatecoinwax&owner=${ownerAddress}&limit=12&order=desc`;
-                const res = await fetch(endpoint);
-                const json = await res.json();
-
-                if (json.success) {
-                    if (json.data.length === 0) {
-                        rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--epic);">NO SKATECOINWAX ASSETS FOUND IN WALLET.</div>`;
-                        return;
-                    }
-                    document.getElementById('portal-subtitle').innerText = `INVENTORY FEED // DISPLAYING TOP 12 ITEMS`;
-                    renderFullInventory(json.data);
-                }
-            } catch (e) {
-                rosterContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: red;">API SYNC FAILED</div>`;
-            }
-        }
-
-        // 5. Dynamic Render Logic
-        function renderFullInventory(assets) {
-            let html = '';
-            
-            assets.forEach(nft => {
-                const m = nft.data;
-                const schema = nft.schema.schema_name;
-                const imgHash = m.img || (nft.template && nft.template.immutable_data.img);
-                const imgUrl = imgHash ? `https://ipfs.io/ipfs/${imgHash}` : 'https://via.placeholder.com/300?text=No+Image';
-                
-                html += `
-                <div class="board-card">
-                    <div class="rarity-badge">${m.rarity || "Standard"}</div>
+            return `
+                <div class="reward-card">
+                    <img src="https://ipfs.io/ipfs/${img}" class="img-preview">
+                    <div style="font-size: 0.7rem; color: var(--accent-cyan);">${nft.schema.schema_name.toUpperCase()}</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; margin-bottom: 5px;">${nft.name}</div>
+                    <div style="font-size: 0.6rem; color: #888;">RARITY: ${rarity.toUpperCase()}</div>
                     
-                    <div class="image-container">
-                        <img src="${imgUrl}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Error'">
-                    </div>
-
-                    <div class="board-name">${nft.name || m.name}</div>
-                    <div class="schema-name">SCHEMA: ${schema}</div>`;
-
-                if (schema === 'skateboards' && m.speed) {
-                    html += `
-                    <div class="hud-stats">
-                        <div class="stat-row">
-                            <div class="stat-label">SPEED <span>${m.speed}/10</span></div>
-                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);" data-target="${m.speed * 10}%"></div></div>
-                        </div>
-                        <div class="stat-row">
-                            <div class="stat-label">POP <span>${m.pop}/10</span></div>
-                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${m.pop * 10}%"></div></div>
-                        </div>
-                        <div class="stat-row">
-                            <div class="stat-label">BALANCE <span>${m.balance}/10</span></div>
-                            <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${m.balance * 10}%"></div></div>
-                        </div>
-                    </div>
-                    <div style="font-size: 0.5rem; color: #ccc; margin-bottom: 10px; line-height: 1.4;">
-                        <strong>TRUCKS:</strong> ${m.trucks || 'Standard'} | <strong>WHEELS:</strong> ${m.wheels || 'Standard'}
-                    </div>`;
-                } else {
-                    html += `<div style="font-size: 0.65rem; color: #888; margin-bottom: 15px; flex: 1;">No performance metadata available for this asset type.</div>`;
-                }
-
-                html += `
-                    <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; font-size: 0.5rem; color: #555; text-align: right;">
-                        MINT #${nft.template_mint || "N/A"}
-                    </div>
-                </div>`;
-            });
-
-            rosterContainer.innerHTML = html;
-
-            setTimeout(() => {
-                const bars = document.querySelectorAll('.stat-bar-fill');
-                bars.forEach(bar => { bar.style.width = bar.getAttribute('data-target'); });
-            }, 100);
-        }
-    </script>
+                    <div class="token-amount">${rewardAmount} $SKATE</div>
+                    
+                    <button class="claim-btn" onclick="alert('Sending ${rewardAmount} $SKATE to your wallet...')">
+                        CLAIM REWARD
+                    </button>
+                    <div style="font-size: 0.5rem; color: #444; margin-top: 10px; text-align: center;">MINT #${nft.template_mint}</div>
+                </div>
+            `;
+        }).join('');
+    }
+</script>
 </body>
 </html>
