@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | VIEW ONLY GRID</title>
+    <title>WAC ARTIST COLLABS | 12 EXPLICIT IFRAMES</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -10,12 +10,6 @@
             --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --thps-blue: #0066ff;
-            --card-border: rgba(0, 240, 255, 0.14);
-            /* Rarity Tiers */
-            --common: #888; --uncommon: #4caf50; --rare: #2196f3; 
-            --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; 
-            --ridiculous: #00f0ff;
         }
 
         body {
@@ -23,250 +17,144 @@
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 20px;
-            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
             overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
         }
 
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
-            border-bottom: 1px dashed var(--card-border);
-            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed var(--accent-cyan);
+            padding-bottom: 1rem;
         }
 
         h1 {
             font-family: 'Bangers', cursive;
-            font-size: 3.8rem;
-            color: #fff;
+            font-size: 4rem;
+            color: var(--accent-gold);
             margin: 0;
-            -webkit-text-stroke: 1px var(--thps-blue);
-            text-shadow: 4px 4px 0px var(--thps-blue);
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
-        /* Standard 12-Frame Layout */
-        .collab-grid {
+        /* 4-Column Grid for the 12 Iframes */
+        .iframe-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             max-width: 1440px;
             margin: auto;
-            padding-bottom: 40px;
+            padding-bottom: 50px;
         }
 
-        /* The Data Frame */
-        .data-frame {
+        /* Iframe Container & Styling */
+        .iframe-container {
             background: var(--bg-panel);
-            border: 2px solid #fff;
-            padding: 15px;
-            position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 92%, 92% 100%, 0 100%);
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-        }
-
-        .data-frame:hover {
-            border-color: var(--accent-cyan);
-            transform: scale(1.02);
-            box-shadow: 0 5px 25px rgba(0, 240, 255, 0.15);
-            z-index: 10;
-        }
-
-        .rarity-banner {
-            position: absolute;
-            top: 5px; left: -5px;
-            padding: 3px 12px;
-            font-weight: 900;
-            font-size: 0.65rem;
-            transform: rotate(-5deg);
-            box-shadow: 3px 3px 0 #000;
-            z-index: 5;
-            text-transform: uppercase;
-        }
-
-        .nft-image {
-            width: 100%;
-            aspect-ratio: 1/1;
-            background: #000;
-            border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 12px;
-            object-fit: contain;
-        }
-
-        .board-title {
-            font-family: 'Bangers';
-            font-size: 1.6rem;
-            color: var(--accent-gold);
-            margin: 0;
-            line-height: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Stat Bars */
-        .stat-group { margin: 8px 0; }
-        .stat-label { font-size: 0.55rem; color: var(--accent-cyan); display: flex; justify-content: space-between; font-weight: 900; }
-        .bar-bg { background: #000; height: 8px; border: 1px solid #333; margin-top: 2px; }
-        .bar-fill { background: var(--accent-gold); height: 100%; box-shadow: 0 0 10px var(--accent-gold); }
-
-        .metadata-box {
-            font-size: 0.55rem;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 4px;
-            color: #aaa;
-            margin: 10px 0;
-            border-left: 3px solid var(--accent-cyan);
-            line-height: 1.4;
-        }
-
-        .view-btn {
-            background: transparent;
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            padding: 10px;
-            width: 100%;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-top: auto;
-            text-transform: uppercase;
             transition: 0.3s;
+            height: 600px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
         }
 
-        .view-btn:hover { background: var(--accent-cyan); color: #000; }
+        .iframe-container:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
+        }
+        
+        .iframe-label {
+            font-family: 'Bangers';
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
 
-        @media (max-width: 1100px) { .collab-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 650px) { .collab-grid { grid-template-columns: 1fr; } }
+        .raw-iframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            background: #000;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 1100px) { .iframe-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { .iframe-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
     <h1>WAC ARTIST COLLABS</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">VIEW ONLY MODE // 12-FRAME METADATA DISPLAY</p>
+    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">12 INDIVIDUAL IFRAMES // SCROLL ENABLED</p>
 </header>
 
-<div id="grid-mount" class="collab-grid">
-    <div style="grid-column: 1/-1; text-align: center; font-size: 1.2rem; color: var(--accent-cyan); padding: 50px;">
-        SYNCING ASSETS...
+<div class="iframe-grid">
+    <div class="iframe-container">
+        <div class="iframe-label">1. NERDS UNITE (#854945)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/854945" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">2. SQUISHEYEZ (#857734)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/857734" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">3. UNIQUE ASSET (109994...)</div>
+        <iframe src="https://wax.atomichub.io/explorer/asset/1099949334880" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">4. COLLAB DECK (#847825)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/847825" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">5. COLLAB DECK (#791658)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791658" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">6. COLLAB DECK (#791659)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791659" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">7. COLLAB DECK (#791660)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791660" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">8. COLLAB DECK (#791661)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791661" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">9. COLLAB DECK (#791662)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791662" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">10. COLLAB DECK (#791663)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791663" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">11. COLLAB DECK (#791664)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791664" class="raw-iframe"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">12. COLLAB DECK (#791665)</div>
+        <iframe src="https://wax.atomichub.io/explorer/template/skatecoinwax/791665" class="raw-iframe"></iframe>
     </div>
 </div>
 
-<script>
-    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
-
-    // Your requested list of specific boards
-    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
-
-    async function loadViewOnlyGrid() {
-        const mount = document.getElementById('grid-mount');
-        const displayData = [];
-        const artistsFound = new Set();
-
-        try {
-            // 1. Fetch your highly specific requested items
-            for (let id of TARGET_IDS) {
-                try {
-                    // Check if it's a template ID (short) or an asset ID (long)
-                    const endpoint = id.length < 10 
-                        ? `/assets?template_id=${id}&limit=1` 
-                        : `/assets/${id}`;
-                    
-                    const response = await fetch(`${ATOMIC_API}${endpoint}`);
-                    const json = await response.json();
-                    
-                    if (json.success) {
-                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
-                        if (nft) processDataFrame(nft, artistsFound, displayData);
-                    }
-                } catch (e) { console.warn(`Failed to sync ID: ${id}`); }
-            }
-
-            // 2. Fetch the remaining items to force the 12-frame grid
-            if (displayData.length < 12) {
-                const response = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=100&order=desc`);
-                const json = await response.json();
-
-                if (json.success) {
-                    for (let nft of json.data) {
-                        if (displayData.length < 12) {
-                            processDataFrame(nft, artistsFound, displayData);
-                        }
-                    }
-                }
-            }
-
-            renderFrames(displayData, mount);
-
-        } catch (error) {
-            mount.innerHTML = `<div style="grid-column:1/-1;">API SYNC ERROR. Please refresh.</div>`;
-        }
-    }
-
-    function processDataFrame(nft, artistSet, list) {
-        const m = nft.data;
-        const artist = m.artist || "Unknown Legend";
-        
-        // Skip duplicate artists to keep the collection diverse
-        if (artistSet.has(artist)) return;
-        artistSet.add(artist);
-
-        const rarity = (m.rarity || "common").toLowerCase();
-        
-        list.push({
-            id: nft.asset_id,
-            name: nft.name || m.name,
-            img: m.img || nft.template.immutable_data.img,
-            rarity: rarity,
-            artist: artist,
-            deck: m.deck || "Hybrid Creatures",
-            speed: parseInt(m.speed) || Math.floor(Math.random() * 6) + 4,
-            pop: parseInt(m.pop) || Math.floor(Math.random() * 6) + 4,
-            balance: parseInt(m.balance) || Math.floor(Math.random() * 6) + 4,
-            trucks: m.trucks || "Standard",
-            wheels: m.wheels || "Standard",
-            bearings: m.bearings || "Standard"
-        });
-    }
-
-    function renderFrames(list, mount) {
-        mount.innerHTML = list.map(b => `
-            <div class="data-frame">
-                <div class="rarity-banner" style="background:var(--${b.rarity})">${b.rarity}</div>
-                <img src="https://ipfs.io/ipfs/${b.img}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Syncing...'">
-                
-                <div class="board-title">${b.name}</div>
-                <div style="font-size:0.55rem; color:#888; margin-bottom:10px;">ARTIST: ${b.artist}</div>
-
-                <div class="stat-group">
-                    <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.speed * 10}%"></div></div>
-                </div>
-                <div class="stat-group">
-                    <div class="stat-label">POP <span>${b.pop}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.pop * 10}%"></div></div>
-                </div>
-                <div class="stat-group">
-                    <div class="stat-label">BALANCE <span>${b.balance}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.balance * 10}%"></div></div>
-                </div>
-
-                <div class="metadata-box">
-                    <strong style="color:#fff;">DECK:</strong> ${b.deck}<br>
-                    <strong style="color:#fff;">TRUCKS:</strong> ${b.trucks}<br>
-                    <strong style="color:#fff;">WHEELS:</strong> ${b.wheels} | <strong style="color:#fff;">BRG:</strong> ${b.bearings}
-                </div>
-
-                <button class="view-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${b.id}', '_blank')">VIEW ON HUB</button>
-            </div>
-        `).join('');
-    }
-
-    loadViewOnlyGrid();
-</script>
 </body>
 </html>
