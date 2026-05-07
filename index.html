@@ -66,7 +66,7 @@
             font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; color: var(--accent-cyan);
         }
 
-        .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; }
+        .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; min-height: 70vh; }
         .grid-header { text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; letter-spacing: 2px; margin-bottom: 30px; font-size: 2.5rem; text-transform: uppercase; }
         
         .dashboard-grid {
@@ -98,6 +98,7 @@
         
         .meta-group { margin-bottom: 12px; }
         .meta-title { font-family: 'Orbitron'; font-size: 0.55rem; color: #555; letter-spacing: 2px; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
+        
         .metadata-hud {
             display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
             padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;
@@ -105,6 +106,14 @@
         }
         .metadata-hud span { color: var(--accent-cyan); font-weight: 900; float: right; text-transform: uppercase; }
         .hardware-hud span { color: #fff; }
+
+        /* VIDEO GAME PROGRESS BARS */
+        .stat-bar-container { width: 100%; height: 6px; background: #111; border: 1px solid #333; border-radius: 3px; margin-top: 3px; overflow: hidden; }
+        .stat-bar { height: 100%; transition: width 1s ease-out; }
+        .stat-pop { background: linear-gradient(90deg, #ff0055, #ff55aa); }
+        .stat-balance { background: linear-gradient(90deg, #aa00ff, #e066ff); }
+        .stat-speed { background: linear-gradient(90deg, #00aaff, #00ffff); }
+        .stat-grind { background: linear-gradient(90deg, #ffaa00, #ffff00); }
 
         .claim-zone { padding: 20px; background: rgba(0,0,0,0.6); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
@@ -128,6 +137,7 @@
 
 <header>
     <div class="header-inner">
+        <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="location.reload()">
         <nav>
             <ul>
                 <li><a href="#" onclick="switchCategory('skateboards')" id="nav-skateboards" class="active">SKATEBOARDS</a></li>
@@ -155,6 +165,14 @@
     <div class="dashboard-grid" id="main-grid"></div>
 </div>
 
+<footer style="margin-top: 50px; padding: 60px; background: rgba(0,0,0,0.8); border-top: 1px solid var(--card-border); text-align: center;">
+    <div style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-bottom: 20px;">
+        <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 30px; opacity: 0.3;">
+        <span style="font-family:'Orbitron'; font-size: 0.7rem; color: #444; letter-spacing: 4px;">WAX BLOCKCHAIN</span>
+    </div>
+    <p style="font-size: 0.6rem; color: #444; font-family:'Orbitron';">© 2026 CRYPTO CLIPS | GAMIFIED SOCIAL PROTOCOL | SKATE2EARN</p>
+</footer>
+
 <div id="onboarding-modal" class="modal-overlay">
     <div class="modal-content">
         <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 20px;">SYNC WAX WALLET</h2>
@@ -173,7 +191,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.8.7',
+        appName: 'SkateTrunkV1.8.8',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -257,6 +275,33 @@
         return s === "" ? fallback : s;
     };
 
+    // Helper: Map text colors to safe hex codes
+    const getSafeColor = (colorStr) => {
+        const map = {
+            'red': '#ff3366', 'blue': '#33ccff', 'green': '#00ffaa', 'yellow': '#ffd700',
+            'purple': '#a855f7', 'pink': '#ff66b2', 'orange': '#f58b00', 'white': '#ffffff',
+            'black': '#888888', 'gold': '#ffd700', 'silver': '#cccccc', 'cyan': '#00f0ff'
+        };
+        let c = colorStr.toLowerCase().trim();
+        return map[c] || '#ffffff';
+    };
+
+    // Video Game Progress Bar Renderer (1-20 Scale)
+    const renderStat = (label, value, cssClass) => {
+        const num = parseInt(value) || 0;
+        const pct = Math.min(num * 5, 100); // 1-20 scale (*5 to get 100%)
+        return `
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">
+                    ${label} <span style="color: #fff;">${num}/20</span>
+                </div>
+                <div class="stat-bar-container">
+                    <div class="stat-bar ${cssClass}" style="width: ${pct}%"></div>
+                </div>
+            </div>
+        `;
+    };
+
     async function loadInventory(user) {
         const grid = document.getElementById('main-grid');
         grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING BLOCKCHAIN...</h3>`;
@@ -279,33 +324,28 @@
                     let actionZoneHtml = "";
 
                     if (currentSchema === 'skateboards') {
-                        const speed = m.speed || t.speed || 0;
-                        const pop = m.pop || t.pop || 0;
-                        const balance = m.balance || t.balance || 0;
-                        const grind = m.grind || t.grind || 0;
-
                         const deck = cleanMeta(m.deck || t.deck, "STOCK");
-                        const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
                         const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
-                        const color = cleanMeta(m.color || t.color, "STANDARD");
+                        const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
+                        const brand = cleanMeta(m.brand || t.brand, nft.name); // Color replaced by Brand, fallback to Name
 
                         hudHtml = `
                             <div class="meta-group">
                                 <div class="meta-title">PERFORMANCE</div>
-                                <div class="metadata-hud">
-                                    <div>SPEED <span>${speed}/10</span></div>
-                                    <div>POP <span>${pop}/10</span></div>
-                                    <div>BALANCE <span>${balance}/10</span></div>
-                                    <div>GRIND <span>${grind}/10</span></div>
+                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
+                                    ${renderStat('POP', m.pop || t.pop, 'stat-pop')}
+                                    ${renderStat('BALANCE', m.balance || t.balance, 'stat-balance')}
+                                    ${renderStat('SPEED', m.speed || t.speed, 'stat-speed')}
+                                    ${renderStat('GRIND', m.grind || t.grind, 'stat-grind')}
                                 </div>
                             </div>
                             <div class="meta-group">
                                 <div class="meta-title">SPECS & HARDWARE</div>
                                 <div class="metadata-hud hardware-hud">
                                     <div>DECK <span>${deck}</span></div>
-                                    <div>WHEELS <span>${wheels}</span></div>
                                     <div>TRUCKS <span>${trucks}</span></div>
-                                    <div>COLOR <span>${color}</span></div>
+                                    <div>WHEELS <span>${wheels}</span></div>
+                                    <div>BRAND <span>${brand}</span></div>
                                 </div>
                             </div>
                         `;
@@ -324,19 +364,30 @@
                         `;
                     } 
                     else {
-                        const brand = cleanMeta(m.brand || t.brand, "N/A");
-                        const artist = cleanMeta(m['3d artist'] || t['3d artist']);
+                        const brandRaw = cleanMeta(m.brand || t.brand, nft.name);
+                        const itemColor = cleanMeta(m.color || t.color, "");
                         
-                        let statsHtml = `<div>BRAND <span>${brand}</span></div>`;
-                        if (m.pop || t.pop) statsHtml += `<div>POP <span>${m.pop || t.pop}</span></div>`;
-                        if (m.speed || t.speed) statsHtml += `<div>SPEED <span>${m.speed || t.speed}</span></div>`;
-                        if (m.balance || t.balance) statsHtml += `<div>BALANCE <span>${m.balance || t.balance}</span></div>`;
-                        if (artist) statsHtml += `<div>ARTIST <span>${artist}</span></div>`;
+                        let customColorStyle = "";
+                        if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) {
+                            const safeHex = getSafeColor(itemColor);
+                            customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`;
+                        }
+
+                        let statsHtml = `
+                            <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">
+                                BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span>
+                            </div>
+                        `;
+                        
+                        // Strict Component Order: BRAND, POP, BALANCE, SPEED
+                        if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop');
+                        if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance');
+                        if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
 
                         hudHtml = `
                             <div class="meta-group">
                                 <div class="meta-title">COMPONENT TRAITS</div>
-                                <div class="metadata-hud hardware-hud">
+                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
                                     ${statsHtml}
                                 </div>
                             </div>
