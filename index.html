@@ -199,25 +199,18 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.11.0',
+        appName: 'SkateparkV1.13.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
-    let sWax = 0;
-    let currentSession = null;
-    let currentSchema = 'skateboards'; 
-    let cachedInventoryData = [];
-    let craftingCache = { decks: [], trucks: [], wheels: [] };
+    let sWax = 0, currentSession = null, currentSchema = 'skateboards', cachedInventoryData = [], craftingCache = { decks: [], trucks: [], wheels: [] };
 
     sessionKit.restore().then(s => {
         if (s) {
-            currentSession = s;
-            const user = s.actor.toString();
-            document.getElementById('connect-btn').innerText = user.toUpperCase();
-            updateBalances(user);
-            switchCategory(currentSchema);
+            currentSession = s; document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase();
+            updateBalances(s.actor.toString()); switchCategory(currentSchema);
         }
     });
 
@@ -234,30 +227,22 @@
         } else {
             document.getElementById('crafting-bench').style.display = 'none';
             document.getElementById('main-grid').style.display = 'grid';
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-rarity').value = 'all';
+            document.getElementById('filter-name').value = ''; document.getElementById('filter-rarity').value = 'all';
             if (currentSession) fetchInventory(currentSession.actor.toString());
         }
     };
 
     async function syncPrices() {
-        const skatePerWax = 7.6897;
-        sWax = 1 / skatePerWax; 
-        document.getElementById('price-ticker').innerHTML = `
-            <div>EXCHANGE RATE: <b>1 WAX = ${skatePerWax.toFixed(4)} $SKATE</b></div>
-            <div style="color:var(--accent-gold);">EARLY ALPHA REWARD PANEL</div>
-        `;
+        const skatePerWax = 7.6897; sWax = 1 / skatePerWax; 
+        document.getElementById('price-ticker').innerHTML = `<div>EXCHANGE RATE: <b>1 WAX = ${skatePerWax.toFixed(4)} $SKATE</b></div><div style="color:var(--accent-gold);">EARLY ALPHA REWARD PANEL</div>`;
     }
 
     async function updateBalances(user) {
         try {
             const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "eosio.token", account: user, symbol: "WAX" }) });
-            const waxBal = await waxRes.json();
-            document.getElementById('wax-bal').innerText = waxBal[0] ? waxBal[0].replace(' WAX', '') : "0.00";
-
+            const waxBal = await waxRes.json(); document.getElementById('wax-bal').innerText = waxBal[0] ? waxBal[0].replace(' WAX', '') : "0.00";
             const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "skatecoinwax", account: user, symbol: "SKATE" }) });
-            const skateBal = await skateRes.json();
-            document.getElementById('skate-bal').innerText = skateBal[0] ? skateBal[0].replace(' SKATE', '') : "0.00";
+            const skateBal = await skateRes.json(); document.getElementById('skate-bal').innerText = skateBal[0] ? skateBal[0].replace(' SKATE', '') : "0.00";
             document.getElementById('wallet-balances').style.display = 'flex';
         } catch (e) { console.error("Failed to fetch balances", e); }
     }
@@ -267,21 +252,16 @@
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
 
     document.getElementById('login-trigger').addEventListener('click', async () => {
-        const { session } = await sessionKit.login();
-        currentSession = session;
+        const { session } = await sessionKit.login(); currentSession = session;
         document.getElementById('connect-btn').innerText = session.actor.toString().toUpperCase();
-        closeModals();
-        updateBalances(session.actor.toString());
-        switchCategory(currentSchema);
+        closeModals(); updateBalances(session.actor.toString()); switchCategory(currentSchema);
     });
-
     document.getElementById('logout-trigger').addEventListener('click', async () => { await sessionKit.logout(); location.reload(); });
 
     async function loadCraftingData(user) {
         try {
             const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&owner=${user}&limit=300`);
             const json = await res.json();
-            
             if (json.success) {
                 craftingCache.decks = json.data.filter(a => a.schema.schema_name === 'decks');
                 craftingCache.trucks = json.data.filter(a => a.schema.schema_name === 'trucks');
@@ -289,23 +269,18 @@
 
                 const popSelect = (id, arr, label) => {
                     const sel = document.getElementById(id);
-                    sel.innerHTML = `<option value="">-- CHOOSE ${label} --</option>` + 
-                        arr.map(nft => {
-                            const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
-                            const imgHash = m.img || t.img || "";
-                            return `<option value="${nft.asset_id}" data-img="${imgHash}" data-pop="${m.pop||t.pop||0}" data-speed="${m.speed||t.speed||0}" data-bal="${m.balance||t.balance||0}">
-                                ${nft.name} (#${nft.asset_id})
-                            </option>`;
-                        }).join('');
+                    sel.innerHTML = `<option value="">-- CHOOSE ${label} --</option>` + arr.map(nft => {
+                        const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
+                        const iH = m.img || t.img || "";
+                        return `<option value="${nft.asset_id}" data-img="${iH}" data-pop="${m.pop||t.pop||0}" data-speed="${m.speed||t.speed||0}" data-bal="${m.balance||t.balance||0}">
+                            ${nft.name} (#${nft.asset_id})
+                        </option>`;
+                    }).join('');
                 };
-
                 popSelect('craft-deck-select', craftingCache.decks, 'DECK');
-                popSelect('craft-truck1-select', craftingCache.trucks, 'FRONT TRUCKS');
-                popSelect('craft-truck2-select', craftingCache.trucks, 'BACK TRUCKS');
-                popSelect('craft-wheel1-select', craftingCache.wheels, 'WHEEL 1');
-                popSelect('craft-wheel2-select', craftingCache.wheels, 'WHEEL 2');
-                popSelect('craft-wheel3-select', craftingCache.wheels, 'WHEEL 3');
-                popSelect('craft-wheel4-select', craftingCache.wheels, 'WHEEL 4');
+                popSelect('craft-truck1-select', craftingCache.trucks, 'FRONT TRUCKS'); popSelect('craft-truck2-select', craftingCache.trucks, 'BACK TRUCKS');
+                popSelect('craft-wheel1-select', craftingCache.wheels, 'WHEEL 1'); popSelect('craft-wheel2-select', craftingCache.wheels, 'WHEEL 2');
+                popSelect('craft-wheel3-select', craftingCache.wheels, 'WHEEL 3'); popSelect('craft-wheel4-select', craftingCache.wheels, 'WHEEL 4');
             }
         } catch(e) { console.error("Crafting fetch error", e); }
     }
@@ -316,22 +291,22 @@
     };
 
     window.updateCraftingStats = () => {
-        const d = document.getElementById('craft-deck-select').selectedOptions[0];
-        const t1 = document.getElementById('craft-truck1-select').selectedOptions[0];
-        const t2 = document.getElementById('craft-truck2-select').selectedOptions[0];
-        const w1 = document.getElementById('craft-wheel1-select').selectedOptions[0];
-        const w2 = document.getElementById('craft-wheel2-select').selectedOptions[0];
-        const w3 = document.getElementById('craft-wheel3-select').selectedOptions[0];
-        const w4 = document.getElementById('craft-wheel4-select').selectedOptions[0];
+        const d = document.getElementById('craft-deck-select').selectedOptions[0], t1 = document.getElementById('craft-truck1-select').selectedOptions[0], t2 = document.getElementById('craft-truck2-select').selectedOptions[0];
+        const w1 = document.getElementById('craft-wheel1-select').selectedOptions[0], w2 = document.getElementById('craft-wheel2-select').selectedOptions[0], w3 = document.getElementById('craft-wheel3-select').selectedOptions[0], w4 = document.getElementById('craft-wheel4-select').selectedOptions[0];
 
         if (d.value && t1.value && t2.value && w1.value && w2.value && w3.value && w4.value) {
             
-            const tP = parseInt(d.dataset.pop) + parseInt(t1.dataset.pop) + parseInt(t2.dataset.pop) + parseInt(w1.dataset.pop) + parseInt(w2.dataset.pop) + parseInt(w3.dataset.pop) + parseInt(w4.dataset.pop);
-            const tS = parseInt(d.dataset.speed) + parseInt(t1.dataset.speed) + parseInt(t2.dataset.speed) + parseInt(w1.dataset.speed) + parseInt(w2.dataset.speed) + parseInt(w3.dataset.speed) + parseInt(w4.dataset.speed);
-            const tB = parseInt(d.dataset.bal) + parseInt(t1.dataset.bal) + parseInt(t2.dataset.bal) + parseInt(w1.dataset.bal) + parseInt(w2.dataset.bal) + parseInt(w3.dataset.bal) + parseInt(w4.dataset.bal);
-            
-            const totalPower = tP + tS + tB;
-            const totalRewards = totalPower * 1000;
+            // TRUTH MATH: Pillar-Based Averaging Logic (V1.13.0)
+            const calcTruth = (attr) => {
+                const deckVal = parseInt(d.dataset[attr]) || 0;
+                const truckSet = Math.round(((parseInt(t1.dataset[attr]) || 0) + (parseInt(t2.dataset[attr]) || 0)) / 2);
+                const wheelSet = Math.round(((parseInt(w1.dataset[attr]) || 0) + (parseInt(w2.dataset[attr]) || 0) + (parseInt(w3.dataset[attr]) || 0) + (parseInt(w4.dataset[attr]) || 0)) / 4);
+                // 3 Parts Together = 1 Whole
+                return Math.round((deckVal + truckSet + wheelSet) / 3);
+            };
+
+            const tP = calcTruth('pop'), tS = calcTruth('speed'), tB = calcTruth('bal');
+            const totalPower = tP + tS + tB; const totalRewards = totalPower * 1000;
 
             const iD = d.dataset.img, iT1 = t1.dataset.img, iT2 = t2.dataset.img, iW1 = w1.dataset.img, iW2 = w2.dataset.img, iW3 = w3.dataset.img, iW4 = w4.dataset.img;
 
@@ -345,13 +320,14 @@
                 </div>
             `;
 
+            // Max scale for One Whole logic: 20 per stat, 60 total power
             document.getElementById('craft-stats-hud').innerHTML = `
                 ${visualHtml}
-                ${renderStat('PROJECTED POP', tP, 'stat-pop', 140)}
-                ${renderStat('PROJECTED BALANCE', tB, 'stat-balance', 140)}
-                ${renderStat('PROJECTED SPEED', tS, 'stat-speed', 140)}
+                ${renderStat('PROJECTED POP', tP, 'stat-pop', 20)}
+                ${renderStat('PROJECTED BALANCE', tB, 'stat-balance', 20)}
+                ${renderStat('PROJECTED SPEED', tS, 'stat-speed', 20)}
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2);">
-                    ${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 420)}
+                    ${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 60)}
                 </div>
                 <div style="margin-top: 20px; padding: 15px; background: rgba(255,215,0,0.1); border: 1px solid var(--accent-gold); border-radius: 6px; text-align: center;">
                     <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.65rem; letter-spacing: 2px; margin-bottom: 5px;">ESTIMATED AIRDROP REWARD</div>
@@ -368,20 +344,13 @@
     window.executeBlend = async () => {
         if (!currentSession) return;
         const d_id = document.getElementById('craft-deck-select').value;
-        const t1_id = document.getElementById('craft-truck1-select').value;
-        const t2_id = document.getElementById('craft-truck2-select').value;
-        const w1_id = document.getElementById('craft-wheel1-select').value;
-        const w2_id = document.getElementById('craft-wheel2-select').value;
-        const w3_id = document.getElementById('craft-wheel3-select').value;
-        const w4_id = document.getElementById('craft-wheel4-select').value;
-        
-        const RECIPE_ID = "99999"; 
+        const memoPayload = `BUILD_REQ: Final Logic (1 Whole Setup)`;
         try {
-            const action = { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'blenderizerx', asset_ids: [d_id, t1_id, t2_id, w1_id, w2_id, w3_id, w4_id], memo: RECIPE_ID } };
+            const action = { account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'ufuau.wam', quantity: '0.00000001 WAX', memo: memoPayload } };
             await currentSession.transact({ action });
-            alert("BLEND TRANSACTION SENT! If the recipe ID was valid, your new Skateboard is in your Trunk.");
+            alert(`✅ BUILD TRANSACTED TO UFUAU.WAM!\n\nYour request has been logged on the WAX blockchain.`);
             loadCraftingData(currentSession.actor.toString());
-        } catch (e) { console.error(e); alert("Transaction Cancelled or Failed. Make sure the Recipe ID is valid."); }
+        } catch (e) { console.error(e); alert("Transaction Cancelled."); }
     };
 
     const cleanMeta = (val, fallback = "") => { if (!val) return fallback; let s = String(val); if (s.includes('-')) s = s.split('-')[0]; if (s.includes('https://')) s = s.split('https://')[0]; return s.trim() === "" ? fallback : s.trim(); };
@@ -411,7 +380,6 @@
             const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
             const name = (nft.name || "").toLowerCase(), rarity = (m.rarity || t.rarity || 'stock').toLowerCase();
             const iC = cleanMeta(m.color || t.color || m.brand || t.brand || name).toLowerCase(), wStr = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase(), tStr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
-
             if (fN && !name.includes(fN)) return false;
             if (fR !== 'all' && rarity !== fR) return false;
             if (fW !== 'all' && ((currentSchema === 'skateboards' && !wStr.includes(fW)) || (currentSchema === 'wheels' && !iC.includes(fW)))) return false;
@@ -438,31 +406,22 @@
     function renderGrid(dataArray) {
         const grid = document.getElementById('main-grid');
         if (dataArray.length === 0) { grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO MATCHING ITEMS IN THE TRUNK</h3>`; return; }
-
         grid.innerHTML = dataArray.map(nft => {
             const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
-            const rarity = (m.rarity || t.rarity || 'stock').toLowerCase(), imgHash = m.img || t.img || "", mintNumber = nft.template_mint || "N/A";
+            const rarity = (m.rarity || t.rarity || 'stock').toLowerCase(), iH = m.img || t.img || "", mN = nft.template_mint || "N/A";
             let hudHtml = "", actionZoneHtml = "";
-
             if (currentSchema === 'skateboards') {
-                const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0), totalPower = speed + pop + balance; 
-                const deck = cleanMeta(m.deck || t.deck, "STOCK"), trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK"), wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK"), brand = cleanMeta(m.brand || t.brand, nft.name); 
-
-                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 140)}${renderStat('BALANCE', balance, 'stat-balance', 140)}${renderStat('SPEED', speed, 'stat-speed', 140)}${renderStat('TOTAL POWER', totalPower, 'stat-grind', 420)}</div></div><div class="meta-group"><div class="meta-title">SPECS & HARDWARE</div><div class="metadata-hud hardware-hud"><div>DECK <span>${deck}</span></div><div>TRUCKS <span>${trucks}</span></div><div>WHEELS <span>${wheels}</span></div><div>BRAND <span>${brand}</span></div></div></div>`;
-                const skateReward = 1000, waxValue = (skateReward * sWax).toFixed(2);
-                actionZoneHtml = `<div class="claim-zone"><div><div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div><div class="reward-wax">≈ ${waxValue} WAX</div></div><button class="wallet-btn" style="padding: 10px 15px;" onclick="openClaimModal()">CLAIM</button></div>`;
+                const s = parseInt(m.speed || t.speed || 0), p = parseInt(m.pop || t.pop || 0), b = parseInt(m.balance || t.balance || 0), tP = s + p + b; 
+                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', p, 'stat-pop', 20)}${renderStat('BALANCE', b, 'stat-balance', 20)}${renderStat('SPEED', s, 'stat-speed', 20)}${renderStat('TOTAL POWER', tP, 'stat-grind', 60)}</div></div>`;
+                actionZoneHtml = `<div class="claim-zone"><div><div class="reward-skate">🪙 1,000</div><div class="reward-wax">≈ 120 WAX</div></div><button class="wallet-btn" onclick="openClaimModal()">CLAIM</button></div>`;
             } else {
-                const brandRaw = cleanMeta(m.brand || t.brand, nft.name), itemColor = cleanMeta(m.color || t.color, "");
-                let customColorStyle = ""; if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) { const safeHex = getSafeColor(itemColor); customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`; }
-                let statsHtml = `<div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span></div>`;
-                if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop', 20); if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance', 20); if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed', 20);
-                hudHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${statsHtml}</div></div>`;
-                actionZoneHtml = `<div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button></div>`;
+                const bR = cleanMeta(m.brand || t.brand, nft.name);
+                hudHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;"><div style="font-size:0.6rem; color:#888;">BRAND <span style="color:var(--accent-cyan); float:right;">${bR.toUpperCase()}</span></div>${renderStat('POP', m.pop||t.pop, 'stat-pop', 20)}${renderStat('BALANCE', m.balance||t.balance, 'stat-balance', 20)}${renderStat('SPEED', m.speed||t.speed, 'stat-speed', 20)}</div></div>`;
+                actionZoneHtml = `<div class="claim-zone" style="background:rgba(0,0,0,0.8); border-top:1px solid var(--atomic-orange); display:flex; justify-content:center; padding:15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background:var(--atomic-orange); color:#000; width:100%; clip-path:none;">VIEW ON ATOMIC</button></div>`;
             }
-            return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity});"><div class="mint-badge">#${mintNumber}</div><div>${rarity} EDITION</div><div style="width:30px;"></div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img"></div><div class="card-body"><div class="board-name">${nft.name}</div>${hudHtml}</div>${actionZoneHtml}</div>`;
+            return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity});"><div class="mint-badge">#${mN}</div><div>${rarity} EDITION</div><div style="width:30px;"></div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${iH}" class="skate-img"></div><div class="card-body"><div class="board-name">${nft.name}</div>${hudHtml}</div>${actionZoneHtml}</div>`;
         }).join('');
     }
-
     syncPrices();
 </script>
 </body>
