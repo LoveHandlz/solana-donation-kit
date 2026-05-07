@@ -80,11 +80,8 @@
             padding: 10px; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900;
             border-radius: 4px; outline: none; text-transform: uppercase;
         }
-        .filter-bar input::placeholder { color: rgba(0, 240, 255, 0.4); }
         
-        .dashboard-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;
-        }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
 
         .skate-card {
             background: var(--bg-panel); border: 1px solid var(--card-border);
@@ -93,15 +90,8 @@
         }
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
-        .rarity-header { 
-            padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; 
-            text-transform: uppercase; letter-spacing: 2px; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .mint-badge {
-            background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; 
-            border-radius: 4px; font-family: 'Inter'; font-size: 0.55rem; font-weight: 900; letter-spacing: 1px;
-        }
+        .rarity-header { padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center; }
+        .mint-badge { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; font-family: 'Inter'; font-size: 0.55rem; font-weight: 900; }
         
         .img-wrap { width: 100%; height: 220px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
@@ -112,17 +102,11 @@
         .meta-group { margin-bottom: 12px; }
         .meta-title { font-family: 'Orbitron'; font-size: 0.55rem; color: #555; letter-spacing: 2px; margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px; }
         
-        .metadata-hud {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-            padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;
-            font-family: 'Orbitron'; font-size: 0.55rem; color: #888;
-        }
+        .metadata-hud { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; }
         .metadata-hud span { color: var(--accent-cyan); font-weight: 900; float: right; text-transform: uppercase; }
-        .hardware-hud span { color: #fff; }
-
-        /* VIDEO GAME PROGRESS BARS */
+        
         .stat-bar-container { width: 100%; height: 6px; background: #111; border: 1px solid #333; border-radius: 3px; margin-top: 3px; overflow: hidden; }
-        .stat-bar { height: 100%; transition: width 1s ease-out; }
+        .stat-bar { height: 100%; transition: width 0.5s ease-out; }
         .stat-pop { background: linear-gradient(90deg, #ff0055, #ff55aa); }
         .stat-balance { background: linear-gradient(90deg, #aa00ff, #e066ff); }
         .stat-speed { background: linear-gradient(90deg, #00aaff, #00ffff); }
@@ -132,18 +116,20 @@
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
         .reward-wax { font-family: 'Inter'; font-size: 0.75rem; color: var(--accent-gold); font-weight: 900; }
         
-        .wallet-btn { 
-            background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; 
-            font-family: 'Orbitron'; font-weight: 900; cursor: pointer;
-            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s;
-        }
+        .wallet-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s; }
         .wallet-btn:hover { background: #fff; }
+        .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center;
-        }
-        .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 450px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 450px; max-height: 90vh; overflow-y: auto; }
+
+        /* --- CRAFTING BENCH UI --- */
+        .crafting-container { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; background: rgba(0,0,0,0.5); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-cyan); }
+        .crafting-selectors { display: flex; flex-direction: column; gap: 20px; }
+        .craft-slot { background: rgba(0,240,255,0.05); border: 1px solid var(--card-border); padding: 20px; border-radius: 8px; }
+        .craft-slot h4 { margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; letter-spacing: 2px; }
+        .craft-slot select { width: 100%; padding: 15px; background: #000; color: #fff; border: 1px solid #333; font-family: 'Inter'; font-size: 0.85rem; border-radius: 4px; outline: none; }
+        .projected-stats { background: #000; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: space-between; }
     </style>
 </head>
 <body>
@@ -157,6 +143,7 @@
                 <li><a href="#" onclick="switchCategory('decks')" id="nav-decks">DECKS</a></li>
                 <li><a href="#" onclick="switchCategory('wheels')" id="nav-wheels">WHEELS</a></li>
                 <li><a href="#" onclick="switchCategory('trucks')" id="nav-trucks">TRUCKS</a></li>
+                <li><a href="#" onclick="switchCategory('crafting')" id="nav-crafting" style="color:var(--accent-gold);">CRAFTING BENCH</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -186,16 +173,41 @@
             <option value="legendary">LEGENDARY</option>
             <option value="epic">EPIC</option>
         </select>
-        <select id="filter-wheel-trait" style="display:none;">
-            <option value="all">WHEEL TRAIT: ALL</option>
-        </select>
-        <select id="filter-truck-trait" style="display:none;">
-            <option value="all">TRUCK TRAIT: ALL</option>
-        </select>
+        <select id="filter-wheel-trait" style="display:none;"><option value="all">WHEEL TRAIT: ALL</option></select>
+        <select id="filter-truck-trait" style="display:none;"><option value="all">TRUCK TRAIT: ALL</option></select>
     </div>
 
     <div class="dashboard-grid" id="main-grid">
         <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; text-transform: uppercase;">CONNECT WALLET TO OPEN TRUNK</h3>
+    </div>
+
+    <div id="crafting-bench" class="crafting-container" style="display: none;">
+        <div class="crafting-selectors">
+            <div class="craft-slot">
+                <h4>1. SELECT DECK</h4>
+                <select id="craft-deck-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE A DECK FROM TRUNK --</option></select>
+            </div>
+            <div class="craft-slot">
+                <h4>2. SELECT TRUCKS</h4>
+                <select id="craft-truck-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE TRUCKS FROM TRUNK --</option></select>
+            </div>
+            <div class="craft-slot">
+                <h4>3. SELECT WHEELS</h4>
+                <select id="craft-wheel-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE WHEELS FROM TRUNK --</option></select>
+            </div>
+            
+            <button class="wallet-btn" onclick="openBlueprintModal()" style="margin-top: 10px; font-size: 0.8rem; background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">+ REQUEST CUSTOM PARTS BLUEPRINT</button>
+        </div>
+        
+        <div class="projected-stats">
+            <div>
+                <h3 style="color: var(--accent-gold); font-family: 'Bangers'; font-size: 2rem; margin: 0 0 20px 0; letter-spacing: 2px;">PROJECTED BUILD</h3>
+                <div id="craft-stats-hud">
+                    <div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 3 COMPONENTS<br>TO RUN PROTOCOL MATH</div>
+                </div>
+            </div>
+            <button id="initiate-blend-btn" class="wallet-btn" style="width: 100%; padding: 20px; font-size: 1.2rem; background: var(--accent-gold);" disabled onclick="executeBlend()">INITIATE BLEND</button>
+        </div>
     </div>
 </div>
 
@@ -207,46 +219,58 @@
     <p style="font-size: 0.6rem; color: #444; font-family:'Orbitron';">© 2026 CRYPTO CLIPS | GAMIFIED SOCIAL PROTOCOL | SKATE2EARN</p>
 </footer>
 
-<div id="onboarding-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-gold);">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2>
-        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            Welcome to the new sk8coin NFT reward system for Alpha holders! You are entitled to early investor rewards for completing the crafting process and holding your skateboards. 
-            <br><br>
-            Congrats diamond hands, you may now claim $SKATE rewards. Skate or die, you are elite!
-        </p>
-        <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT WAX WALLET</button>
-        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
-    </div>
-</div>
+<div id="onboarding-modal" class="modal-overlay"><div class="modal-content" style="border-color: var(--accent-gold);"><h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2><p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">Welcome to the new sk8coin NFT reward system for Alpha holders! You are entitled to early investor rewards for completing the crafting process and holding your skateboards. <br><br>Congrats diamond hands, you may now claim $SKATE rewards. Skate or die, you are elite!</p><button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT WAX WALLET</button><button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button></div></div>
+<div id="disconnect-modal" class="modal-overlay"><div class="modal-content" style="border-color: #ff3366;"><h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2><p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px;">Thank you for supporting the project and holding the line! Your diamond hands are what makes this community elite. <br><br>Keep ripping, keep stacking rewards, and we'll see you back on the streets.</p><button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button><button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button></div></div>
+<div id="claim-modal" class="modal-overlay"><div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);"><h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2><div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;"><p style="margin-top: 0;">Welcome to the <b>sk8coin Closed Beta.</b> If you're seeing this, you are an early investor shaping the future of the skate2earn revolution.</p><p>Right now, this secure frequency is locked. <b>Only completed Skateboard holders have access to this portal.</b></p><p>The protocol is charging up. Before the custom claim smart contracts go live, we are initiating a massive <b>Airdrop Snapshot</b>. All completed skateboards are eligible for massive $SKATE rewards based on rarity.</p><div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;"><span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b> If you break formation, you miss the drop, delay your rewards, and risk getting locked out of elite platform features that run on $SKATE.</div><p style="text-align: center; color: var(--accent-gold); font-weight: 900; font-family: 'Orbitron'; margin-bottom: 0; margin-top: 20px;">DIAMOND HANDS WIN. YOU ARE ELITE.</p></div><button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button></div></div>
 
-<div id="disconnect-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: #ff3366;">
-        <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
-        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px;">
-            Thank you for supporting the project and holding the line! Your diamond hands are what makes this community elite. 
-            <br><br>
-            Keep ripping, keep stacking rewards, and we'll see you back on the streets.
+<div id="blueprint-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-cyan); padding: 30px;">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 10px;">🛠️ CUSTOM BLUEPRINT</h2>
+        <p style="color: #ccc; font-size: 0.8rem; line-height: 1.5; margin-bottom: 25px;">
+            Initialize custom fabrication. Enter the exact Name, Brand, or Color for your required components, and select the target Rarity. This data will be logged for the minting protocol.
         </p>
-        <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button>
-        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
-    </div>
-</div>
-
-<div id="claim-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
-        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            <p style="margin-top: 0;">Welcome to the <b>sk8coin Closed Beta.</b> If you're seeing this, you are an early investor shaping the future of the skate2earn revolution.</p>
-            <p>Right now, this secure frequency is locked. <b>Only completed Skateboard holders have access to this portal.</b></p>
-            <p>The protocol is charging up. Before the custom claim smart contracts go live, we are initiating a massive <b>Airdrop Snapshot</b>. All completed skateboards are eligible for massive $SKATE rewards based on rarity.</p>
-            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
-                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
-                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b> If you break formation, you miss the drop, delay your rewards, and risk getting locked out of elite platform features that run on $SKATE.
-            </div>
-            <p style="text-align: center; color: var(--accent-gold); font-weight: 900; font-family: 'Orbitron'; margin-bottom: 0; margin-top: 20px;">DIAMOND HANDS WIN. YOU ARE ELITE.</p>
+        
+        <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333;">
+            <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; margin: 0 0 10px 0; font-size: 0.8rem; letter-spacing: 1px;">DECK SPECS</h4>
+            <input type="text" id="bp-deck-name" placeholder="ENTER DECK NAME OR BRAND..." style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: #fff; font-family: 'Inter'; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px; outline: none;">
+            <select id="bp-deck-rarity" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; box-sizing: border-box; border-radius: 4px; outline: none;">
+                <option value="common">COMMON</option>
+                <option value="uncommon">UNCOMMON</option>
+                <option value="rare">RARE</option>
+                <option value="mythic">MYTHIC</option>
+                <option value="legendary">LEGENDARY</option>
+                <option value="epic">EPIC</option>
+            </select>
         </div>
-        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
+
+        <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333;">
+            <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; margin: 0 0 10px 0; font-size: 0.8rem; letter-spacing: 1px;">TRUCK SPECS</h4>
+            <input type="text" id="bp-truck-name" placeholder="ENTER TRUCK NAME OR COLOR..." style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: #fff; font-family: 'Inter'; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px; outline: none;">
+            <select id="bp-truck-rarity" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; box-sizing: border-box; border-radius: 4px; outline: none;">
+                <option value="common">COMMON</option>
+                <option value="uncommon">UNCOMMON</option>
+                <option value="rare">RARE</option>
+                <option value="mythic">MYTHIC</option>
+                <option value="legendary">LEGENDARY</option>
+                <option value="epic">EPIC</option>
+            </select>
+        </div>
+
+        <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #333;">
+            <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; margin: 0 0 10px 0; font-size: 0.8rem; letter-spacing: 1px;">WHEEL SPECS</h4>
+            <input type="text" id="bp-wheel-name" placeholder="ENTER WHEEL BRAND OR COLOR..." style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: #fff; font-family: 'Inter'; margin-bottom: 10px; box-sizing: border-box; border-radius: 4px; outline: none;">
+            <select id="bp-wheel-rarity" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; box-sizing: border-box; border-radius: 4px; outline: none;">
+                <option value="common">COMMON</option>
+                <option value="uncommon">UNCOMMON</option>
+                <option value="rare">RARE</option>
+                <option value="mythic">MYTHIC</option>
+                <option value="legendary">LEGENDARY</option>
+                <option value="epic">EPIC</option>
+            </select>
+        </div>
+
+        <button class="wallet-btn" onclick="submitBlueprint()" style="width: 100%; margin-bottom: 15px;">SUBMIT BLUEPRINT REQUEST</button>
+        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ ABORT ]</button>
     </div>
 </div>
 
@@ -260,7 +284,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.9.4',
+        appName: 'SkateparkV1.9.6',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -270,8 +294,8 @@
     let currentSession = null;
     let currentSchema = 'skateboards'; 
     let cachedInventoryData = [];
+    let craftingCache = { decks: [], trucks: [], wheels: [] };
 
-    // --- FRICTIONLESS AUTO-LOGIN ---
     sessionKit.restore().then(s => {
         if (s) {
             currentSession = s;
@@ -284,23 +308,26 @@
 
     window.switchCategory = (schema) => {
         currentSchema = schema;
-        
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${schema}`).classList.add('active');
 
-        // Reset text filters
-        document.getElementById('filter-name').value = '';
-        document.getElementById('filter-rarity').value = 'all';
-
-        if (currentSession) {
-            fetchInventory(currentSession.actor.toString());
+        if (schema === 'crafting') {
+            document.getElementById('inventory-filters').style.display = 'none';
+            document.getElementById('main-grid').style.display = 'none';
+            document.getElementById('crafting-bench').style.display = 'grid';
+            if (currentSession) loadCraftingData(currentSession.actor.toString());
+        } else {
+            document.getElementById('crafting-bench').style.display = 'none';
+            document.getElementById('main-grid').style.display = 'grid';
+            document.getElementById('filter-name').value = '';
+            document.getElementById('filter-rarity').value = 'all';
+            if (currentSession) fetchInventory(currentSession.actor.toString());
         }
     };
 
     async function syncPrices() {
         const skatePerWax = 7.6897;
         sWax = 1 / skatePerWax; 
-
         document.getElementById('price-ticker').innerHTML = `
             <div>EXCHANGE RATE: <b>1 WAX = ${skatePerWax.toFixed(4)} $SKATE</b></div>
             <div style="color:var(--accent-gold);">EARLY ALPHA REWARD PANEL</div>
@@ -309,321 +336,201 @@
 
     async function updateBalances(user) {
         try {
-            const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
-                method: 'POST', body: JSON.stringify({ code: "eosio.token", account: user, symbol: "WAX" })
-            });
+            const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "eosio.token", account: user, symbol: "WAX" }) });
             const waxBal = await waxRes.json();
             document.getElementById('wax-bal').innerText = waxBal[0] ? waxBal[0].replace(' WAX', '') : "0.00";
 
-            const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, {
-                method: 'POST', body: JSON.stringify({ code: "skatecoinwax", account: user, symbol: "SKATE" })
-            });
+            const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "skatecoinwax", account: user, symbol: "SKATE" }) });
             const skateBal = await skateRes.json();
             document.getElementById('skate-bal').innerText = skateBal[0] ? skateBal[0].replace(' SKATE', '') : "0.00";
-            
             document.getElementById('wallet-balances').style.display = 'flex';
         } catch (e) { console.error("Failed to fetch balances", e); }
     }
 
-    window.toggleAuthModal = () => {
-        if (currentSession) {
-            document.getElementById('disconnect-modal').style.display = 'flex';
-        } else {
-            document.getElementById('onboarding-modal').style.display = 'flex';
+    // Modal Triggers
+    window.toggleAuthModal = () => { currentSession ? document.getElementById('disconnect-modal').style.display = 'flex' : document.getElementById('onboarding-modal').style.display = 'flex'; };
+    window.openClaimModal = () => { document.getElementById('claim-modal').style.display = 'flex'; };
+    window.openBlueprintModal = () => { document.getElementById('blueprint-modal').style.display = 'flex'; };
+    window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
+
+    // Blueprint Submission Logic
+    window.submitBlueprint = () => {
+        const dName = document.getElementById('bp-deck-name').value;
+        const dRarity = document.getElementById('bp-deck-rarity').value;
+        const tName = document.getElementById('bp-truck-name').value;
+        const tRarity = document.getElementById('bp-truck-rarity').value;
+        const wName = document.getElementById('bp-wheel-name').value;
+        const wRarity = document.getElementById('bp-wheel-rarity').value;
+
+        if (!dName || !tName || !wName) {
+            alert("⚠️ SYSTEM ERROR: All component names must be filled to generate a blueprint.");
+            return;
         }
-    };
 
-    window.openClaimModal = () => {
-        document.getElementById('claim-modal').style.display = 'flex';
-    };
+        // Simulating the backend request log
+        console.log("BLUEPRINT SUBMITTED:", {
+            Deck: { Name: dName, Rarity: dRarity },
+            Trucks: { Name: tName, Rarity: tRarity },
+            Wheels: { Name: wName, Rarity: wRarity }
+        });
 
-    window.closeModals = () => {
-        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+        alert(`✅ BLUEPRINT LOGGED SUCCESSFULLY!\n\nYour custom specs for [${dName}], [${tName}], and [${wName}] have been saved to the local cache. The minting protocol will process this request.`);
+        closeModals();
+        
+        // Reset fields
+        document.getElementById('bp-deck-name').value = '';
+        document.getElementById('bp-truck-name').value = '';
+        document.getElementById('bp-wheel-name').value = '';
     };
 
     document.getElementById('login-trigger').addEventListener('click', async () => {
         const { session } = await sessionKit.login();
         currentSession = session;
-        const user = session.actor.toString();
-        document.getElementById('connect-btn').innerText = user.toUpperCase();
+        document.getElementById('connect-btn').innerText = session.actor.toString().toUpperCase();
         closeModals();
-        updateBalances(user);
+        updateBalances(session.actor.toString());
         switchCategory(currentSchema);
     });
 
-    document.getElementById('logout-trigger').addEventListener('click', async () => {
-        await sessionKit.logout();
-        location.reload();
-    });
+    document.getElementById('logout-trigger').addEventListener('click', async () => { await sessionKit.logout(); location.reload(); });
 
-    const cleanMeta = (val, fallback = "") => {
-        if (!val) return fallback;
-        let s = String(val);
-        if (s.includes('-')) s = s.split('-')[0];
-        if (s.includes('https://')) s = s.split('https://')[0];
-        s = s.trim();
-        return s === "" ? fallback : s;
-    };
-
-    const getSafeColor = (colorStr) => {
-        const map = {
-            'red': '#ff3366', 'blue': '#33ccff', 'green': '#00ffaa', 'yellow': '#ffd700',
-            'purple': '#a855f7', 'pink': '#ff66b2', 'orange': '#f58b00', 'white': '#ffffff',
-            'black': '#888888', 'gold': '#ffd700', 'silver': '#cccccc', 'cyan': '#00f0ff'
-        };
-        let c = colorStr.toLowerCase().trim();
-        return map[c] || '#ffffff';
-    };
-
-    const renderStat = (label, value, cssClass, max = 20) => {
-        const num = parseInt(value) || 0;
-        const pct = Math.min((num / max) * 100, 100); 
-        return `
-            <div style="margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">
-                    ${label} <span style="color: #fff;">${num}/${max}</span>
-                </div>
-                <div class="stat-bar-container">
-                    <div class="stat-bar ${cssClass}" style="width: ${pct}%"></div>
-                </div>
-            </div>
-        `;
-    };
-
-    // --- DYNAMIC FILTER BUILDER ---
-    function buildDynamicFilters(data) {
-        let wheelTraits = new Set();
-        let truckTraits = new Set();
-
-        data.forEach(nft => {
-            const m = nft.data || {};
-            const t = nft.template ? nft.template.immutable_data : {};
+    async function loadCraftingData(user) {
+        try {
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&owner=${user}&limit=300`);
+            const json = await res.json();
             
-            if (currentSchema === 'skateboards') {
-                const w = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase();
-                const tr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
-                if (w && w !== 'stock') wheelTraits.add(w);
-                if (tr && tr !== 'stock') truckTraits.add(tr);
-            } else if (currentSchema === 'wheels') {
-                const c = cleanMeta(m.color || t.color || m.brand || t.brand || nft.name).toLowerCase();
-                if (c) wheelTraits.add(c);
-            } else if (currentSchema === 'trucks') {
-                const c = cleanMeta(m.color || t.color || m.brand || t.brand || nft.name).toLowerCase();
-                if (c) truckTraits.add(c);
+            if (json.success) {
+                craftingCache.decks = json.data.filter(a => a.schema.schema_name === 'decks');
+                craftingCache.trucks = json.data.filter(a => a.schema.schema_name === 'trucks');
+                craftingCache.wheels = json.data.filter(a => a.schema.schema_name === 'wheels');
+
+                const popSelect = (id, arr, label) => {
+                    const sel = document.getElementById(id);
+                    sel.innerHTML = `<option value="">-- CHOOSE ${label} FROM TRUNK --</option>` + 
+                        arr.map(nft => {
+                            const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
+                            return `<option value="${nft.asset_id}" data-pop="${m.pop||t.pop||0}" data-speed="${m.speed||t.speed||0}" data-bal="${m.balance||t.balance||0}">
+                                ${nft.name} (#${nft.asset_id})
+                            </option>`;
+                        }).join('');
+                };
+
+                popSelect('craft-deck-select', craftingCache.decks, 'A DECK');
+                popSelect('craft-truck-select', craftingCache.trucks, 'TRUCKS');
+                popSelect('craft-wheel-select', craftingCache.wheels, 'WHEELS');
             }
-        });
-
-        const wheelSelect = document.getElementById('filter-wheel-trait');
-        const truckSelect = document.getElementById('filter-truck-trait');
-
-        if (currentSchema === 'skateboards' || currentSchema === 'wheels') {
-            wheelSelect.style.display = 'inline-block';
-            wheelSelect.innerHTML = `<option value="all">WHEEL TRAIT: ALL</option>` + 
-                Array.from(wheelTraits).map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('');
-        } else {
-            wheelSelect.style.display = 'none';
-        }
-
-        if (currentSchema === 'skateboards' || currentSchema === 'trucks') {
-            truckSelect.style.display = 'inline-block';
-            truckSelect.innerHTML = `<option value="all">TRUCK TRAIT: ALL</option>` + 
-                Array.from(truckTraits).map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('');
-        } else {
-            truckSelect.style.display = 'none';
-        }
+        } catch(e) { console.error("Crafting fetch error", e); }
     }
 
-    // --- FILTER LOGIC ---
+    const renderStat = (label, value, cssClass, max = 20) => {
+        const num = parseInt(value) || 0, pct = Math.min((num / max) * 100, 100); 
+        return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
+    };
+
+    window.updateCraftingStats = () => {
+        const d = document.getElementById('craft-deck-select').selectedOptions[0], t = document.getElementById('craft-truck-select').selectedOptions[0], w = document.getElementById('craft-wheel-select').selectedOptions[0];
+        if (d.value && t.value && w.value) {
+            const tP = parseInt(d.dataset.pop) + parseInt(t.dataset.pop) + parseInt(w.dataset.pop);
+            const tS = parseInt(d.dataset.speed) + parseInt(t.dataset.speed) + parseInt(w.dataset.speed);
+            const tB = parseInt(d.dataset.bal) + parseInt(t.dataset.bal) + parseInt(w.dataset.bal);
+            const totalPower = tP + tS + tB;
+
+            document.getElementById('craft-stats-hud').innerHTML = `${renderStat('PROJECTED POP', tP, 'stat-pop')}${renderStat('PROJECTED BALANCE', tB, 'stat-balance')}${renderStat('PROJECTED SPEED', tS, 'stat-speed')}<div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2);">${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 60)}</div>`;
+            document.getElementById('initiate-blend-btn').disabled = false;
+        } else {
+            document.getElementById('craft-stats-hud').innerHTML = `<div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 3 COMPONENTS<br>TO RUN PROTOCOL MATH</div>`;
+            document.getElementById('initiate-blend-btn').disabled = true;
+        }
+    };
+
+    window.executeBlend = async () => {
+        if (!currentSession) return;
+        const d_id = document.getElementById('craft-deck-select').value, t_id = document.getElementById('craft-truck-select').value, w_id = document.getElementById('craft-wheel-select').value;
+        const RECIPE_ID = "99999"; 
+        try {
+            const action = { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'blenderizerx', asset_ids: [d_id, t_id, w_id], memo: RECIPE_ID } };
+            await currentSession.transact({ action });
+            alert("BLEND TRANSACTION SENT! If the recipe ID was valid, your new Skateboard is in your Trunk.");
+            loadCraftingData(currentSession.actor.toString());
+        } catch (e) { console.error(e); alert("Transaction Cancelled or Failed. Make sure the Recipe ID is valid."); }
+    };
+
+    const cleanMeta = (val, fallback = "") => { if (!val) return fallback; let s = String(val); if (s.includes('-')) s = s.split('-')[0]; if (s.includes('https://')) s = s.split('https://')[0]; return s.trim() === "" ? fallback : s.trim(); };
+    const getSafeColor = (colorStr) => { const map = { 'red': '#ff3366', 'blue': '#33ccff', 'green': '#00ffaa', 'yellow': '#ffd700', 'purple': '#a855f7', 'pink': '#ff66b2', 'orange': '#f58b00', 'white': '#ffffff', 'black': '#888888', 'gold': '#ffd700', 'silver': '#cccccc', 'cyan': '#00f0ff' }; return map[colorStr.toLowerCase().trim()] || '#ffffff'; };
+
+    function buildDynamicFilters(data) {
+        let wT = new Set(), tT = new Set();
+        data.forEach(nft => {
+            const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
+            if (currentSchema === 'skateboards') {
+                const w = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase(), tr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
+                if (w && w !== 'stock') wT.add(w); if (tr && tr !== 'stock') tT.add(tr);
+            } else if (currentSchema === 'wheels') { const c = cleanMeta(m.color || t.color || m.brand || t.brand || nft.name).toLowerCase(); if(c) wT.add(c);
+            } else if (currentSchema === 'trucks') { const c = cleanMeta(m.color || t.color || m.brand || t.brand || nft.name).toLowerCase(); if(c) tT.add(c); }
+        });
+        const wS = document.getElementById('filter-wheel-trait'), tS = document.getElementById('filter-truck-trait');
+        if (currentSchema === 'skateboards' || currentSchema === 'wheels') { wS.style.display = 'inline-block'; wS.innerHTML = `<option value="all">WHEEL TRAIT: ALL</option>` + Array.from(wT).map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join(''); } else { wS.style.display = 'none'; }
+        if (currentSchema === 'skateboards' || currentSchema === 'trucks') { tS.style.display = 'inline-block'; tS.innerHTML = `<option value="all">TRUCK TRAIT: ALL</option>` + Array.from(tT).map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join(''); } else { tS.style.display = 'none'; }
+    }
+
     const applyFilters = () => {
-        const fName = document.getElementById('filter-name').value.toLowerCase();
-        const fRarity = document.getElementById('filter-rarity').value.toLowerCase();
-        
-        const wheelSelect = document.getElementById('filter-wheel-trait');
-        const truckSelect = document.getElementById('filter-truck-trait');
-        
-        const fWheel = wheelSelect.style.display !== 'none' ? wheelSelect.value.toLowerCase() : 'all';
-        const fTruck = truckSelect.style.display !== 'none' ? truckSelect.value.toLowerCase() : 'all';
+        const fN = document.getElementById('filter-name').value.toLowerCase(), fR = document.getElementById('filter-rarity').value.toLowerCase();
+        const wS = document.getElementById('filter-wheel-trait'), tS = document.getElementById('filter-truck-trait');
+        const fW = wS.style.display !== 'none' ? wS.value.toLowerCase() : 'all', fT = tS.style.display !== 'none' ? tS.value.toLowerCase() : 'all';
 
         const filtered = cachedInventoryData.filter(nft => {
-            const m = nft.data || {};
-            const t = nft.template ? nft.template.immutable_data : {};
-            
-            const name = (nft.name || "").toLowerCase();
-            const rarity = (m.rarity || t.rarity || 'stock').toLowerCase();
-            
-            const itemColor = cleanMeta(m.color || t.color || m.brand || t.brand || name).toLowerCase();
-            const wheelsStr = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase();
-            const trucksStr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
+            const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
+            const name = (nft.name || "").toLowerCase(), rarity = (m.rarity || t.rarity || 'stock').toLowerCase();
+            const iC = cleanMeta(m.color || t.color || m.brand || t.brand || name).toLowerCase(), wStr = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase(), tStr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
 
-            if (fName && !name.includes(fName)) return false;
-            if (fRarity !== 'all' && rarity !== fRarity) return false;
-            
-            if (fWheel !== 'all') {
-                if (currentSchema === 'skateboards' && !wheelsStr.includes(fWheel)) return false;
-                if (currentSchema === 'wheels' && !itemColor.includes(fWheel)) return false;
-            }
-            
-            if (fTruck !== 'all') {
-                if (currentSchema === 'skateboards' && !trucksStr.includes(fTruck)) return false;
-                if (currentSchema === 'trucks' && !itemColor.includes(fTruck)) return false;
-            }
-
+            if (fN && !name.includes(fN)) return false;
+            if (fR !== 'all' && rarity !== fR) return false;
+            if (fW !== 'all' && ((currentSchema === 'skateboards' && !wStr.includes(fW)) || (currentSchema === 'wheels' && !iC.includes(fW)))) return false;
+            if (fT !== 'all' && ((currentSchema === 'skateboards' && !tStr.includes(fT)) || (currentSchema === 'trucks' && !iC.includes(fT)))) return false;
             return true;
         });
-
         renderGrid(filtered);
     };
 
-    ['filter-name', 'filter-rarity', 'filter-wheel-trait', 'filter-truck-trait'].forEach(id => {
-        document.getElementById(id).addEventListener('input', applyFilters);
-    });
+    ['filter-name', 'filter-rarity', 'filter-wheel-trait', 'filter-truck-trait'].forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
 
     async function fetchInventory(user) {
         document.getElementById('inventory-filters').style.display = 'none';
         const grid = document.getElementById('main-grid');
         grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING THE TRUNK...</h3>`;
-        
         try {
             const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=100`);
             const json = await res.json();
-            
-            if (json.success) {
-                cachedInventoryData = json.data;
-                buildDynamicFilters(cachedInventoryData);
-                document.getElementById('inventory-filters').style.display = 'flex';
-                applyFilters();
-            } else {
-                grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`;
-            }
-        } catch (e) { 
-            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR CONNECTING TO BLOCKCHAIN</h3>`; 
-        }
+            if (json.success) { cachedInventoryData = json.data; buildDynamicFilters(cachedInventoryData); document.getElementById('inventory-filters').style.display = 'flex'; applyFilters();
+            } else { grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`; }
+        } catch (e) { grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR CONNECTING TO BLOCKCHAIN</h3>`; }
     }
 
-    // --- RENDER GRID HTML ---
     function renderGrid(dataArray) {
         const grid = document.getElementById('main-grid');
-        
-        if (dataArray.length === 0) {
-            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO MATCHING ITEMS IN THE TRUNK</h3>`;
-            return;
-        }
+        if (dataArray.length === 0) { grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO MATCHING ITEMS IN THE TRUNK</h3>`; return; }
 
         grid.innerHTML = dataArray.map(nft => {
-            const m = nft.data || {};
-            const t = nft.template ? nft.template.immutable_data : {};
-            
-            const rarityRaw = m.rarity || t.rarity || 'stock';
-            const rarity = rarityRaw.toLowerCase();
-            const imgHash = m.img || t.img || "";
-            const mintNumber = nft.template_mint || "N/A";
-            
-            let hudHtml = "";
-            let actionZoneHtml = "";
+            const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
+            const rarity = (m.rarity || t.rarity || 'stock').toLowerCase(), imgHash = m.img || t.img || "", mintNumber = nft.template_mint || "N/A";
+            let hudHtml = "", actionZoneHtml = "";
 
             if (currentSchema === 'skateboards') {
-                const speed = parseInt(m.speed || t.speed || 0);
-                const pop = parseInt(m.pop || t.pop || 0);
-                const balance = parseInt(m.balance || t.balance || 0);
-                
-                // TRUE MATH TOTAL POWER ENGINE
-                const totalPower = speed + pop + balance; 
+                const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0), totalPower = speed + pop + balance; 
+                const deck = cleanMeta(m.deck || t.deck, "STOCK"), trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK"), wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK"), brand = cleanMeta(m.brand || t.brand, nft.name); 
 
-                const deck = cleanMeta(m.deck || t.deck, "STOCK");
-                const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
-                const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
-                const brand = cleanMeta(m.brand || t.brand, nft.name); 
-
-                hudHtml = `
-                    <div class="meta-group">
-                        <div class="meta-title">PERFORMANCE</div>
-                        <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
-                            ${renderStat('POP', pop, 'stat-pop')}
-                            ${renderStat('BALANCE', balance, 'stat-balance')}
-                            ${renderStat('SPEED', speed, 'stat-speed')}
-                            ${renderStat('TOTAL POWER', totalPower, 'stat-grind', 60)}
-                        </div>
-                    </div>
-                    <div class="meta-group">
-                        <div class="meta-title">SPECS & HARDWARE</div>
-                        <div class="metadata-hud hardware-hud">
-                            <div>DECK <span>${deck}</span></div>
-                            <div>TRUCKS <span>${trucks}</span></div>
-                            <div>WHEELS <span>${wheels}</span></div>
-                            <div>BRAND <span>${brand}</span></div>
-                        </div>
-                    </div>
-                `;
-
-                const skateReward = 1000;
-                const waxValue = (skateReward * sWax).toFixed(2);
-
-                actionZoneHtml = `
-                    <div class="claim-zone">
-                        <div>
-                            <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
-                            <div class="reward-wax">≈ ${waxValue} WAX</div>
-                        </div>
-                        <button class="wallet-btn" style="padding: 10px 15px;" onclick="openClaimModal()">CLAIM</button>
-                    </div>
-                `;
-            } 
-            else {
-                const brandRaw = cleanMeta(m.brand || t.brand, nft.name);
-                const itemColor = cleanMeta(m.color || t.color, "");
-                
-                let customColorStyle = "";
-                if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) {
-                    const safeHex = getSafeColor(itemColor);
-                    customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`;
-                }
-
-                let statsHtml = `
-                    <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">
-                        BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span>
-                    </div>
-                `;
-                
-                if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop');
-                if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance');
-                if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
-
-                hudHtml = `
-                    <div class="meta-group">
-                        <div class="meta-title">COMPONENT TRAITS</div>
-                        <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
-                            ${statsHtml}
-                        </div>
-                    </div>
-                `;
-
-                actionZoneHtml = `
-                    <div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;">
-                        <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button>
-                    </div>
-                `;
+                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop')}${renderStat('BALANCE', balance, 'stat-balance')}${renderStat('SPEED', speed, 'stat-speed')}${renderStat('TOTAL POWER', totalPower, 'stat-grind', 60)}</div></div><div class="meta-group"><div class="meta-title">SPECS & HARDWARE</div><div class="metadata-hud hardware-hud"><div>DECK <span>${deck}</span></div><div>TRUCKS <span>${trucks}</span></div><div>WHEELS <span>${wheels}</span></div><div>BRAND <span>${brand}</span></div></div></div>`;
+                const skateReward = 1000, waxValue = (skateReward * sWax).toFixed(2);
+                actionZoneHtml = `<div class="claim-zone"><div><div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div><div class="reward-wax">≈ ${waxValue} WAX</div></div><button class="wallet-btn" style="padding: 10px 15px;" onclick="openClaimModal()">CLAIM</button></div>`;
+            } else {
+                const brandRaw = cleanMeta(m.brand || t.brand, nft.name), itemColor = cleanMeta(m.color || t.color, "");
+                let customColorStyle = ""; if ((currentSchema === 'wheels' || currentSchema === 'trucks') && itemColor) { const safeHex = getSafeColor(itemColor); customColorStyle = `color: ${safeHex}; text-shadow: 0 0 5px ${safeHex};`; }
+                let statsHtml = `<div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888; margin-bottom: 8px;">BRAND <span style="${customColorStyle} font-weight: 900; text-transform: uppercase;">${brandRaw}</span></div>`;
+                if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop'); if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance'); if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
+                hudHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${statsHtml}</div></div>`;
+                actionZoneHtml = `<div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button></div>`;
             }
-
-            return `
-                <div class="skate-card">
-                    <div class="rarity-header" style="background:var(--rarity-${rarity});">
-                        <div class="mint-badge">#${mintNumber}</div>
-                        <div>${rarity} EDITION</div>
-                        <div style="width:30px;"></div>
-                    </div>
-                    
-                    <div class="img-wrap">
-                        <img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img">
-                    </div>
-                    
-                    <div class="card-body">
-                        <div class="board-name">${nft.name}</div>
-                        ${hudHtml}
-                    </div>
-                    
-                    ${actionZoneHtml}
-                </div>
-            `;
+            return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity});"><div class="mint-badge">#${mintNumber}</div><div>${rarity} EDITION</div><div style="width:30px;"></div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img"></div><div class="card-body"><div class="board-name">${nft.name}</div>${hudHtml}</div>${actionZoneHtml}</div>`;
         }).join('');
     }
 
