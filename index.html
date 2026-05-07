@@ -69,7 +69,7 @@
 
         .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; min-height: 70vh; }
         
-        /* --- FILTER BAR --- */
+        /* --- DYNAMIC FILTER BAR --- */
         .filter-bar {
             display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
             background: rgba(0, 0, 0, 0.6); padding: 15px; border-radius: 8px;
@@ -126,7 +126,7 @@
         .stat-pop { background: linear-gradient(90deg, #ff0055, #ff55aa); }
         .stat-balance { background: linear-gradient(90deg, #aa00ff, #e066ff); }
         .stat-speed { background: linear-gradient(90deg, #00aaff, #00ffff); }
-        .stat-grind { background: linear-gradient(90deg, #ffaa00, #ffff00); }
+        .stat-grind { background: linear-gradient(90deg, #ffaa00, #ffff00); } 
 
         .claim-zone { padding: 20px; background: rgba(0,0,0,0.6); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
@@ -186,30 +186,11 @@
             <option value="legendary">LEGENDARY</option>
             <option value="epic">EPIC</option>
         </select>
-        <select id="filter-wheel-color">
-            <option value="all">WHEEL COLOR: ALL</option>
-            <option value="red">RED</option>
-            <option value="blue">BLUE</option>
-            <option value="green">GREEN</option>
-            <option value="yellow">YELLOW</option>
-            <option value="purple">PURPLE</option>
-            <option value="pink">PINK</option>
-            <option value="white">WHITE</option>
-            <option value="black">BLACK</option>
-            <option value="gold">GOLD</option>
+        <select id="filter-wheel-trait" style="display:none;">
+            <option value="all">WHEEL TRAIT: ALL</option>
         </select>
-        <select id="filter-truck-color">
-            <option value="all">TRUCK COLOR: ALL</option>
-            <option value="red">RED</option>
-            <option value="blue">BLUE</option>
-            <option value="green">GREEN</option>
-            <option value="yellow">YELLOW</option>
-            <option value="purple">PURPLE</option>
-            <option value="pink">PINK</option>
-            <option value="white">WHITE</option>
-            <option value="black">BLACK</option>
-            <option value="silver">SILVER</option>
-            <option value="gold">GOLD</option>
+        <select id="filter-truck-trait" style="display:none;">
+            <option value="all">TRUCK TRAIT: ALL</option>
         </select>
     </div>
 
@@ -262,7 +243,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.9.2',
+        appName: 'SkateparkV1.9.3',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -290,11 +271,9 @@
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${schema}`).classList.add('active');
 
-        // Reset Filters
+        // Reset text filters
         document.getElementById('filter-name').value = '';
         document.getElementById('filter-rarity').value = 'all';
-        document.getElementById('filter-wheel-color').value = 'all';
-        document.getElementById('filter-truck-color').value = 'all';
 
         if (currentSession) {
             fetchInventory(currentSession.actor.toString());
@@ -375,7 +354,6 @@
         return map[c] || '#ffffff';
     };
 
-    // Video Game Progress Bar Renderer
     const renderStat = (label, value, cssClass, max = 20) => {
         const num = parseInt(value) || 0;
         const pct = Math.min((num / max) * 100, 100); 
@@ -391,12 +369,59 @@
         `;
     };
 
+    // --- DYNAMIC FILTER BUILDER ---
+    function buildDynamicFilters(data) {
+        let wheelTraits = new Set();
+        let truckTraits = new Set();
+
+        data.forEach(nft => {
+            const m = nft.data || {};
+            const t = nft.template ? nft.template.immutable_data : {};
+            
+            if (currentSchema === 'skateboards') {
+                const w = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase();
+                const tr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
+                if (w && w !== 'stock') wheelTraits.add(w);
+                if (tr && tr !== 'stock') truckTraits.add(tr);
+            } else if (currentSchema === 'wheels') {
+                const c = cleanMeta(m.color || t.color || m.brand || t.brand || nft.name).toLowerCase();
+                if (c) wheelTraits.add(c);
+            } else if (currentSchema === 'trucks') {
+                const c = cleanMeta(m.color || t.color || m.brand || t.brand || nft.name).toLowerCase();
+                if (c) truckTraits.add(c);
+            }
+        });
+
+        const wheelSelect = document.getElementById('filter-wheel-trait');
+        const truckSelect = document.getElementById('filter-truck-trait');
+
+        if (currentSchema === 'skateboards' || currentSchema === 'wheels') {
+            wheelSelect.style.display = 'inline-block';
+            wheelSelect.innerHTML = `<option value="all">WHEEL TRAIT: ALL</option>` + 
+                Array.from(wheelTraits).map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('');
+        } else {
+            wheelSelect.style.display = 'none';
+        }
+
+        if (currentSchema === 'skateboards' || currentSchema === 'trucks') {
+            truckSelect.style.display = 'inline-block';
+            truckSelect.innerHTML = `<option value="all">TRUCK TRAIT: ALL</option>` + 
+                Array.from(truckTraits).map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('');
+        } else {
+            truckSelect.style.display = 'none';
+        }
+    }
+
     // --- FILTER LOGIC ---
     const applyFilters = () => {
         const fName = document.getElementById('filter-name').value.toLowerCase();
         const fRarity = document.getElementById('filter-rarity').value.toLowerCase();
-        const fWheel = document.getElementById('filter-wheel-color').value.toLowerCase();
-        const fTruck = document.getElementById('filter-truck-color').value.toLowerCase();
+        
+        const wheelSelect = document.getElementById('filter-wheel-trait');
+        const truckSelect = document.getElementById('filter-truck-trait');
+        
+        const fWheel = wheelSelect.style.display !== 'none' ? wheelSelect.value.toLowerCase() : 'all';
+        const fTruck = truckSelect.style.display !== 'none' ? truckSelect.value.toLowerCase() : 'all';
 
         const filtered = cachedInventoryData.filter(nft => {
             const m = nft.data || {};
@@ -404,7 +429,8 @@
             
             const name = (nft.name || "").toLowerCase();
             const rarity = (m.rarity || t.rarity || 'stock').toLowerCase();
-            const itemColor = cleanMeta(m.color || t.color).toLowerCase();
+            
+            const itemColor = cleanMeta(m.color || t.color || m.brand || t.brand || name).toLowerCase();
             const wheelsStr = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel).toLowerCase();
             const trucksStr = cleanMeta(m.trucks || t.trucks || m.truck || t.truck).toLowerCase();
 
@@ -413,14 +439,12 @@
             
             if (fWheel !== 'all') {
                 if (currentSchema === 'skateboards' && !wheelsStr.includes(fWheel)) return false;
-                if (currentSchema === 'wheels' && !itemColor.includes(fWheel) && !name.includes(fWheel)) return false;
-                if (currentSchema !== 'skateboards' && currentSchema !== 'wheels') return false; 
+                if (currentSchema === 'wheels' && !itemColor.includes(fWheel)) return false;
             }
             
             if (fTruck !== 'all') {
                 if (currentSchema === 'skateboards' && !trucksStr.includes(fTruck)) return false;
-                if (currentSchema === 'trucks' && !itemColor.includes(fTruck) && !name.includes(fTruck)) return false;
-                if (currentSchema !== 'skateboards' && currentSchema !== 'trucks') return false;
+                if (currentSchema === 'trucks' && !itemColor.includes(fTruck)) return false;
             }
 
             return true;
@@ -429,7 +453,7 @@
         renderGrid(filtered);
     };
 
-    ['filter-name', 'filter-rarity', 'filter-wheel-color', 'filter-truck-color'].forEach(id => {
+    ['filter-name', 'filter-rarity', 'filter-wheel-trait', 'filter-truck-trait'].forEach(id => {
         document.getElementById(id).addEventListener('input', applyFilters);
     });
 
@@ -444,6 +468,7 @@
             
             if (json.success) {
                 cachedInventoryData = json.data;
+                buildDynamicFilters(cachedInventoryData);
                 document.getElementById('inventory-filters').style.display = 'flex';
                 applyFilters();
             } else {
@@ -479,7 +504,9 @@
                 const speed = parseInt(m.speed || t.speed || 0);
                 const pop = parseInt(m.pop || t.pop || 0);
                 const balance = parseInt(m.balance || t.balance || 0);
-                const totalPower = Math.round((speed + pop + balance) / 3); // Scaled cleanly out of 20
+                
+                // TRUE MATH TOTAL POWER ENGINE
+                const totalPower = speed + pop + balance; 
 
                 const deck = cleanMeta(m.deck || t.deck, "STOCK");
                 const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
@@ -493,7 +520,7 @@
                             ${renderStat('POP', pop, 'stat-pop')}
                             ${renderStat('BALANCE', balance, 'stat-balance')}
                             ${renderStat('SPEED', speed, 'stat-speed')}
-                            ${renderStat('TOTAL POWER', totalPower, 'stat-grind', 20)}
+                            ${renderStat('TOTAL POWER', totalPower, 'stat-grind', 60)}
                         </div>
                     </div>
                     <div class="meta-group">
