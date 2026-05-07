@@ -53,7 +53,7 @@
 
         header { text-align: center; margin: 40px 0; }
         h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 3.5rem; margin: 0; letter-spacing: 4px; text-shadow: 0 0 20px var(--thps-blue); }
-        .tagline { color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 8px; margin-top: 10px; font-weight: 900; }
+        .protocol-tag { color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 8px; margin-top: 10px; font-weight: 900; }
 
         /* --- GRID --- */
         .dashboard-grid {
@@ -74,10 +74,12 @@
             flex-direction: column;
             padding: 15px;
         }
-        .skate-card:hover { transform: scale(1.05); border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); }
+        .skate-card:hover { transform: scale(1.05); border-color: var(--accent-cyan); }
 
         .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; margin-bottom: 15px; }
-        .skate-img { height: 90%; object-fit: contain; filter: drop-shadow(0 0 10px var(--accent-cyan)); }
+        
+        /* NO GLOW EFFECT ON IMAGES */
+        .skate-img { height: 90%; object-fit: contain; filter: none; }
 
         .board-name { font-family: 'Bangers'; font-size: 1.8rem; color: var(--accent-gold); margin: 0; }
         
@@ -99,6 +101,8 @@
         .reward-amt { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; }
         .claim-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-weight: 900; font-size: 0.7rem; cursor: pointer; }
 
+        .big-connect-btn { background: var(--accent-gold); border: none; padding: 20px 50px; font-weight: 900; font-size: 1.5rem; cursor: pointer; font-family: 'Orbitron'; }
+
         @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 
@@ -110,22 +114,24 @@
 </head>
 <body>
 
-<div class="ticker-wrap" id="price-ticker">SYNCING ALCOR MARKET...</div>
+<div class="ticker-bar" id="price-ticker">
+    <div class="ticker-wrap" id="ticker-content">SYNCING ALCOR MARKET DATA...</div>
+</div>
 
 <nav>
     <a href="#">HOME</a>
     <a href="#" class="active">GARAGE</a>
     <a href="#">TREASURY</a>
-    <button id="logout-trigger">DISCONNECT</button>
+    <button id="logout-trigger" style="display: none;">DISCONNECT</button>
 </nav>
 
 <header>
     <h1>$SKATE REWARDS PORTAL</h1>
-    <div class="tagline">SKATE2EARN PROTOCOL</div>
+    <div class="protocol-tag">SKATE2EARN PROTOCOL 2026</div>
 </header>
 
 <div id="auth-view" style="text-align: center; padding: 50px;">
-    <button id="login-trigger" style="background: var(--accent-gold); border: none; padding: 20px 50px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; cursor: pointer;">CONNECT WAX WALLET</button>
+    <button class="big-connect-btn" id="login-trigger">CONNECT WAX WALLET</button>
 </div>
 
 <div class="dashboard-grid" id="main-grid"></div>
@@ -140,14 +146,14 @@
     const SKATE_CONTRACT = "skatecoinwax";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateRewardsPortal',
+        appName: 'SkateRewardsPortal2026',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
     const mainGrid = document.getElementById('main-grid');
-    const ticker = document.getElementById('price-ticker');
+    const ticker = document.getElementById('ticker-content');
 
     async function syncPrices() {
         try {
@@ -187,7 +193,6 @@
 
     async function fetchInventory(user) {
         mainGrid.innerHTML = `<h2>SCANNING GARAGE...</h2>`;
-        // Strictly fetch Completed Skateboards
         const res = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&owner=${user}&limit=12`);
         const json = await res.json();
         
@@ -204,16 +209,16 @@
                             <div class="board-name">${nft.name}</div>
                             <div class="hud-stats">
                                 <div class="stat-row">
-                                    <div class="stat-meta">SPEED <span>${m.speed}/10</span></div>
-                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.speed * 10}%"></div></div>
+                                    <div class="stat-meta">SPEED <span>${m.speed || 0}/10</span></div>
+                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${(m.speed || 0) * 10}%"></div></div>
                                 </div>
                                 <div class="stat-row">
-                                    <div class="stat-meta">POP <span>${m.pop}/10</span></div>
-                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.pop * 10}%; background:#007bff;"></div></div>
+                                    <div class="stat-meta">POP <span>${m.pop || 0}/10</span></div>
+                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${(m.pop || 0) * 10}%; background:#007bff;"></div></div>
                                 </div>
                                 <div class="stat-row">
-                                    <div class="stat-meta">BALANCE <span>${m.balance}/10</span></div>
-                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${m.balance * 10}%; background:#9c27b0;"></div></div>
+                                    <div class="stat-meta">BALANCE <span>${m.balance || 0}/10</span></div>
+                                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: ${(m.balance || 0) * 10}%; background:#9c27b0;"></div></div>
                                 </div>
                             </div>
                         </div>
@@ -224,6 +229,8 @@
                     </div>
                 `;
             }).join('');
+        } else {
+            mainGrid.innerHTML = `<h2>NO SKATEBOARDS DETECTED</h2>`;
         }
     }
 
