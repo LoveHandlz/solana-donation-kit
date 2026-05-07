@@ -2,187 +2,363 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | ISOLATED IMAGES</title>
+    <title>WAC ARTIST COLLABS | PRO SELECTION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #0a132f;
-            --bg-panel: rgba(15, 26, 71, 0.95);
+            --bg-deep: #050a1a;
+            --bg-panel: rgba(15, 26, 71, 0.85);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
+            --thps-blue: #0066ff;
+            
+            /* Rarity Tiers */
+            --common: #a0a0a0; 
+            --uncommon: #4caf50; 
+            --rare: #2196f3; 
+            --mythic: #9c27b0; 
+            --legendary: #ff9800; 
+            --epic: #ff2d55; 
+            --ridiculous: #00f0ff;
         }
 
         body {
-            background: var(--bg-deep);
+            background-color: var(--bg-deep);
             color: #fff;
             font-family: 'Orbitron', sans-serif;
-            margin: 0; padding: 20px;
-            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
+            margin: 0; 
+            padding: 0;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #162a5e 0%, transparent 70%),
+                linear-gradient(0deg, rgba(0,240,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            overflow-x: hidden;
+        }
+
+        /* Standardized Navigation Array */
+        nav {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--accent-cyan);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            transition: 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-cyan);
         }
 
         header {
             text-align: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px dashed var(--accent-cyan);
-            padding-bottom: 1rem;
+            margin: 2rem 0;
         }
 
         h1 {
             font-family: 'Bangers', cursive;
-            font-size: 3.5rem;
-            color: var(--accent-gold);
+            font-size: 4rem;
+            color: #fff;
             margin: 0;
-            letter-spacing: 2px;
+            -webkit-text-stroke: 1px var(--thps-blue);
+            text-shadow: 4px 4px 0px var(--thps-blue);
+            letter-spacing: 3px;
         }
 
-        /* Standardized 12-Item Layout */
-        .image-grid {
+        .subtitle {
+            color: var(--accent-cyan);
+            font-size: 0.8rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        /* 12-Item Standard Grid */
+        .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
-            max-width: 1440px;
-            margin: auto;
-            padding-bottom: 40px;
+            max-width: 1400px;
+            margin: 0 auto 50px auto;
+            padding: 0 20px;
         }
 
-        /* Minimalist Frame for the Isolated Image */
-        .image-card {
+        /* Video Game Character Select Card */
+        .board-card {
             background: var(--bg-panel);
-            border: 2px solid var(--accent-cyan);
-            border-radius: 12px;
-            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 95%, 90% 100%, 0 100%);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            transition: 0.3s;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
+            padding: 15px;
+            transition: all 0.2s ease-out;
+            cursor: crosshair;
         }
 
-        .image-card:hover {
-            border-color: var(--accent-gold);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
+        .board-card:hover {
+            border-color: var(--accent-cyan);
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 240, 255, 0.2);
+            z-index: 10;
+            background: rgba(15, 26, 71, 1);
         }
 
-        .board-title {
-            font-family: 'Bangers';
-            font-size: 1.5rem;
-            color: #fff;
-            margin-bottom: 15px;
-            text-align: center;
+        /* Abstract SVG Deck Placeholder */
+        .svg-container {
             width: 100%;
+            height: 180px;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deck-svg {
+            height: 90%;
+            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.8));
+            transition: 0.3s;
+        }
+        
+        .board-card:hover .deck-svg {
+            transform: rotate(5deg) scale(1.1);
+        }
+
+        .rarity-badge {
+            position: absolute;
+            top: 5px;
+            left: -5px;
+            padding: 3px 12px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+            transform: rotate(-3deg);
+            z-index: 5;
+            color: #000;
+            letter-spacing: 1px;
+        }
+
+        .board-name {
+            font-family: 'Bangers', cursive;
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+            line-height: 1;
+            margin: 0 0 5px 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* The Isolated Image */
-        .isolated-img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: contain;
-            background: transparent;
-            /* Adds a subtle drop shadow to the actual skateboard shape */
-            filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.8));
+        .artist-name {
+            font-size: 0.55rem;
+            color: #aaa;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        @media (max-width: 1100px) { .image-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .image-grid { grid-template-columns: 1fr; } }
+        /* THPS HUD Progress Bars */
+        .hud-stats {
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.55rem;
+            color: var(--accent-cyan);
+            font-weight: 900;
+            margin-bottom: 2px;
+        }
+
+        .stat-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            background: var(--accent-gold);
+            box-shadow: 0 0 8px var(--accent-gold);
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Hardware Specs */
+        .hardware-box {
+            background: rgba(0,0,0,0.6);
+            padding: 8px;
+            border-left: 2px solid var(--accent-cyan);
+            font-size: 0.5rem;
+            color: #ccc;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        /* Reward Zone */
+        .reward-zone {
+            margin-top: auto;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+            padding-top: 10px;
+            text-align: right;
+        }
+
+        .reward-label {
+            font-size: 0.5rem;
+            color: #888;
+        }
+
+        .reward-amount {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .board-card:hover .reward-amount {
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px var(--accent-gold);
+        }
+
+        @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { 
+            .dashboard-grid { grid-template-columns: 1fr; } 
+            nav ul { flex-wrap: wrap; gap: 15px; padding: 0 10px; }
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>WAC ARTIST COLLABS</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">NATIVE IMAGE EXTRACTION VIA IPFS</p>
-</header>
+    <nav>
+        <ul>
+            <li><a href="#" class="active">HOME</a></li>
+            <li><a href="#">VIDEOS</a></li>
+            <li><a href="#">DEFI</a></li>
+            <li><a href="#">TREASURY</a></li>
+            <li><a href="#">DAO</a></li>
+        </ul>
+    </nav>
 
-<div id="image-mount" class="image-grid">
-    <div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;">
-        EXTRACTING IMAGES FROM BLOCKCHAIN...
-    </div>
-</div>
+    <header>
+        <h1>BOARD SELECTION</h1>
+        <div class="subtitle">CHOOSE YOUR SETUP // S1 COLLABS</div>
+    </header>
+
+    <div class="dashboard-grid" id="roster">
+        </div>
 
 <script>
-    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
+    // 12 Requested Specific Skateboards
+    const boardData = [
+        { name: "Nerds Unite", artist: "Nerds", rarity: "Legendary", reward: 2000, speed: 8, pop: 7, bal: 9, color: "var(--legendary)" },
+        { name: "SquishEyez", artist: "Squish", rarity: "Epic", reward: 5000, speed: 9, pop: 9, bal: 8, color: "var(--epic)" },
+        { name: "Hybrid Creature", artist: "HC", rarity: "Mythic", reward: 1000, speed: 7, pop: 8, bal: 7, color: "var(--mythic)" },
+        { name: "Broken Dolls", artist: "BD", rarity: "Rare", reward: 500, speed: 6, pop: 6, bal: 6, color: "var(--rare)" },
+        { name: "Rugg Apes", artist: "RA", rarity: "Uncommon", reward: 250, speed: 5, pop: 5, bal: 5, color: "var(--uncommon)" },
+        { name: "Breadcritter", artist: "BC", rarity: "Legendary", reward: 2000, speed: 8, pop: 9, bal: 7, color: "var(--legendary)" },
+        { name: "WAX DAO", artist: "WD", rarity: "Epic", reward: 5000, speed: 9, pop: 8, bal: 9, color: "var(--epic)" },
+        { name: "Wax Snails", artist: "WS", rarity: "Common", reward: 100, speed: 3, pop: 5, bal: 9, color: "var(--common)" },
+        { name: "Captain Degen", artist: "CD", rarity: "Ridiculous", reward: 10000, speed: 10, pop: 10, bal: 10, color: "var(--ridiculous)" },
+        { name: "MunsterVision", artist: "MV", rarity: "Mythic", reward: 1000, speed: 8, pop: 8, bal: 8, color: "var(--mythic)" },
+        { name: "Labas Deck", artist: "Labas", rarity: "Rare", reward: 500, speed: 6, pop: 7, bal: 6, color: "var(--rare)" },
+        { name: "Base Blank", artist: "Unknown", rarity: "Common", reward: 100, speed: 5, pop: 5, bal: 5, color: "var(--common)" }
+    ];
 
-    // Your requested target IDs
-    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
+    const rosterContainer = document.getElementById('roster');
 
-    async function fetchIsolatedImages() {
-        const mount = document.getElementById('image-mount');
-        const displayData = [];
-        const artistsFound = new Set();
-
-        try {
-            // 1. Extract the specific requested boards
-            for (let id of TARGET_IDS) {
-                try {
-                    const endpoint = id.length < 10 
-                        ? `/assets?template_id=${id}&limit=1` 
-                        : `/assets/${id}`;
-                    
-                    const response = await fetch(`${ATOMIC_API}${endpoint}`);
-                    const json = await response.json();
-                    
-                    if (json.success) {
-                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
-                        if (nft) extractImage(nft, artistsFound, displayData);
-                    }
-                } catch (e) { console.log(`Skipped ID: ${id}`); }
-            }
-
-            // 2. Extract remaining boards to fill the 12-item grid
-            if (displayData.length < 12) {
-                const response = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50&order=desc`);
-                const json = await response.json();
-
-                if (json.success) {
-                    for (let nft of json.data) {
-                        if (displayData.length < 12) {
-                            extractImage(nft, artistsFound, displayData);
-                        }
-                    }
-                }
-            }
-
-            // 3. Render the isolated images
-            renderImages(displayData, mount);
-
-        } catch (error) {
-            mount.innerHTML = `<div style="grid-column:1/-1; text-align:center;">API SYNC ERROR.</div>`;
-        }
+    // Abstract SVG Generator for the Decks
+    function generateDeckSVG(color) {
+        return `
+        <svg viewBox="0 0 100 300" class="deck-svg">
+            <path d="M15,40 C15,5 85,5 85,40 L85,260 C85,295 15,295 15,260 Z" fill="${color}" opacity="0.8" stroke="#fff" stroke-width="2"/>
+            <circle cx="50" cy="50" r="10" fill="rgba(0,0,0,0.5)"/>
+            <circle cx="50" cy="250" r="10" fill="rgba(0,0,0,0.5)"/>
+            <path d="M30,100 L70,200 M70,100 L30,200" stroke="#fff" stroke-width="3" opacity="0.3"/>
+        </svg>`;
     }
 
-    // Function to isolate just the name and the image hash
-    function extractImage(nft, artistSet, list) {
-        const m = nft.data;
-        const artist = m.artist || "Pro Artist";
-        
-        if (artistSet.has(artist)) return;
-        artistSet.add(artist);
-
-        // This is the critical step: grabbing the raw IPFS image hash
-        const imageHash = m.img || nft.template.immutable_data.img;
-
-        list.push({
-            name: nft.name || m.name,
-            // Wrapping the hash in the public IPFS gateway URL
-            imgUrl: `https://ipfs.io/ipfs/${imageHash}`
-        });
-    }
-
-    function renderImages(list, mount) {
-        mount.innerHTML = list.map(board => `
-            <div class="image-card">
-                <div class="board-title">${board.name}</div>
-                <img src="${board.imgUrl}" class="isolated-img" onerror="this.src='https://via.placeholder.com/300?text=Syncing...'">
+    // Build the 12-Item Grid
+    let html = '';
+    boardData.forEach(board => {
+        html += `
+        <div class="board-card">
+            <div class="rarity-badge" style="background: ${board.color}; color: ${board.rarity === 'Common' || board.rarity === 'Uncommon' ? '#fff' : '#000'}">${board.rarity}</div>
+            
+            <div class="svg-container">
+                ${generateDeckSVG(board.color)}
             </div>
-        `).join('');
-    }
 
-    fetchIsolatedImages();
+            <div class="board-name">${board.name}</div>
+            <div class="artist-name">PRO: <span style="color:var(--accent-cyan)">${board.artist}</span></div>
+
+            <div class="hud-stats">
+                <div class="stat-row">
+                    <div class="stat-label">SPEED <span>${board.speed}/10</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%;" data-target="${board.speed * 10}%"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label">POP <span>${board.pop}/10</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);" data-target="${board.pop * 10}%"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label">BALANCE <span>${board.bal}/10</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 0%; background:var(--epic); box-shadow: 0 0 8px var(--epic);" data-target="${board.bal * 10}%"></div></div>
+                </div>
+            </div>
+
+            <div class="hardware-box">
+                <strong>TRUCKS:</strong> Gold/Red<br>
+                <strong>WHEELS:</strong> Purple | <strong>BRG:</strong> RGB
+            </div>
+
+            <div class="reward-zone">
+                <div class="reward-label">BETA REWARD</div>
+                <div class="reward-amount">${board.reward.toLocaleString()} $SKATE</div>
+            </div>
+        </div>`;
+    });
+
+    rosterContainer.innerHTML = html;
+
+    // Trigger stat bar animation on load
+    setTimeout(() => {
+        const bars = document.querySelectorAll('.stat-bar-fill');
+        bars.forEach(bar => {
+            bar.style.width = bar.getAttribute('data-target');
+        });
+    }, 100);
+
 </script>
-
 </body>
 </html>
