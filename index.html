@@ -34,14 +34,12 @@
 
         header {
             background: rgba(0, 0, 0, 0.9);
-            border-bottom: 2px solid var(--accent-cyan);
             padding: 15px 40px;
             display: flex; justify-content: center;
             position: sticky; top: 0; z-index: 1000;
             backdrop-filter: blur(10px);
         }
         .header-inner { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { height: 45px; cursor: pointer; }
         
         nav ul { display: flex; list-style: none; gap: 20px; margin: 0; padding: 0; }
         nav a { color: #fff; text-decoration: none; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; padding-bottom: 5px; border-bottom: 2px solid transparent; transition: 0.2s; }
@@ -52,6 +50,12 @@
         
         .balance-pill { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--accent-cyan); padding: 6px 15px; border-radius: 50px; font-family: 'Orbitron'; font-size: 0.65rem; display: flex; gap: 15px; color: #fff; }
         .balance-pill span { color: var(--accent-gold); font-weight: 900; }
+
+        /* --- CATEGORY ROUTER --- */
+        .category-router { background: rgba(0, 240, 255, 0.05); border-bottom: 2px solid var(--accent-cyan); padding: 12px; display: flex; justify-content: center; gap: 30px; }
+        .category-router a { color: #888; text-decoration: none; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; padding-bottom: 5px; border-bottom: 2px solid transparent; transition: 0.3s; }
+        .category-router a:hover { color: #fff; }
+        .category-router a.active { color: var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); }
 
         .ticker-bar { background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid var(--card-border); padding: 10px 0; display: flex; justify-content: center; gap: 40px; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; color: var(--accent-cyan); }
 
@@ -99,28 +103,27 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 450px; max-height: 90vh; overflow-y: auto; }
 
-        /* --- CRAFTING BENCH UI --- */
+        /* --- SKATEBOARD BUILDER UI --- */
         .crafting-container { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; background: rgba(0,0,0,0.5); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-cyan); }
-        .crafting-selectors { display: flex; flex-direction: column; gap: 20px; }
-        .craft-slot { background: rgba(0,240,255,0.05); border: 1px solid var(--card-border); padding: 20px; border-radius: 8px; }
-        .craft-slot h4 { margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; letter-spacing: 2px; }
-        .craft-slot select { width: 100%; padding: 15px; background: #000; color: #fff; border: 1px solid #333; font-family: 'Inter'; font-size: 0.85rem; border-radius: 4px; outline: none; }
+        .crafting-selectors { display: flex; flex-direction: column; gap: 15px; }
+        .craft-slot { background: rgba(0,240,255,0.05); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; }
+        .craft-slot h4 { margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; letter-spacing: 2px; font-size: 0.8rem; }
+        .craft-slot select { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #333; font-family: 'Inter'; font-size: 0.8rem; border-radius: 4px; outline: none; margin-bottom: 8px; }
         .projected-stats { background: #000; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: space-between; }
-        .nft-visual-thumbnail { width: 70px; height: 70px; object-fit: contain; background: rgba(0,0,0,0.8); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 5px; }
+        .nft-visual-thumbnail { width: 45px; height: 45px; object-fit: contain; background: rgba(0,0,0,0.8); border: 1px solid var(--accent-cyan); border-radius: 4px; padding: 3px; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="header-inner">
-        <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" class="logo" onclick="location.reload()">
         <nav>
             <ul>
-                <li><a href="#" onclick="switchCategory('skateboards')" id="nav-skateboards" class="active">SKATEBOARDS</a></li>
-                <li><a href="#" onclick="switchCategory('decks')" id="nav-decks">DECKS</a></li>
-                <li><a href="#" onclick="switchCategory('wheels')" id="nav-wheels">WHEELS</a></li>
-                <li><a href="#" onclick="switchCategory('trucks')" id="nav-trucks">TRUCKS</a></li>
-                <li><a href="#" onclick="switchCategory('crafting')" id="nav-crafting" style="color:var(--accent-gold);">CRAFTING BENCH</a></li>
+                <li><a href="#">HOME</a></li>
+                <li><a href="#">VIDEOS</a></li>
+                <li><a href="#" class="active">DEFI</a></li>
+                <li><a href="#">TREASURY</a></li>
+                <li><a href="#">DAO</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -132,6 +135,14 @@
         </div>
     </div>
 </header>
+
+<div class="category-router">
+    <a href="#" onclick="switchCategory('skateboards')" id="nav-skateboards" class="active">SKATEBOARDS</a>
+    <a href="#" onclick="switchCategory('decks')" id="nav-decks">DECKS</a>
+    <a href="#" onclick="switchCategory('wheels')" id="nav-wheels">WHEELS</a>
+    <a href="#" onclick="switchCategory('trucks')" id="nav-trucks">TRUCKS</a>
+    <a href="#" onclick="switchCategory('builder')" id="nav-builder" style="color:var(--accent-gold);">SKATEBOARD BUILDER</a>
+</div>
 
 <div class="ticker-bar" id="price-ticker">
     <div>EXCHANGE RATE: <b>SYNCING PROTOCOL...</b></div>
@@ -161,16 +172,20 @@
     <div id="crafting-bench" class="crafting-container" style="display: none;">
         <div class="crafting-selectors">
             <div class="craft-slot">
-                <h4>1. SELECT DECK</h4>
-                <select id="craft-deck-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE A DECK FROM TRUNK --</option></select>
+                <h4>1. DECK (X1)</h4>
+                <select id="craft-deck-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE A DECK --</option></select>
             </div>
             <div class="craft-slot">
-                <h4>2. SELECT TRUCKS</h4>
-                <select id="craft-truck-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE TRUCKS FROM TRUNK --</option></select>
+                <h4>2. TRUCKS (X2)</h4>
+                <select id="craft-truck1-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE FRONT TRUCKS --</option></select>
+                <select id="craft-truck2-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE BACK TRUCKS --</option></select>
             </div>
             <div class="craft-slot">
-                <h4>3. SELECT WHEELS</h4>
-                <select id="craft-wheel-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE WHEELS FROM TRUNK --</option></select>
+                <h4>3. WHEELS (X4)</h4>
+                <select id="craft-wheel1-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE WHEEL 1 --</option></select>
+                <select id="craft-wheel2-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE WHEEL 2 --</option></select>
+                <select id="craft-wheel3-select" onchange="updateCraftingStats()"><option value="">-- CHOOSE WHEEL 3 --</option></select>
+                <select id="craft-wheel4-select" onchange="updateCraftingStats()" style="margin-bottom:0;"><option value="">-- CHOOSE WHEEL 4 --</option></select>
             </div>
             
             <button class="wallet-btn" onclick="openBlueprintModal()" style="margin-top: 10px; font-size: 0.8rem; background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">+ REQUEST CUSTOM PARTS BLUEPRINT</button>
@@ -180,19 +195,15 @@
             <div>
                 <h3 style="color: var(--accent-gold); font-family: 'Bangers'; font-size: 2rem; margin: 0 0 20px 0; letter-spacing: 2px;">PROJECTED BUILD</h3>
                 <div id="craft-stats-hud">
-                    <div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 3 COMPONENTS<br>TO RUN PROTOCOL MATH</div>
+                    <div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 7 COMPONENTS<br>TO RUN PROTOCOL MATH</div>
                 </div>
             </div>
-            <button id="initiate-blend-btn" class="wallet-btn" style="width: 100%; padding: 20px; font-size: 1.2rem; background: var(--accent-gold);" disabled onclick="executeBlend()">INITIATE BLEND</button>
+            <button id="initiate-blend-btn" class="wallet-btn" style="width: 100%; padding: 20px; font-size: 1.2rem; background: var(--accent-gold);" disabled onclick="executeBlend()">CRAFT SKATEBOARD</button>
         </div>
     </div>
 </div>
 
 <footer style="margin-top: 50px; padding: 60px; background: rgba(0,0,0,0.8); border-top: 1px solid var(--card-border); text-align: center;">
-    <div style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-bottom: 20px;">
-        <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 30px; opacity: 0.3;">
-        <span style="font-family:'Orbitron'; font-size: 0.7rem; color: #444; letter-spacing: 4px;">WAX BLOCKCHAIN</span>
-    </div>
     <p style="font-size: 0.6rem; color: #444; font-family:'Orbitron';">© 2026 CRYPTO CLIPS | GAMIFIED SOCIAL PROTOCOL | SKATE2EARN</p>
 </footer>
 
@@ -242,7 +253,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.9.7',
+        appName: 'SkateparkV1.9.8',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -266,10 +277,10 @@
 
     window.switchCategory = (schema) => {
         currentSchema = schema;
-        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.querySelectorAll('.category-router a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${schema}`).classList.add('active');
 
-        if (schema === 'crafting') {
+        if (schema === 'builder') {
             document.getElementById('inventory-filters').style.display = 'none';
             document.getElementById('main-grid').style.display = 'none';
             document.getElementById('crafting-bench').style.display = 'grid';
@@ -305,13 +316,11 @@
         } catch (e) { console.error("Failed to fetch balances", e); }
     }
 
-    // Modal Triggers
     window.toggleAuthModal = () => { currentSession ? document.getElementById('disconnect-modal').style.display = 'flex' : document.getElementById('onboarding-modal').style.display = 'flex'; };
     window.openClaimModal = () => { document.getElementById('claim-modal').style.display = 'flex'; };
     window.openBlueprintModal = () => { document.getElementById('blueprint-modal').style.display = 'flex'; };
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
 
-    // Blueprint Submission Logic
     window.submitBlueprint = () => {
         const dName = document.getElementById('bp-deck-name').value;
         const dRarity = document.getElementById('bp-deck-rarity').value;
@@ -349,7 +358,7 @@
 
                 const popSelect = (id, arr, label) => {
                     const sel = document.getElementById(id);
-                    sel.innerHTML = `<option value="">-- CHOOSE ${label} FROM TRUNK --</option>` + 
+                    sel.innerHTML = `<option value="">-- CHOOSE ${label} --</option>` + 
                         arr.map(nft => {
                             const m = nft.data || {}, t = nft.template ? nft.template.immutable_data : {};
                             const imgHash = m.img || t.img || "";
@@ -359,9 +368,13 @@
                         }).join('');
                 };
 
-                popSelect('craft-deck-select', craftingCache.decks, 'A DECK');
-                popSelect('craft-truck-select', craftingCache.trucks, 'TRUCKS');
-                popSelect('craft-wheel-select', craftingCache.wheels, 'WHEELS');
+                popSelect('craft-deck-select', craftingCache.decks, 'DECK');
+                popSelect('craft-truck1-select', craftingCache.trucks, 'FRONT TRUCKS');
+                popSelect('craft-truck2-select', craftingCache.trucks, 'BACK TRUCKS');
+                popSelect('craft-wheel1-select', craftingCache.wheels, 'WHEEL 1');
+                popSelect('craft-wheel2-select', craftingCache.wheels, 'WHEEL 2');
+                popSelect('craft-wheel3-select', craftingCache.wheels, 'WHEEL 3');
+                popSelect('craft-wheel4-select', craftingCache.wheels, 'WHEEL 4');
             }
         } catch(e) { console.error("Crafting fetch error", e); }
     }
@@ -373,44 +386,44 @@
 
     window.updateCraftingStats = () => {
         const d = document.getElementById('craft-deck-select').selectedOptions[0];
-        const t = document.getElementById('craft-truck-select').selectedOptions[0];
-        const w = document.getElementById('craft-wheel-select').selectedOptions[0];
+        const t1 = document.getElementById('craft-truck1-select').selectedOptions[0];
+        const t2 = document.getElementById('craft-truck2-select').selectedOptions[0];
+        const w1 = document.getElementById('craft-wheel1-select').selectedOptions[0];
+        const w2 = document.getElementById('craft-wheel2-select').selectedOptions[0];
+        const w3 = document.getElementById('craft-wheel3-select').selectedOptions[0];
+        const w4 = document.getElementById('craft-wheel4-select').selectedOptions[0];
 
-        if (d.value && t.value && w.value) {
-            // True Math: Adds individual component stats (Assuming max 20 per stat per component)
-            const tP = parseInt(d.dataset.pop) + parseInt(t.dataset.pop) + parseInt(w.dataset.pop);
-            const tS = parseInt(d.dataset.speed) + parseInt(t.dataset.speed) + parseInt(w.dataset.speed);
-            const tB = parseInt(d.dataset.bal) + parseInt(t.dataset.bal) + parseInt(w.dataset.bal);
+        if (d.value && t1.value && t2.value && w1.value && w2.value && w3.value && w4.value) {
             
-            // Total Power is strict addition of the combined stats
+            // True Math: Combine 1 Deck, 2 Trucks, 4 Wheels
+            const tP = parseInt(d.dataset.pop) + parseInt(t1.dataset.pop) + parseInt(t2.dataset.pop) + parseInt(w1.dataset.pop) + parseInt(w2.dataset.pop) + parseInt(w3.dataset.pop) + parseInt(w4.dataset.pop);
+            const tS = parseInt(d.dataset.speed) + parseInt(t1.dataset.speed) + parseInt(t2.dataset.speed) + parseInt(w1.dataset.speed) + parseInt(w2.dataset.speed) + parseInt(w3.dataset.speed) + parseInt(w4.dataset.speed);
+            const tB = parseInt(d.dataset.bal) + parseInt(t1.dataset.bal) + parseInt(t2.dataset.bal) + parseInt(w1.dataset.bal) + parseInt(w2.dataset.bal) + parseInt(w3.dataset.bal) + parseInt(w4.dataset.bal);
+            
             const totalPower = tP + tS + tB;
-            
-            // Total Rewards Calculation (Total Power * 1000)
             const totalRewards = totalPower * 1000;
 
-            const imgD = d.dataset.img;
-            const imgT = t.dataset.img;
-            const imgW = w.dataset.img;
+            const iD = d.dataset.img, iT1 = t1.dataset.img, iT2 = t2.dataset.img, iW1 = w1.dataset.img, iW2 = w2.dataset.img, iW3 = w3.dataset.img, iW4 = w4.dataset.img;
 
-            // Visual NFT Loading Array
+            // Visual NFT Queue Array
             const visualHtml = `
-                <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 25px;">
-                    <img src="https://ipfs.io/ipfs/${imgD}" class="nft-visual-thumbnail">
-                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center; font-size: 1.2rem;">+</span>
-                    <img src="https://ipfs.io/ipfs/${imgT}" class="nft-visual-thumbnail">
-                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center; font-size: 1.2rem;">+</span>
-                    <img src="https://ipfs.io/ipfs/${imgW}" class="nft-visual-thumbnail">
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
+                    <img src="https://ipfs.io/ipfs/${iD}" class="nft-visual-thumbnail">
+                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
+                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${iT1}" class="nft-visual-thumbnail"><img src="https://ipfs.io/ipfs/${iT2}" class="nft-visual-thumbnail"></div>
+                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
+                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${iW1}" class="nft-visual-thumbnail"><img src="https://ipfs.io/ipfs/${iW2}" class="nft-visual-thumbnail"><img src="https://ipfs.io/ipfs/${iW3}" class="nft-visual-thumbnail"><img src="https://ipfs.io/ipfs/${iW4}" class="nft-visual-thumbnail"></div>
                 </div>
             `;
 
-            // Max scale recalibrated: 20 * 3 components = 60 max for individual traits. 60 * 3 = 180 max for Total Power.
+            // Max scale recalibrated: 20 per component * 7 components = 140 max for individual traits. 140 * 3 = 420 max for Total Power.
             document.getElementById('craft-stats-hud').innerHTML = `
                 ${visualHtml}
-                ${renderStat('PROJECTED POP', tP, 'stat-pop', 60)}
-                ${renderStat('PROJECTED BALANCE', tB, 'stat-balance', 60)}
-                ${renderStat('PROJECTED SPEED', tS, 'stat-speed', 60)}
+                ${renderStat('PROJECTED POP', tP, 'stat-pop', 140)}
+                ${renderStat('PROJECTED BALANCE', tB, 'stat-balance', 140)}
+                ${renderStat('PROJECTED SPEED', tS, 'stat-speed', 140)}
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2);">
-                    ${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 180)}
+                    ${renderStat('PROJECTED TOTAL POWER', totalPower, 'stat-grind', 420)}
                 </div>
                 <div style="margin-top: 20px; padding: 15px; background: rgba(255,215,0,0.1); border: 1px solid var(--accent-gold); border-radius: 6px; text-align: center;">
                     <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.65rem; letter-spacing: 2px; margin-bottom: 5px;">ESTIMATED AIRDROP REWARD</div>
@@ -419,17 +432,24 @@
             `;
             document.getElementById('initiate-blend-btn').disabled = false;
         } else {
-            document.getElementById('craft-stats-hud').innerHTML = `<div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 3 COMPONENTS<br>TO RUN PROTOCOL MATH</div>`;
+            document.getElementById('craft-stats-hud').innerHTML = `<div style="text-align:center; color:#555; font-family:'Orbitron'; font-size: 0.7rem; padding: 40px 0;">SELECT ALL 7 COMPONENTS<br>TO RUN PROTOCOL MATH</div>`;
             document.getElementById('initiate-blend-btn').disabled = true;
         }
     };
 
     window.executeBlend = async () => {
         if (!currentSession) return;
-        const d_id = document.getElementById('craft-deck-select').value, t_id = document.getElementById('craft-truck-select').value, w_id = document.getElementById('craft-wheel-select').value;
+        const d_id = document.getElementById('craft-deck-select').value;
+        const t1_id = document.getElementById('craft-truck1-select').value;
+        const t2_id = document.getElementById('craft-truck2-select').value;
+        const w1_id = document.getElementById('craft-wheel1-select').value;
+        const w2_id = document.getElementById('craft-wheel2-select').value;
+        const w3_id = document.getElementById('craft-wheel3-select').value;
+        const w4_id = document.getElementById('craft-wheel4-select').value;
+        
         const RECIPE_ID = "99999"; 
         try {
-            const action = { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'blenderizerx', asset_ids: [d_id, t_id, w_id], memo: RECIPE_ID } };
+            const action = { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'blenderizerx', asset_ids: [d_id, t1_id, t2_id, w1_id, w2_id, w3_id, w4_id], memo: RECIPE_ID } };
             await currentSession.transact({ action });
             alert("BLEND TRANSACTION SENT! If the recipe ID was valid, your new Skateboard is in your Trunk.");
             loadCraftingData(currentSession.actor.toString());
@@ -480,7 +500,7 @@
         const grid = document.getElementById('main-grid');
         grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING THE TRUNK...</h3>`;
         try {
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=100`);
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=12`);
             const json = await res.json();
             if (json.success) { cachedInventoryData = json.data; buildDynamicFilters(cachedInventoryData); document.getElementById('inventory-filters').style.display = 'flex'; applyFilters();
             } else { grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`; }
@@ -497,13 +517,10 @@
             let hudHtml = "", actionZoneHtml = "";
 
             if (currentSchema === 'skateboards') {
-                const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0);
-                // Math engine for standard Skateboard render
-                const totalPower = speed + pop + balance; 
-                
+                const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0), totalPower = speed + pop + balance; 
                 const deck = cleanMeta(m.deck || t.deck, "STOCK"), trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK"), wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK"), brand = cleanMeta(m.brand || t.brand, nft.name); 
 
-                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 60)}${renderStat('BALANCE', balance, 'stat-balance', 60)}${renderStat('SPEED', speed, 'stat-speed', 60)}${renderStat('TOTAL POWER', totalPower, 'stat-grind', 180)}</div></div><div class="meta-group"><div class="meta-title">SPECS & HARDWARE</div><div class="metadata-hud hardware-hud"><div>DECK <span>${deck}</span></div><div>TRUCKS <span>${trucks}</span></div><div>WHEELS <span>${wheels}</span></div><div>BRAND <span>${brand}</span></div></div></div>`;
+                hudHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 140)}${renderStat('BALANCE', balance, 'stat-balance', 140)}${renderStat('SPEED', speed, 'stat-speed', 140)}${renderStat('TOTAL POWER', totalPower, 'stat-grind', 420)}</div></div><div class="meta-group"><div class="meta-title">SPECS & HARDWARE</div><div class="metadata-hud hardware-hud"><div>DECK <span>${deck}</span></div><div>TRUCKS <span>${trucks}</span></div><div>WHEELS <span>${wheels}</span></div><div>BRAND <span>${brand}</span></div></div></div>`;
                 const skateReward = 1000, waxValue = (skateReward * sWax).toFixed(2);
                 actionZoneHtml = `<div class="claim-zone"><div><div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div><div class="reward-wax">≈ ${waxValue} WAX</div></div><button class="wallet-btn" style="padding: 10px 15px;" onclick="openClaimModal()">CLAIM</button></div>`;
             } else {
