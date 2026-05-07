@@ -50,6 +50,10 @@
         .craft-slot select { width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid #333; font-size: 0.8rem; margin-bottom: 5px; outline: none; }
         .projected-stats { background: #000; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: space-between; }
         .nft-visual-thumbnail { width: 40px; height: 40px; object-fit: contain; background: #111; border: 1px solid var(--accent-cyan); border-radius: 4px; padding: 2px; }
+
+        /* LEADERBOARD */
+        .lb-row { display: flex; padding: 15px 20px; border-bottom: 1px solid #333; font-family: 'Orbitron'; font-size: 0.9rem; align-items: center; }
+        .lb-header { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); font-weight: 900; font-size: 0.75rem; border-bottom: 2px solid var(--accent-cyan); }
     </style>
 </head>
 <body>
@@ -64,6 +68,7 @@
                 <li><a href="#" onclick="switchCategory('wheels')" id="nav-wheels">WHEELS</a></li>
                 <li><a href="#" onclick="switchCategory('trucks')" id="nav-trucks">TRUCKS</a></li>
                 <li><a href="#" onclick="switchCategory('builder')" id="nav-builder" style="color:var(--accent-gold);">SKATEBOARD BUILDER</a></li>
+                <li><a href="#" onclick="switchCategory('leaderboard')" id="nav-leaderboard" style="color:var(--accent-cyan);">LEADERBOARD</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -75,12 +80,28 @@
     </div>
 </header>
 
-<div class="dashboard-wrapper">
+<div class="dashboard-wrapper" id="inventory-wrapper">
     <div class="dashboard-grid" id="main-grid">
         <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">CONNECT WALLET TO OPEN TRUNK</h3>
     </div>
+</div>
 
-    <div id="crafting-bench" class="crafting-container" style="display: none;">
+<div id="leaderboard-container" class="dashboard-wrapper" style="display: none;">
+    <h3 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 2.5rem; letter-spacing: 2px; margin-top: 0;">TOP 20 HOLDERS</h3>
+    <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-cyan); border-radius: 8px; overflow: hidden; max-width: 900px; margin: 0 auto;">
+        <div class="lb-row lb-header">
+            <div style="width: 80px;">RANK</div>
+            <div style="flex: 1;">WALLET ADDRESS</div>
+            <div style="width: 150px; text-align: right;">SKATEBOARDS</div>
+        </div>
+        <div id="leaderboard-list">
+            <div style="padding:40px; text-align:center; color:var(--accent-cyan); font-family:'Orbitron';">SCANNING WAX BLOCKCHAIN...</div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-wrapper" id="builder-wrapper" style="display: none;">
+    <div id="crafting-bench" class="crafting-container">
         <div class="crafting-selectors">
             <div class="craft-slot">
                 <h4>1. Establish Deck</h4>
@@ -148,17 +169,14 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.20.0',
+        appName: 'SkateparkV1.21.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
     let currentSession = null, currentSchema = 'skateboards';
-    
-    // Globals for the transaction payload
-    let calculatedWaxFee = 0;
-    let selectedAssetIds = [];
+    let calculatedWaxFee = 0, selectedAssetIds = [];
 
     sessionKit.restore().then(s => { if (s) { currentSession = s; document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase(); updateBalances(s.actor.toString()); switchCategory(currentSchema); } });
 
@@ -166,13 +184,19 @@
         currentSchema = schema;
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${schema}`).classList.add('active');
+        
+        document.getElementById('inventory-wrapper').style.display = 'none';
+        document.getElementById('builder-wrapper').style.display = 'none';
+        document.getElementById('leaderboard-container').style.display = 'none';
+
         if (schema === 'builder') {
-            document.getElementById('main-grid').style.display = 'none';
-            document.getElementById('crafting-bench').style.display = 'grid';
+            document.getElementById('builder-wrapper').style.display = 'block';
             if (currentSession) loadCraftingData(currentSession.actor.toString());
+        } else if (schema === 'leaderboard') {
+            document.getElementById('leaderboard-container').style.display = 'block';
+            fetchLeaderboard();
         } else {
-            document.getElementById('crafting-bench').style.display = 'none';
-            document.getElementById('main-grid').style.display = 'grid';
+            document.getElementById('inventory-wrapper').style.display = 'block';
             if (currentSession) fetchInventory(currentSession.actor.toString());
         }
     };
@@ -183,6 +207,38 @@
             const waxBal = await waxRes.json(); document.getElementById('wax-bal').innerText = waxBal[0] || "0.00";
             document.getElementById('wallet-balances').style.display = 'flex';
         } catch (e) {}
+    }
+
+    // --- LEADERBOARD SCANNER ENGINE ---
+    async function fetchLeaderboard() {
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = `<div style="padding:40px; text-align:center; color:var(--accent-cyan); font-family:'Orbitron';">SCANNING WAX BLOCKCHAIN...</div>`;
+        try {
+            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=20`);
+            const json = await res.json();
+            
+            if (json.success) {
+                if (json.data.length === 0) {
+                    list.innerHTML = `<div style="padding:40px; text-align:center; color:#888; font-family:'Orbitron';">NO SKATEBOARD HOLDERS FOUND YET</div>`;
+                    return;
+                }
+                list.innerHTML = json.data.map((user, index) => {
+                    let rankColor = index === 0 ? "color: #ffd700; text-shadow: 0 0 10px #ffd700;" : (index === 1 ? "color: #c0c0c0;" : (index === 2 ? "color: #cd7f32;" : "color: var(--accent-gold);"));
+                    let rankText = index === 0 ? "🏆 #1" : `#${index + 1}`;
+                    let bg = index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)';
+                    
+                    return `
+                        <div class="lb-row" style="background: ${bg};">
+                            <div style="width: 80px; font-weight: 900; ${rankColor}">${rankText}</div>
+                            <div style="flex: 1; color: #fff; text-transform: uppercase;">${user.account}</div>
+                            <div style="width: 150px; text-align: right; color: var(--accent-cyan); font-weight: 900;">${user.assets} <span style="font-size: 0.55rem; color: #555;">BOARDS</span></div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } catch (e) {
+            list.innerHTML = `<div style="padding:40px; text-align:center; color:#ff3366; font-family:'Orbitron';">BLOCKCHAIN CONNECTION FAILED</div>`;
+        }
     }
 
     const renderStat = (label, value, cssClass, max) => {
@@ -196,42 +252,34 @@
 
         if (d.value && t1.value && t2.value && w1.value && w2.value && w3.value && w4.value) {
             
-            // The Truth Summation Math (No division on the final output)
-            const getGroupScore = (attr) => {
-                const deck = parseInt(d.dataset[attr]) || 0;
-                const truckSet = Math.round(((parseInt(t1.dataset[attr]) || 0) + (parseInt(t2.dataset[attr]) || 0)) / 2);
-                const wheelSet = Math.round(((parseInt(w1.dataset[attr]) || 0) + (parseInt(w2.dataset[attr]) || 0) + (parseInt(w3.dataset[attr]) || 0) + (parseInt(w4.dataset[attr]) || 0)) / 4);
-                // Pure addition of the 3 established pillar values
-                return deck + truckSet + wheelSet; 
-            };
+            // Pillar Summation Logic
+            let tPop = (parseInt(d.dataset.pop)||0) + Math.round(((parseInt(t1.dataset.pop)||0) + (parseInt(t2.dataset.pop)||0))/2) + Math.round(((parseInt(w1.dataset.pop)||0) + (parseInt(w2.dataset.pop)||0) + (parseInt(w3.dataset.pop)||0) + (parseInt(w4.dataset.pop)||0))/4);
+            let tSpeed = (parseInt(d.dataset.speed)||0) + Math.round(((parseInt(t1.dataset.speed)||0) + (parseInt(t2.dataset.speed)||0))/2) + Math.round(((parseInt(w1.dataset.speed)||0) + (parseInt(w2.dataset.speed)||0) + (parseInt(w3.dataset.speed)||0) + (parseInt(w4.dataset.speed)||0))/4);
+            let tBal = (parseInt(d.dataset.bal)||0) + Math.round(((parseInt(t1.dataset.bal)||0) + (parseInt(t2.dataset.bal)||0))/2) + Math.round(((parseInt(w1.dataset.bal)||0) + (parseInt(w2.dataset.bal)||0) + (parseInt(w3.dataset.bal)||0) + (parseInt(w4.dataset.bal)||0))/4);
 
-            const fPop = getGroupScore('pop'), fSpeed = getGroupScore('speed'), fBal = getGroupScore('bal');
+            let totalPower = tPop + tSpeed + tBal;
             
-            // Total Power natively caps at exactly 60
-            const totalPower = fPop + fSpeed + fBal;
+            // Hard Cap Truth Engine
+            if (totalPower > 60) totalPower = 60;
             const rewards = totalPower * 1000;
 
-            // Prepare Transaction Globals
             selectedAssetIds = [d.value, t1.value, t2.value, w1.value, w2.value, w3.value, w4.value];
             
-            // Calculate Rarity Fee
+            // Dynamic Fee Calculator
             const rarityMap = { 'common': 1, 'uncommon': 2, 'rare': 3, 'epic': 4, 'legendary': 5, 'mythic': 6 };
             const rarities = [d.dataset.rarity, t1.dataset.rarity, t2.dataset.rarity, w1.dataset.rarity, w2.dataset.rarity, w3.dataset.rarity, w4.dataset.rarity];
             
             let maxTier = 1;
             rarities.forEach(r => {
                 const cleanRarity = (r || 'common').toLowerCase();
-                if (rarityMap[cleanRarity] && rarityMap[cleanRarity] > maxTier) {
-                    maxTier = rarityMap[cleanRarity];
-                }
+                if (rarityMap[cleanRarity] && rarityMap[cleanRarity] > maxTier) maxTier = rarityMap[cleanRarity];
             });
             calculatedWaxFee = maxTier * 1000;
 
-            // Render HUD: Individual traits scale safely within 60, Total Power perfectly caps at 60.
             document.getElementById('craft-stats-hud').innerHTML = `
-                ${renderStat('FINAL POP', fPop, 'stat-pop', 60)}
-                ${renderStat('FINAL BALANCE', fBal, 'stat-balance', 60)}
-                ${renderStat('FINAL SPEED', fSpeed, 'stat-speed', 60)}
+                ${renderStat('TOTAL POP', tPop, 'stat-pop', 20)}
+                ${renderStat('TOTAL BALANCE', tBal, 'stat-balance', 20)}
+                ${renderStat('TOTAL SPEED', tSpeed, 'stat-speed', 20)}
                 <div style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
                     ${renderStat('TRUE TOTAL POWER', totalPower, 'stat-total', 60)}
                 </div>
@@ -267,19 +315,18 @@
             const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=12`);
             const json = await res.json();
             if (json.success) {
-                // Modified render to show standard inventory cards matching the 60-cap Total Power logic
                 grid.innerHTML = json.data.map(n => {
                     const m = n.data || {}, t = n.template ? n.template.immutable_data : {};
                     const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0);
                     let statHtml = "";
                     
                     if (currentSchema === 'skateboards') {
-                        const totalPower = speed + pop + balance;
-                        statHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 60)}${renderStat('BALANCE', balance, 'stat-balance', 60)}${renderStat('SPEED', speed, 'stat-speed', 60)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}</div></div>`;
+                        let totalPower = speed + pop + balance;
+                        if (totalPower > 60) totalPower = 60; // Cap visual for built boards too
+                        statHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}</div></div>`;
                     } else {
                         statHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}</div></div>`;
                     }
-
                     return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${(m.rarity||t.rarity||'common').toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${m.img||t.img||''}" class="skate-img"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div></div>`;
                 }).join('');
             }
@@ -328,9 +375,7 @@
             
             await currentSession.transact({ actions });
             closeModals();
-            
             alert("Thank you, your board will be shipped soon!");
-            
             loadCraftingData(currentSession.actor.toString());
             updateBalances(currentSession.actor.toString());
             
