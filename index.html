@@ -11,6 +11,7 @@
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
             --accent-green: #00ffaa; 
+            --atomic-orange: #f58b00; /* Atomic Hub Signature Orange */
             --card-border: rgba(0, 240, 255, 0.2);
             
             /* NO RED RARITY PALETTE */
@@ -83,7 +84,15 @@
         }
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
-        .rarity-header { padding: 8px; text-align: center; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; letter-spacing: 2px; }
+        .rarity-header { 
+            padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; 
+            text-transform: uppercase; letter-spacing: 2px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mint-badge {
+            background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; 
+            border-radius: 4px; font-family: 'Inter'; font-size: 0.55rem; font-weight: 900; letter-spacing: 1px;
+        }
         
         .img-wrap { width: 100%; height: 220px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
@@ -171,7 +180,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.8.3',
+        appName: 'SkateTrunkV1.8.6',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -247,13 +256,14 @@
         switchCategory(currentSchema);
     });
 
-    // --- CONDITIONAL METADATA RENDERER ---
+    // --- DYNAMIC INVENTORY & ATOMIC HUB ZONE ---
     async function loadInventory(user) {
         const grid = document.getElementById('main-grid');
         grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING BLOCKCHAIN...</h3>`;
         
         try {
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=12`);
+            // Expanded to 100 Items per category
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=100`);
             const json = await res.json();
             
             if (json.success && json.data.length > 0) {
@@ -264,9 +274,12 @@
                     const rarityRaw = m.rarity || t.rarity || 'stock';
                     const rarity = rarityRaw.toLowerCase();
                     const imgHash = m.img || t.img || "";
+                    const mintNumber = nft.template_mint || "N/A";
                     
                     let hudHtml = "";
+                    let actionZoneHtml = "";
 
+                    // LOGIC: COMPLETED SKATEBOARDS (Alpha Rewards)
                     if (currentSchema === 'skateboards') {
                         const speed = m.speed || t.speed || 0;
                         const pop = m.pop || t.pop || 0;
@@ -298,16 +311,28 @@
                                 </div>
                             </div>
                         `;
+
+                        const skateReward = 1000;
+                        const waxValue = (skateReward * sWax).toFixed(2);
+
+                        actionZoneHtml = `
+                            <div class="claim-zone">
+                                <div>
+                                    <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
+                                    <div class="reward-wax">≈ ${waxValue} WAX</div>
+                                </div>
+                                <button class="wallet-btn" style="padding: 10px 15px;">CLAIM</button>
+                            </div>
+                        `;
                     } 
+                    // LOGIC: HARDWARE COMPONENTS (Atomic Hub View)
                     else {
-                        // HYPHEN CUT-OFF LOGIC
                         let brandRaw = m.brand || t.brand || "N/A";
                         let artistRaw = m['3d artist'] || t['3d artist'] || "";
                         
                         const brand = brandRaw.includes('-') ? brandRaw.split('-')[0].trim() : brandRaw;
                         const artist = artistRaw.includes('-') ? artistRaw.split('-')[0].trim() : artistRaw;
                         
-                        // STRICT HUD REORDERING: BRAND, POP, SPEED, BALANCE
                         let statsHtml = `<div>BRAND <span>${brand}</span></div>`;
                         if (m.pop || t.pop) statsHtml += `<div>POP <span>${m.pop || t.pop}</span></div>`;
                         if (m.speed || t.speed) statsHtml += `<div>SPEED <span>${m.speed || t.speed}</span></div>`;
@@ -322,14 +347,21 @@
                                 </div>
                             </div>
                         `;
-                    }
 
-                    const skateReward = 1000;
-                    const waxValue = (skateReward * sWax).toFixed(2);
+                        actionZoneHtml = `
+                            <div class="claim-zone" style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;">
+                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${nft.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; border-radius: 4px; clip-path: none; font-family: 'Inter', sans-serif; letter-spacing: 1px;">VIEW ON ATOMIC</button>
+                            </div>
+                        `;
+                    }
 
                     return `
                         <div class="skate-card">
-                            <div class="rarity-header" style="background:var(--rarity-${rarity});">${rarity} EDITION</div>
+                            <div class="rarity-header" style="background:var(--rarity-${rarity});">
+                                <div class="mint-badge">#${mintNumber}</div>
+                                <div>${rarity} EDITION</div>
+                                <div style="width:30px;"></div>
+                            </div>
                             
                             <div class="img-wrap">
                                 <img src="https://ipfs.io/ipfs/${imgHash}" class="skate-img">
@@ -340,13 +372,7 @@
                                 ${hudHtml}
                             </div>
                             
-                            <div class="claim-zone">
-                                <div>
-                                    <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
-                                    <div class="reward-wax">≈ ${waxValue} WAX</div>
-                                </div>
-                                <button class="wallet-btn" style="padding: 10px 15px;">CLAIM</button>
-                            </div>
+                            ${actionZoneHtml}
                         </div>
                     `;
                 }).join('');
