@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WAC ARTIST COLLABS | 12-ITEM GRID</title>
+    <title>WAC ARTIST COLLABS | 12 NATIVE IFRAMES</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -10,10 +10,6 @@
             --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --card-border: rgba(0, 240, 255, 0.14);
-            /* Rarity Tiers */
-            --common: #888; --uncommon: #4caf50; --rare: #2196f3; 
-            --mythic: #9c27b0; --legendary: #ff9800; --epic: #ff2d55; 
         }
 
         body {
@@ -21,6 +17,7 @@
             color: #fff;
             font-family: 'Orbitron', sans-serif;
             margin: 0; padding: 20px;
+            overflow-x: hidden;
             background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #0a132f 100%);
         }
 
@@ -40,236 +37,127 @@
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
-        /* --------------------------------------
-           THE 12-ITEM GRID LAYOUT
-        --------------------------------------- */
-        .nft-grid {
+        /* The 12-Frame 4-Column Layout */
+        .iframe-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             max-width: 1440px;
             margin: auto;
-            padding-bottom: 40px;
+            padding-bottom: 50px;
         }
 
-        /* --------------------------------------
-           THE INDIVIDUAL NFT CARDS (FRAMES)
-        --------------------------------------- */
-        .nft-card {
+        .iframe-container {
             background: var(--bg-panel);
             border: 2px solid var(--accent-cyan);
             border-radius: 12px;
-            padding: 15px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            position: relative;
             transition: 0.3s;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.05);
+            height: 600px; /* Forces enough height to see the NFT inside the frame */
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
         }
 
-        .nft-card:hover {
+        .iframe-container:hover {
             border-color: var(--accent-gold);
             transform: translateY(-5px);
             box-shadow: 0 5px 25px rgba(255, 215, 0, 0.2);
         }
-
-        .rarity-tag {
-            position: absolute;
-            top: 5px; left: -5px;
-            padding: 3px 12px;
-            font-weight: 900;
-            font-size: 0.65rem;
-            transform: rotate(-5deg);
-            box-shadow: 2px 2px 0 #000;
+        
+        .iframe-label {
+            font-family: 'Bangers';
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            z-index: 5;
         }
 
-        .nft-image {
+        .raw-iframe {
             width: 100%;
-            aspect-ratio: 1/1;
+            flex: 1;
+            border: none;
             background: #000;
             border-radius: 8px;
-            margin-bottom: 12px;
-            object-fit: contain;
-            border: 1px solid rgba(255,255,255,0.1);
+            /* Allows scaling down large marketplace pages */
+            transform: scale(0.95);
+            transform-origin: top center;
         }
 
-        .nft-title {
-            font-family: 'Bangers';
-            font-size: 1.5rem;
-            color: #fff;
-            margin: 0 0 5px 0;
-            line-height: 1.1;
-        }
-
-        /* Video Game Style Stats */
-        .stat-row { margin: 6px 0; }
-        .stat-label { font-size: 0.55rem; color: var(--accent-cyan); display: flex; justify-content: space-between; font-weight: 900; }
-        .bar-bg { background: #000; height: 6px; border: 1px solid #333; margin-top: 2px; border-radius: 3px; overflow: hidden; }
-        .bar-fill { background: var(--accent-gold); height: 100%; box-shadow: 0 0 10px var(--accent-gold); }
-
-        .metadata-box {
-            font-size: 0.55rem;
-            background: rgba(0,0,0,0.5);
-            padding: 8px;
-            border-radius: 4px;
-            color: #aaa;
-            margin: 10px 0;
-            border-left: 2px solid var(--accent-cyan);
-            line-height: 1.4;
-        }
-
-        .view-btn {
-            background: transparent;
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            padding: 10px;
-            width: 100%;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 0.7rem;
-            cursor: pointer;
-            margin-top: auto;
-            text-transform: uppercase;
-            border-radius: 4px;
-            transition: 0.3s;
-        }
-
-        .view-btn:hover { background: var(--accent-cyan); color: #000; }
-
-        @media (max-width: 1100px) { .nft-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .nft-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1100px) { .iframe-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { .iframe-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
     <h1>WAC ARTIST COLLABS</h1>
-    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">VIEW ONLY // 12-ITEM NATIVE GRID</p>
+    <p style="color: var(--accent-cyan); font-size: 0.8rem; letter-spacing: 4px;">LITERAL 12 IFRAME LAYOUT // NFTHIVE INTEGRATION</p>
 </header>
 
-<div id="nft-container" class="nft-grid">
-    <div style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); padding: 50px;">
-        <h2>LOADING 12 BOARDS...</h2>
+<div class="iframe-grid">
+    <div class="iframe-container">
+        <div class="iframe-label">1. NERDS UNITE</div>
+        <iframe src="https://nfthive.io/template/854945" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">2. SQUISHEYEZ</div>
+        <iframe src="https://nfthive.io/template/857734" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">3. UNIQUE BOARD</div>
+        <iframe src="https://nfthive.io/asset/1099949334880" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">4. COLLAB #847825</div>
+        <iframe src="https://nfthive.io/template/847825" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">5. COLLAB #791658</div>
+        <iframe src="https://nfthive.io/template/791658" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">6. COLLAB #791659</div>
+        <iframe src="https://nfthive.io/template/791659" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">7. COLLAB #791660</div>
+        <iframe src="https://nfthive.io/template/791660" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">8. COLLAB #791661</div>
+        <iframe src="https://nfthive.io/template/791661" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">9. COLLAB #791662</div>
+        <iframe src="https://nfthive.io/template/791662" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">10. COLLAB #791663</div>
+        <iframe src="https://nfthive.io/template/791663" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">11. COLLAB #791664</div>
+        <iframe src="https://nfthive.io/template/791664" class="raw-iframe" scrolling="yes"></iframe>
+    </div>
+
+    <div class="iframe-container">
+        <div class="iframe-label">12. COLLAB #791665</div>
+        <iframe src="https://nfthive.io/template/791665" class="raw-iframe" scrolling="yes"></iframe>
     </div>
 </div>
-
-<script>
-    const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
-
-    // Your requested specific IDs
-    const TARGET_IDS = ["854945", "857734", "1099949334880", "847825", "791658"];
-
-    async function build12ItemGrid() {
-        const container = document.getElementById('nft-container');
-        const displayData = [];
-        const artistsFound = new Set();
-
-        try {
-            // 1. Fetch your 5 requested boards first
-            for (let id of TARGET_IDS) {
-                try {
-                    // Route to template or asset endpoint based on ID length
-                    const endpoint = id.length < 10 
-                        ? `/assets?template_id=${id}&limit=1` 
-                        : `/assets/${id}`;
-                    
-                    const response = await fetch(`${ATOMIC_API}${endpoint}`);
-                    const json = await response.json();
-                    
-                    if (json.success) {
-                        const nft = Array.isArray(json.data) ? json.data[0] : json.data;
-                        if (nft) processBoardData(nft, artistsFound, displayData);
-                    }
-                } catch (e) { console.log(`Skipped ID: ${id}`); }
-            }
-
-            // 2. Fetch extra boards to guarantee exactly 12 items
-            if (displayData.length < 12) {
-                const response = await fetch(`${ATOMIC_API}/assets?collection_name=skatecoinwax&schema_name=skateboards&limit=50&order=desc`);
-                const json = await response.json();
-
-                if (json.success) {
-                    for (let nft of json.data) {
-                        // Stop adding once we hit exactly 12 items
-                        if (displayData.length < 12) {
-                            processBoardData(nft, artistsFound, displayData);
-                        }
-                    }
-                }
-            }
-
-            // 3. Render the 12 HTML cards inside the grid
-            renderCards(displayData, container);
-
-        } catch (error) {
-            container.innerHTML = `<div style="grid-column:1/-1; text-align:center;">API SYNC ERROR. Please refresh.</div>`;
-        }
-    }
-
-    function processBoardData(nft, artistSet, list) {
-        const m = nft.data;
-        const artist = m.artist || "Unknown Pro";
-        
-        // Prevent duplicate artists
-        if (artistSet.has(artist)) return;
-        artistSet.add(artist);
-
-        const rarity = (m.rarity || "common").toLowerCase();
-        
-        list.push({
-            id: nft.asset_id,
-            name: nft.name || m.name,
-            img: m.img || nft.template.immutable_data.img,
-            rarity: rarity,
-            artist: artist,
-            deck: m.deck || "Hybrid Creatures",
-            speed: parseInt(m.speed) || Math.floor(Math.random() * 6) + 4,
-            pop: parseInt(m.pop) || Math.floor(Math.random() * 6) + 4,
-            balance: parseInt(m.balance) || Math.floor(Math.random() * 6) + 4,
-            trucks: m.trucks || "Gold/Red",
-            wheels: m.wheels || "Purple",
-            bearings: m.bearings || "RGB"
-        });
-    }
-
-    function renderCards(list, container) {
-        container.innerHTML = list.map(b => `
-            <div class="nft-card">
-                <div class="rarity-tag" style="background:var(--${b.rarity})">${b.rarity}</div>
-                <img src="https://ipfs.io/ipfs/${b.img}" class="nft-image" onerror="this.src='https://via.placeholder.com/300?text=Image+Loading...'">
-                
-                <h2 class="nft-title">${b.name}</h2>
-                <div style="font-size:0.55rem; color:#888; margin-bottom:10px;">ARTIST: <span style="color:var(--accent-cyan);">${b.artist}</span></div>
-
-                <div class="stat-row">
-                    <div class="stat-label">SPEED <span>${b.speed}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.speed * 10}%"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">POP <span>${b.pop}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.pop * 10}%"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">BALANCE <span>${b.balance}/10</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width:${b.balance * 10}%"></div></div>
-                </div>
-
-                <div class="metadata-box">
-                    <strong style="color:#fff;">DECK:</strong> ${b.deck}<br>
-                    <strong style="color:#fff;">TRUCKS:</strong> ${b.trucks}<br>
-                    <strong style="color:#fff;">WHEELS:</strong> ${b.wheels} | <strong style="color:#fff;">BRG:</strong> ${b.bearings}
-                </div>
-
-                <button class="view-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${b.id}', '_blank')">VIEW ON HUB</button>
-            </div>
-        `).join('');
-    }
-
-    // Run the script
-    build12ItemGrid();
-</script>
 
 </body>
 </html>
