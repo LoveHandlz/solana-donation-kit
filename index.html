@@ -41,6 +41,7 @@
             backdrop-filter: blur(10px);
         }
         .header-inner { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { height: 45px; cursor: pointer; }
         
         nav ul { display: flex; list-style: none; gap: 20px; margin: 0; padding: 0; }
         nav a { 
@@ -130,7 +131,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center;
         }
-        .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 350px; }
+        .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 400px; }
     </style>
 </head>
 <body>
@@ -151,7 +152,7 @@
                 <div>WAX: <span id="wax-bal">0.00</span></div>
                 <div>SKATE: <span id="skate-bal">0.00</span></div>
             </div>
-            <button id="connect-btn" class="wallet-btn" onclick="toggleModal()">CONNECT</button>
+            <button id="connect-btn" class="wallet-btn" onclick="toggleAuthModal()">CONNECT</button>
         </div>
     </div>
 </header>
@@ -174,10 +175,28 @@
 </footer>
 
 <div id="onboarding-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 20px;">SYNC WAX WALLET</h2>
-        <button class="wallet-btn" id="login-trigger" style="width: 100%;">CLOUD WALLET</button>
-        <button onclick="toggleModal()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
+    <div class="modal-content" style="border-color: var(--accent-gold);">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
+            Welcome to the new sk8coin NFT reward system for Alpha holders! You are entitled to early investor rewards for completing the crafting process and holding your skateboards. 
+            <br><br>
+            Congrats diamond hands, you may now claim $SKATE rewards. Skate or die, you are elite!
+        </p>
+        <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT WAX WALLET</button>
+        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
+    </div>
+</div>
+
+<div id="disconnect-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: #ff3366;">
+        <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE GARAGE?</h2>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px;">
+            Thank you for supporting the project and holding the line! Your diamond hands are what makes this community elite. 
+            <br><br>
+            Keep ripping, keep stacking rewards, and we'll see you back on the streets.
+        </p>
+        <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button>
+        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
     </div>
 </div>
 
@@ -191,7 +210,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.8.8',
+        appName: 'SkateTrunkV1.8.9',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -250,9 +269,17 @@
         } catch (e) { console.error("Failed to fetch balances", e); }
     }
 
-    window.toggleModal = () => {
-        const m = document.getElementById('onboarding-modal');
-        m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+    // --- NEW MODAL ROUTING LOGIC ---
+    window.toggleAuthModal = () => {
+        if (currentSession) {
+            document.getElementById('disconnect-modal').style.display = 'flex';
+        } else {
+            document.getElementById('onboarding-modal').style.display = 'flex';
+        }
+    };
+
+    window.closeModals = () => {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
     };
 
     document.getElementById('login-trigger').addEventListener('click', async () => {
@@ -260,10 +287,15 @@
         currentSession = session;
         const user = session.actor.toString();
         document.getElementById('connect-btn').innerText = user.toUpperCase();
-        toggleModal();
+        closeModals();
         updateBalances(user);
         
         switchCategory(currentSchema);
+    });
+
+    document.getElementById('logout-trigger').addEventListener('click', async () => {
+        await sessionKit.logout();
+        location.reload();
     });
 
     const cleanMeta = (val, fallback = "") => {
@@ -275,7 +307,6 @@
         return s === "" ? fallback : s;
     };
 
-    // Helper: Map text colors to safe hex codes
     const getSafeColor = (colorStr) => {
         const map = {
             'red': '#ff3366', 'blue': '#33ccff', 'green': '#00ffaa', 'yellow': '#ffd700',
@@ -286,10 +317,9 @@
         return map[c] || '#ffffff';
     };
 
-    // Video Game Progress Bar Renderer (1-20 Scale)
     const renderStat = (label, value, cssClass) => {
         const num = parseInt(value) || 0;
-        const pct = Math.min(num * 5, 100); // 1-20 scale (*5 to get 100%)
+        const pct = Math.min(num * 5, 100); 
         return `
             <div style="margin-bottom: 8px;">
                 <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">
@@ -327,7 +357,7 @@
                         const deck = cleanMeta(m.deck || t.deck, "STOCK");
                         const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
                         const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
-                        const brand = cleanMeta(m.brand || t.brand, nft.name); // Color replaced by Brand, fallback to Name
+                        const brand = cleanMeta(m.brand || t.brand, nft.name); 
 
                         hudHtml = `
                             <div class="meta-group">
@@ -379,7 +409,6 @@
                             </div>
                         `;
                         
-                        // Strict Component Order: BRAND, POP, BALANCE, SPEED
                         if (m.pop || t.pop) statsHtml += renderStat('POP', m.pop || t.pop, 'stat-pop');
                         if (m.balance || t.balance) statsHtml += renderStat('BALANCE', m.balance || t.balance, 'stat-balance');
                         if (m.speed || t.speed) statsHtml += renderStat('SPEED', m.speed || t.speed, 'stat-speed');
