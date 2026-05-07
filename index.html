@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$SKATE REWARDS | DIGITAL GARAGE</title>
+    <title>$SKATE REWARDS | THE SKATEPARK</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Bangers&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -189,7 +189,7 @@
 
 <div id="disconnect-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: #ff3366;">
-        <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE GARAGE?</h2>
+        <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
         <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px;">
             Thank you for supporting the project and holding the line! Your diamond hands are what makes this community elite. 
             <br><br>
@@ -210,7 +210,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateTrunkV1.8.9',
+        appName: 'SkateparkV1.9.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -219,6 +219,17 @@
     let sWax = 0;
     let currentSession = null;
     let currentSchema = 'skateboards'; 
+
+    // --- FRICTIONLESS AUTO-LOGIN ---
+    sessionKit.restore().then(s => {
+        if (s) {
+            currentSession = s;
+            const user = s.actor.toString();
+            document.getElementById('connect-btn').innerText = user.toUpperCase();
+            updateBalances(user);
+            switchCategory(currentSchema);
+        }
+    });
 
     window.switchCategory = (schema) => {
         currentSchema = schema;
@@ -269,7 +280,6 @@
         } catch (e) { console.error("Failed to fetch balances", e); }
     }
 
-    // --- NEW MODAL ROUTING LOGIC ---
     window.toggleAuthModal = () => {
         if (currentSession) {
             document.getElementById('disconnect-modal').style.display = 'flex';
@@ -334,7 +344,7 @@
 
     async function loadInventory(user) {
         const grid = document.getElementById('main-grid');
-        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING BLOCKCHAIN...</h3>`;
+        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING THE TRUNK...</h3>`;
         
         try {
             const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=100`);
@@ -354,6 +364,11 @@
                     let actionZoneHtml = "";
 
                     if (currentSchema === 'skateboards') {
+                        const speed = m.speed || t.speed || 0;
+                        const pop = m.pop || t.pop || 0;
+                        const balance = m.balance || t.balance || 0;
+                        const grind = m.grind || t.grind || 0;
+
                         const deck = cleanMeta(m.deck || t.deck, "STOCK");
                         const trucks = cleanMeta(m.trucks || t.trucks || m.truck || t.truck, "STOCK");
                         const wheels = cleanMeta(m.wheels || t.wheels || m.wheel || t.wheel, "STOCK");
@@ -366,7 +381,7 @@
                                     ${renderStat('POP', m.pop || t.pop, 'stat-pop')}
                                     ${renderStat('BALANCE', m.balance || t.balance, 'stat-balance')}
                                     ${renderStat('SPEED', m.speed || t.speed, 'stat-speed')}
-                                    ${renderStat('GRIND', m.grind || t.grind, 'stat-grind')}
+                                    ${renderStat('TOTAL POWER', m.grind || t.grind, 'stat-grind')}
                                 </div>
                             </div>
                             <div class="meta-group">
@@ -451,7 +466,7 @@
                     `;
                 }).join('');
             } else {
-                grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO ${currentSchema.toUpperCase()} IN INVENTORY</h3>`;
+                grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #444; font-family: 'Orbitron';">NO ${currentSchema.toUpperCase()} IN THE TRUNK</h3>`;
             }
         } catch (e) { 
             grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">ERROR FETCHING ASSETS</h3>`; 
