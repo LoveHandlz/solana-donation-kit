@@ -84,6 +84,10 @@
     <div class="dashboard-grid" id="main-grid">
         <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">CONNECT WALLET TO OPEN TRUNK</h3>
     </div>
+    
+    <div id="load-more-container" style="display: none; text-align: center; margin-top: 40px;">
+        <button class="wallet-btn" onclick="loadMoreInventory()" style="background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">▼ LOAD MORE ▼</button>
+    </div>
 </div>
 
 <div id="leaderboard-container" class="dashboard-wrapper" style="display: none;">
@@ -169,19 +173,24 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.21.0',
+        appName: 'SkateparkV1.22.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
-    let currentSession = null, currentSchema = 'skateboards';
+    let currentSession = null;
+    let currentSchema = 'skateboards';
+    let currentInventoryPage = 1;
     let calculatedWaxFee = 0, selectedAssetIds = [];
 
     sessionKit.restore().then(s => { if (s) { currentSession = s; document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase(); updateBalances(s.actor.toString()); switchCategory(currentSchema); } });
 
     window.switchCategory = (schema) => {
         currentSchema = schema;
+        currentInventoryPage = 1; // Reset pagination on tab switch
+        document.getElementById('load-more-container').style.display = 'none';
+
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${schema}`).classList.add('active');
         
@@ -209,20 +218,25 @@
         } catch (e) {}
     }
 
-    // --- LEADERBOARD SCANNER ENGINE ---
+    // --- SANCTIFIED LEADERBOARD SCANNER ---
     async function fetchLeaderboard() {
         const list = document.getElementById('leaderboard-list');
         list.innerHTML = `<div style="padding:40px; text-align:center; color:var(--accent-cyan); font-family:'Orbitron';">SCANNING WAX BLOCKCHAIN...</div>`;
         try {
-            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=20`);
+            // Fetch extra to ensure we have 20 after filtering system accounts
+            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=40`);
             const json = await res.json();
             
             if (json.success) {
-                if (json.data.length === 0) {
+                // Filter out Admin and Contract accounts to preserve player sanctity
+                const excludeAccounts = ['blend.nefty', 'skatecoinwax', 'ufuau.wam'];
+                const validHolders = json.data.filter(user => !excludeAccounts.includes(user.account)).slice(0, 20);
+
+                if (validHolders.length === 0) {
                     list.innerHTML = `<div style="padding:40px; text-align:center; color:#888; font-family:'Orbitron';">NO SKATEBOARD HOLDERS FOUND YET</div>`;
                     return;
                 }
-                list.innerHTML = json.data.map((user, index) => {
+                list.innerHTML = validHolders.map((user, index) => {
                     let rankColor = index === 0 ? "color: #ffd700; text-shadow: 0 0 10px #ffd700;" : (index === 1 ? "color: #c0c0c0;" : (index === 2 ? "color: #cd7f32;" : "color: var(--accent-gold);"));
                     let rankText = index === 0 ? "🏆 #1" : `#${index + 1}`;
                     let bg = index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)';
@@ -246,26 +260,35 @@
         return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
     };
 
+    // Deep search tool for metadata truth
+    const getMetaTruth = (nft, statKey) => {
+        if (nft.data && nft.data[statKey] !== undefined) return parseInt(nft.data[statKey]);
+        if (nft.template && nft.template.immutable_data && nft.template.immutable_data[statKey] !== undefined) return parseInt(nft.template.immutable_data[statKey]);
+        return 0; 
+    };
+
     window.updateCraftingStats = () => {
         const d = document.getElementById('craft-deck-select').selectedOptions[0], t1 = document.getElementById('craft-truck1-select').selectedOptions[0], t2 = document.getElementById('craft-truck2-select').selectedOptions[0];
         const w1 = document.getElementById('craft-wheel1-select').selectedOptions[0], w2 = document.getElementById('craft-wheel2-select').selectedOptions[0], w3 = document.getElementById('craft-wheel3-select').selectedOptions[0], w4 = document.getElementById('craft-wheel4-select').selectedOptions[0];
 
         if (d.value && t1.value && t2.value && w1.value && w2.value && w3.value && w4.value) {
             
-            // Pillar Summation Logic
-            let tPop = (parseInt(d.dataset.pop)||0) + Math.round(((parseInt(t1.dataset.pop)||0) + (parseInt(t2.dataset.pop)||0))/2) + Math.round(((parseInt(w1.dataset.pop)||0) + (parseInt(w2.dataset.pop)||0) + (parseInt(w3.dataset.pop)||0) + (parseInt(w4.dataset.pop)||0))/4);
-            let tSpeed = (parseInt(d.dataset.speed)||0) + Math.round(((parseInt(t1.dataset.speed)||0) + (parseInt(t2.dataset.speed)||0))/2) + Math.round(((parseInt(w1.dataset.speed)||0) + (parseInt(w2.dataset.speed)||0) + (parseInt(w3.dataset.speed)||0) + (parseInt(w4.dataset.speed)||0))/4);
-            let tBal = (parseInt(d.dataset.bal)||0) + Math.round(((parseInt(t1.dataset.bal)||0) + (parseInt(t2.dataset.bal)||0))/2) + Math.round(((parseInt(w1.dataset.bal)||0) + (parseInt(w2.dataset.bal)||0) + (parseInt(w3.dataset.bal)||0) + (parseInt(w4.dataset.bal)||0))/4);
+            // Absolute Summation Engine Math 
+            const getGroupScore = (attr) => {
+                const deck = parseInt(d.dataset[attr]) || 0;
+                const truckSet = Math.round(((parseInt(t1.dataset[attr]) || 0) + (parseInt(t2.dataset[attr]) || 0)) / 2);
+                const wheelSet = Math.round(((parseInt(w1.dataset[attr]) || 0) + (parseInt(w2.dataset[attr]) || 0) + (parseInt(w3.dataset[attr]) || 0) + (parseInt(w4.dataset[attr]) || 0)) / 4);
+                return deck + truckSet + wheelSet; 
+            };
 
-            let totalPower = tPop + tSpeed + tBal;
+            const fPop = getGroupScore('pop'), fSpeed = getGroupScore('speed'), fBal = getGroupScore('bal');
             
-            // Hard Cap Truth Engine
-            if (totalPower > 60) totalPower = 60;
-            const rewards = totalPower * 1000;
+            let totalPower = fPop + fSpeed + fBal;
+            if (totalPower > 60) totalPower = 60; // Absolute Cap
 
+            const rewards = totalPower * 1000;
             selectedAssetIds = [d.value, t1.value, t2.value, w1.value, w2.value, w3.value, w4.value];
             
-            // Dynamic Fee Calculator
             const rarityMap = { 'common': 1, 'uncommon': 2, 'rare': 3, 'epic': 4, 'legendary': 5, 'mythic': 6 };
             const rarities = [d.dataset.rarity, t1.dataset.rarity, t2.dataset.rarity, w1.dataset.rarity, w2.dataset.rarity, w3.dataset.rarity, w4.dataset.rarity];
             
@@ -277,9 +300,9 @@
             calculatedWaxFee = maxTier * 1000;
 
             document.getElementById('craft-stats-hud').innerHTML = `
-                ${renderStat('TOTAL POP', tPop, 'stat-pop', 20)}
-                ${renderStat('TOTAL BALANCE', tBal, 'stat-balance', 20)}
-                ${renderStat('TOTAL SPEED', tSpeed, 'stat-speed', 20)}
+                ${renderStat('TOTAL POP', fPop, 'stat-pop', 20)}
+                ${renderStat('TOTAL BALANCE', fBal, 'stat-balance', 20)}
+                ${renderStat('TOTAL SPEED', fSpeed, 'stat-speed', 20)}
                 <div style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
                     ${renderStat('TRUE TOTAL POWER', totalPower, 'stat-total', 60)}
                 </div>
@@ -297,7 +320,13 @@
             const json = await res.json();
             if (json.success) {
                 const mapSel = (id, arr) => {
-                    document.getElementById(id).innerHTML = `<option value="">-- CHOOSE --</option>` + arr.map(n => `<option value="${n.asset_id}" data-rarity="${n.data.rarity||n.template.immutable_data.rarity||'common'}" data-pop="${n.data.pop||0}" data-speed="${n.data.speed||0}" data-bal="${n.data.balance||0}">${n.name}</option>`).join('');
+                    document.getElementById(id).innerHTML = `<option value="">-- CHOOSE --</option>` + arr.map(n => {
+                        const r = (n.data && n.data.rarity) || (n.template && n.template.immutable_data && n.template.immutable_data.rarity) || 'common';
+                        const p = getMetaTruth(n, 'pop');
+                        const s = getMetaTruth(n, 'speed');
+                        const b = getMetaTruth(n, 'balance');
+                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}">${n.name}</option>`;
+                    }).join('');
                 };
                 mapSel('craft-deck-select', json.data.filter(a => a.schema.schema_name === 'decks'));
                 const trk = json.data.filter(a => a.schema.schema_name === 'trucks');
@@ -308,30 +337,67 @@
         } catch(e) {}
     }
 
-    async function fetchInventory(user) {
+    // --- PAGINATED INVENTORY SCANNER ---
+    async function fetchInventory(user, append = false) {
         const grid = document.getElementById('main-grid');
-        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING...</h3>`;
+        const loadMoreBtn = document.getElementById('load-more-container');
+
+        if (!append) {
+            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING...</h3>`;
+            currentInventoryPage = 1;
+        }
+
         try {
-            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&limit=12`);
+            // Strict 12-grid limit per page
+            const res = await fetch(`${ATOMIC_API}/assets?collection_name=${COLLECTION}&schema_name=${currentSchema}&owner=${user}&page=${currentInventoryPage}&limit=12`);
             const json = await res.json();
+            
             if (json.success) {
-                grid.innerHTML = json.data.map(n => {
-                    const m = n.data || {}, t = n.template ? n.template.immutable_data : {};
-                    const speed = parseInt(m.speed || t.speed || 0), pop = parseInt(m.pop || t.pop || 0), balance = parseInt(m.balance || t.balance || 0);
-                    let statHtml = "";
+                const htmlCards = json.data.map(n => {
+                    const pop = getMetaTruth(n, 'pop');
+                    const speed = getMetaTruth(n, 'speed');
+                    const balance = getMetaTruth(n, 'balance');
+                    const rarity = (n.data && n.data.rarity) || (n.template && n.template.immutable_data && n.template.immutable_data.rarity) || 'common';
+                    const img = (n.data && n.data.img) || (n.template && n.template.immutable_data && n.template.immutable_data.img) || '';
                     
+                    let statHtml = "";
                     if (currentSchema === 'skateboards') {
                         let totalPower = speed + pop + balance;
-                        if (totalPower > 60) totalPower = 60; // Cap visual for built boards too
+                        if (totalPower > 60) totalPower = 60;
                         statHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}</div></div>`;
                     } else {
                         statHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}</div></div>`;
                     }
-                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${(m.rarity||t.rarity||'common').toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${m.img||t.img||''}" class="skate-img"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div></div>`;
+                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity.toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div></div>`;
                 }).join('');
+
+                if (!append) {
+                    if (json.data.length === 0) {
+                        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #888; font-family: 'Orbitron';">TRUNK IS EMPTY</h3>`;
+                    } else {
+                        grid.innerHTML = htmlCards;
+                    }
+                } else {
+                    grid.insertAdjacentHTML('beforeend', htmlCards);
+                }
+
+                // Show/Hide Load More Button
+                if (json.data.length === 12) {
+                    loadMoreBtn.style.display = 'block';
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
             }
-        } catch (e) {}
+        } catch (e) {
+            if (!append) grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">CONNECTION ERROR</h3>`;
+        }
     }
+
+    window.loadMoreInventory = () => {
+        if (!currentSession) return;
+        currentInventoryPage++;
+        fetchInventory(currentSession.actor.toString(), true);
+    };
 
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
     window.toggleAuthModal = () => { if(!currentSession) document.getElementById('onboarding-modal').style.display = 'flex'; else location.reload(); };
@@ -344,45 +410,18 @@
 
     window.executeBlend = async () => {
         if (!currentSession || selectedAssetIds.length !== 7) return;
-        
         const formattedWax = Number(calculatedWaxFee).toFixed(8) + " WAX";
-
         try {
             const actions = [
-                { 
-                    account: 'atomicassets', 
-                    name: 'transfer', 
-                    authorization: [currentSession.permissionLevel], 
-                    data: { 
-                        from: currentSession.actor.toString(), 
-                        to: 'ufuau.wam', 
-                        asset_ids: selectedAssetIds, 
-                        memo: "SKATEBOARD BUILD INGREDIENTS" 
-                    } 
-                },
-                { 
-                    account: 'eosio.token', 
-                    name: 'transfer', 
-                    authorization: [currentSession.permissionLevel], 
-                    data: { 
-                        from: currentSession.actor.toString(), 
-                        to: 'ufuau.wam', 
-                        quantity: formattedWax, 
-                        memo: "SKATEBOARD BUILD PAYMENT" 
-                    } 
-                }
+                { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'ufuau.wam', asset_ids: selectedAssetIds, memo: "SKATEBOARD BUILD INGREDIENTS" } },
+                { account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'ufuau.wam', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } }
             ];
-            
             await currentSession.transact({ actions });
             closeModals();
             alert("Thank you, your board will be shipped soon!");
             loadCraftingData(currentSession.actor.toString());
             updateBalances(currentSession.actor.toString());
-            
-        } catch (e) {
-            console.error(e);
-            alert("Transaction Cancelled or Failed.");
-        }
+        } catch (e) { console.error(e); alert("Transaction Cancelled or Failed."); }
     };
 </script>
 </body>
