@@ -31,7 +31,7 @@
         
         .rarity-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10; border-bottom: 2px solid rgba(255,255,255,0.4); }
         .rarity-header-text { font-family: 'Bangers'; font-size: 1.4rem; letter-spacing: 3px; color: #000; text-shadow: 1px 1px 0px rgba(255,255,255,0.6); margin-top: 2px; line-height: 1; }
-        .mint-badge { background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-family: 'Orbitron'; font-weight: 900; border: 1px solid rgba(255,255,255,0.3); box-shadow: inset 0 0 5px rgba(255,255,255,0.2); }
+        .mint-badge { background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-family: 'Orbitron'; font-weight: 900; border: 1px solid rgba(255,255,255,0.3); box-shadow: inset 0 0 5px rgba(255,255,255,0.2); }
         
         .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
@@ -217,7 +217,6 @@
     const COLLECTION = "skatecoinwax";
     const WAX_RPC = "https://wax.greymass.com";
 
-    // --- DEDICATED METADATA PARSER CLASS ---
     class MetaParser {
         static getRaw(nft, key) {
             if (nft.data && nft.data[key] !== undefined) return nft.data[key];
@@ -234,7 +233,7 @@
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.27.0',
+        appName: 'SkateparkV1.2.1',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -243,9 +242,8 @@
     let currentSession = null, currentSchema = 'skateboards', currentInventoryPage = 1;
     let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0;
 
-    // Fetch WAX-SKATE Exchange Rate for UI display
     async function syncPrices() {
-        const skatePerWax = 7.6897; // Locked protocol rate
+        const skatePerWax = 7.6897; 
         sWax = 1 / skatePerWax; 
     }
     syncPrices();
@@ -361,6 +359,14 @@
             const rewards = totalPower * 1000;
             selectedAssetIds = [d.value, t1.value, t2.value, w1.value, w2.value, w3.value, w4.value];
             
+            // Unique Asset Check (Prevent identical asset IDs)
+            const uniqueIds = new Set(selectedAssetIds);
+            if(uniqueIds.size !== 7) {
+                alert("⚠️ DUPLICATE DETECTED: You have selected the exact same specific NFT (Asset ID) in multiple slots. Please ensure each selected component has a unique ID.");
+                resetBuilderStats();
+                return;
+            }
+
             const rarityMap = { 'common': 1, 'uncommon': 2, 'rare': 3, 'epic': 4, 'legendary': 5, 'mythic': 6 };
             const rarities = [d.dataset.rarity, t1.dataset.rarity, t2.dataset.rarity, w1.dataset.rarity, w2.dataset.rarity, w3.dataset.rarity, w4.dataset.rarity];
             
@@ -411,8 +417,7 @@
                         const s = MetaParser.getInt(n, 'speed');
                         const b = MetaParser.getInt(n, 'balance');
                         const img = MetaParser.getImg(n);
-                        const tplId = n.template ? n.template.template_id : 'N/A';
-                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}" data-img="${img}">${n.name} (TPL: #${tplId})</option>`;
+                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}" data-img="${img}">${n.name} (ID: #${n.asset_id})</option>`;
                     }).join('');
                 };
                 mapSel('craft-deck-select', json.data.filter(a => a.schema.schema_name === 'decks'));
@@ -453,7 +458,6 @@
                         let totalPower = speed + pop + balance;
                         if (totalPower > 60) totalPower = 60;
                         
-                        // Exact mathematical reward calculation
                         const skateReward = totalPower * 1000;
                         const waxValue = (skateReward * sWax).toFixed(2);
                         
@@ -474,7 +478,6 @@
                                 </div>
                             </div>`;
                         
-                        // Restored Claim Zone for Completed Skateboards
                         actionHtml = `
                             <div class="claim-zone">
                                 <div>
@@ -483,7 +486,6 @@
                                 </div>
                                 <button class="wallet-btn" onclick="openClaimModal()" style="padding: 10px 15px;">CLAIM</button>
                             </div>`;
-
                     } else {
                         const brandStr = MetaParser.getString(n, 'brand', 'STOCK');
                         const colorStr = MetaParser.getString(n, 'color', 'STOCK');
@@ -500,7 +502,6 @@
                                 </div>
                             </div>`;
                         
-                        // Yellow borders for component action zone
                         actionHtml = `
                             <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; gap: 10px; justify-content: center; padding: 15px;">
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
@@ -509,8 +510,8 @@
                     }
 
                     return `<div class="skate-card">
-                                <div class="rarity-header" style="background: var(--rarity-${rarity.toLowerCase()}); box-shadow: 0 0 20px var(--rarity-${rarity.toLowerCase()});">
-                                    <div class="mint-badge">#${n.template_mint}</div>
+                                <div class="rarity-header" style="background: var(--rarity-${rarity}); box-shadow: 0 0 20px var(--rarity-${rarity});">
+                                    <div class="mint-badge">ID: ${n.asset_id}</div>
                                     <div class="rarity-header-text">${rarity}</div>
                                 </div>
                                 <div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
