@@ -29,12 +29,17 @@
         .skate-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
-        .rarity-header { padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-        .mint-badge { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; font-family: 'Inter'; font-weight: 900; }
+        .rarity-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10; border-bottom: 2px solid rgba(255,255,255,0.4); }
+        .rarity-header-text { font-family: 'Bangers'; font-size: 1.4rem; letter-spacing: 3px; color: #000; text-shadow: 1px 1px 0px rgba(255,255,255,0.6); margin-top: 2px; line-height: 1; }
+        .mint-badge { background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-family: 'Orbitron'; font-weight: 900; border: 1px solid rgba(255,255,255,0.3); box-shadow: inset 0 0 5px rgba(255,255,255,0.2); }
+        
         .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
         .card-body { padding: 20px; flex: 1; }
         .board-name { font-family: 'Bangers'; font-size: 1.6rem; margin: 0 0 15px 0; text-transform: uppercase; line-height: 1.1; }
+        
+        /* SLEEK ORBITRON HUD TEXT */
+        .meta-title { font-family: 'Orbitron'; font-weight: 400; font-size: 0.6rem; color: #888; letter-spacing: 2px; margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; text-transform: uppercase; }
         
         .stat-bar-container { width: 100%; height: 6px; background: #111; border: 1px solid #333; border-radius: 3px; margin-top: 3px; overflow: hidden; }
         .stat-bar { height: 100%; transition: width 0.5s ease-out; }
@@ -43,6 +48,11 @@
         .stat-speed { background: linear-gradient(90deg, #00aaff, #00ffff); }
         .stat-total { background: linear-gradient(90deg, #ffaa00, #ffff00); }
         
+        /* CLAIM ZONE RESTORED */
+        .claim-zone { padding: 15px 20px; background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; justify-content: space-between; align-items: center; }
+        .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
+        .reward-wax { font-family: 'Inter'; font-size: 0.75rem; color: var(--accent-gold); font-weight: 900; }
+
         .wallet-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s; }
         .wallet-btn:hover { background: #fff; }
         .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
@@ -185,6 +195,18 @@
         <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
     </div>
 </div>
+<div id="claim-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
+        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
+            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
+                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
+                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b>
+            </div>
+        </div>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
+    </div>
+</div>
 
 <script type="module">
     import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
@@ -212,14 +234,21 @@
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.2.1',
+        appName: 'SkateparkV1.27.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
     let currentSession = null, currentSchema = 'skateboards', currentInventoryPage = 1;
-    let calculatedWaxFee = 0, selectedAssetIds = [];
+    let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0;
+
+    // Fetch WAX-SKATE Exchange Rate for UI display
+    async function syncPrices() {
+        const skatePerWax = 7.6897; // Locked protocol rate
+        sWax = 1 / skatePerWax; 
+    }
+    syncPrices();
 
     sessionKit.restore().then(s => { 
         if (s) { 
@@ -424,6 +453,10 @@
                         let totalPower = speed + pop + balance;
                         if (totalPower > 60) totalPower = 60;
                         
+                        // Exact mathematical reward calculation
+                        const skateReward = totalPower * 1000;
+                        const waxValue = (skateReward * sWax).toFixed(2);
+                        
                         const deckName = MetaParser.getString(n, 'deck', 'STOCK');
                         const truckName = MetaParser.getString(n, 'trucks', 'STOCK');
                         const wheelName = MetaParser.getString(n, 'wheels', 'STOCK');
@@ -441,12 +474,16 @@
                                 </div>
                             </div>`;
                         
-                        // Action Zone with Crypto Clips Yellow styling
+                        // Restored Claim Zone for Completed Skateboards
                         actionHtml = `
-                            <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; gap: 10px; justify-content: center; padding: 15px;">
-                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
-                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
+                            <div class="claim-zone">
+                                <div>
+                                    <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
+                                    <div class="reward-wax">≈ ${waxValue} WAX</div>
+                                </div>
+                                <button class="wallet-btn" onclick="openClaimModal()" style="padding: 10px 15px;">CLAIM</button>
                             </div>`;
+
                     } else {
                         const brandStr = MetaParser.getString(n, 'brand', 'STOCK');
                         const colorStr = MetaParser.getString(n, 'color', 'STOCK');
@@ -463,7 +500,7 @@
                                 </div>
                             </div>`;
                         
-                        // Action Zone with Crypto Clips Yellow styling
+                        // Yellow borders for component action zone
                         actionHtml = `
                             <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; gap: 10px; justify-content: center; padding: 15px;">
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
@@ -472,7 +509,7 @@
                     }
 
                     return `<div class="skate-card">
-                                <div class="rarity-header" style="background: var(--rarity-${rarity}); box-shadow: 0 0 20px var(--rarity-${rarity});">
+                                <div class="rarity-header" style="background: var(--rarity-${rarity.toLowerCase()}); box-shadow: 0 0 20px var(--rarity-${rarity.toLowerCase()});">
                                     <div class="mint-badge">#${n.template_mint}</div>
                                     <div class="rarity-header-text">${rarity}</div>
                                 </div>
@@ -514,7 +551,8 @@
 
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
     window.toggleAuthModal = () => { if(!currentSession) document.getElementById('onboarding-modal').style.display = 'flex'; else document.getElementById('disconnect-modal').style.display = 'flex'; };
-    
+    window.openClaimModal = () => { document.getElementById('claim-modal').style.display = 'flex'; };
+
     document.getElementById('login-trigger').addEventListener('click', async () => { const { session } = await sessionKit.login(); location.reload(); });
     document.getElementById('logout-trigger').addEventListener('click', async () => { await sessionKit.logout(); location.reload(); });
 
