@@ -68,9 +68,8 @@
         .wallet-btn:hover { background: #fff; }
         .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
         
-        /* SKATE ICON CSS */
-        .skate-icon { width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; border-radius: 50%; border: 1px solid var(--accent-gold); box-shadow: 0 0 5px var(--accent-gold); }
-        .skate-icon-large { width: 36px; height: 36px; margin-right: 12px; }
+        /* SKATE ICON */
+        .skate-icon { width: 26px; height: 26px; vertical-align: middle; margin-right: 8px; }
 
         /* BUILDER */
         .crafting-container { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; background: rgba(0,0,0,0.5); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-cyan); }
@@ -95,11 +94,69 @@
         .footer-logos img:hover { opacity: 1; filter: grayscale(0%); transform: scale(1.05); }
 
         /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 450px; }
+
+        /* START SCREEN VIP TICKET */
+        #welcome-modal { display: flex; z-index: 9999; } /* Triggers on load */
+        .ticket-pass {
+            background: linear-gradient(135deg, rgba(15,26,71,0.95) 0%, #050a1a 100%);
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.05);
+            border-radius: 12px;
+            padding: 50px 40px;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .ticket-pass::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px);
+            pointer-events: none;
+        }
+        .lore-text { color: #ccc; font-size: 0.95rem; line-height: 1.7; margin-bottom: 30px; font-family: 'Inter'; position: relative; z-index: 2; }
+        .lore-text strong { color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 1px; }
+        
+        .press-start-btn {
+            background: var(--accent-cyan); color: #000; font-family: 'Bangers'; font-size: 2rem;
+            padding: 15px 40px; border: none; cursor: pointer; text-transform: uppercase;
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+            animation: pulse-glow 1.5s infinite;
+            margin-top: 10px; position: relative; z-index: 2; width: 100%;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 10px var(--accent-cyan); transform: scale(1); }
+            50% { box-shadow: 0 0 30px var(--accent-cyan); transform: scale(1.02); }
+            100% { box-shadow: 0 0 10px var(--accent-cyan); transform: scale(1); }
+        }
+        .retro-terminal {
+            background: rgba(255,0,0,0.05); border-left: 3px solid #ff3366;
+            color: #ff3366; font-family: 'Orbitron'; font-size: 0.6rem; text-align: left;
+            padding: 12px; margin-top: 30px; line-height: 1.6; position: relative; z-index: 2;
+        }
     </style>
 </head>
 <body>
+
+<div id="welcome-modal" class="modal-overlay">
+    <div class="ticket-pass">
+        <h2 style="font-family:'Bangers'; color:var(--accent-cyan); font-size: 3rem; margin: 0 0 15px 0; letter-spacing: 3px; text-shadow: 0 0 15px var(--accent-cyan);">🎟️ VIP ACCESS GRANTED 🎟️</h2>
+        <div class="lore-text">
+            Welcome to the <strong>WAX REWARD PORTAL</strong>.<br><br>
+            To the early adopters... the <strong>GODFATHERS</strong> who held firm, believed in the vision, and skated through the harsh crypto winter freeze: This ecosystem is built for you.<br><br>
+            By securing a complete skateboard here, you are forging your exclusive invite. For sacrificing through the bear market, your <strong>Diamond Hand Badge</strong> awaits in the upcoming Crypto Clips expansion currently being built on Solana.<br><br>
+            Gear up. Craft your board. Claim your spot.
+        </div>
+        <button class="press-start-btn" onclick="acceptAndEnter()">[ PRESS START TO PLAY ]</button>
+        <div class="retro-terminal">
+            SYSTEM OVERRIDE // NFA_DISCLAIMER.EXE<br>
+            > This is not financial advice. Rewards are distributed entirely at protocol discretion.<br>
+            > We are not responsible for closed beta test errors, smart contract un-landed tricks, or wrecked boards.<br>
+            > Proceed with extreme hype and Diamond Hands.
+        </div>
+    </div>
+</div>
 
 <header>
     <div class="header-inner">
@@ -519,7 +576,7 @@
                         actionHtml = `
                             <div class="claim-zone">
                                 <div>
-                                    <div class="reward-skate"><img src="${SKATE_ICON}" class="skate-icon"> ${skateReward.toLocaleString()}</div>
+                                    <div class="reward-skate" style="display:flex; align-items:center;"><img src="${SKATE_ICON}" class="skate-icon"> ${skateReward.toLocaleString()}</div>
                                     <div class="reward-wax">≈ ${waxValue} WAX</div>
                                 </div>
                                 <button class="wallet-btn" onclick="openClaimModal()" style="padding: 10px 15px;">CLAIM</button>
@@ -592,6 +649,7 @@
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
     window.toggleAuthModal = () => { if(!currentSession) document.getElementById('onboarding-modal').style.display = 'flex'; else document.getElementById('disconnect-modal').style.display = 'flex'; };
     window.openClaimModal = () => { document.getElementById('claim-modal').style.display = 'flex'; };
+    window.acceptAndEnter = () => { document.getElementById('welcome-modal').style.display = 'none'; };
 
     document.getElementById('login-trigger').addEventListener('click', async () => { const { session } = await sessionKit.login(); location.reload(); });
     document.getElementById('logout-trigger').addEventListener('click', async () => { await sessionKit.logout(); location.reload(); });
