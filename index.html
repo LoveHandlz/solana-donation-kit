@@ -807,8 +807,11 @@
             const json = await res.json();
             
             if (json.success) {
-                // Completely removed the strict client-side filter. All fetched assets are passed through.
-                const filteredData = json.data;
+                // Simplified Validation Filter (Only looking for "trick")
+                const filteredData = json.data.filter(n => {
+                    const trick = MetaParser.getString(n, 'trick');
+                    return trick !== 'N/A';
+                });
 
                 const htmlCards = filteredData.map(n => {
                     const pop = MetaParser.getInt(n, 'pop');
