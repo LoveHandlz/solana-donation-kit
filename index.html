@@ -10,6 +10,7 @@
             --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
+            --atomic-orange: #f58b00;
             --card-border: rgba(0, 240, 255, 0.2);
             --rarity-common: #94a3b8; --rarity-uncommon: #00ffaa; --rarity-rare: #2196f3; --rarity-epic: #d946ef; --rarity-legendary: var(--accent-gold); --rarity-mythic: #a855f7;          
         }
@@ -22,24 +23,31 @@
         nav a.active { color: var(--accent-cyan); text-shadow: 0 0 8px var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); }
         .balance-pill { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--accent-cyan); padding: 6px 15px; border-radius: 50px; font-family: 'Orbitron'; font-size: 0.65rem; display: flex; gap: 15px; }
         .balance-pill span { color: var(--accent-gold); font-weight: 900; }
+        
         .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; min-height: 70vh; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .skate-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        
+        .skate-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
+        
         .rarity-header { padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-        .mint-badge { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; }
-        .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; }
+        .mint-badge { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; font-family: 'Inter'; font-weight: 900; }
+        .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
         .card-body { padding: 20px; flex: 1; }
-        .board-name { font-family: 'Bangers'; font-size: 1.6rem; margin: 0 0 15px 0; text-transform: uppercase; }
+        .board-name { font-family: 'Bangers'; font-size: 1.6rem; margin: 0 0 15px 0; text-transform: uppercase; line-height: 1.1; }
+        
         .stat-bar-container { width: 100%; height: 6px; background: #111; border: 1px solid #333; border-radius: 3px; margin-top: 3px; overflow: hidden; }
         .stat-bar { height: 100%; transition: width 0.5s ease-out; }
         .stat-pop { background: linear-gradient(90deg, #ff0055, #ff55aa); }
         .stat-balance { background: linear-gradient(90deg, #aa00ff, #e066ff); }
         .stat-speed { background: linear-gradient(90deg, #00aaff, #00ffff); }
         .stat-total { background: linear-gradient(90deg, #ffaa00, #ffff00); }
+        
         .wallet-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s; }
         .wallet-btn:hover { background: #fff; }
         .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 450px; }
 
@@ -49,7 +57,7 @@
         .craft-slot h4 { margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; text-transform: uppercase; }
         .craft-slot select { width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid #333; font-size: 0.8rem; margin-bottom: 5px; outline: none; }
         .projected-stats { background: #000; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: space-between; }
-        .nft-visual-thumbnail { width: 40px; height: 40px; object-fit: contain; background: #111; border: 1px solid var(--accent-cyan); border-radius: 4px; padding: 2px; }
+        .nft-visual-thumbnail { width: 45px; height: 45px; object-fit: contain; background: #111; border: 1px solid var(--accent-cyan); border-radius: 4px; padding: 3px; }
 
         /* LEADERBOARD */
         .lb-row { display: flex; padding: 15px 20px; border-bottom: 1px solid #333; font-family: 'Orbitron'; font-size: 0.9rem; align-items: center; }
@@ -188,8 +196,24 @@
     const COLLECTION = "skatecoinwax";
     const WAX_RPC = "https://wax.greymass.com";
 
+    // --- DEDICATED METADATA PARSER CLASS ---
+    class MetaParser {
+        static getRaw(nft, key) {
+            if (nft.data && nft.data[key] !== undefined) return nft.data[key];
+            if (nft.template && nft.template.immutable_data && nft.template.immutable_data[key] !== undefined) return nft.template.immutable_data[key];
+            return null;
+        }
+        static getInt(nft, key) { return parseInt(this.getRaw(nft, key)) || 0; }
+        static getString(nft, key, fallback = 'N/A') { 
+            const val = this.getRaw(nft, key); 
+            return val ? String(val).toUpperCase() : fallback; 
+        }
+        static getImg(nft) { return this.getRaw(nft, 'img') || ''; }
+        static getRarity(nft) { return this.getString(nft, 'rarity', 'COMMON').toLowerCase(); }
+    }
+
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.25.0',
+        appName: 'SkateparkV1.26.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -250,7 +274,6 @@
         try {
             const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=50`);
             const json = await res.json();
-            
             if (json.success) {
                 const excludeAccounts = ['blend.nefty', 'skatecoinwax', 'ufuau.wam', 'bridge.wax', 'neftyblocksd'];
                 const validHolders = json.data.filter(user => !excludeAccounts.includes(user.account)).slice(0, 20);
@@ -267,24 +290,12 @@
                     return `<div class="lb-row" style="background: ${bg};"><div style="width: 80px; font-weight: 900; ${rankColor}">${rankText}</div><div style="flex: 1; color: #fff; text-transform: uppercase;">${user.account}</div><div style="width: 150px; text-align: right; color: var(--accent-cyan); font-weight: 900;">${user.assets} <span style="font-size: 0.55rem; color: #555;">BOARDS</span></div></div>`;
                 }).join('');
             }
-        } catch (e) {
-            list.innerHTML = `<div style="padding:40px; text-align:center; color:#ff3366; font-family:'Orbitron';">BLOCKCHAIN CONNECTION FAILED</div>`;
-        }
+        } catch (e) { list.innerHTML = `<div style="padding:40px; text-align:center; color:#ff3366; font-family:'Orbitron';">BLOCKCHAIN CONNECTION FAILED</div>`; }
     }
 
     const renderStat = (label, value, cssClass, max) => {
         const num = parseInt(value) || 0, pct = Math.min((num / max) * 100, 100); 
         return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
-    };
-
-    // Upgraded Truth Scanner (Now grabs strings like img hashes as well as integers)
-    const getMetaTruth = (nft, statKey, isString = false) => {
-        let val = null;
-        if (nft.data && nft.data[statKey] !== undefined) val = nft.data[statKey];
-        else if (nft.template && nft.template.immutable_data && nft.template.immutable_data[statKey] !== undefined) val = nft.template.immutable_data[statKey];
-        
-        if (isString) return val || '';
-        return parseInt(val) || 0; 
     };
 
     function resetBuilderStats() {
@@ -332,7 +343,6 @@
             });
             calculatedWaxFee = maxTier * 1000;
 
-            // Restored Component Visualizer HUD
             const visualHtml = `
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
                     <img src="https://ipfs.io/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
@@ -368,12 +378,13 @@
             if (json.success) {
                 const mapSel = (id, arr) => {
                     document.getElementById(id).innerHTML = `<option value="">-- CHOOSE --</option>` + arr.map(n => {
-                        const r = getMetaTruth(n, 'rarity', true) || 'common';
-                        const p = getMetaTruth(n, 'pop');
-                        const s = getMetaTruth(n, 'speed');
-                        const b = getMetaTruth(n, 'balance');
-                        const img = getMetaTruth(n, 'img', true);
-                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}" data-img="${img}">${n.name}</option>`;
+                        const r = MetaParser.getRarity(n);
+                        const p = MetaParser.getInt(n, 'pop');
+                        const s = MetaParser.getInt(n, 'speed');
+                        const b = MetaParser.getInt(n, 'balance');
+                        const img = MetaParser.getImg(n);
+                        const tplId = n.template ? n.template.template_id : 'N/A';
+                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}" data-img="${img}">${n.name} (TPL: #${tplId})</option>`;
                     }).join('');
                 };
                 mapSel('craft-deck-select', json.data.filter(a => a.schema.schema_name === 'decks'));
@@ -400,26 +411,69 @@
             
             if (json.success) {
                 const htmlCards = json.data.map(n => {
-                    const pop = getMetaTruth(n, 'pop');
-                    const speed = getMetaTruth(n, 'speed');
-                    const balance = getMetaTruth(n, 'balance');
-                    const rarity = getMetaTruth(n, 'rarity', true) || 'common';
-                    const img = getMetaTruth(n, 'img', true);
+                    const pop = MetaParser.getInt(n, 'pop');
+                    const speed = MetaParser.getInt(n, 'speed');
+                    const balance = MetaParser.getInt(n, 'balance');
+                    const rarity = MetaParser.getRarity(n);
+                    const img = MetaParser.getImg(n);
                     const tplId = n.template ? n.template.template_id : 'N/A';
                     
                     let statHtml = "";
                     let actionHtml = "";
+
                     if (currentSchema === 'skateboards') {
                         let totalPower = speed + pop + balance;
                         if (totalPower > 60) totalPower = 60;
-                        statHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}</div></div>`;
-                        // Specific Asset View for Completed Boards
-                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button></div>`;
+                        
+                        // Pull specific build metadata
+                        const deckName = MetaParser.getString(n, 'deck', 'STOCK');
+                        const truckName = MetaParser.getString(n, 'trucks', 'STOCK');
+                        const wheelName = MetaParser.getString(n, 'wheels', 'STOCK');
+
+                        statHtml = `
+                            <div class="meta-group">
+                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px; margin-bottom: 10px;">
+                                    <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">DECK <span style="color:var(--accent-cyan)">${deckName}</span></div>
+                                    <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">TRUCKS <span style="color:var(--accent-cyan)">${truckName}</span></div>
+                                    <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">WHEELS <span style="color:var(--accent-cyan)">${wheelName}</span></div>
+                                </div>
+                                <div class="meta-title">PERFORMANCE</div>
+                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
+                                    ${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}
+                                </div>
+                            </div>`;
+                        
+                        // Action Zone with Atomic Orange styling
+                        actionHtml = `
+                            <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;">
+                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
+                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
+                            </div>`;
                     } else {
-                        statHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}</div></div>`;
-                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button></div>`;
+                        // Components get Brand and Color
+                        const brandStr = MetaParser.getString(n, 'brand', 'STOCK');
+                        const colorStr = MetaParser.getString(n, 'color', 'STOCK');
+
+                        statHtml = `
+                            <div class="meta-group">
+                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px; margin-bottom: 10px;">
+                                    <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">BRAND <span style="color:#fff">${brandStr}</span></div>
+                                    <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">COLOR <span style="color:#fff">${colorStr}</span></div>
+                                </div>
+                                <div class="meta-title">COMPONENT TRAITS</div>
+                                <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
+                                    ${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}
+                                </div>
+                            </div>`;
+                        
+                        // Action Zone with Atomic Orange styling
+                        actionHtml = `
+                            <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;">
+                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
+                                <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
+                            </div>`;
                     }
-                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity.toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div>${actionHtml}</div>`;
+                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div>${actionHtml}</div>`;
                 }).join('');
 
                 if (!append) {
