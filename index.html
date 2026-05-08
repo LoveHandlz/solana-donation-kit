@@ -412,7 +412,7 @@
                 const cleanRarity = (r || 'common').toLowerCase();
                 if (rarityMap[cleanRarity] && rarityMap[cleanRarity] > maxTier) maxTier = rarityMap[cleanRarity];
             });
-            calculatedWaxFee = maxTier * 1;
+            calculatedWaxFee = maxTier * 1000;
 
             const visualHtml = `
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
