@@ -14,7 +14,7 @@
             --rarity-common: #94a3b8; --rarity-uncommon: #00ffaa; --rarity-rare: #2196f3; --rarity-epic: #d946ef; --rarity-legendary: var(--accent-gold); --rarity-mythic: #a855f7;          
         }
 
-        body { background-color: var(--bg-deep); color: #fff; font-family: 'Inter', sans-serif; margin: 0; background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #050a1a 100%); background-attachment: fixed; }
+        body { background-color: var(--bg-deep); color: #fff; font-family: 'Inter', sans-serif; margin: 0; background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #050a1a 100%); background-attachment: fixed; min-height: 100vh; display: flex; flex-direction: column; }
         header { background: rgba(0, 0, 0, 0.9); padding: 15px 40px; display: flex; justify-content: center; position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); border-bottom: 2px solid var(--accent-cyan); }
         .header-inner { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; }
         nav ul { display: flex; list-style: none; gap: 20px; margin: 0; padding: 0; }
@@ -23,7 +23,7 @@
         .balance-pill { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--accent-cyan); padding: 6px 15px; border-radius: 50px; font-family: 'Orbitron'; font-size: 0.65rem; display: flex; gap: 15px; }
         .balance-pill span { color: var(--accent-gold); font-weight: 900; }
         
-        .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; min-height: 70vh; }
+        .dashboard-wrapper { padding: 40px; max-width: 1400px; margin: auto; flex: 1; width: 100%; box-sizing: border-box; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
         
         .skate-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
@@ -38,7 +38,6 @@
         .card-body { padding: 20px; flex: 1; }
         .board-name { font-family: 'Bangers'; font-size: 1.6rem; margin: 0 0 15px 0; text-transform: uppercase; line-height: 1.1; }
         
-        /* SLEEK ORBITRON HUD TEXT */
         .meta-title { font-family: 'Orbitron'; font-weight: 400; font-size: 0.6rem; color: #888; letter-spacing: 2px; margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; text-transform: uppercase; }
         
         .stat-bar-container { width: 100%; height: 6px; background: #111; border: 1px solid #333; border-radius: 3px; margin-top: 3px; overflow: hidden; }
@@ -48,7 +47,6 @@
         .stat-speed { background: linear-gradient(90deg, #00aaff, #00ffff); }
         .stat-total { background: linear-gradient(90deg, #ffaa00, #ffff00); }
         
-        /* CLAIM ZONE RESTORED */
         .claim-zone { padding: 15px 20px; background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; justify-content: space-between; align-items: center; }
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
         .reward-wax { font-family: 'Inter'; font-size: 0.75rem; color: var(--accent-gold); font-weight: 900; }
@@ -71,6 +69,16 @@
         /* LEADERBOARD */
         .lb-row { display: flex; padding: 15px 20px; border-bottom: 1px solid #333; font-family: 'Orbitron'; font-size: 0.9rem; align-items: center; }
         .lb-header { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); font-weight: 900; font-size: 0.75rem; border-bottom: 2px solid var(--accent-cyan); }
+
+        /* CRYPTO CLIPS FOOTER */
+        footer { background: rgba(0, 0, 0, 0.95); padding: 40px 40px; margin-top: auto; border-top: 2px solid var(--accent-cyan); display: flex; justify-content: center; backdrop-filter: blur(10px); }
+        .footer-inner { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .footer-brand { font-family: 'Orbitron'; font-size: 0.65rem; color: #888; letter-spacing: 2px; line-height: 1.8; }
+        .footer-brand span { color: var(--accent-gold); font-weight: 900; }
+        .footer-logos { display: flex; gap: 25px; align-items: center; }
+        .footer-logos a { display: flex; align-items: center; }
+        .footer-logos img { height: 28px; opacity: 0.5; filter: grayscale(100%); transition: all 0.3s ease; }
+        .footer-logos img:hover { opacity: 1; filter: grayscale(0%); transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -163,6 +171,20 @@
     </div>
 </div>
 
+<footer>
+    <div class="footer-inner">
+        <div class="footer-brand">
+            POWERED BY DECENTRALIZED PROTOCOLS <br>
+            © 2026 <span>CRYPTO CLIPS</span> / SK8 PROTOCOL
+        </div>
+        <div class="footer-logos">
+            <a href="https://wax.io" target="_blank" title="Built on WAX"><img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX Blockchain"></a>
+            <a href="https://solana.com" target="_blank" title="Powered by Solana"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana Blockchain"></a>
+            <a href="https://x.com/skatecoin" target="_blank" title="SK8COIN Ecosystem"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN"></a>
+        </div>
+    </div>
+</footer>
+
 <div id="craft-confirm-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-gold);">
         <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">INITIATE FABRICATION</h2>
@@ -217,7 +239,6 @@
     const COLLECTION = "skatecoinwax";
     const WAX_RPC = "https://wax.greymass.com";
 
-    // --- DEDICATED METADATA PARSER CLASS ---
     class MetaParser {
         static getRaw(nft, key) {
             if (nft.data && nft.data[key] !== undefined) return nft.data[key];
@@ -234,7 +255,7 @@
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.2.1',
+        appName: 'SkateparkV1.3.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -360,7 +381,6 @@
             const rewards = totalPower * 1000;
             selectedAssetIds = [d.value, t1.value, t2.value, w1.value, w2.value, w3.value, w4.value];
             
-            // Unique Asset Check (Prevent identical asset IDs)
             const uniqueIds = new Set(selectedAssetIds);
             if(uniqueIds.size !== 7) {
                 alert("⚠️ DUPLICATE DETECTED: You have selected the exact same specific NFT (Asset ID) in multiple slots. Please ensure each selected component has a unique ID.");
@@ -505,7 +525,6 @@
                                 </div>
                             </div>`;
                         
-                        // Modified Action Zone using Crypto Clips Yellow (--accent-gold)
                         actionHtml = `
                             <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; gap: 10px; justify-content: center; padding: 15px;">
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
