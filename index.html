@@ -67,9 +67,6 @@
         .wallet-btn:hover { background: #fff; }
         .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
         
-        /* SKATE ICON */
-        .skate-icon { width: 26px; height: 26px; vertical-align: middle; margin-right: 8px; }
-
         /* BUILDER */
         .crafting-container { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; background: rgba(0,0,0,0.5); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-cyan); }
         .craft-slot { background: rgba(0,240,255,0.05); border: 1px solid var(--card-border); padding: 15px; border-radius: 8px; margin-bottom: 10px; }
@@ -178,7 +175,7 @@
                     </div>
                     <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                         <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                        <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
+                        <div style="font-family:'Bangers'; font-size:2rem;">🪙 0 $SKATE</div>
                     </div>
                 </div>
             </div>
@@ -222,7 +219,7 @@
     <div class="modal-content" style="border-color: var(--accent-gold);">
         <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2>
         <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">Welcome to the new sk8coin NFT reward system!</p>
-        <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT WALLET</button>
+        <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT WAX WALLET</button>
         <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
     </div>
 </div>
@@ -373,7 +370,7 @@
             </div>
             <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                 <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
+                <div style="font-family:'Bangers'; font-size:2rem;">🪙 0 $SKATE</div>
             </div>`;
         document.getElementById('initiate-blend-btn').disabled = true;
     }
@@ -435,7 +432,7 @@
                 </div>
                 <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                     <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                    <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> ${rewards.toLocaleString()} $SKATE</div>
+                    <div style="font-family:'Bangers'; font-size:2rem;">🪙 ${rewards.toLocaleString()} $SKATE</div>
                 </div>`;
             document.getElementById('initiate-blend-btn').disabled = false;
         } else {
@@ -520,7 +517,7 @@
                         actionHtml = `
                             <div class="claim-zone">
                                 <div>
-                                    <div class="reward-skate"><img src="${SKATE_ICON}" class="skate-icon"> ${skateReward.toLocaleString()}</div>
+                                    <div class="reward-skate">🪙 ${skateReward.toLocaleString()}</div>
                                     <div class="reward-wax">≈ ${waxValue} WAX</div>
                                 </div>
                                 <button class="wallet-btn" onclick="openClaimModal()" style="padding: 10px 15px;">CLAIM</button>
