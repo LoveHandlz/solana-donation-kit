@@ -807,13 +807,10 @@
             const json = await res.json();
             
             if (json.success) {
-                // Strict 4-Trait Validation Filter
+                // Simplified Validation Filter (Only looking for "trick")
                 const filteredData = json.data.filter(n => {
-                    const skater = MetaParser.getString(n, 'skater');
                     const trick = MetaParser.getString(n, 'trick');
-                    const loc = MetaParser.getString(n, 'location');
-                    const filmer = MetaParser.getString(n, 'filmer');
-                    return skater !== 'N/A' && trick !== 'N/A' && loc !== 'N/A' && filmer !== 'N/A';
+                    return trick !== 'N/A';
                 });
 
                 const htmlCards = filteredData.map(n => {
@@ -825,20 +822,14 @@
                     const tplId = n.template ? n.template.template_id : 'N/A';
                     const mN = n.template_mint ? n.template_mint : 'N/A';
                     
-                    const skater = MetaParser.getString(n, 'skater');
                     const trick = MetaParser.getString(n, 'trick');
-                    const loc = MetaParser.getString(n, 'location');
-                    const filmer = MetaParser.getString(n, 'filmer');
 
                     const statHtml = `
                         <div class="meta-group">
                             <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px; margin-bottom: 10px;">
-                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">SKATER <span style="color:var(--accent-cyan)">${skater}</span></div>
-                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">TRICK <span style="color:var(--accent-cyan)">${trick}</span></div>
-                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">LOCATION <span style="color:var(--accent-cyan)">${loc}</span></div>
-                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">FILMER <span style="color:var(--accent-cyan)">${filmer}</span></div>
+                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">TRICK <span style="color:#fff">${trick}</span></div>
                             </div>
-                            <div class="meta-title">CLIP TRAITS</div>
+                            <div class="meta-title">COMPONENT TRAITS</div>
                             <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
                                 ${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}
                             </div>
@@ -846,7 +837,7 @@
                     
                     const actionHtml = `
                         <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; gap: 10px; justify-content: center; padding: 15px;">
-                            <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW CLIP</button>
+                            <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
                             <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
                         </div>`;
 
