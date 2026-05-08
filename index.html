@@ -262,6 +262,19 @@
             margin-top: 30px;
             box-shadow: inset 0 0 20px rgba(0,240,255,0.05);
         }
+
+        /* MOBILE OPTIMIZATION */
+        @media (max-width: 768px) {
+            .header-inner { flex-direction: column; gap: 15px; }
+            nav ul { flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .dashboard-wrapper { padding: 20px 15px; }
+            .crafting-container { grid-template-columns: 1fr; }
+            .projected-stats { margin-top: 20px; }
+            .master-dash-btn { width: 100%; margin-bottom: 5px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            h2 { font-size: 2.2rem !important; }
+            #dapp-back-btn { top: auto; bottom: 20px; left: 20px; z-index: 2000; }
+        }
     </style>
 </head>
 <body>
@@ -378,14 +391,14 @@
 </div>
 
 <div class="dashboard-wrapper" id="clips-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYPTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYOTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
     <div class="expansion-vault">
         [ VIDEO FEED INTEGRATION PENDING ]
     </div>
 </div>
 
 <div class="dashboard-wrapper" id="defi-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// TOKENOMICS</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// REWARDS</span></h2>
     <div class="expansion-vault">
         [ YIELD & SWAP INTEGRATION PENDING ]
     </div>
@@ -399,7 +412,7 @@
 </div>
 
 <div class="dashboard-wrapper" id="dao-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">SK8DAO <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// GOVERNANCE CREW</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">sk8dao <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">/ community governance</span></h2>
     <div class="expansion-vault">
         [ VOTING & PROPOSALS PENDING ]
     </div>
@@ -420,39 +433,24 @@
 </footer>
 
 <div id="vip-ticket-modal" class="modal-overlay">
-    <div class="modal-content" style="width: 90%; max-width: 380px; padding: 30px; border-color: var(--accent-cyan); background: #050a1a; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 240, 255, 0.03) 10px, rgba(0, 240, 255, 0.03) 20px);">
+    <div class="modal-content" style="width: 90%; max-width: 320px; padding: 25px; border-color: var(--accent-cyan); background: #050a1a; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 240, 255, 0.03) 10px, rgba(0, 240, 255, 0.03) 20px);">
         
-        <div style="border-bottom: 2px dashed var(--accent-cyan); padding-bottom: 10px; margin-bottom: 20px;">
-            <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0; font-size: 1.6rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 2px;">VIP SKATEPARK TICKET</h2>
-            <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.75rem; margin-top: 5px; font-weight: 900;">// $SKATE REWARDS PORTAL //</div>
-        </div>
-        
-        <p style="color: #fff; font-size: 0.8rem; line-height: 1.5; margin-bottom: 10px; text-align: left;">
-            This is the $SKATE rewards portal. Only completed skateboard holders can access the sk8coin closed beta expansion.
-        </p>
-        <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-bottom: 10px; text-align: left;">
-            An advanced custom board builder is available for <strong>MANUAL</strong> builds. As we continue to build, we will implement our advanced forging contract and blends will be automated.
-        </p>
-        <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-bottom: 15px; text-align: left;">
-            During this closed beta test period, boards will be invite-only. Only completed board holders will be able to access the advanced TOKEN gated areas of the $SKATE park.
-        </p>
-        
-        <div style="background: rgba(0, 0, 0, 0.8); border-left: 4px solid var(--accent-gold); padding: 12px; margin-bottom: 15px; text-align: left; box-shadow: inset 0 0 20px rgba(255,215,0,0.05);">
-            <span style="color: var(--accent-gold); font-family: 'Bangers'; font-size: 1.3rem; letter-spacing: 1px; line-height: 1.1; display: block;">
-                "If you don't have a skateboard you cant $SKATE. If you have a Completed skateboard you have a ticket!"
-            </span>
-        </div>
+        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0 0 15px 0; font-size: 1.3rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 1px;">WELCOME TO CRYPTO CLIPS</h2>
 
-        <div style="background: rgba(255, 51, 102, 0.05); border: 1px solid #ff3366; padding: 12px; margin-bottom: 15px; text-align: left; border-radius: 4px;">
-            <div style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.65rem; margin-bottom: 6px;">⚠️ NOT FINANCIAL ADVICE</div>
-            <div style="color: #aaa; font-size: 0.65rem; line-height: 1.4;">
-                $SKATE is a utility token designed to empower skateboarders world wide and power the website during alpha, $SKATE will also be a early adopter coin and will remain as a utility for diamond hands as long as WAX is alive. Be cautious when trading the coin on the open market and always check your links, sk8coin has no responsibility for off platform activities.
-            </div>
+        <div style="text-align: left;">
+            <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE CULTURE</div>
+            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">We operate on the DeFi principle of "giving to get." Sponsor raw talent, fund the community treasury, and power the ecosystem. Treat everyone with respect—we are here to build.</p>
+
+            <div style="color: #ff3366; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE RULES</div>
+            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">This is a gamified peer-to-peer sponsorship network. This is NOT an investment platform. This is NOT financial advice.</p>
+
+            <div style="color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE TOKEN</div>
+            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 20px;">$SKATE is strictly a Utility Token. It is designed to unlock footage, vote in the DAO, and distribute real-world sponsorships. There are no expectations of profit. Treat this as a game with real-world applications.</p>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left; display: flex; align-items: flex-start; gap: 10px; background: rgba(0,240,255,0.05); padding: 12px; border: 1px solid var(--accent-cyan); border-radius: 4px;">
             <input type="checkbox" id="vip-agree-checkbox" onchange="document.getElementById('login-trigger-vip').disabled = !this.checked" style="margin-top: 2px; transform: scale(1.2); cursor: pointer; accent-color: var(--accent-cyan);">
-            <label for="vip-agree-checkbox" style="color: #fff; font-size: 0.75rem; font-family: 'Inter'; font-weight: 900; cursor: pointer; line-height: 1.4;">I UNDERSTAND THE RULES.<br>GRANT ME ACCESS</label>
+            <label for="vip-agree-checkbox" style="color: #fff; font-size: 0.75rem; font-family: 'Inter'; font-weight: 900; cursor: pointer; line-height: 1.4;">I UNDERSTAND THE RULES.<br>GRANT ME ACCESS.</label>
         </div>
 
         <button class="wallet-btn" id="login-trigger-vip" disabled style="width: 100%; background: var(--accent-cyan); color: #000; font-size: 1rem; padding: 12px; margin-bottom: 10px;">DROP IN (CONNECT WALLET)</button>
