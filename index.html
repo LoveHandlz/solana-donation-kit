@@ -393,6 +393,12 @@
 <div class="dashboard-wrapper" id="clips-wrapper" style="display: none;">
     <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYOTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
     
+    <div style="text-align: center; margin-bottom: 30px;">
+        <select id="clip-trick-filter" onchange="filterClips()" style="padding: 10px 20px; background: rgba(0,240,255,0.05); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 0.9rem; border-radius: 4px; outline: none; cursor: pointer;">
+            <option value="ALL">-- ALL RAW FOOTY --</option>
+        </select>
+    </div>
+
     <div class="dashboard-grid" id="clips-grid">
         <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900;">CONNECT WALLET TO LOAD CLIPS</h3>
     </div>
@@ -793,6 +799,49 @@
         } catch(e) {}
     }
 
+    // New Helper to dynamically populate trick dropdown
+    function updateTrickDropdown() {
+        const filter = document.getElementById('clip-trick-filter');
+        const cards = document.querySelectorAll('#clips-grid .clip-card');
+        const currentSelection = filter.value;
+        const tricks = new Set();
+        
+        cards.forEach(card => {
+            const t = card.getAttribute('data-trick');
+            if (t && t !== 'N/A') tricks.add(t);
+        });
+
+        let optionsHtml = `<option value="ALL">-- ALL RAW FOOTY --</option>`;
+        tricks.forEach(t => {
+            optionsHtml += `<option value="${t}">${t}</option>`;
+        });
+        
+        filter.innerHTML = optionsHtml;
+        
+        if (tricks.has(currentSelection)) {
+            filter.value = currentSelection;
+        } else {
+            filter.value = "ALL";
+        }
+        
+        window.filterClips(); // Re-apply filter
+    }
+
+    // Manual Brute Force Filter Logic
+    window.filterClips = () => {
+        const selectedTrick = document.getElementById('clip-trick-filter').value;
+        const cards = document.querySelectorAll('#clips-grid .clip-card');
+        
+        cards.forEach(card => {
+            const cardTrick = card.getAttribute('data-trick');
+            if (selectedTrick === 'ALL' || cardTrick === selectedTrick) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    };
+
     async function fetchClips(user, append = false) {
         const grid = document.getElementById('clips-grid');
         const loadMoreBtn = document.getElementById('clips-load-more-container');
@@ -807,13 +856,10 @@
             const json = await res.json();
             
             if (json.success) {
-                // Simplified Validation Filter (Only looking for "trick")
-                const filteredData = json.data.filter(n => {
-                    const trick = MetaParser.getString(n, 'trick');
-                    return trick !== 'N/A';
-                });
+                // Brute force fetch all data
+                const fetchedData = json.data;
 
-                const htmlCards = filteredData.map(n => {
+                const htmlCards = fetchedData.map(n => {
                     const pop = MetaParser.getInt(n, 'pop');
                     const speed = MetaParser.getInt(n, 'speed');
                     const balance = MetaParser.getInt(n, 'balance');
@@ -841,7 +887,8 @@
                             <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
                         </div>`;
 
-                    return `<div class="skate-card">
+                    // Added .clip-card and data-trick attribute for manual CSS filtering
+                    return `<div class="skate-card clip-card" data-trick="${trick}">
                                 <div class="rarity-header" style="background: var(--rarity-${rarity.toLowerCase()}); box-shadow: 0 0 20px var(--rarity-${rarity.toLowerCase()});">
                                     <div class="mint-badge">#${mN}</div>
                                     <div class="rarity-header-text">${rarity}</div>
@@ -856,7 +903,7 @@
                 }).join('');
 
                 if (!append) {
-                    if (filteredData.length === 0) {
+                    if (fetchedData.length === 0) {
                         grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #888; font-family: 'Orbitron'; font-weight: 900;">NO RAW FOOTY FOUND</h3>`;
                     } else {
                         grid.innerHTML = htmlCards;
@@ -864,6 +911,9 @@
                 } else {
                     grid.insertAdjacentHTML('beforeend', htmlCards);
                 }
+
+                // Update the Dropdown dynamically based on rendered cards
+                updateTrickDropdown();
 
                 if (json.data.length === 12) {
                     loadMoreBtn.style.display = 'block';
