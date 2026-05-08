@@ -30,7 +30,7 @@
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
         .rarity-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10; border-bottom: 2px solid rgba(255,255,255,0.4); }
-        .rarity-header-text { font-family: 'Bangers'; font-size: 1.4rem; letter-spacing: 3px; color: #000; text-shadow: 1px 1px 0px rgba(255,255,255,0.6); margin-top: 2px; line-height: 1; }
+        .rarity-header-text { font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); margin-top: 2px; line-height: 1; text-transform: uppercase; }
         .mint-badge { background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-family: 'Orbitron'; font-weight: 900; border: 1px solid rgba(255,255,255,0.3); box-shadow: inset 0 0 5px rgba(255,255,255,0.2); }
         
         .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -217,6 +217,7 @@
     const COLLECTION = "skatecoinwax";
     const WAX_RPC = "https://wax.greymass.com";
 
+    // --- DEDICATED METADATA PARSER CLASS ---
     class MetaParser {
         static getRaw(nft, key) {
             if (nft.data && nft.data[key] !== undefined) return nft.data[key];
@@ -450,6 +451,7 @@
                     const rarity = MetaParser.getRarity(n);
                     const img = MetaParser.getImg(n);
                     const tplId = n.template ? n.template.template_id : 'N/A';
+                    const mN = n.template_mint ? n.template_mint : 'N/A';
                     
                     let statHtml = "";
                     let actionHtml = "";
@@ -486,6 +488,7 @@
                                 </div>
                                 <button class="wallet-btn" onclick="openClaimModal()" style="padding: 10px 15px;">CLAIM</button>
                             </div>`;
+
                     } else {
                         const brandStr = MetaParser.getString(n, 'brand', 'STOCK');
                         const colorStr = MetaParser.getString(n, 'color', 'STOCK');
@@ -502,6 +505,7 @@
                                 </div>
                             </div>`;
                         
+                        // Modified Action Zone using Crypto Clips Yellow (--accent-gold)
                         actionHtml = `
                             <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; gap: 10px; justify-content: center; padding: 15px;">
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--accent-gold); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
@@ -510,8 +514,8 @@
                     }
 
                     return `<div class="skate-card">
-                                <div class="rarity-header" style="background: var(--rarity-${rarity}); box-shadow: 0 0 20px var(--rarity-${rarity});">
-                                    <div class="mint-badge">ID: ${n.asset_id}</div>
+                                <div class="rarity-header" style="background: var(--rarity-${rarity.toLowerCase()}); box-shadow: 0 0 20px var(--rarity-${rarity.toLowerCase()});">
+                                    <div class="mint-badge">#${mN}</div>
                                     <div class="rarity-header-text">${rarity}</div>
                                 </div>
                                 <div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
