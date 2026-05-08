@@ -10,6 +10,7 @@
             --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
+            --accent-green: #00ff88;
             --card-border: rgba(0, 240, 255, 0.2);
             --rarity-common: #94a3b8; --rarity-uncommon: #00ffaa; --rarity-rare: #2196f3; --rarity-epic: #d946ef; --rarity-legendary: var(--accent-gold); --rarity-mythic: #a855f7;          
         }
@@ -587,22 +588,38 @@
 
     window.openCraftConfirmModal = () => {
         document.getElementById('modal-wax-fee').innerText = `${calculatedWaxFee.toLocaleString()} WAX`;
+        
+        // Admin Bypass Visualization check
+        const actor = currentSession ? currentSession.actor.toString() : '';
+        if (actor === 'ufuau.wam') {
+            document.getElementById('modal-wax-fee').innerText = `ADMIN BYPASS (0 WAX)`;
+            document.getElementById('modal-wax-fee').style.color = 'var(--accent-green)';
+        } else {
+            document.getElementById('modal-wax-fee').style.color = '#fff';
+        }
+
         document.getElementById('craft-confirm-modal').style.display = 'flex';
     };
 
     window.executeBlend = async () => {
         if (!currentSession || selectedAssetIds.length !== 7) return;
+        const actor = currentSession.actor.toString();
         const formattedWax = Number(calculatedWaxFee).toFixed(8) + " WAX";
         try {
             const actions = [
-                { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'skatecoinwax', asset_ids: selectedAssetIds, memo: "SKATEBOARD BUILD INGREDIENTS" } },
-                { account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'skatecoinwax', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } }
+                { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: actor, to: 'skatecoinwax', asset_ids: selectedAssetIds, memo: "SKATEBOARD BUILD INGREDIENTS" } }
             ];
+            
+            // Bypass fee transfer for the treasury admin wallet
+            if (actor !== 'ufuau.wam') {
+                actions.push({ account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: actor, to: 'ufuau.wam', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } });
+            }
+
             await currentSession.transact({ actions });
             closeModals();
             alert("Thank you, your board will be shipped soon!");
-            loadCraftingData(currentSession.actor.toString());
-            updateBalances(currentSession.actor.toString());
+            loadCraftingData(actor);
+            updateBalances(actor);
         } catch (e) { console.error(e); alert("Transaction Cancelled or Failed."); }
     };
 </script>
