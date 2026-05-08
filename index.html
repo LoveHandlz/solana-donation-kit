@@ -58,7 +58,7 @@
         .balance-pill span { color: var(--accent-gold); font-weight: 900; }
         
         .dashboard-wrapper { 
-            padding: 40px; max-width: 1400px; margin: auto; flex: 1; width: 100%; box-sizing: border-box;
+            padding: 40px; max-width: 1400px; margin: auto; flex: 1; width: 100%; box-sizing: border-box; position: relative;
         }
         
         .dashboard-grid { 
@@ -223,28 +223,44 @@
             box-shadow: 0 0 15px var(--accent-gold);
         }
 
+        /* BEEFED UP BACK BUTTON */
         #dapp-back-btn {
             display: none; 
             position: fixed; 
-            top: 90px; 
+            top: 120px; 
             left: 40px; 
             z-index: 999; 
-            background: rgba(0,0,0,0.8); 
+            background: rgba(0,0,0,0.85); 
             color: var(--accent-cyan); 
-            border: 1px solid var(--accent-cyan); 
-            padding: 8px 15px; 
+            border: 2px solid var(--accent-cyan); 
+            padding: 12px 25px; 
             font-family: 'Orbitron'; 
-            font-size: 0.75rem; 
+            font-size: 0.9rem; 
             font-weight: 900; 
             cursor: pointer; 
-            backdrop-filter: blur(5px); 
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); 
+            backdrop-filter: blur(8px); 
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); 
             transition: 0.2s;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            letter-spacing: 1px;
         }
         #dapp-back-btn:hover {
             background: var(--accent-cyan);
             color: #000;
-            box-shadow: 0 0 10px var(--accent-cyan);
+            box-shadow: 0 0 25px var(--accent-cyan);
+        }
+
+        /* EXPANSION PLACEHOLDER BOXES */
+        .expansion-vault {
+            background: rgba(0,0,0,0.6); 
+            border: 1px dashed var(--accent-cyan); 
+            border-radius: 8px; 
+            padding: 60px; 
+            text-align: center; 
+            color: #888; 
+            font-family: 'Orbitron';
+            margin-top: 30px;
+            box-shadow: inset 0 0 20px rgba(0,240,255,0.05);
         }
     </style>
 </head>
@@ -256,10 +272,10 @@
         <nav>
             <ul>
                 <li><a href="#home" onclick="switchCategory('home'); return false;" id="nav-home" class="active">HOME</a></li>
-                <li><a href="#videos">VIDEOS</a></li>
-                <li><a href="#defi">DEFI</a></li>
-                <li><a href="#treasury">TREASURY</a></li>
-                <li><a href="#dao">DAO</a></li>
+                <li><a href="#clips" onclick="switchCategory('clips'); return false;" id="nav-clips">CLIPS</a></li>
+                <li><a href="#defi" onclick="switchCategory('defi'); return false;" id="nav-defi">DEFI</a></li>
+                <li><a href="#treasury" onclick="switchCategory('treasury'); return false;" id="nav-treasury">TREASURY</a></li>
+                <li><a href="#dao" onclick="switchCategory('dao'); return false;" id="nav-dao">DAO</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -358,6 +374,34 @@
             </div>
             <button id="initiate-blend-btn" class="wallet-btn" style="width: 100%; padding: 20px; background: var(--accent-gold);" disabled onclick="openCraftConfirmModal()">CRAFT SKATEBOARD</button>
         </div>
+    </div>
+</div>
+
+<div class="dashboard-wrapper" id="clips-wrapper" style="display: none;">
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYPTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
+    <div class="expansion-vault">
+        [ VIDEO FEED INTEGRATION PENDING ]
+    </div>
+</div>
+
+<div class="dashboard-wrapper" id="defi-wrapper" style="display: none;">
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// TOKENOMICS</span></h2>
+    <div class="expansion-vault">
+        [ YIELD & SWAP INTEGRATION PENDING ]
+    </div>
+</div>
+
+<div class="dashboard-wrapper" id="treasury-wrapper" style="display: none;">
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">TREASURY <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// COMMUNITY VAULT</span></h2>
+    <div class="expansion-vault">
+        [ PROTOCOL VAULT DATA PENDING ]
+    </div>
+</div>
+
+<div class="dashboard-wrapper" id="dao-wrapper" style="display: none;">
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">SK8DAO <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// GOVERNANCE CREW</span></h2>
+    <div class="expansion-vault">
+        [ VOTING & PROPOSALS PENDING ]
     </div>
 </div>
 
@@ -536,17 +580,18 @@
             backBtn.style.display = historyStack.length > 0 ? 'block' : 'none';
         }
 
-        // Header Navigation State (Only Home is active on this portal)
+        // Header Navigation State Reset & Highlight
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         if(document.getElementById(`nav-${schema}`)) {
             document.getElementById(`nav-${schema}`).classList.add('active');
         }
         
         // Hide all wrappers
-        document.getElementById('home-wrapper').style.display = 'none';
-        document.getElementById('inventory-wrapper').style.display = 'none';
-        document.getElementById('builder-wrapper').style.display = 'none';
-        document.getElementById('leaderboard-container').style.display = 'none';
+        const wrappers = ['home-wrapper', 'inventory-wrapper', 'builder-wrapper', 'leaderboard-container', 'clips-wrapper', 'defi-wrapper', 'treasury-wrapper', 'dao-wrapper'];
+        wrappers.forEach(w => {
+            const el = document.getElementById(w);
+            if(el) el.style.display = 'none';
+        });
 
         // Route to Component
         if (schema === 'home') {
@@ -558,6 +603,9 @@
         } else if (schema === 'leaderboard') {
             document.getElementById('leaderboard-container').style.display = 'block';
             fetchLeaderboard();
+        } else if (['clips', 'defi', 'treasury', 'dao'].includes(schema)) {
+            const expWrap = document.getElementById(`${schema}-wrapper`);
+            if(expWrap) expWrap.style.display = 'block';
         } else {
             document.getElementById('inventory-wrapper').style.display = 'block';
             if (currentSession) fetchInventory(currentSession.actor.toString());
