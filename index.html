@@ -240,7 +240,7 @@
                     </div>
                     <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                         <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                        <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
+                        <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://jade-rapid-flea-523.mypinata.cloud/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
                     </div>
                 </div>
             </div>
@@ -287,6 +287,18 @@
         <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
     </div>
 </div>
+<div id="claim-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
+        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
+            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
+                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
+                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b>
+            </div>
+        </div>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
+    </div>
+</div>
 
 <script type="module">
     import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
@@ -309,12 +321,12 @@
             const val = this.getRaw(nft, key); 
             return val ? String(val).toUpperCase() : fallback; 
         }
-        static getImg(nft) { return this.getRaw(nft, 'img') || ''; }
+        static getImg(nft) { return this.getRaw(nft, 'img') || this.getRaw(nft, 'image') || ''; }
         static getRarity(nft) { return this.getString(nft, 'rarity', 'COMMON').toLowerCase(); }
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.4.0',
+        appName: 'SkateparkV1.4.1',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -476,14 +488,18 @@
             });
             calculatedWaxFee = maxTier * 1000;
 
-            document.getElementById('craft-stats-hud').innerHTML = `
+            const visualHtml = `
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
-                    <img src="https://ipfs.io/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
+                    <img src="https://atomichub-ipfs.com/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
                     <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
-                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${t1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${t2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
+                    <div style="display:flex; gap:4px;"><img src="https://atomichub-ipfs.com/ipfs/${t1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${t2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
                     <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
-                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${w1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w3.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w4.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
+                    <div style="display:flex; gap:4px;"><img src="https://atomichub-ipfs.com/ipfs/${w1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${w2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${w3.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${w4.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
                 </div>
+            `;
+
+            document.getElementById('craft-stats-hud').innerHTML = `
+                ${visualHtml}
                 ${renderStat('TOTAL POP', fPop, 'stat-pop', 20)}
                 ${renderStat('TOTAL BALANCE', fBal, 'stat-balance', 20)}
                 ${renderStat('TOTAL SPEED', fSpeed, 'stat-speed', 20)}
@@ -613,7 +629,7 @@
                                     <div class="mint-badge">#${mN}</div>
                                     <div class="rarity-header-text">${rarity}</div>
                                 </div>
-                                <div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
+                                <div class="img-wrap"><img src="https://atomichub-ipfs.com/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
                                 <div class="card-body">
                                     <div class="board-name">${n.name}</div>
                                     ${statHtml}
