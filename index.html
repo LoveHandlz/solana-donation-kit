@@ -10,7 +10,6 @@
             --bg-panel: rgba(15, 26, 71, 0.95);
             --accent-cyan: #00f0ff;
             --accent-gold: #ffd700;
-            --accent-green: #00ff88;
             --card-border: rgba(0, 240, 255, 0.2);
             --rarity-common: #94a3b8; --rarity-uncommon: #00ffaa; --rarity-rare: #2196f3; --rarity-epic: #d946ef; --rarity-legendary: var(--accent-gold); --rarity-mythic: #a855f7;          
         }
@@ -61,16 +60,15 @@
         .stat-total { background: linear-gradient(90deg, #ffaa00, #ffff00); }
         
         .claim-zone { padding: 15px 20px; background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-gold); display: flex; justify-content: space-between; align-items: center; }
-        .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; display: flex; align-items: center; }
-        .reward-wax { font-family: 'Inter'; font-size: 0.75rem; color: var(--accent-gold); font-weight: 900; padding-left: 36px; }
+        .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; }
+        .reward-wax { font-family: 'Inter'; font-size: 0.75rem; color: var(--accent-gold); font-weight: 900; }
 
         .wallet-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s; }
         .wallet-btn:hover { background: #fff; }
         .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
         
-        /* SKATE ICON CSS */
-        .skate-icon { width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; border-radius: 50%; border: 1px solid var(--accent-gold); box-shadow: 0 0 5px var(--accent-gold); }
-        .skate-icon-large { width: 36px; height: 36px; margin-right: 12px; }
+        /* SKATE ICON */
+        .skate-icon { width: 26px; height: 26px; vertical-align: middle; margin-right: 8px; }
 
         /* BUILDER */
         .crafting-container { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; background: rgba(0,0,0,0.5); padding: 30px; border-radius: 12px; border: 1px solid var(--accent-cyan); }
@@ -172,7 +170,17 @@
             <div>
                 <h3 style="color: var(--accent-gold); font-family: 'Bangers'; font-size: 1.8rem; margin: 0 0 20px 0; letter-spacing: 2px;">INTEGRATED BUILD</h3>
                 <div id="craft-stats-hud">
+                    <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL POP <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-pop" style="width: 0%"></div></div></div>
+                    <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL BALANCE <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-balance" style="width: 0%"></div></div></div>
+                    <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL SPEED <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-speed" style="width: 0%"></div></div></div>
+                    <div style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
+                        <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TRUE TOTAL POWER <span style="color: #fff;">0/60</span></div><div class="stat-bar-container"><div class="stat-bar stat-total" style="width: 0%"></div></div></div>
                     </div>
+                    <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
+                        <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
+                        <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
+                    </div>
+                </div>
             </div>
             <button id="initiate-blend-btn" class="wallet-btn" style="width: 100%; padding: 20px; background: var(--accent-gold);" disabled onclick="openCraftConfirmModal()">CRAFT SKATEBOARD</button>
         </div>
@@ -186,9 +194,9 @@
             © 2026 <span>CRYPTO CLIPS</span> / SK8 PROTOCOL
         </div>
         <div class="footer-logos">
-            <a href="https://wax.io" target="_blank"><img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX"></a>
-            <a href="https://solana.com" target="_blank"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana"></a>
-            <a href="https://x.com/skatecoin" target="_blank"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN"></a>
+            <a href="https://wax.io" target="_blank" title="Built on WAX"><img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX Blockchain"></a>
+            <a href="https://solana.com" target="_blank" title="Powered by Solana"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana Blockchain"></a>
+            <a href="https://x.com/skatecoin" target="_blank" title="SK8COIN Ecosystem"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN"></a>
         </div>
     </div>
 </footer>
@@ -246,7 +254,6 @@
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
     const COLLECTION = "skatecoinwax";
     const WAX_RPC = "https://wax.greymass.com";
-    const SKATE_ICON = "https://jade-rapid-flea-523.mypinata.cloud/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m";
 
     class MetaParser {
         static getRaw(nft, key) {
@@ -270,7 +277,8 @@
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
 
-    let currentSession = null, currentSchema = 'skateboards', currentInventoryPage = 1, sWax = 0;
+    let currentSession = null, currentSchema = 'skateboards', currentInventoryPage = 1;
+    let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0;
 
     async function syncPrices() {
         const skatePerWax = 7.6897; 
@@ -356,17 +364,15 @@
 
     function resetBuilderStats() {
         document.getElementById('craft-stats-hud').innerHTML = `
-            ${renderStat('TOTAL POP', 0, 'stat-pop', 20)}
-            ${renderStat('TOTAL BALANCE', 0, 'stat-balance', 20)}
-            ${renderStat('TOTAL SPEED', 0, 'stat-speed', 20)}
+            <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL POP <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-pop" style="width: 0%"></div></div></div>
+            <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL BALANCE <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-balance" style="width: 0%"></div></div></div>
+            <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL SPEED <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-speed" style="width: 0%"></div></div></div>
             <div style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
-                ${renderStat('TRUE TOTAL POWER', 0, 'stat-total', 60)}
+                <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TRUE TOTAL POWER <span style="color: #fff;">0/60</span></div><div class="stat-bar-container"><div class="stat-bar stat-total" style="width: 0%"></div></div></div>
             </div>
             <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                 <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;">
-                    <img src="${SKATE_ICON}" class="skate-icon skate-icon-large"> 0 $SKATE
-                </div>
+                <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
             </div>`;
         document.getElementById('initiate-blend-btn').disabled = true;
     }
@@ -376,6 +382,7 @@
         const w1 = document.getElementById('craft-wheel1-select').selectedOptions[0], w2 = document.getElementById('craft-wheel2-select').selectedOptions[0], w3 = document.getElementById('craft-wheel3-select').selectedOptions[0], w4 = document.getElementById('craft-wheel4-select').selectedOptions[0];
 
         if (d.value && t1.value && t2.value && w1.value && w2.value && w3.value && w4.value) {
+            
             const getGroupScore = (attr) => {
                 const deck = parseInt(d.dataset[attr]) || 0;
                 const truckSet = Math.round(((parseInt(t1.dataset[attr]) || 0) + (parseInt(t2.dataset[attr]) || 0)) / 2);
@@ -386,9 +393,10 @@
             const fPop = getGroupScore('pop'), fSpeed = getGroupScore('speed'), fBal = getGroupScore('bal');
             let totalPower = fPop + fSpeed + fBal;
             if (totalPower > 60) totalPower = 60;
+
             const rewards = totalPower * 1000;
-            
             selectedAssetIds = [d.value, t1.value, t2.value, w1.value, w2.value, w3.value, w4.value];
+            
             const uniqueIds = new Set(selectedAssetIds);
             if(uniqueIds.size !== 7) {
                 alert("⚠️ DUPLICATE DETECTED: You have selected the exact same specific NFT (Asset ID) in multiple slots. Please ensure each selected component has a unique ID.");
@@ -406,7 +414,7 @@
             });
             calculatedWaxFee = maxTier * 1;
 
-            document.getElementById('craft-stats-hud').innerHTML = `
+            const visualHtml = `
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
                     <img src="https://ipfs.io/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
                     <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
@@ -414,6 +422,10 @@
                     <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
                     <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${w1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w3.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w4.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
                 </div>
+            `;
+
+            document.getElementById('craft-stats-hud').innerHTML = `
+                ${visualHtml}
                 ${renderStat('TOTAL POP', fPop, 'stat-pop', 20)}
                 ${renderStat('TOTAL BALANCE', fBal, 'stat-balance', 20)}
                 ${renderStat('TOTAL SPEED', fSpeed, 'stat-speed', 20)}
@@ -422,9 +434,7 @@
                 </div>
                 <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                     <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                    <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;">
-                        <img src="${SKATE_ICON}" class="skate-icon skate-icon-large"> ${rewards.toLocaleString()} $SKATE
-                    </div>
+                    <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> ${rewards.toLocaleString()} $SKATE</div>
                 </div>`;
             document.getElementById('initiate-blend-btn').disabled = false;
         } else {
@@ -509,7 +519,7 @@
                         actionHtml = `
                             <div class="claim-zone">
                                 <div>
-                                    <div class="reward-skate"><img src="${SKATE_ICON}" class="skate-icon"> ${skateReward.toLocaleString()}</div>
+                                    <div class="reward-skate" style="display:flex; align-items:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> ${skateReward.toLocaleString()}</div>
                                     <div class="reward-wax">≈ ${waxValue} WAX</div>
                                 </div>
                                 <button class="wallet-btn" onclick="openClaimModal()" style="padding: 10px 15px;">CLAIM</button>
@@ -588,38 +598,22 @@
 
     window.openCraftConfirmModal = () => {
         document.getElementById('modal-wax-fee').innerText = `${calculatedWaxFee.toLocaleString()} WAX`;
-        
-        // Admin Bypass Visualization check
-        const actor = currentSession ? currentSession.actor.toString() : '';
-        if (actor === 'ufuau.wam') {
-            document.getElementById('modal-wax-fee').innerText = `ADMIN BYPASS (0 WAX)`;
-            document.getElementById('modal-wax-fee').style.color = 'var(--accent-green)';
-        } else {
-            document.getElementById('modal-wax-fee').style.color = '#fff';
-        }
-
         document.getElementById('craft-confirm-modal').style.display = 'flex';
     };
 
     window.executeBlend = async () => {
         if (!currentSession || selectedAssetIds.length !== 7) return;
-        const actor = currentSession.actor.toString();
         const formattedWax = Number(calculatedWaxFee).toFixed(8) + " WAX";
         try {
             const actions = [
-                { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: actor, to: 'skatecoinwax', asset_ids: selectedAssetIds, memo: "SKATEBOARD BUILD INGREDIENTS" } }
+                { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'skatecoinwax', asset_ids: selectedAssetIds, memo: "SKATEBOARD BUILD INGREDIENTS" } },
+                { account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'ufuau.wam', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } }
             ];
-            
-            // Bypass fee transfer for the treasury admin wallet
-            if (actor !== 'ufuau.wam') {
-                actions.push({ account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: actor, to: 'ufuau.wam', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } });
-            }
-
             await currentSession.transact({ actions });
             closeModals();
             alert("Thank you, your board will be shipped soon!");
-            loadCraftingData(actor);
-            updateBalances(actor);
+            loadCraftingData(currentSession.actor.toString());
+            updateBalances(currentSession.actor.toString());
         } catch (e) { console.error(e); alert("Transaction Cancelled or Failed."); }
     };
 </script>
