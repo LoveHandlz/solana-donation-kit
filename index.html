@@ -380,7 +380,7 @@
         
         <div style="border-bottom: 2px dashed var(--accent-cyan); padding-bottom: 15px; margin-bottom: 25px;">
             <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0; font-size: 1.8rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 2px;">VIP SKATEPARK TICKET</h2>
-            <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; margin-top: 5px; font-weight: 900;">// PORTAL LOCKED //</div>
+            <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; margin-top: 5px; font-weight: 900;">// $SKATE REWARDS PORTAL //</div>
         </div>
         
         <p style="color: #fff; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; text-align: left;">
@@ -399,15 +399,22 @@
             </span>
         </div>
 
-        <div style="background: rgba(255, 51, 102, 0.05); border: 1px solid #ff3366; padding: 15px; margin-bottom: 30px; text-align: left; border-radius: 4px;">
+        <div style="background: rgba(255, 51, 102, 0.05); border: 1px solid #ff3366; padding: 15px; margin-bottom: 20px; text-align: left; border-radius: 4px;">
             <div style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem; margin-bottom: 8px;">⚠️ NOT FINANCIAL ADVICE</div>
             <div style="color: #aaa; font-size: 0.7rem; line-height: 1.5;">
                 $SKATE is a utility token designed to empower skateboarders world wide and power the website during alpha, $SKATE will also be a early adopter coin and will remain as a utility for diamond hands as long as WAX is alive. Be cautious when trading the coin on the open market and always check your links, sk8coin has no responsibility for off platform activities.
             </div>
         </div>
 
-        <button class="wallet-btn" id="login-trigger-vip" style="width: 100%; background: var(--accent-cyan); color: #000; font-size: 1.1rem; padding: 15px;">PUNCH TICKET (CONNECT WALLET)</button>
-        <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
+        <div style="margin-bottom: 25px; text-align: left; display: flex; align-items: flex-start; gap: 10px; background: rgba(0,240,255,0.05); padding: 15px; border: 1px solid var(--accent-cyan); border-radius: 4px;">
+            <input type="checkbox" id="vip-agree-checkbox" onchange="document.getElementById('login-trigger-vip').disabled = !this.checked" style="margin-top: 4px; transform: scale(1.2); cursor: pointer; accent-color: var(--accent-cyan);">
+            <label for="vip-agree-checkbox" style="color: #fff; font-size: 0.85rem; font-family: 'Inter'; cursor: pointer; line-height: 1.4;">I understand and agree to the terms and risks above.</label>
+        </div>
+
+        <button class="wallet-btn" id="login-trigger-vip" disabled style="width: 100%; background: var(--accent-cyan); color: #000; font-size: 1.1rem; padding: 15px; margin-bottom: 15px;">DROP IN (CONNECT WALLET)</button>
+        <button class="wallet-btn" onclick="window.open('https://www.mycloudwallet.com/', '_blank')" style="width: 100%; background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 0.8rem; padding: 12px; margin-bottom: 5px;">GET OFFICIAL WAX WALLET</button>
+
+        <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:15px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
     </div>
 </div>
 
