@@ -30,8 +30,11 @@
         .skate-card { background: var(--bg-panel); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
         .skate-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); box-shadow: 0 5px 20px rgba(255,215,0,0.15); }
         
-        .rarity-header { padding: 8px; font-weight: 900; font-size: 0.7rem; color: #000; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-        .mint-badge { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.55rem; font-family: 'Inter'; font-weight: 900; }
+        /* UPDATED STEEZY RARITY HEADER */
+        .rarity-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 10; border-bottom: 2px solid rgba(255,255,255,0.4); }
+        .rarity-header-text { font-family: 'Bangers'; font-size: 1.4rem; letter-spacing: 3px; color: #000; text-shadow: 1px 1px 0px rgba(255,255,255,0.6); margin-top: 2px; line-height: 1; }
+        .mint-badge { background: #000; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-family: 'Orbitron'; font-weight: 900; border: 1px solid rgba(255,255,255,0.3); box-shadow: inset 0 0 5px rgba(255,255,255,0.2); }
+        
         .img-wrap { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; background: #000; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .skate-img { max-height: 85%; max-width: 85%; object-fit: contain; }
         .card-body { padding: 20px; flex: 1; }
@@ -213,7 +216,7 @@
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.26.0',
+        appName: 'SkateparkV1.27.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -425,7 +428,6 @@
                         let totalPower = speed + pop + balance;
                         if (totalPower > 60) totalPower = 60;
                         
-                        // Pull specific build metadata
                         const deckName = MetaParser.getString(n, 'deck', 'STOCK');
                         const truckName = MetaParser.getString(n, 'trucks', 'STOCK');
                         const wheelName = MetaParser.getString(n, 'wheels', 'STOCK');
@@ -443,14 +445,12 @@
                                 </div>
                             </div>`;
                         
-                        // Action Zone with Atomic Orange styling
                         actionHtml = `
                             <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;">
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
                             </div>`;
                     } else {
-                        // Components get Brand and Color
                         const brandStr = MetaParser.getString(n, 'brand', 'STOCK');
                         const colorStr = MetaParser.getString(n, 'color', 'STOCK');
 
@@ -466,14 +466,26 @@
                                 </div>
                             </div>`;
                         
-                        // Action Zone with Atomic Orange styling
                         actionHtml = `
                             <div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;">
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button>
                                 <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
                             </div>`;
                     }
-                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div>${actionHtml}</div>`;
+
+                    // Steezy Header injected here
+                    return `<div class="skate-card">
+                                <div class="rarity-header" style="background: var(--rarity-${rarity.toLowerCase()}); box-shadow: 0 0 20px var(--rarity-${rarity.toLowerCase()});">
+                                    <div class="mint-badge">#${n.template_mint}</div>
+                                    <div class="rarity-header-text">${rarity}</div>
+                                </div>
+                                <div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
+                                <div class="card-body">
+                                    <div class="board-name">${n.name}</div>
+                                    ${statHtml}
+                                </div>
+                                ${actionHtml}
+                            </div>`;
                 }).join('');
 
                 if (!append) {
