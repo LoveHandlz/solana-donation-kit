@@ -64,7 +64,7 @@
         .reward-skate { font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px; display: flex; align-items: center; }
         .reward-wax { font-family: 'Inter'; font-size: 0.75rem; color: var(--accent-gold); font-weight: 900; padding-left: 36px; }
 
-        .wallet-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s; }
+        .wallet-btn { background: var(--accent-cyan); color: #000; border: none; padding: 10px 20px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.2s; text-transform: uppercase; }
         .wallet-btn:hover { background: #fff; }
         .wallet-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
         
@@ -97,64 +97,84 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-content { background: var(--bg-panel); padding: 40px; border-radius: 15px; border: 2px solid var(--accent-cyan); text-align: center; max-width: 450px; }
 
-        /* START SCREEN VIP TICKET */
-        #welcome-modal { display: flex; z-index: 9999; } /* Triggers on load */
+        /* CHECKBOX STYLING */
+        .checkbox-container { display: flex; align-items: center; gap: 12px; margin: 25px 0; color: #fff; font-family: 'Orbitron'; font-size: 0.75rem; text-align: left; }
+        .checkbox-container input { width: 20px; height: 20px; cursor: pointer; accent-color: #ff3366; }
+
+        /* TICKET & ARCADE STYLING */
+        .retro-terminal { background: rgba(255,0,0,0.05); border-left: 3px solid #ff3366; color: #ff3366; font-family: 'Orbitron'; font-size: 0.65rem; text-align: left; padding: 15px; margin-top: 15px; line-height: 1.6; }
+        
         .ticket-pass {
             background: linear-gradient(135deg, rgba(15,26,71,0.95) 0%, #050a1a 100%);
-            border: 2px solid var(--accent-cyan);
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.05);
-            border-radius: 12px;
-            padding: 50px 40px;
-            max-width: 600px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(255, 215, 0, 0.05);
+            border-radius: 12px; padding: 50px 40px; max-width: 600px; text-align: center; position: relative; overflow: hidden;
         }
-        .ticket-pass::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px);
-            pointer-events: none;
-        }
-        .lore-text { color: #ccc; font-size: 0.95rem; line-height: 1.7; margin-bottom: 30px; font-family: 'Inter'; position: relative; z-index: 2; }
-        .lore-text strong { color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 1px; }
+        .ticket-pass::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,215,0,0.03) 2px, rgba(255,215,0,0.03) 4px); pointer-events: none; }
+        
+        .lore-text { color: #ccc; font-size: 0.95rem; line-height: 1.7; margin-bottom: 30px; font-family: 'Inter'; position: relative; z-index: 2; text-align: left;}
+        .lore-text strong { color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 1px; }
+        .lore-title { color: var(--accent-gold); font-family: 'Bangers'; font-size: 1.4rem; margin-top: 15px; margin-bottom: 5px; letter-spacing: 1px;}
         
         .press-start-btn {
-            background: var(--accent-cyan); color: #000; font-family: 'Bangers'; font-size: 2rem;
+            background: var(--accent-gold); color: #000; font-family: 'Bangers'; font-size: 2rem;
             padding: 15px 40px; border: none; cursor: pointer; text-transform: uppercase;
             clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
             animation: pulse-glow 1.5s infinite;
             margin-top: 10px; position: relative; z-index: 2; width: 100%;
         }
         @keyframes pulse-glow {
-            0% { box-shadow: 0 0 10px var(--accent-cyan); transform: scale(1); }
-            50% { box-shadow: 0 0 30px var(--accent-cyan); transform: scale(1.02); }
-            100% { box-shadow: 0 0 10px var(--accent-cyan); transform: scale(1); }
-        }
-        .retro-terminal {
-            background: rgba(255,0,0,0.05); border-left: 3px solid #ff3366;
-            color: #ff3366; font-family: 'Orbitron'; font-size: 0.6rem; text-align: left;
-            padding: 12px; margin-top: 30px; line-height: 1.6; position: relative; z-index: 2;
+            0% { box-shadow: 0 0 10px var(--accent-gold); transform: scale(1); }
+            50% { box-shadow: 0 0 30px var(--accent-gold); transform: scale(1.02); }
+            100% { box-shadow: 0 0 10px var(--accent-gold); transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-<div id="welcome-modal" class="modal-overlay">
-    <div class="ticket-pass">
-        <h2 style="font-family:'Bangers'; color:var(--accent-cyan); font-size: 3rem; margin: 0 0 15px 0; letter-spacing: 3px; text-shadow: 0 0 15px var(--accent-cyan);">🎟️ VIP ACCESS GRANTED 🎟️</h2>
-        <div class="lore-text">
-            Welcome to the <strong>WAX REWARD PORTAL</strong>.<br><br>
-            To the early adopters... the <strong>GODFATHERS</strong> who held firm, believed in the vision, and skated through the harsh crypto winter freeze: This ecosystem is built for you.<br><br>
-            By securing a complete skateboard here, you are forging your exclusive invite. For sacrificing through the bear market, your <strong>Diamond Hand Badge</strong> awaits in the upcoming Crypto Clips expansion currently being built on Solana.<br><br>
-            Gear up. Craft your board. Claim your spot.
-        </div>
-        <button class="press-start-btn" onclick="acceptAndEnter()">[ PRESS START TO PLAY ]</button>
+<div id="disclaimer-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: #ff3366; box-shadow: 0 0 30px rgba(255,51,102,0.2);">
+        <h2 style="font-family:'Bangers'; color:#ff3366; font-size: 2.5rem; margin-bottom: 5px; letter-spacing: 2px;">⚠️ SYSTEM WARNING ⚠️</h2>
+        
         <div class="retro-terminal">
-            SYSTEM OVERRIDE // NFA_DISCLAIMER.EXE<br>
+            SYSTEM OVERRIDE // NFA_DISCLAIMER.EXE<br><br>
             > This is not financial advice. Rewards are distributed entirely at protocol discretion.<br>
             > We are not responsible for closed beta test errors, smart contract un-landed tricks, or wrecked boards.<br>
             > Proceed with extreme hype and Diamond Hands.
         </div>
+
+        <div class="checkbox-container" style="justify-content: center;">
+            <input type="checkbox" id="nfa-checkbox" onchange="toggleDisclaimerBtn()">
+            <label for="nfa-checkbox">I UNDERSTAND AND ACCEPT THE RISKS</label>
+        </div>
+
+        <button class="wallet-btn" id="accept-disclaimer-btn" disabled onclick="acceptDisclaimer()" style="width: 100%; font-size: 1.2rem; padding: 15px; background: #333; color: #666;">[ ENTER FACILITY ]</button>
+    </div>
+</div>
+
+<div id="onboarding-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0,240,255,0.2);">
+        <h2 style="font-family:'Bangers'; color:var(--accent-cyan); font-size: 2.5rem; margin-bottom: 5px; letter-spacing: 2px;">[ INSERT COIN ]</h2>
+        <p style="color: #888; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 25px;">ALPHA ACCESS DETECTED</p>
+        <button class="wallet-btn" id="login-trigger" style="width: 100%; font-size: 1.2rem; padding: 15px;">CONNECT CLOUD WALLET</button>
+        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
+    </div>
+</div>
+
+<div id="welcome-modal" class="modal-overlay">
+    <div class="ticket-pass">
+        <h2 style="font-family:'Bangers'; color:var(--accent-gold); font-size: 3rem; margin: 0 0 15px 0; letter-spacing: 3px; text-shadow: 0 0 15px rgba(255,215,0,0.5);">🎟️ LEVEL UNLOCKED 🎟️</h2>
+        <div class="lore-text">
+            Welcome to the <strong>WAX REWARD PORTAL</strong>.<br><br>
+            To the <strong>GODFATHERS</strong> who held firm, believed in the vision, and skated through the harsh crypto winter freeze: This arena is built for you.<br>
+            
+            <div class="lore-title">THE MISSION:</div>
+            Hunt the marketplace for high-stat Decks, Trucks, and Wheels. Combine your assets in the Builder to mathematically hit the <strong>TRUE 60-CAP POWER</strong>.<br>
+            
+            <div class="lore-title">THE REWARD:</div>
+            Crafting a complete 1-of-1 Skateboard NFT maximizes your <strong>$SKATE</strong> airdrop and acts as your exclusive VIP Invite. Securing a board unlocks your <strong>Diamond Hand Badge</strong> in the upcoming Crypto Clips expansion currently being built on Solana.<br><br>
+        </div>
+        <button class="press-start-btn" onclick="acceptAndEnter()">[ ENTER GARAGE ]</button>
     </div>
 </div>
 
@@ -183,8 +203,7 @@
 
 <div class="dashboard-wrapper" id="inventory-wrapper">
     <div class="dashboard-grid" id="main-grid">
-        <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">CONNECT WALLET TO OPEN TRUNK</h3>
-    </div>
+        </div>
     <div id="load-more-container" style="display: none; text-align: center; margin-top: 40px;">
         <button class="wallet-btn" onclick="loadMoreInventory()" style="background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">▼ LOAD MORE ▼</button>
     </div>
@@ -229,17 +248,7 @@
             <div>
                 <h3 style="color: var(--accent-gold); font-family: 'Bangers'; font-size: 1.8rem; margin: 0 0 20px 0; letter-spacing: 2px;">INTEGRATED BUILD</h3>
                 <div id="craft-stats-hud">
-                    <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL POP <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-pop" style="width: 0%"></div></div></div>
-                    <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL BALANCE <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-balance" style="width: 0%"></div></div></div>
-                    <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL SPEED <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-speed" style="width: 0%"></div></div></div>
-                    <div style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
-                        <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TRUE TOTAL POWER <span style="color: #fff;">0/60</span></div><div class="stat-bar-container"><div class="stat-bar stat-total" style="width: 0%"></div></div></div>
                     </div>
-                    <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
-                        <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                        <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
-                    </div>
-                </div>
             </div>
             <button id="initiate-blend-btn" class="wallet-btn" style="width: 100%; padding: 20px; background: var(--accent-gold);" disabled onclick="openCraftConfirmModal()">CRAFT SKATEBOARD</button>
         </div>
@@ -253,9 +262,9 @@
             © 2026 <span>CRYPTO CLIPS</span> / SK8 PROTOCOL
         </div>
         <div class="footer-logos">
-            <a href="https://wax.io" target="_blank" title="Built on WAX"><img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX Blockchain"></a>
-            <a href="https://solana.com" target="_blank" title="Powered by Solana"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana Blockchain"></a>
-            <a href="https://solana-donation-kit.vercel.app/#" target="_blank" title="SK8COIN Ecosystem"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN"></a>
+            <a href="https://wax.io" target="_blank"><img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX"></a>
+            <a href="https://solana.com" target="_blank"><img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana"></a>
+            <a href="https://solana-donation-kit.vercel.app/#" target="_blank"><img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" alt="SK8COIN"></a>
         </div>
     </div>
 </footer>
@@ -277,31 +286,11 @@
     </div>
 </div>
 
-<div id="onboarding-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-gold);">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2>
-        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">Welcome to the new sk8coin NFT reward system!</p>
-        <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT CLOUD WALLET</button>
-        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
-    </div>
-</div>
 <div id="disconnect-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: #ff3366;">
         <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
         <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button>
         <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
-    </div>
-</div>
-<div id="claim-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
-        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
-                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
-                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b>
-            </div>
-        </div>
-        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
     </div>
 </div>
 
@@ -326,12 +315,12 @@
             const val = this.getRaw(nft, key); 
             return val ? String(val).toUpperCase() : fallback; 
         }
-        static getImg(nft) { return this.getRaw(nft, 'img') || ''; }
+        static getImg(nft) { return this.getRaw(nft, 'img') || this.getRaw(nft, 'image') || ''; }
         static getRarity(nft) { return this.getString(nft, 'rarity', 'COMMON').toLowerCase(); }
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.3.1',
+        appName: 'SkateparkV1.5.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -345,13 +334,61 @@
     }
     syncPrices();
 
+    function showLockedGarage() {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = `
+            <div style="grid-column: 1/-1; background: linear-gradient(rgba(0,0,0,0.85), rgba(5,10,26,0.95)), url('https://images.unsplash.com/photo-1555680202-c86f0e12f086?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; border-radius: 12px; min-height: 450px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);">
+                <div style="background: rgba(15,26,71,0.95); padding: 40px; border: 2px solid var(--accent-cyan); box-shadow: 0 0 20px rgba(0,240,255,0.2); border-radius: 8px; text-align: center; max-width: 600px;">
+                    <h3 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 1.6rem; text-transform: uppercase; margin: 0 0 20px 0; line-height: 1.6;">
+                        Welcome to the Rewards portal:<br><span style="color:#fff; font-size: 1.3rem;">CONNECT WALLET TO OPEN TRUNK</span>
+                    </h3>
+                    <button class="wallet-btn" onclick="toggleAuthModal()" style="font-size: 1rem; padding: 12px 30px;">CONNECT WALLET</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('load-more-container').style.display = 'none';
+    }
+
+    window.toggleDisclaimerBtn = () => {
+        const btn = document.getElementById('accept-disclaimer-btn');
+        if (document.getElementById('nfa-checkbox').checked) {
+            btn.disabled = false;
+            btn.style.background = 'var(--accent-cyan)';
+            btn.style.color = '#000';
+        } else {
+            btn.disabled = true;
+            btn.style.background = '#333';
+            btn.style.color = '#666';
+        }
+    };
+
+    window.acceptDisclaimer = () => {
+        localStorage.setItem('skate_disclaimer_accepted', 'true');
+        document.getElementById('disclaimer-modal').style.display = 'none';
+        
+        if (currentSession) {
+            switchCategory(currentSchema);
+        } else {
+            showLockedGarage();
+        }
+    };
+
     sessionKit.restore().then(s => { 
         if (s) { 
             currentSession = s; 
             document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase(); 
             updateBalances(s.actor.toString()); 
-            switchCategory(currentSchema); 
         } 
+        
+        if (!localStorage.getItem('skate_disclaimer_accepted')) {
+            document.getElementById('disclaimer-modal').style.display = 'flex';
+        } else {
+            if (currentSession) {
+                switchCategory(currentSchema); 
+            } else {
+                showLockedGarage();
+            }
+        }
     });
 
     window.switchCategory = (schema) => {
@@ -369,13 +406,17 @@
         if (schema === 'builder') {
             document.getElementById('builder-wrapper').style.display = 'block';
             resetBuilderStats(); 
-            if (currentSession) loadCraftingData(currentSession.actor.toString());
+            if (currentSession) { loadCraftingData(currentSession.actor.toString()); }
         } else if (schema === 'leaderboard') {
             document.getElementById('leaderboard-container').style.display = 'block';
             fetchLeaderboard();
         } else {
             document.getElementById('inventory-wrapper').style.display = 'block';
-            if (currentSession) fetchInventory(currentSession.actor.toString());
+            if (currentSession) { 
+                fetchInventory(currentSession.actor.toString()); 
+            } else {
+                showLockedGarage();
+            }
         }
     };
 
@@ -473,14 +514,18 @@
             });
             calculatedWaxFee = maxTier * 1000;
 
-            document.getElementById('craft-stats-hud').innerHTML = `
+            const visualHtml = `
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
-                    <img src="https://ipfs.io/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
+                    <img src="https://atomichub-ipfs.com/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
                     <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
-                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${t1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${t2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
+                    <div style="display:flex; gap:4px;"><img src="https://atomichub-ipfs.com/ipfs/${t1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${t2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
                     <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
-                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${w1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w3.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w4.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
+                    <div style="display:flex; gap:4px;"><img src="https://atomichub-ipfs.com/ipfs/${w1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${w2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${w3.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://atomichub-ipfs.com/ipfs/${w4.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
                 </div>
+            `;
+
+            document.getElementById('craft-stats-hud').innerHTML = `
+                ${visualHtml}
                 ${renderStat('TOTAL POP', fPop, 'stat-pop', 20)}
                 ${renderStat('TOTAL BALANCE', fBal, 'stat-balance', 20)}
                 ${renderStat('TOTAL SPEED', fSpeed, 'stat-speed', 20)}
@@ -610,7 +655,7 @@
                                     <div class="mint-badge">#${mN}</div>
                                     <div class="rarity-header-text">${rarity}</div>
                                 </div>
-                                <div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
+                                <div class="img-wrap"><img src="https://atomichub-ipfs.com/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div>
                                 <div class="card-body">
                                     <div class="board-name">${n.name}</div>
                                     ${statHtml}
@@ -648,16 +693,33 @@
 
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
     window.toggleAuthModal = () => { if(!currentSession) document.getElementById('onboarding-modal').style.display = 'flex'; else document.getElementById('disconnect-modal').style.display = 'flex'; };
-    window.openClaimModal = () => { document.getElementById('claim-modal').style.display = 'flex'; };
-    window.acceptAndEnter = () => { document.getElementById('welcome-modal').style.display = 'none'; };
+    
+    // STAGE 3 -> STAGE 4 Handoff
+    window.acceptAndEnter = () => { 
+        document.getElementById('welcome-modal').style.display = 'none'; 
+        switchCategory('skateboards'); 
+    };
 
-    document.getElementById('login-trigger').addEventListener('click', async () => { const { session } = await sessionKit.login(); location.reload(); });
+    document.getElementById('login-trigger').addEventListener('click', async () => { 
+        document.getElementById('onboarding-modal').style.display = 'none';
+        try {
+            const { session } = await sessionKit.login(); 
+            currentSession = session;
+            document.getElementById('connect-btn').innerText = session.actor.toString().toUpperCase(); 
+            updateBalances(session.actor.toString());
+            
+            // Advance to Stage 3: The VIP Ticket
+            document.getElementById('welcome-modal').style.display = 'flex';
+        } catch(e) {
+            document.getElementById('onboarding-modal').style.display = 'flex';
+        }
+    });
+    
     document.getElementById('logout-trigger').addEventListener('click', async () => { await sessionKit.logout(); location.reload(); });
 
     window.openCraftConfirmModal = () => {
         document.getElementById('modal-wax-fee').innerText = `${calculatedWaxFee.toLocaleString()} WAX`;
         
-        // Admin Bypass Visualization check
         const actor = currentSession ? currentSession.actor.toString() : '';
         if (actor === 'ufuau.wam') {
             document.getElementById('modal-wax-fee').innerText = `ADMIN BYPASS (0 WAX)`;
@@ -678,7 +740,6 @@
                 { account: 'atomicassets', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: actor, to: 'skatecoinwax', asset_ids: selectedAssetIds, memo: "SKATEBOARD BUILD INGREDIENTS" } }
             ];
             
-            // Bypass fee transfer for the treasury admin wallet
             if (actor !== 'ufuau.wam') {
                 actions.push({ account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: actor, to: 'ufuau.wam', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } });
             }
