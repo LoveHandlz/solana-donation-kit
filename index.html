@@ -49,6 +49,7 @@
         .craft-slot h4 { margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; text-transform: uppercase; }
         .craft-slot select { width: 100%; padding: 10px; background: #000; color: #fff; border: 1px solid #333; font-size: 0.8rem; margin-bottom: 5px; outline: none; }
         .projected-stats { background: #000; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-gold); display: flex; flex-direction: column; justify-content: space-between; }
+        .nft-visual-thumbnail { width: 40px; height: 40px; object-fit: contain; background: #111; border: 1px solid var(--accent-cyan); border-radius: 4px; padding: 2px; }
 
         /* LEADERBOARD */
         .lb-row { display: flex; padding: 15px 20px; border-bottom: 1px solid #333; font-family: 'Orbitron'; font-size: 0.9rem; align-items: center; }
@@ -153,12 +154,10 @@
             <br><br>
             Based on the highest rarity tier of your selected parts, a WAX fabrication fee will be included in this transaction.
         </p>
-        
         <div style="background: rgba(0,0,0,0.6); padding: 15px; border: 1px solid var(--accent-gold); border-radius: 6px; margin-bottom: 25px;">
             <div style="font-family:'Orbitron'; font-size: 0.65rem; color: #888; margin-bottom: 5px;">REQUIRED FABRICATION FEE</div>
             <div id="modal-wax-fee" style="font-family:'Bangers'; font-size: 2rem; color: #fff;">0 WAX</div>
         </div>
-
         <button class="wallet-btn" onclick="executeBlend()" style="width: 100%; background: var(--accent-gold); color: #000;">CONFIRM & TRANSACT</button>
         <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
     </div>
@@ -167,9 +166,7 @@
 <div id="onboarding-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-gold);">
         <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">ALPHA ACCESS</h2>
-        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            Welcome to the new sk8coin NFT reward system!
-        </p>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">Welcome to the new sk8coin NFT reward system!</p>
         <button class="wallet-btn" id="login-trigger" style="width: 100%; background: var(--accent-gold); color: #000;">CONNECT CLOUD WALLET</button>
         <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
     </div>
@@ -179,18 +176,6 @@
         <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
         <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button>
         <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
-    </div>
-</div>
-<div id="claim-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
-        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
-                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
-                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b>
-            </div>
-        </div>
-        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
     </div>
 </div>
 
@@ -204,7 +189,7 @@
     const WAX_RPC = "https://wax.greymass.com";
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.24.0',
+        appName: 'SkateparkV1.25.0',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -236,7 +221,7 @@
 
         if (schema === 'builder') {
             document.getElementById('builder-wrapper').style.display = 'block';
-            resetBuilderStats(); // Ensure it shows 0s when switching tabs
+            resetBuilderStats(); 
             if (currentSession) loadCraftingData(currentSession.actor.toString());
         } else if (schema === 'leaderboard') {
             document.getElementById('leaderboard-container').style.display = 'block';
@@ -292,19 +277,23 @@
         return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
     };
 
-    const getMetaTruth = (nft, statKey) => {
-        if (nft.data && nft.data[statKey] !== undefined) return parseInt(nft.data[statKey]);
-        if (nft.template && nft.template.immutable_data && nft.template.immutable_data[statKey] !== undefined) return parseInt(nft.template.immutable_data[statKey]);
-        return 0; 
+    // Upgraded Truth Scanner (Now grabs strings like img hashes as well as integers)
+    const getMetaTruth = (nft, statKey, isString = false) => {
+        let val = null;
+        if (nft.data && nft.data[statKey] !== undefined) val = nft.data[statKey];
+        else if (nft.template && nft.template.immutable_data && nft.template.immutable_data[statKey] !== undefined) val = nft.template.immutable_data[statKey];
+        
+        if (isString) return val || '';
+        return parseInt(val) || 0; 
     };
 
     function resetBuilderStats() {
         document.getElementById('craft-stats-hud').innerHTML = `
-            ${renderStat('TOTAL POP', 0, 'stat-pop', 20)}
-            ${renderStat('TOTAL BALANCE', 0, 'stat-balance', 20)}
-            ${renderStat('TOTAL SPEED', 0, 'stat-speed', 20)}
+            <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL POP <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-pop" style="width: 0%"></div></div></div>
+            <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL BALANCE <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-balance" style="width: 0%"></div></div></div>
+            <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL SPEED <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-speed" style="width: 0%"></div></div></div>
             <div style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
-                ${renderStat('TRUE TOTAL POWER', 0, 'stat-total', 60)}
+                <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TRUE TOTAL POWER <span style="color: #fff;">0/60</span></div><div class="stat-bar-container"><div class="stat-bar stat-total" style="width: 0%"></div></div></div>
             </div>
             <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                 <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
@@ -327,9 +316,8 @@
             };
 
             const fPop = getGroupScore('pop'), fSpeed = getGroupScore('speed'), fBal = getGroupScore('bal');
-            
             let totalPower = fPop + fSpeed + fBal;
-            if (totalPower > 60) totalPower = 60; // Absolute Cap
+            if (totalPower > 60) totalPower = 60;
 
             const rewards = totalPower * 1000;
             selectedAssetIds = [d.value, t1.value, t2.value, w1.value, w2.value, w3.value, w4.value];
@@ -344,7 +332,19 @@
             });
             calculatedWaxFee = maxTier * 1000;
 
+            // Restored Component Visualizer HUD
+            const visualHtml = `
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
+                    <img src="https://ipfs.io/ipfs/${d.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'">
+                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
+                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${t1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${t2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
+                    <span style="color: var(--accent-cyan); font-weight: 900; align-self: center;">+</span>
+                    <div style="display:flex; gap:4px;"><img src="https://ipfs.io/ipfs/${w1.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w2.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w3.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"><img src="https://ipfs.io/ipfs/${w4.dataset.img}" class="nft-visual-thumbnail" onerror="this.style.display='none'"></div>
+                </div>
+            `;
+
             document.getElementById('craft-stats-hud').innerHTML = `
+                ${visualHtml}
                 ${renderStat('TOTAL POP', fPop, 'stat-pop', 20)}
                 ${renderStat('TOTAL BALANCE', fBal, 'stat-balance', 20)}
                 ${renderStat('TOTAL SPEED', fSpeed, 'stat-speed', 20)}
@@ -368,13 +368,12 @@
             if (json.success) {
                 const mapSel = (id, arr) => {
                     document.getElementById(id).innerHTML = `<option value="">-- CHOOSE --</option>` + arr.map(n => {
-                        const r = (n.data && n.data.rarity) || (n.template && n.template.immutable_data && n.template.immutable_data.rarity) || 'common';
-                        const tplId = n.template ? n.template.template_id : 'N/A';
+                        const r = getMetaTruth(n, 'rarity', true) || 'common';
                         const p = getMetaTruth(n, 'pop');
                         const s = getMetaTruth(n, 'speed');
                         const b = getMetaTruth(n, 'balance');
-                        // Expose the Template ID explicitly for visual confirmation
-                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}">${n.name} (TPL: #${tplId})</option>`;
+                        const img = getMetaTruth(n, 'img', true);
+                        return `<option value="${n.asset_id}" data-rarity="${r}" data-pop="${p}" data-speed="${s}" data-bal="${b}" data-img="${img}">${n.name}</option>`;
                     }).join('');
                 };
                 mapSel('craft-deck-select', json.data.filter(a => a.schema.schema_name === 'decks'));
@@ -404,8 +403,8 @@
                     const pop = getMetaTruth(n, 'pop');
                     const speed = getMetaTruth(n, 'speed');
                     const balance = getMetaTruth(n, 'balance');
-                    const rarity = (n.data && n.data.rarity) || (n.template && n.template.immutable_data && n.template.immutable_data.rarity) || 'common';
-                    const img = (n.data && n.data.img) || (n.template && n.template.immutable_data && n.template.immutable_data.img) || '';
+                    const rarity = getMetaTruth(n, 'rarity', true) || 'common';
+                    const img = getMetaTruth(n, 'img', true);
                     const tplId = n.template ? n.template.template_id : 'N/A';
                     
                     let statHtml = "";
@@ -414,12 +413,13 @@
                         let totalPower = speed + pop + balance;
                         if (totalPower > 60) totalPower = 60;
                         statHtml = `<div class="meta-group"><div class="meta-title">PERFORMANCE</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}${renderStat('TOTAL POWER', totalPower, 'stat-total', 60)}</div></div>`;
-                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--accent-cyan); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="openClaimModal()" style="width: 100%;">CLAIM REWARD</button></div>`;
+                        // Specific Asset View for Completed Boards
+                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button></div>`;
                     } else {
                         statHtml = `<div class="meta-group"><div class="meta-title">COMPONENT TRAITS</div><div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">${renderStat('POP', pop, 'stat-pop', 20)}${renderStat('BALANCE', balance, 'stat-balance', 20)}${renderStat('SPEED', speed, 'stat-speed', 20)}</div></div>`;
-                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; width: 100%; clip-path: none;">VIEW ON ATOMIC</button></div>`;
+                        actionHtml = `<div style="background: rgba(0,0,0,0.8); border-top: 1px solid var(--atomic-orange); display: flex; gap: 10px; justify-content: center; padding: 15px;"><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/explorer/asset/${n.asset_id}', '_blank')" style="background: var(--atomic-orange); color: #000; flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">VIEW ASSET</button><button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--atomic-orange); color: var(--atomic-orange); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button></div>`;
                     }
-                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity.toLowerCase()});"><div class="mint-badge">TPL #${tplId}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div>${actionHtml}</div>`;
+                    return `<div class="skate-card"><div class="rarity-header" style="background:var(--rarity-${rarity.toLowerCase()});"><div class="mint-badge">#${n.template_mint}</div></div><div class="img-wrap"><img src="https://ipfs.io/ipfs/${img}" class="skate-img" onerror="this.style.display='none'"></div><div class="card-body"><div class="board-name">${n.name}</div>${statHtml}</div>${actionHtml}</div>`;
                 }).join('');
 
                 if (!append) {
@@ -451,8 +451,6 @@
 
     window.closeModals = () => { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); };
     window.toggleAuthModal = () => { if(!currentSession) document.getElementById('onboarding-modal').style.display = 'flex'; else document.getElementById('disconnect-modal').style.display = 'flex'; };
-    
-    window.openClaimModal = () => { document.getElementById('claim-modal').style.display = 'flex'; };
     
     document.getElementById('login-trigger').addEventListener('click', async () => { const { session } = await sessionKit.login(); location.reload(); });
     document.getElementById('logout-trigger').addEventListener('click', async () => { await sessionKit.logout(); location.reload(); });
