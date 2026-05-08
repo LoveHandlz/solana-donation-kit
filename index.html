@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$SKATE REWARDS | THE SKATEPARK</title>
+    <title>SK8DAO | THE SKATEPARK</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Bangers&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -93,7 +93,7 @@
         .card-body { padding: 20px; flex: 1; }
         
         .board-name { 
-            font-family: 'Bangers'; font-size: 1.6rem; margin: 0 0 15px 0; text-transform: uppercase; line-height: 1.1; 
+            font-family: 'Orbitron'; font-weight: 900; font-size: 1.4rem; margin: 0 0 15px 0; text-transform: uppercase; line-height: 1.1; color: var(--accent-cyan); 
         }
         
         .meta-title { 
@@ -115,7 +115,7 @@
         }
         
         .reward-skate { 
-            font-family: 'Bangers'; font-size: 1.8rem; color: #fff; line-height: 1; margin-bottom: 4px;
+            font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; color: #fff; line-height: 1; margin-bottom: 4px;
         }
         
         .reward-wax { 
@@ -140,7 +140,7 @@
         }
         
         .craft-slot h4 { 
-            margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; text-transform: uppercase; 
+            margin: 0 0 10px 0; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; 
         }
         
         .craft-slot select { 
@@ -156,7 +156,7 @@
         }
 
         .lb-row { 
-            display: flex; padding: 15px 20px; border-bottom: 1px solid #333; font-family: 'Orbitron'; font-size: 0.9rem; align-items: center;
+            display: flex; padding: 15px 20px; border-bottom: 1px solid #333; font-family: 'Orbitron'; font-weight: 900; font-size: 0.9rem; align-items: center;
         }
         
         .lb-header { 
@@ -304,7 +304,7 @@
 <button id="dapp-back-btn" onclick="goBack()">[ &lt; BACK ]</button>
 
 <div class="dashboard-wrapper" id="home-wrapper">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">THE MASTER DASHBOARD</h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">THE MASTER DASHBOARD</h2>
     
     <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap;">
         <button class="master-dash-btn" onclick="switchCategory('skateboards'); return false;">SKATEBOARDS</button>
@@ -316,7 +316,7 @@
     </div>
 
     <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 40px; max-width: 900px; margin: 0 auto; text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.5);">
-        <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; letter-spacing: 2px; margin-top: 0;">WELCOME TO THE $SKATE REWARDS PORTAL</h3>
+        <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px; margin-top: 0;">WELCOME TO THE $SKATE REWARDS PORTAL</h3>
         <p style="color: #ccc; line-height: 1.8; font-size: 0.95rem; margin-bottom: 0;">
             Select an inventory category above to view your connected assets, or hit the Skateboard Builder to manually construct your custom board using your WAX components. 
             <br><br>
@@ -327,7 +327,7 @@
 
 <div class="dashboard-wrapper" id="inventory-wrapper" style="display: none;">
     <div class="dashboard-grid" id="main-grid">
-        <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">CONNECT WALLET TO OPEN TRUNK</h3>
+        <h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900;">CONNECT WALLET TO OPEN TRUNK</h3>
     </div>
     <div id="load-more-container" style="display: none; text-align: center; margin-top: 40px;">
         <button class="wallet-btn" onclick="loadMoreInventory()" style="background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan);">▼ LOAD MORE ▼</button>
@@ -335,7 +335,7 @@
 </div>
 
 <div id="leaderboard-container" class="dashboard-wrapper" style="display: none;">
-    <h3 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 2.5rem; letter-spacing: 2px; margin-top: 0;">TOP 20 HOLDERS</h3>
+    <h3 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 2.5rem; letter-spacing: 2px; margin-top: 0;">TOP 20 HOLDERS</h3>
     <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-cyan); border-radius: 8px; overflow: hidden; max-width: 900px; margin: 0 auto;">
         <div class="lb-row lb-header">
             <div style="width: 80px;">RANK</div>
@@ -371,7 +371,7 @@
         
         <div class="projected-stats">
             <div>
-                <h3 style="color: var(--accent-gold); font-family: 'Bangers'; font-size: 1.8rem; margin: 0 0 20px 0; letter-spacing: 2px;">INTEGRATED BUILD</h3>
+                <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; font-size: 1.8rem; margin: 0 0 20px 0; letter-spacing: 2px;">INTEGRATED BUILD</h3>
                 <div id="craft-stats-hud">
                     <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL POP <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-pop" style="width: 0%"></div></div></div>
                     <div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">TOTAL BALANCE <span style="color: #fff;">0/20</span></div><div class="stat-bar-container"><div class="stat-bar stat-balance" style="width: 0%"></div></div></div>
@@ -381,7 +381,7 @@
                     </div>
                     <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                         <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                        <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
+                        <div style="font-family:'Orbitron'; font-weight: 900; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
                     </div>
                 </div>
             </div>
@@ -391,28 +391,28 @@
 </div>
 
 <div class="dashboard-wrapper" id="clips-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYOTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYOTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
     <div class="expansion-vault">
         [ VIDEO FEED INTEGRATION PENDING ]
     </div>
 </div>
 
 <div class="dashboard-wrapper" id="defi-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// REWARDS</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// REWARDS</span></h2>
     <div class="expansion-vault">
         [ YIELD & SWAP INTEGRATION PENDING ]
     </div>
 </div>
 
 <div class="dashboard-wrapper" id="treasury-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">TREASURY <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// COMMUNITY VAULT</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">TREASURY <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// COMMUNITY VAULT</span></h2>
     <div class="expansion-vault">
         [ PROTOCOL VAULT DATA PENDING ]
     </div>
 </div>
 
 <div class="dashboard-wrapper" id="dao-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">sk8dao <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">/ community governance</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">sk8dao <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">/ community governance</span></h2>
     <div class="expansion-vault">
         [ VOTING & PROPOSALS PENDING ]
     </div>
@@ -422,7 +422,7 @@
     <div class="footer-inner">
         <div class="footer-brand">
             POWERED BY DECENTRALIZED PROTOCOLS <br>
-            © 2026 <span>CRYPTO CLIPS</span> / SK8 PROTOCOL
+            © 2026 <span>SK8DAO</span> / SK8 PROTOCOL
         </div>
         <div class="footer-logos">
             <a href="https://wax.io" target="_blank" title="Built on WAX"><img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX Blockchain"></a>
@@ -435,7 +435,7 @@
 <div id="vip-ticket-modal" class="modal-overlay">
     <div class="modal-content" style="width: 90%; max-width: 320px; padding: 25px; border-color: var(--accent-cyan); background: #050a1a; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 240, 255, 0.03) 10px, rgba(0, 240, 255, 0.03) 20px);">
         
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0 0 15px 0; font-size: 1.3rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 1px;">WELCOME TO CRYPTO CLIPS</h2>
+        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0 0 15px 0; font-size: 1.3rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 1px; font-weight: 900;">WELCOME TO SK8DAO</h2>
 
         <div style="text-align: left;">
             <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE CULTURE</div>
@@ -456,13 +456,13 @@
         <button class="wallet-btn" id="login-trigger-vip" disabled style="width: 100%; background: var(--accent-cyan); color: #000; font-size: 1rem; padding: 12px; margin-bottom: 10px;">DROP IN (CONNECT WALLET)</button>
         <button class="wallet-btn" onclick="window.open('https://www.mycloudwallet.com/', '_blank')" style="width: 100%; background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 0.75rem; padding: 10px; margin-bottom: 5px;">GET OFFICIAL WAX WALLET</button>
 
-        <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer; font-family:'Orbitron'; font-size: 0.65rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
+        <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.65rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
     </div>
 </div>
 
 <div id="craft-confirm-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-gold); max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-gold); margin-bottom: 15px;">INITIATE FABRICATION</h2>
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-gold); margin-bottom: 15px;">INITIATE FABRICATION</h2>
         <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
             You are about to securely send your 7 selected components to the platform treasury to mint a complete, 1-of-1 skateboard. 
             <br><br>
@@ -470,24 +470,24 @@
         </p>
         <div style="background: rgba(0,0,0,0.6); padding: 15px; border: 1px solid var(--accent-gold); border-radius: 6px; margin-bottom: 25px;">
             <div style="font-family:'Orbitron'; font-size: 0.65rem; color: #888; margin-bottom: 5px;">REQUIRED FABRICATION FEE</div>
-            <div id="modal-wax-fee" style="font-family:'Bangers'; font-size: 2rem; color: #fff;">0 WAX</div>
+            <div id="modal-wax-fee" style="font-family:'Orbitron'; font-weight: 900; font-size: 2rem; color: #fff;">0 WAX</div>
         </div>
         <button class="wallet-btn" onclick="executeBlend()" style="width: 100%; background: var(--accent-gold); color: #000;">CONFIRM & TRANSACT</button>
-        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ CANCEL ]</button>
+        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.7rem;">[ CANCEL ]</button>
     </div>
 </div>
 
 <div id="disconnect-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: #ff3366; max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:#ff3366; margin-bottom: 15px;">LEAVING THE SKATEPARK?</h2>
         <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,51,102,0.2); border: 1px solid #ff3366; color: #ff3366;">🔌 DISCONNECT WALLET</button>
-        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
+        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
     </div>
 </div>
 
 <div id="claim-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
         <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
             <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
                 <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
@@ -523,7 +523,7 @@
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SkateparkV1.3.1',
+        appName: 'SK8DAO',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -689,7 +689,7 @@
             </div>
             <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                 <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
+                <div style="font-family:'Orbitron'; font-weight: 900; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> 0 $SKATE</div>
             </div>`;
         document.getElementById('initiate-blend-btn').disabled = true;
     }
@@ -749,7 +749,7 @@
                 </div>
                 <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.1); border:1px solid var(--accent-gold); border-radius:6px; text-align:center;">
                     <div style="color:var(--accent-gold); font-size:0.6rem; font-family:'Orbitron';">AIRDROP PROJECTED</div>
-                    <div style="font-family:'Bangers'; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> ${rewards.toLocaleString()} $SKATE</div>
+                    <div style="font-family:'Orbitron'; font-weight: 900; font-size:2rem; display:flex; align-items:center; justify-content:center;"><img src="https://ipfs.io/ipfs/bafybeifeyjngg5kvmkv56aowt2jad2txdo737yonaor3hcgrroyrqjfx3m" class="skate-icon"> ${rewards.toLocaleString()} $SKATE</div>
                 </div>`;
             document.getElementById('initiate-blend-btn').disabled = false;
         } else {
@@ -786,7 +786,7 @@
         const loadMoreBtn = document.getElementById('load-more-container');
 
         if (!append) {
-            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron';">SCANNING...</h3>`;
+            grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900;">SCANNING...</h3>`;
             currentInventoryPage = 1;
         }
 
@@ -878,7 +878,7 @@
 
                 if (!append) {
                     if (json.data.length === 0) {
-                        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #888; font-family: 'Orbitron';">TRUNK IS EMPTY</h3>`;
+                        grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #888; font-family: 'Orbitron'; font-weight: 900;">TRUNK IS EMPTY</h3>`;
                     } else {
                         grid.innerHTML = htmlCards;
                     }
@@ -893,7 +893,7 @@
                 }
             }
         } catch (e) {
-            if (!append) grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron';">CONNECTION ERROR</h3>`;
+            if (!append) grid.innerHTML = `<h3 style="grid-column: 1/-1; text-align: center; color: #ff3366; font-family: 'Orbitron'; font-weight: 900;">CONNECTION ERROR</h3>`;
         }
     }
 
