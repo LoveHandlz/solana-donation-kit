@@ -262,6 +262,19 @@
             margin-top: 30px;
             box-shadow: inset 0 0 20px rgba(0,240,255,0.05);
         }
+        
+        .filter-select {
+            padding: 10px 15px; 
+            background: rgba(0,240,255,0.05); 
+            color: var(--accent-cyan); 
+            border: 1px solid var(--accent-cyan); 
+            font-family: 'Orbitron'; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            border-radius: 4px; 
+            outline: none; 
+            cursor: pointer;
+        }
 
         /* MOBILE OPTIMIZATION */
         @media (max-width: 768px) {
@@ -393,9 +406,18 @@
 <div class="dashboard-wrapper" id="clips-wrapper" style="display: none;">
     <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYOTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
     
-    <div style="text-align: center; margin-bottom: 30px;">
-        <select id="clip-trick-filter" onchange="filterClips()" style="padding: 10px 20px; background: rgba(0,240,255,0.05); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 0.9rem; border-radius: 4px; outline: none; cursor: pointer;">
-            <option value="ALL">-- ALL RAW FOOTY --</option>
+    <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 30px;">
+        <select id="clip-skater-filter" onchange="filterClips()" class="filter-select">
+            <option value="ALL">-- ALL SKATERS --</option>
+        </select>
+        <select id="clip-trick-filter" onchange="filterClips()" class="filter-select">
+            <option value="ALL">-- ALL TRICKS --</option>
+        </select>
+        <select id="clip-location-filter" onchange="filterClips()" class="filter-select">
+            <option value="ALL">-- ALL LOCATIONS --</option>
+        </select>
+        <select id="clip-filmer-filter" onchange="filterClips()" class="filter-select">
+            <option value="ALL">-- ALL FILMERS --</option>
         </select>
     </div>
 
@@ -799,42 +821,64 @@
         } catch(e) {}
     }
 
-    // New Helper to dynamically populate trick dropdown
-    function updateTrickDropdown() {
-        const filter = document.getElementById('clip-trick-filter');
+    // MULTI-RAIL: Dynamically extract and populate all 4 filter dropdowns
+    window.updateClipFilters = () => {
+        const filters = {
+            skater: { el: document.getElementById('clip-skater-filter'), values: new Set(), default: 'ALL SKATERS' },
+            trick: { el: document.getElementById('clip-trick-filter'), values: new Set(), default: 'ALL TRICKS' },
+            loc: { el: document.getElementById('clip-location-filter'), values: new Set(), default: 'ALL LOCATIONS' },
+            filmer: { el: document.getElementById('clip-filmer-filter'), values: new Set(), default: 'ALL FILMERS' }
+        };
+        
         const cards = document.querySelectorAll('#clips-grid .clip-card');
-        const currentSelection = filter.value;
-        const tricks = new Set();
         
         cards.forEach(card => {
-            const t = card.getAttribute('data-trick');
-            if (t && t !== 'N/A') tricks.add(t);
+            Object.keys(filters).forEach(key => {
+                const val = card.getAttribute(`data-${key}`);
+                if (val && val !== 'N/A') filters[key].values.add(val);
+            });
         });
 
-        let optionsHtml = `<option value="ALL">-- ALL RAW FOOTY --</option>`;
-        tricks.forEach(t => {
-            optionsHtml += `<option value="${t}">${t}</option>`;
+        Object.keys(filters).forEach(key => {
+            const f = filters[key];
+            const currentSelection = f.el.value;
+            let optionsHtml = `<option value="ALL">-- ${f.default} --</option>`;
+            f.values.forEach(v => {
+                optionsHtml += `<option value="${v}">${v}</option>`;
+            });
+            f.el.innerHTML = optionsHtml;
+            
+            if (f.values.has(currentSelection)) {
+                f.el.value = currentSelection;
+            } else {
+                f.el.value = "ALL";
+            }
         });
         
-        filter.innerHTML = optionsHtml;
-        
-        if (tricks.has(currentSelection)) {
-            filter.value = currentSelection;
-        } else {
-            filter.value = "ALL";
-        }
-        
-        window.filterClips(); // Re-apply filter
-    }
+        window.filterClips(); // Enforce filters visually
+    };
 
-    // Manual Brute Force Filter Logic
+    // MULTI-RAIL: Check every card against all active dropdowns
     window.filterClips = () => {
-        const selectedTrick = document.getElementById('clip-trick-filter').value;
+        const selSkater = document.getElementById('clip-skater-filter').value;
+        const selTrick = document.getElementById('clip-trick-filter').value;
+        const selLoc = document.getElementById('clip-location-filter').value;
+        const selFilmer = document.getElementById('clip-filmer-filter').value;
+        
         const cards = document.querySelectorAll('#clips-grid .clip-card');
         
         cards.forEach(card => {
+            const cardSkater = card.getAttribute('data-skater');
             const cardTrick = card.getAttribute('data-trick');
-            if (selectedTrick === 'ALL' || cardTrick === selectedTrick) {
+            const cardLoc = card.getAttribute('data-loc');
+            const cardFilmer = card.getAttribute('data-filmer');
+            
+            const matchSkater = (selSkater === 'ALL' || cardSkater === selSkater);
+            const matchTrick = (selTrick === 'ALL' || cardTrick === selTrick);
+            const matchLoc = (selLoc === 'ALL' || cardLoc === selLoc);
+            const matchFilmer = (selFilmer === 'ALL' || cardFilmer === selFilmer);
+            
+            if (matchSkater && matchTrick && matchLoc && matchFilmer) {
                 card.style.display = 'flex';
             } else {
                 card.style.display = 'none';
@@ -856,7 +900,6 @@
             const json = await res.json();
             
             if (json.success) {
-                // Brute force fetch all data
                 const fetchedData = json.data;
 
                 const htmlCards = fetchedData.map(n => {
@@ -868,12 +911,18 @@
                     const tplId = n.template ? n.template.template_id : 'N/A';
                     const mN = n.template_mint ? n.template_mint : 'N/A';
                     
+                    const skater = MetaParser.getString(n, 'skater');
                     const trick = MetaParser.getString(n, 'trick');
+                    const loc = MetaParser.getString(n, 'location');
+                    const filmer = MetaParser.getString(n, 'filmer');
 
                     const statHtml = `
                         <div class="meta-group">
                             <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px; margin-bottom: 10px;">
+                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">SKATER <span style="color:#fff">${skater}</span></div>
                                 <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">TRICK <span style="color:#fff">${trick}</span></div>
+                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">LOCATION <span style="color:#fff">${loc}</span></div>
+                                <div style="display:flex; justify-content:space-between; font-family:'Orbitron'; font-size:0.55rem; color:#888; margin-bottom:4px;">FILMER <span style="color:#fff">${filmer}</span></div>
                             </div>
                             <div class="meta-title">COMPONENT TRAITS</div>
                             <div style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px;">
@@ -887,8 +936,7 @@
                             <button class="wallet-btn" onclick="window.open('https://wax.atomichub.io/market?collection_name=${COLLECTION}&template_id=${tplId}', '_blank')" style="background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); flex: 1; font-size: 0.65rem; clip-path: none; padding: 12px 5px;">FIND ON MARKET</button>
                         </div>`;
 
-                    // Added .clip-card and data-trick attribute for manual CSS filtering
-                    return `<div class="skate-card clip-card" data-trick="${trick}">
+                    return `<div class="skate-card clip-card" data-skater="${skater}" data-trick="${trick}" data-loc="${loc}" data-filmer="${filmer}">
                                 <div class="rarity-header" style="background: var(--rarity-${rarity.toLowerCase()}); box-shadow: 0 0 20px var(--rarity-${rarity.toLowerCase()});">
                                     <div class="mint-badge">#${mN}</div>
                                     <div class="rarity-header-text">${rarity}</div>
@@ -912,8 +960,8 @@
                     grid.insertAdjacentHTML('beforeend', htmlCards);
                 }
 
-                // Update the Dropdown dynamically based on rendered cards
-                updateTrickDropdown();
+                // Update the Dropdowns dynamically based on all currently rendered cards
+                updateClipFilters();
 
                 if (json.data.length === 12) {
                     loadMoreBtn.style.display = 'block';
