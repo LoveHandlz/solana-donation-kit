@@ -222,6 +222,30 @@
             color: #000;
             box-shadow: 0 0 15px var(--accent-gold);
         }
+
+        #dapp-back-btn {
+            display: none; 
+            position: fixed; 
+            top: 90px; 
+            left: 40px; 
+            z-index: 999; 
+            background: rgba(0,0,0,0.8); 
+            color: var(--accent-cyan); 
+            border: 1px solid var(--accent-cyan); 
+            padding: 8px 15px; 
+            font-family: 'Orbitron'; 
+            font-size: 0.75rem; 
+            font-weight: 900; 
+            cursor: pointer; 
+            backdrop-filter: blur(5px); 
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); 
+            transition: 0.2s;
+        }
+        #dapp-back-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
     </style>
 </head>
 <body>
@@ -231,11 +255,11 @@
         <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" height="45" onclick="location.reload()" style="cursor:pointer;">
         <nav>
             <ul>
-                <li><a href="#" onclick="switchCategory('home')" id="nav-home" class="active">HOME</a></li>
-                <li><a href="#">VIDEOS</a></li>
-                <li><a href="#">DEFI</a></li>
-                <li><a href="#">TREASURY</a></li>
-                <li><a href="#">DAO</a></li>
+                <li><a href="#home" onclick="switchCategory('home'); return false;" id="nav-home" class="active">HOME</a></li>
+                <li><a href="#videos">VIDEOS</a></li>
+                <li><a href="#defi">DEFI</a></li>
+                <li><a href="#treasury">TREASURY</a></li>
+                <li><a href="#dao">DAO</a></li>
             </ul>
         </nav>
         <div class="header-controls">
@@ -248,16 +272,18 @@
     </div>
 </header>
 
+<button id="dapp-back-btn" onclick="goBack()">[ &lt; BACK ]</button>
+
 <div class="dashboard-wrapper" id="home-wrapper">
     <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Bangers'; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">THE MASTER DASHBOARD</h2>
     
     <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap;">
-        <button class="master-dash-btn" onclick="switchCategory('skateboards')">SKATEBOARDS</button>
-        <button class="master-dash-btn" onclick="switchCategory('decks')">DECKS</button>
-        <button class="master-dash-btn" onclick="switchCategory('wheels')">WHEELS</button>
-        <button class="master-dash-btn" onclick="switchCategory('trucks')">TRUCKS</button>
-        <button class="master-dash-btn gold" onclick="switchCategory('builder')">⚙️ SKATEBOARD BUILDER</button>
-        <button class="master-dash-btn" onclick="switchCategory('leaderboard')" style="border-color: #a855f7; color: #a855f7;">🏆 LEADERBOARD</button>
+        <button class="master-dash-btn" onclick="switchCategory('skateboards'); return false;">SKATEBOARDS</button>
+        <button class="master-dash-btn" onclick="switchCategory('decks'); return false;">DECKS</button>
+        <button class="master-dash-btn" onclick="switchCategory('wheels'); return false;">WHEELS</button>
+        <button class="master-dash-btn" onclick="switchCategory('trucks'); return false;">TRUCKS</button>
+        <button class="master-dash-btn gold" onclick="switchCategory('builder'); return false;">⚙️ SKATEBOARD BUILDER</button>
+        <button class="master-dash-btn" onclick="switchCategory('leaderboard'); return false;" style="border-color: #a855f7; color: #a855f7;">🏆 LEADERBOARD</button>
     </div>
 
     <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 40px; max-width: 900px; margin: 0 auto; text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.5);">
@@ -454,8 +480,12 @@
         walletPlugins: [ new WalletPluginCloudWallet() ]
     });
     
-    let currentSession = null, currentSchema = 'home', currentInventoryPage = 1;
+    let currentSession = null, currentSchema = null, currentInventoryPage = 1;
     let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0;
+    
+    // STATE & HISTORY VARIABLES
+    let historyStack = [];
+    let isProgrammaticHashChange = false;
     
     async function syncPrices() {
         const skatePerWax = 7.6897; 
@@ -463,22 +493,41 @@
     }
     syncPrices();
 
+    // INITIALIZATION & STATE RECOVERY
     sessionKit.restore().then(s => { 
+        const initialHash = window.location.hash.replace('#', '') || 'home';
         if (s) { 
             currentSession = s; 
             document.getElementById('connect-btn').innerText = s.actor.toString().toUpperCase(); 
             updateBalances(s.actor.toString()); 
-            switchCategory('home'); 
+            switchCategory(initialHash); 
         } else {
-            // Trigger VIP gatekeeper if no active session
             document.getElementById('vip-ticket-modal').style.display = 'flex';
         }
     });
 
-    window.switchCategory = (schema) => {
+    // STATE SWITCHING ENGINE
+    window.switchCategory = (schema, fromBack = false) => {
+        if (currentSchema === schema) return;
+
+        // Manage History Stack
+        if (!fromBack && currentSchema !== null) {
+            historyStack.push(currentSchema);
+        }
+        
         currentSchema = schema;
         currentInventoryPage = 1;
         document.getElementById('load-more-container').style.display = 'none';
+
+        // Secure URL Hash Update
+        isProgrammaticHashChange = true;
+        window.location.hash = schema;
+
+        // Back Button Visibility Matrix
+        const backBtn = document.getElementById('dapp-back-btn');
+        if (backBtn) {
+            backBtn.style.display = historyStack.length > 0 ? 'block' : 'none';
+        }
 
         // Header Navigation State (Only Home is active on this portal)
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
@@ -492,6 +541,7 @@
         document.getElementById('builder-wrapper').style.display = 'none';
         document.getElementById('leaderboard-container').style.display = 'none';
 
+        // Route to Component
         if (schema === 'home') {
             document.getElementById('home-wrapper').style.display = 'block';
         } else if (schema === 'builder') {
@@ -507,9 +557,32 @@
         }
     };
 
+    // HISTORY POP ENGINE
+    window.goBack = () => {
+        if (historyStack.length > 0) {
+            const prevSchema = historyStack.pop();
+            switchCategory(prevSchema, true);
+        }
+    };
+
+    // NATIVE BROWSER NAVIGATION LISTENER
+    window.addEventListener('hashchange', () => {
+        if (isProgrammaticHashChange) {
+            isProgrammaticHashChange = false;
+            return;
+        }
+        const hashSchema = window.location.hash.replace('#', '') || 'home';
+        if (hashSchema !== currentSchema) {
+            // Rough stack synchronization for native back clicks
+            if (historyStack.length > 0) historyStack.pop(); 
+            switchCategory(hashSchema, true);
+        }
+    });
+
     window.continueAsGuest = () => {
         document.getElementById('vip-ticket-modal').style.display = 'none';
-        switchCategory('home');
+        const initialHash = window.location.hash.replace('#', '') || 'home';
+        switchCategory(initialHash);
     };
 
     async function updateBalances(user) {
