@@ -479,7 +479,7 @@
 </div>
 
 <div id="leaderboard-container" class="dashboard-wrapper" style="display: none;">
-    <h3 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 2.5rem; letter-spacing: 2px; margin-top: 0;">TOP 20 HOLDERS</h3>
+    <h3 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 2.5rem; letter-spacing: 2px; margin-top: 0;">TOP 100 HOLDERS</h3>
     <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-cyan); border-radius: 8px; overflow: hidden; max-width: 900px; margin: 0 auto;">
         <div class="lb-row lb-header">
             <div style="width: 80px;">RANK</div>
@@ -712,21 +712,6 @@
                 <button class="wallet-btn" onclick="showErrorModal('LP Staking expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">STAKE LP TOKENS</button>
             </div>
 
-            <div id="godmode-profile-container" style="background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(5,10,26,0.8) 100%); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px rgba(255,215,0,0.1);">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="background: #000; border: 2px solid var(--accent-gold); padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-shadow: 0 0 5px var(--accent-gold);">⚡</div>
-                    <div>
-                        <div style="font-family:'Orbitron'; font-weight:900; color:#fff; font-size: 1.1rem; letter-spacing: 1px;">UFUAU.WAM <span style="font-size:0.6rem; background:#ff3366; color:#fff; padding:2px 6px; border-radius:3px; margin-left: 8px; font-family:'Inter'; vertical-align: middle;">GODMODE CREATOR</span></div>
-                        <div style="font-size: 0.75rem; color: #888; font-family:'Inter'; margin-top:2px;">Protocol Designer, Developer, and Supreme Skate Leader</div>
-                    </div>
-                </div>
-                <div class="badge-pill-container" style="gap: 6px;">
-                    <span class="micro-badge-pill m-badge-founder">FOUNDER</span>
-                    <span class="micro-badge-pill m-badge-pro">DEV</span>
-                    <span class="micro-badge-pill m-badge-whale">CREATOR</span>
-                </div>
-            </div>
-
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(255,215,0,0.05);">
@@ -737,7 +722,7 @@
                     </div>
                 </div>
 
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,240,255,0.05);">
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,240,255,0.35);">
                     <h4 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px; letter-spacing: 1px;">⚡ LIVE PULSE FEED</h4>
                     <div style="font-family: 'Inter'; font-size: 0.7rem; color: #888; text-align: center; margin-bottom: 15px;">REAL-TIME PROTOCOL FUNDING INTERCEPTS</div>
                     <div id="treasury-pulse-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
@@ -877,6 +862,7 @@
     const ATOMIC_API = "https://wax.api.atomicassets.io/atomicassets/v1";
     const COLLECTION = "skatecoinwax";
     const WAX_RPC = "https://wax.greymass.com";
+    const HISTORY_RPC = "https://api.waxsweden.org"; // High-performance history endpoint
 
     class MetaParser {
         static getRaw(nft, key) {
@@ -946,7 +932,7 @@
         }
     }
 
-    // COMMUNITY TREASURY: HYPERION LIVE ON-CHAIN SCRAPER & AGGREGATOR
+    // COMMUNITY TREASURY: HYPERION LIVE ON-CHAIN SCRAPER & AGGREGATOR (100 LIMIT)
     async function fetchTreasuryData() {
         await syncPrices();
         
@@ -987,19 +973,19 @@
             fdvWaxDOM.innerText = fdvWax.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' WAX';
             fdvUsdDOM.innerText = `≈ $${fdvUsd.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} USD`;
 
-            // Hyperion Historical Scraper Logic
-            const historyUrl = `${WAX_RPC}/v2/history/get_actions?account=skatecoinwax&filter=eosio.token:transfer,skatecoinwax:transfer&limit=100`;
+            // Hyperion Historical Scraper Logic (100 LIMIT)
+            const historyUrl = `${HISTORY_RPC}/v2/history/get_actions?account=skatecoinwax&filter=eosio.token:transfer,skatecoinwax:transfer&limit=100`;
             const hRes = await fetch(historyUrl);
             const hJson = await hRes.json();
 
-            const blacklist = ['ufuau.wam', 'eosio.token', 'skatecoinwax'];
+            // Strict Filter out ufuau.wam, system, and pool addresses
+            const blacklist = ['ufuau.wam', 'eosio.token', 'skatecoinwax', 'swap.alcor', 'alcorammswap'];
             let sponsors = {};
             let pulseItems = [];
 
             if (hJson && hJson.actions) {
                 hJson.actions.forEach(action => {
                     const data = action.act.data;
-                    const contract = action.act.account;
                     
                     if (data && data.to === 'skatecoinwax' && data.quantity) {
                         const fromAcc = data.from;
@@ -1009,9 +995,8 @@
                         const amount = parseFloat(amtVal) || 0;
                         const blockTime = new Date(action.timestamp);
 
-                        // Strict Filtering & Memo Verification
                         if (!blacklist.includes(fromAcc) && amount > 0) {
-                            // Aggregate totals for the Whale Board
+                            // Convert token values into WAXP cumulative weight
                             const valueInWax = symbol === 'WAX' ? amount : amount * sWax;
                             if (!sponsors[fromAcc]) {
                                 sponsors[fromAcc] = { waxTotal: 0, skateTotal: 0, powerValue: 0 };
@@ -1043,7 +1028,7 @@
             const sortedSponsors = Object.keys(sponsors).map(acc => ({
                 account: acc,
                 ...sponsors[acc]
-            })).sort((a, b) => b.powerValue - a.powerValue).slice(0, 15);
+            })).sort((a, b) => b.powerValue - a.powerValue).slice(0, 100);
 
             if (sortedSponsors.length === 0) {
                 whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">THE WHALE BOARD IS OPEN</div>`;
@@ -1065,8 +1050,8 @@
                                 ${idx + 1}. ${sp.account} ${badgesHtml}
                             </div>
                             <div style="text-align: right;">
-                                <div style="color:#fff; font-family:'Orbitron'; font-weight:900; font-size: 0.85rem;">${sp.waxTotal.toLocaleString(undefined, {maximumFractionDigits: 0})} WAX</div>
-                                <div style="color:var(--accent-cyan); font-size: 0.7rem; font-family:'Orbitron'; font-weight:900;">${sp.skateTotal.toLocaleString(undefined, {maximumFractionDigits: 0})} SKATE</div>
+                                <div style="color:#fff; font-family:'Orbitron'; font-weight:900; font-size: 0.85rem;">${sp.waxTotal.toLocaleString(undefined, {maximumFractionDigits: 2})} WAX</div>
+                                <div style="color:var(--accent-cyan); font-size: 0.7rem; font-family:'Orbitron'; font-weight:900;">${sp.skateTotal.toLocaleString(undefined, {maximumFractionDigits: 4})} SKATE</div>
                             </div>
                         </div>
                     `;
@@ -1075,7 +1060,7 @@
 
             // Render Live Pulse Feed
             pulseItems.sort((a, b) => b.timestamp - a.timestamp);
-            const activePulse = pulseItems.slice(0, 15);
+            const activePulse = pulseItems.slice(0, 100);
 
             if (activePulse.length === 0) {
                 pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">INTERCEPT RECORD EMPTY</div>`;
@@ -1418,11 +1403,11 @@
         const list = document.getElementById('leaderboard-list');
         list.innerHTML = `<div style="padding:40px; text-align:center; color:var(--accent-cyan); font-family:'Orbitron';">SCANNING WAX BLOCKCHAIN...</div>`;
         try {
-            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=50`);
+            const res = await fetch(`${ATOMIC_API}/accounts?collection_name=${COLLECTION}&schema_name=skateboards&page=1&limit=100`);
             const json = await res.json();
             if (json.success) {
                 const excludeAccounts = ['blend.nefty', 'skatecoinwax', 'ufuau.wam', 'bridge.wax', 'neftyblocksd'];
-                const validHolders = json.data.filter(user => !excludeAccounts.includes(user.account)).slice(0, 20);
+                const validHolders = json.data.filter(user => !excludeAccounts.includes(user.account)).slice(0, 100);
 
                 if (validHolders.length === 0) {
                     list.innerHTML = `<div style="padding:40px; text-align:center; color:#888; font-family:'Orbitron';">NO SKATEBOARD HOLDERS FOUND YET</div>`;
@@ -1699,4 +1684,3 @@
 </script>
 </body>
 </html>
-    
