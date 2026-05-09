@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SK8DAO | THE SENATE CHAMBER</title>
+    <title>sk8dao | THE SENATE CHAMBER</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Bangers&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -41,7 +41,7 @@
         .senate-logo {
             margin: 0; font-family: 'Orbitron'; font-weight: 900; font-size: 1.8rem; cursor: pointer; letter-spacing: 2px;
             text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
-            color: #fff;
+            color: var(--accent-cyan); text-transform: lowercase;
         }
         .senate-logo span {
             color: var(--accent-pink); text-shadow: 0 0 10px var(--accent-pink), 0 0 20px var(--accent-pink);
@@ -222,7 +222,7 @@
 
 <header>
     <div class="header-inner">
-        <h1 class="senate-logo" onclick="location.reload()" style="font-family: 'Orbitron';">CRYPTO CLIPS <span>SENATE</span></h1>
+        <h1 class="senate-logo" onclick="location.reload()">sk8dao</h1>
         <nav>
             <ul>
                 <li><a href="#home" onclick="switchCategory('home'); return false;" id="nav-home" class="active">HOME</a></li>
@@ -246,7 +246,7 @@
 <button id="dapp-back-btn" onclick="goBack()">[ &lt; BACK ]</button>
 
 <div class="dashboard-wrapper" id="home-wrapper">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">THE MASTER DASHBOARD</h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CONTROL PANEL</h2>
     <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 50px; flex-wrap: wrap;">
         <button class="master-dash-btn" onclick="switchCategory('skateboards'); return false;">SKATEBOARDS</button>
         <button class="master-dash-btn" onclick="switchCategory('decks'); return false;">DECKS</button>
@@ -257,9 +257,9 @@
     </div>
 
     <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 40px; max-width: 900px; margin: 0 auto; text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.5);">
-        <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px; margin-top: 0;">WELCOME TO THE $SKATE REWARDS PORTAL</h3>
+        <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px; margin-top: 0;">WELCOME TO THE TRUNK</h3>
         <p style="color: #ccc; line-height: 1.8; font-size: 0.95rem; margin-bottom: 0;">
-            Select an inventory category above to view your connected assets, or hit the Skateboard Builder to manually construct your custom board using your WAX components. 
+            This is where your inventory is stored. Use your navigation buttons above to view your different components and assets.
             <br><br>
             <span style="color: #fff; font-weight: bold;">Remember: You must hold a completed skateboard to access the advanced areas of the park. Build carefully.</span>
         </p>
@@ -499,8 +499,8 @@
             </div>
             
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
-                <button class="wallet-btn" onclick="openDonationModal('WAX')" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">🙏 BLESS WAX</button>
-                <button class="wallet-btn" onclick="openDonationModal('SKATE')" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">🙏 BLESS $SKATE</button>
+                <button class="wallet-btn" onclick="openDonationModal('WAX')" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">🙏 BLESS WITH WAX</button>
+                <button class="wallet-btn" onclick="openDonationModal('SKATE')" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">🙏 BLESS WITH $SKATE</button>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
@@ -509,7 +509,7 @@
                     <div id="treasury-whales-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;"></div>
                 </div>
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,240,255,0.05);">
-                    <h4 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px; letter-spacing: 1px;">⚡ LIVE PULSE FEED</h4>
+                    <h4 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px; letter-spacing: 1px;">⚡ LIVE BLESSINGS FEED</h4>
                     <div id="treasury-pulse-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;"></div>
                 </div>
             </div>
@@ -722,7 +722,7 @@
     }
 
     const sessionKit = new SessionKit({
-        appName: 'SK8DAO',
+        appName: 'sk8dao',
         chains: [{ id: '1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4', url: WAX_RPC }],
         ui: new WebRenderer(),
         walletPlugins: [ new WalletPluginCloudWallet() ]
@@ -785,7 +785,8 @@
         if (cumulativeUsd >= 1000)  return { rank: "PRO", votes: 100, color: "#ffd700", badge: "m-badge-pro" };
         if (cumulativeUsd >= 250)   return { rank: "AMATEUR", votes: 10, color: "#c0c0c0", badge: "m-badge-amateur" };
         if (cumulativeUsd >= 50)    return { rank: "FLOW", votes: 5, color: "#cd7f32", badge: "m-badge-flow" };
-        if (cumulativeUsd >= 5)     return { rank: "GROMMET", votes: 1, color: "#00ffaa", badge: "m-badge-grom" };
+        // FIXED: Lowered entry threshold to $1 so early backers get status
+        if (cumulativeUsd >= 1)     return { rank: "GROMMET", votes: 1, color: "#00ffaa", badge: "m-badge-grom" };
         return { rank: "POSER", votes: 0, color: "#94a3b8", badge: "m-badge-poser" };
     }
 
@@ -906,7 +907,7 @@
                     badgeDOM.innerHTML = `<span class="micro-badge-pill ${myRankInfo.badge}">${myRankInfo.rank}</span>`;
                     
                     if(currentUserUsdTotal >= 250 || myAcc === ADMIN_WALLET) {
-                        setMotionBtn.onclick = () => { showSuccessModal("SENATE CHAIR READY", "You have achieved sufficient rank to propose protocol alterations. Draft processing fee is 100 $SKATE."); };
+                        setMotionBtn.onclick = () => { showSuccessModal("SENATE CHAIR READY", "You have achieved sufficient rank to draft legislation."); };
                     } else {
                         setMotionBtn.onclick = () => { showErrorModal("LEGISLATIVE LOCKOUT: You must achieve AMATEUR rank (Silver Tier) by blessing at least $250.00 USD to the Treasury or skaters to draft a bill."); };
                     }
@@ -924,12 +925,11 @@
                     whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">THE WHALE BOARD IS OPEN</div>`;
                 } else {
                     whaleList.innerHTML = sortedSponsors.map((sp, idx) => {
-                        let rankColor = idx === 0 ? "color: #ffd700;" : (idx === 1 ? "color: #c0c0c0;" : (idx === 2 ? "color: #cd7f32;" : "color: var(--accent-cyan);"));
                         const rankData = calculateDaoRank(sp.powerValueUsd);
-                        
+                        // FIXED: Color is now dynamically pulled directly from their exact rank
                         return `
                             <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px solid #112; align-items: center;">
-                                <div style="font-family:'Orbitron'; font-weight:900; ${rankColor} font-size: 0.9rem;">
+                                <div style="font-family:'Orbitron'; font-weight:900; color: ${rankData.color}; font-size: 0.9rem;">
                                     ${idx + 1}. ${sp.account} <div class="badge-pill-container"><span class="micro-badge-pill ${rankData.badge}">${rankData.rank}</span></div>
                                 </div>
                                 <div style="text-align: right;">
@@ -966,11 +966,11 @@
         } catch (e) {
             console.error(e);
             if(whaleList) whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff3366; font-family: 'Orbitron'; font-size: 0.8rem;">ERROR QUERYING LEDGER</div>`;
-            if(pulseList) pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff3366; font-family: 'Orbitron'; font-size: 0.8rem;">ERROR INTERCEPTING MEMOS</div>`;
+            if(pulseList) pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff3366; font-family: 'Orbitron'; font-size: 0.8rem;">ERROR INTERCEPTING BLESSINGS</div>`;
         }
     }
-
-// --- THE LIVE BLESSING PIPES (POPUP FREE) ---
+    
+   // --- THE LIVE BLESSING PIPES (POPUP FREE) ---
     let activeDonationCurrency = 'WAX';
 
     window.openDonationModal = (currency) => {
@@ -1569,4 +1569,6 @@
 </script>
 </body>
 </html>
+
+
 
