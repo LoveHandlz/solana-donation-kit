@@ -570,7 +570,7 @@
         
         <div style="text-align: center; margin-bottom: 25px;">
             <div style="display: inline-block; padding: 10px 15px; background: rgba(0,0,0,0.5); border: 1px dashed var(--accent-gold); border-radius: 4px; font-family: 'Orbitron'; font-size: 0.75rem; color: #888;">
-                LIVE ORACLE ESTIMATE: <span style="color: #fff; font-weight: 900;" id="oracle-price">1 WAX ≈ 7.6897 $SKATE</span>
+                LIVE ORACLE ESTIMATE: <span style="color: #fff; font-weight: 900;" id="oracle-price">CONNECTING ORACLE...</span>
             </div>
         </div>
 
@@ -595,6 +595,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;">
             <div style="font-family: 'Orbitron'; font-size: 0.75rem; color: #888;">
                 MIN RETURN: <span id="swap-min-out" style="color: #fff; font-weight: 900;">0.00</span>
+                <span id="swap-usd-value" style="color: #00ffaa; margin-left: 8px; font-weight: 900;">(≈ $0.00 USD)</span>
             </div>
             <div style="display: flex; gap: 5px; align-items: center;">
                 <span style="font-family: 'Orbitron'; font-size: 0.65rem; color: #888; margin-right: 5px;">SLIPPAGE:</span>
@@ -604,7 +605,7 @@
             </div>
         </div>
 
-        <button class="wallet-btn" onclick="executeNativeSwap()" style="width: 100%; padding: 20px; font-size: 1.2rem; margin-top: 10px;">EXECUTE DECENTRALIZED SWAP</button>
+        <button id="execute-btn" class="wallet-btn" onclick="executeNativeSwap()" style="width: 100%; padding: 20px; font-size: 1.2rem; margin-top: 10px;">EXECUTE DECENTRALIZED SWAP</button>
 
         <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #333; text-align: center;">
             <div style="color: #ff3366; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; margin-bottom: 10px; letter-spacing: 1px;">SURVIVAL GUIDE</div>
@@ -794,25 +795,41 @@
     });
     
     let currentSession = null, currentSchema = null, currentInventoryPage = 1;
-    let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0, skatePerWax = 7.6897;
+    let calculatedWaxFee = 0, selectedAssetIds = [];
     
     // STATE & HISTORY VARIABLES
     let historyStack = [];
     let isProgrammaticHashChange = false;
     let defiWarningShown = false;
     
-    // SK8SWAP STATE
+    // SK8SWAP ORACLE STATE
     let isWaxToSkate = true;
-    let cachedPoolId = null;
     let currentSlippage = 0.05; // Default 5% for safety
+    let waxUsdPrice = 0.045; // Fallback
+    let skatePerWax = 7.6897; // Fallback
+    let sWax = 1 / skatePerWax;
     
     async function syncPrices() {
-        sWax = 1 / skatePerWax;
+        try {
+            // THE FIAT ORACLE: Fetch Live WAX to USD Price
+            const usdRes = await fetch('https://alcor.exchange/api/v2/tokens/wax-eosio.token');
+            const usdData = await usdRes.json();
+            if(usdData && usdData.usd_price) waxUsdPrice = usdData.usd_price;
+
+            // THE DEX ORACLE: Fetch Live SKATE/WAX Pool Price
+            const tickerRes = await fetch('https://alcor.exchange/api/v2/tickers/skate-skatecoinwax_wax-eosio.token');
+            const tickerData = await tickerRes.json();
+            if(tickerData && tickerData.last_price) {
+                // last_price is WAX per SKATE. Invert for SKATE per WAX if needed.
+                sWax = tickerData.last_price;
+                skatePerWax = 1 / sWax;
+            }
+        } catch(e) { console.log('Oracle Sync Error. Using offline fallback metrics.'); }
+        
         if(document.getElementById('oracle-price')) {
-            document.getElementById('oracle-price').innerText = `1 WAX ≈ ${skatePerWax.toFixed(4)} $SKATE`;
+            document.getElementById('oracle-price').innerText = `1 WAX ≈ ${skatePerWax.toFixed(4)} $SKATE  |  WAX: $${waxUsdPrice.toFixed(4)}`;
         }
     }
-    syncPrices();
 
     // SK8SWAP LOGIC: THE BI-DIRECTIONAL TOGGLE
     window.flipSwapDirection = () => {
@@ -838,6 +855,7 @@
         document.getElementById('swap-in').value = "";
         document.getElementById('swap-out').value = "";
         document.getElementById('swap-min-out').innerText = "0.00";
+        document.getElementById('swap-usd-value').innerText = "(≈ $0.00 USD)";
     };
 
     window.setSlippage = (val) => {
@@ -847,26 +865,35 @@
         calcNativeSwap();
     };
 
+    // LOCAL UI ESTIMATOR (Real-time as user types)
     window.calcNativeSwap = () => {
         const amtIn = parseFloat(document.getElementById('swap-in').value);
         const outField = document.getElementById('swap-out');
         const minOutDisplay = document.getElementById('swap-min-out');
+        const usdDisplay = document.getElementById('swap-usd-value');
         
         if (!amtIn || isNaN(amtIn)) {
             outField.value = "";
             minOutDisplay.innerText = "0.00";
+            usdDisplay.innerText = "(≈ $0.00 USD)";
             return;
         }
         
         let estOut = 0;
+        let usdVal = 0;
+        
         if (isWaxToSkate) {
             estOut = (amtIn * skatePerWax) * 0.997; // Deduct est LP fee
+            usdVal = amtIn * waxUsdPrice; // Value of WAX put in
         } else {
             estOut = (amtIn * sWax) * 0.997; // Deduct est LP fee
+            usdVal = estOut * waxUsdPrice; // Value of WAX coming out
         }
-        outField.value = estOut.toFixed(4);
         
-        // SLIPPAGE CALCULATION
+        outField.value = estOut.toFixed(4);
+        usdDisplay.innerText = `(≈ $${usdVal.toFixed(2)} USD)`;
+        
+        // SLIPPAGE CALCULATION FOR UI
         const minOut = estOut * (1 - currentSlippage);
         if (isWaxToSkate) {
             minOutDisplay.innerText = minOut.toFixed(4) + " SKATE";
@@ -875,64 +902,44 @@
         }
     };
 
+    // THE HOLY GRAIL: ALCOR API ROUTER EXECUTION
     window.executeNativeSwap = async () => {
         if (!currentSession) return toggleAuthModal();
         const amtIn = parseFloat(document.getElementById('swap-in').value);
-        if (!amtIn || amtIn <= 0) {
-            alert("⚠️ Please enter a valid amount to swap.");
-            return;
-        }
+        if (!amtIn || amtIn <= 0) return alert("⚠️ Please enter a valid amount to swap.");
         
-        // Fetch Alcor Pool ID dynamically if not cached
-        if (!cachedPoolId) {
-            try {
-                const res = await fetch('https://wax.alcor.exchange/api/v2/swap/pools');
-                const pools = await res.json();
-                // Find SKATE / WAX Pair
-                const targetPool = pools.find(p => 
-                    (p.tokenA.symbol === 'SKATE' && p.tokenA.contract === 'skatecoinwax' && p.tokenB.symbol === 'WAX') ||
-                    (p.tokenB.symbol === 'SKATE' && p.tokenB.contract === 'skatecoinwax' && p.tokenA.symbol === 'WAX')
-                );
-                
-                if (targetPool) {
-                    cachedPoolId = targetPool.id;
-                } else {
-                    alert("⚠️ Critical Error: SKATE Liquidity Pool not found on Alcor.");
+        const btn = document.getElementById('execute-btn');
+        btn.innerText = "ROUTING SECURE PAYLOAD...";
+        
+        const tokenIn = isWaxToSkate ? 'wax-eosio.token' : 'skate-skatecoinwax';
+        const tokenOut = isWaxToSkate ? 'skate-skatecoinwax' : 'wax-eosio.token';
+        const formattedAmtIn = isWaxToSkate ? amtIn.toFixed(8) : amtIn.toFixed(4);
+        const recipient = currentSession.actor.toString();
+
+        try {
+            // PING ALCOR ROUTER
+            const routeUrl = `https://wax.alcor.exchange/api/v2/swapRouter/getRoute?trade_type=EXACT_INPUT&input=${tokenIn}&output=${tokenOut}&amount=${formattedAmtIn}&slippage=${currentSlippage}&receiver=${recipient}&maxHops=2`;
+            const res = await fetch(routeUrl);
+            const routeData = await res.json();
+            
+            if (!routeData || !routeData.memo) {
+                btn.innerText = "EXECUTE DECENTRALIZED SWAP";
+                return alert("⚠️ Routing Error: Liquidity pool may be too shallow for this exact trade size.");
+            }
+
+            // LIQUIDITY SHIELD
+            if (parseFloat(routeData.priceImpact) > 5) {
+                const proceed = confirm(`⚠️ HIGH PRICE IMPACT DETECTED (${routeData.priceImpact}%).\nThe pool liquidity is low. You will suffer heavy slippage. Proceed?`);
+                if(!proceed) {
+                    btn.innerText = "EXECUTE DECENTRALIZED SWAP";
                     return;
                 }
-            } catch(e) {
-                console.error("Alcor API Link Failed:", e);
-                alert("⚠️ Network Error: Could not connect to Alcor Oracle to fetch Pool Routing ID.");
-                return;
             }
-        }
-        
-        // Calculate exact min out for the smart contract firewall
-        let estOut = isWaxToSkate ? (amtIn * skatePerWax) * 0.997 : (amtIn * sWax) * 0.997;
-        const minOut = estOut * (1 - currentSlippage);
-        
-        // Dynamically build payload based on toggle state (ALCOR V2 MEMO SPEC)
-        let tokenContract, formattedAmt, minOutStr, outSymbol, outContract;
-        
-        if (isWaxToSkate) {
-            tokenContract = 'eosio.token';
-            formattedAmt = Number(amtIn).toFixed(8) + " WAX";
-            minOutStr = Number(minOut).toFixed(4);
-            outSymbol = "SKATE";
-            outContract = "skatecoinwax";
-        } else {
-            tokenContract = 'skatecoinwax';
-            formattedAmt = Number(amtIn).toFixed(4) + " SKATE";
-            minOutStr = Number(minOut).toFixed(8);
-            outSymbol = "WAX";
-            outContract = "eosio.token";
-        }
-        
-        // STRICT ALCOR V2 MEMO FORMAT: swapexactin#poolId#recipient#minOut minOutSymbol@minOutContract#deadline
-        const recipient = currentSession.actor.toString();
-        const strictMemo = `swapexactin#${cachedPoolId}#${recipient}#${minOutStr} ${outSymbol}@${outContract}#0`;
-        
-        try {
+
+            // CONSTRUCT SMART CONTRACT ACTION
+            const tokenContract = isWaxToSkate ? 'eosio.token' : 'skatecoinwax';
+            const quantity = isWaxToSkate ? `${formattedAmtIn} WAX` : `${formattedAmtIn} SKATE`;
+
             const actions = [{
                 account: tokenContract,
                 name: 'transfer',
@@ -940,8 +947,8 @@
                 data: {
                     from: recipient,
                     to: 'alcorammswap',
-                    quantity: formattedAmt,
-                    memo: strictMemo
+                    quantity: quantity,
+                    memo: routeData.memo // FLAWLESS PRE-FORMATTED API MEMO
                 }
             }];
             
@@ -949,13 +956,14 @@
             alert("🔥 DECENTRALIZED SWAP EXECUTED DIRECTLY ON WAX BLOCKCHAIN! 🔥");
             document.getElementById('swap-in').value = "";
             document.getElementById('swap-out').value = "";
-            document.getElementById('swap-min-out').innerText = "0.00";
+            document.getElementById('swap-usd-value').innerText = "(≈ $0.00 USD)";
             updateBalances(recipient);
             
         } catch(e) {
             console.error(e);
             alert("⚠️ Swap Transaction Failed or Cancelled by User.");
         }
+        btn.innerText = "EXECUTE DECENTRALIZED SWAP";
     };
 
     // INITIALIZATION & STATE RECOVERY
