@@ -576,7 +576,7 @@
 
         <div class="swap-input-group">
             <input type="number" id="swap-in" placeholder="0.00" oninput="calcNativeSwap()">
-            <div class="token-selector" id="swap-label-in" onclick="alert('Token list import expanding in next update.')" style="color: var(--accent-gold);">
+            <div class="token-selector" id="swap-label-in" onclick="showErrorModal('Token list import expanding in next update.')" style="color: var(--accent-gold);">
                 WAX <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" style="height: 20px;"> ▼
             </div>
         </div>
@@ -587,7 +587,7 @@
 
         <div class="swap-input-group">
             <input type="text" id="swap-out" placeholder="0.00" readonly style="color: var(--accent-cyan);">
-            <div class="token-selector" id="swap-label-out" onclick="alert('Token list import expanding in next update.')" style="color: var(--accent-cyan);">
+            <div class="token-selector" id="swap-label-out" onclick="showErrorModal('Token list import expanding in next update.')" style="color: var(--accent-cyan);">
                 $SKATE <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 20px;"> ▼
             </div>
         </div>
@@ -693,10 +693,10 @@
             </div>
 
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 50px; padding-bottom: 40px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
-                <button class="wallet-btn" onclick="donateWax()" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE WAX</button>
-                <button class="wallet-btn" onclick="donateSkate()" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE $SKATE</button>
-                <button class="wallet-btn" onclick="alert('Solana Bridge expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">BRIDGE SOLANA</button>
-                <button class="wallet-btn" onclick="alert('LP Staking expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">STAKE LP TOKENS</button>
+                <button class="wallet-btn" onclick="openDonationModal('WAX')" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE WAX</button>
+                <button class="wallet-btn" onclick="openDonationModal('SKATE')" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE $SKATE</button>
+                <button class="wallet-btn" onclick="showErrorModal('Solana Bridge expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">BRIDGE SOLANA</button>
+                <button class="wallet-btn" onclick="showErrorModal('LP Staking expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">STAKE LP TOKENS</button>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
@@ -812,16 +812,39 @@
     </div>
 </div>
 
-<div id="claim-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-cyan); box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.6rem;">🔥 BETA ACCESS CONFIRMED</h2>
-        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
-                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">⚠️ CRITICAL INSTRUCTION</span><br>
-                Hold the line. <b>DO NOT remove this token from your wallet during the snapshot sequence.</b>
-            </div>
+<div id="donation-tier-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-gold); max-width: 450px; background-image: radial-gradient(circle at 50% 0%, #3a3200 0%, var(--bg-panel) 60%);">
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-gold); margin-bottom: 10px; font-size: 1.8rem; text-shadow: 0 0 15px rgba(255,215,0,0.4);">FUND THE PROTOCOL</h2>
+        <p style="color: #ccc; font-size: 0.85rem; margin-bottom: 25px;">Select your sponsorship tier for <span id="donation-currency-label" style="color:var(--accent-gold); font-weight:900;">WAX</span>. Posers give 0.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+            <button class="wallet-btn" onclick="selectTier(100)" style="background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.5); color: var(--accent-gold); padding: 15px;">[ FLOW ] - 100</button>
+            <button class="wallet-btn" onclick="selectTier(1000)" style="background: rgba(255,215,0,0.2); border: 1px solid var(--accent-gold); color: #fff; padding: 15px;">[ AMATEUR ] - 1,000</button>
+            <button class="wallet-btn" onclick="selectTier(10000)" style="background: var(--accent-gold); color: #000; padding: 15px;">[ PRO ] - 10,000</button>
         </div>
-        <button class="wallet-btn" onclick="closeModals()" style="width: 100%;">ACKNOWLEDGE & KEEP RIPPING</button>
+        
+        <div style="display: flex; gap: 10px; align-items: stretch; margin-bottom: 25px;">
+            <input type="number" id="custom-donate-amt" placeholder="CUSTOM AMOUNT" style="flex: 1; padding: 15px; background: rgba(0,0,0,0.8); border: 1px solid #333; color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 1rem; outline: none; border-radius: 4px;">
+            <button class="wallet-btn" onclick="executeCustomDonation()" style="background: var(--accent-cyan); color: #000; border-radius: 4px;">SIGN</button>
+        </div>
+        
+        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.75rem; transition: 0.2s;">[ CANCEL & RETREAT ]</button>
+    </div>
+</div>
+
+<div id="success-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--accent-cyan); max-width: 450px; box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);">
+        <h2 id="success-modal-title" style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.8rem;">🔥 SUCCESS 🔥</h2>
+        <p id="success-modal-msg" style="color: #fff; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6;">Your transaction has been recorded on-chain.</p>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%; background: var(--accent-cyan); color: #000; padding: 15px; font-size: 1.1rem;">ACKNOWLEDGE</button>
+    </div>
+</div>
+
+<div id="error-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: #ff3366; max-width: 450px; box-shadow: 0 0 40px rgba(255, 51, 102, 0.2);">
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:#ff3366; margin-bottom: 15px; font-size: 1.8rem;">⚠️ SYSTEM OVERRIDE</h2>
+        <p id="error-modal-msg" style="color: #ccc; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6;"></p>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%; background: #ff3366; color: #000; padding: 15px; font-size: 1.1rem;">ACKNOWLEDGE</button>
     </div>
 </div>
 
@@ -871,6 +894,20 @@
     let skatePerWax = 7.6897; // Fallback
     let sWax = 1 / skatePerWax;
     
+    // GLOBAL MODAL CONTROLLERS
+    window.showErrorModal = (msg) => {
+        closeModals();
+        document.getElementById('error-modal-msg').innerText = msg;
+        document.getElementById('error-modal').style.display = 'flex';
+    };
+
+    window.showSuccessModal = (title, msg) => {
+        closeModals();
+        document.getElementById('success-modal-title').innerText = title;
+        document.getElementById('success-modal-msg').innerText = msg;
+        document.getElementById('success-modal').style.display = 'flex';
+    };
+
     async function syncPrices() {
         try {
             // THE FIAT ORACLE: Fetch Live WAX to USD Price
@@ -942,8 +979,6 @@
         }
 
         // NOTE: In production, this will hit WAX Hyperion History API
-        // Example: fetch('https://wax.greymass.com/v2/history/get_actions?account=skatecoinwax&filter=eosio.token%3Atransfer')
-        // Blacklist array enforces exclusion rules:
         const blacklist = ['ufuau.wam', 'eosio.token', 'skatecoinwax'];
         
         setTimeout(() => {
@@ -992,48 +1027,36 @@
         }, 1000);
     }
 
-    // THE LIVE DONATION PIPES
-    window.donateSkate = async () => {
+    // THE LIVE DONATION PIPES (POPUP FREE)
+    let activeDonationCurrency = 'WAX';
+
+    window.openDonationModal = (currency) => {
         if (!currentSession) return toggleAuthModal();
-        const amtIn = prompt("ENTER AMOUNT OF $SKATE TO DONATE TO THE PROTOCOL TREASURY:\\n\\n*Posers give 0.*");
-        if (!amtIn || isNaN(parseFloat(amtIn)) || parseFloat(amtIn) <= 0) return;
-        
-        const formattedAmt = parseFloat(amtIn).toFixed(4) + " SKATE";
-        const recipient = currentSession.actor.toString();
-        
-        try {
-            const actions = [{
-                account: 'skatecoinwax',
-                name: 'transfer',
-                authorization: [currentSession.permissionLevel],
-                data: {
-                    from: recipient,
-                    to: 'skatecoinwax',
-                    quantity: formattedAmt,
-                    memo: "PROTOCOL SPONSORSHIP"
-                }
-            }];
-            await currentSession.transact({ actions });
-            alert("🔥 SPONSORSHIP CONFIRMED. THE CULTURE THANKS YOU. 🔥");
-            fetchTreasuryData(); // Instantly sync new reserves
-            updateBalances(recipient);
-        } catch(e) {
-            console.error(e);
-            alert("⚠️ Transaction Cancelled or Failed.");
-        }
+        activeDonationCurrency = currency;
+        document.getElementById('donation-currency-label').innerText = currency;
+        document.getElementById('donation-tier-modal').style.display = 'flex';
+        document.getElementById('custom-donate-amt').value = '';
     };
 
-    window.donateWax = async () => {
-        if (!currentSession) return toggleAuthModal();
-        const amtIn = prompt("ENTER AMOUNT OF WAX TO DONATE TO THE PROTOCOL TREASURY:\\n\\n*Posers give 0.*");
-        if (!amtIn || isNaN(parseFloat(amtIn)) || parseFloat(amtIn) <= 0) return;
-        
-        const formattedAmt = parseFloat(amtIn).toFixed(8) + " WAX";
+    window.selectTier = (amount) => {
+        executeDonationTransfer(amount);
+    };
+
+    window.executeCustomDonation = () => {
+        const amt = parseFloat(document.getElementById('custom-donate-amt').value);
+        if (!amt || isNaN(amt) || amt <= 0) return;
+        executeDonationTransfer(amt);
+    };
+
+    const executeDonationTransfer = async (amount) => {
+        const isWax = activeDonationCurrency === 'WAX';
+        const formattedAmt = isWax ? amount.toFixed(8) + " WAX" : amount.toFixed(4) + " SKATE";
+        const tokenContract = isWax ? 'eosio.token' : 'skatecoinwax';
         const recipient = currentSession.actor.toString();
         
         try {
             const actions = [{
-                account: 'eosio.token',
+                account: tokenContract,
                 name: 'transfer',
                 authorization: [currentSession.permissionLevel],
                 data: {
@@ -1044,12 +1067,12 @@
                 }
             }];
             await currentSession.transact({ actions });
-            alert("🔥 SPONSORSHIP CONFIRMED. THE CULTURE THANKS YOU. 🔥");
+            showSuccessModal("🔥 SPONSORSHIP CONFIRMED 🔥", "The culture thanks you. Your transaction has been recorded on-chain. Welcome to the ranks.");
             fetchTreasuryData(); // Instantly sync new reserves
             updateBalances(recipient);
         } catch(e) {
             console.error(e);
-            alert("⚠️ Transaction Cancelled or Failed.");
+            showErrorModal("Transaction Cancelled or Failed.");
         }
     };
 
@@ -1128,7 +1151,7 @@
     window.executeNativeSwap = async () => {
         if (!currentSession) return toggleAuthModal();
         const amtIn = parseFloat(document.getElementById('swap-in').value);
-        if (!amtIn || amtIn <= 0) return alert("⚠️ Please enter a valid amount to swap.");
+        if (!amtIn || amtIn <= 0) return showErrorModal("Please enter a valid amount to swap.");
         
         const btn = document.getElementById('execute-btn');
         btn.innerText = "ROUTING SECURE PAYLOAD...";
@@ -1146,7 +1169,7 @@
             
             if (!routeData || !routeData.memo) {
                 btn.innerText = "EXECUTE DECENTRALIZED SWAP";
-                return alert("⚠️ Routing Error: Liquidity pool may be too shallow for this exact trade size.");
+                return showErrorModal("Routing Error: Liquidity pool may be too shallow for this exact trade size.");
             }
 
             // LIQUIDITY SHIELD
@@ -1175,7 +1198,7 @@
             }];
             
             await currentSession.transact({ actions });
-            alert("🔥 DECENTRALIZED SWAP EXECUTED DIRECTLY ON WAX BLOCKCHAIN! 🔥");
+            showSuccessModal("🔥 DECENTRALIZED SWAP SECURED 🔥", "Your trade was executed successfully on the WAX blockchain.");
             document.getElementById('swap-in').value = "";
             document.getElementById('swap-out').value = "";
             document.getElementById('swap-usd-value').innerText = "(≈ $0.00 USD)";
@@ -1183,7 +1206,7 @@
             
         } catch(e) {
             console.error(e);
-            alert("⚠️ Swap Transaction Failed or Cancelled by User.");
+            showErrorModal("Swap Transaction Failed or Cancelled by User.");
         }
         btn.innerText = "EXECUTE DECENTRALIZED SWAP";
     };
@@ -1371,7 +1394,7 @@
             
             const uniqueIds = new Set(selectedAssetIds);
             if(uniqueIds.size !== 7) {
-                alert("⚠️ DUPLICATE DETECTED: You have selected the exact same specific NFT (Asset ID) in multiple slots. Please ensure each selected component has a unique ID.");
+                showErrorModal("DUPLICATE DETECTED: You have selected the exact same specific NFT (Asset ID) in multiple slots. Please ensure each selected component has a unique ID.");
                 resetBuilderStats();
                 return;
             }
@@ -1580,11 +1603,13 @@
                 { account: 'eosio.token', name: 'transfer', authorization: [currentSession.permissionLevel], data: { from: currentSession.actor.toString(), to: 'ufuau.wam', quantity: formattedWax, memo: "SKATEBOARD BUILD PAYMENT" } }
             ];
             await currentSession.transact({ actions });
-            closeModals();
-            alert("Thank you, your board will be shipped soon!");
+            showSuccessModal("FABRICATION INITIATED", "Thank you, your board will be shipped soon!");
             loadCraftingData(currentSession.actor.toString());
             updateBalances(currentSession.actor.toString());
-        } catch (e) { console.error(e); alert("Transaction Cancelled or Failed."); }
+        } catch (e) { 
+            console.error(e); 
+            showErrorModal("Transaction Cancelled or Failed.");
+        }
     };
 </script>
 </body>
