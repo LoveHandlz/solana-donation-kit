@@ -262,19 +262,6 @@
             margin-top: 30px;
             box-shadow: inset 0 0 20px rgba(0,240,255,0.05);
         }
-        
-        .filter-select {
-            padding: 10px 15px; 
-            background: rgba(0,240,255,0.05); 
-            color: var(--accent-cyan); 
-            border: 1px solid var(--accent-cyan); 
-            font-family: 'Orbitron'; 
-            font-weight: 900; 
-            font-size: 0.8rem; 
-            border-radius: 4px; 
-            outline: none; 
-            cursor: pointer;
-        }
 
         /* CONSTRUCTION VAULT TAPE */
         .caution-tape {
@@ -325,6 +312,36 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+        
+        .swap-toggle-wrap {
+            text-align: center;
+            margin: 10px 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .swap-toggle-btn {
+            background: #050a1a;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+        
+        .swap-toggle-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-cyan);
+            transform: rotate(180deg);
         }
 
         .hud-pill {
@@ -533,22 +550,24 @@
         </div>
 
         <div class="swap-input-group">
-            <input type="number" id="swap-wax-in" placeholder="0.00" oninput="calcNativeSwap()">
-            <div class="swap-currency">WAX <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" style="height: 20px;"></div>
+            <input type="number" id="swap-in" placeholder="0.00" oninput="calcNativeSwap()">
+            <div class="swap-currency" id="swap-label-in" style="color: var(--accent-gold);">WAX <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" style="height: 20px;"></div>
         </div>
         
-        <div style="text-align: center; color: var(--accent-cyan); font-size: 1.5rem; margin-bottom: 15px;">⬇️</div>
+        <div class="swap-toggle-wrap">
+            <div class="swap-toggle-btn" onclick="flipSwapDirection()">🔄</div>
+        </div>
 
         <div class="swap-input-group">
-            <input type="text" id="swap-skate-out" placeholder="0.00" readonly style="color: var(--accent-gold);">
-            <div class="swap-currency" style="color: var(--accent-gold);">$SKATE <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 20px;"></div>
+            <input type="text" id="swap-out" placeholder="0.00" readonly style="color: var(--accent-cyan);">
+            <div class="swap-currency" id="swap-label-out" style="color: var(--accent-cyan);">$SKATE <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 20px;"></div>
         </div>
 
         <button class="wallet-btn" onclick="executeNativeSwap()" style="width: 100%; padding: 20px; font-size: 1.2rem; margin-top: 10px;">EXECUTE DECENTRALIZED SWAP</button>
 
         <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #333; text-align: center;">
             <div style="color: #ff3366; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; margin-bottom: 10px; letter-spacing: 1px;">SURVIVAL GUIDE</div>
-            <div style="color: #888; font-size: 0.75rem; font-family: 'Inter';">1. CONNECT WALLET. &nbsp; 2. ENTER WAX PAYLOAD. &nbsp; 3. SIGN TO RIP.</div>
+            <div style="color: #888; font-size: 0.75rem; font-family: 'Inter';">1. CONNECT WALLET. &nbsp; 2. ENTER PAYLOAD. &nbsp; 3. SIGN TO RIP.</div>
         </div>
     </div>
 
@@ -741,8 +760,11 @@
     let isProgrammaticHashChange = false;
     let defiWarningShown = false;
     
+    // SK8SWAP STATE
+    let isWaxToSkate = true;
+    let cachedPoolId = null;
+    
     async function syncPrices() {
-        // In a live environment, this could ping the Alcor API for exact pair ratios
         sWax = 1 / skatePerWax;
         if(document.getElementById('oracle-price')) {
             document.getElementById('oracle-price').innerText = `1 WAX ≈ ${skatePerWax.toFixed(4)} $SKATE`;
@@ -750,46 +772,107 @@
     }
     syncPrices();
 
-    // SK8SWAP LOGIC
+    // SK8SWAP LOGIC: THE BI-DIRECTIONAL TOGGLE
+    window.flipSwapDirection = () => {
+        isWaxToSkate = !isWaxToSkate;
+        
+        const labelIn = document.getElementById('swap-label-in');
+        const labelOut = document.getElementById('swap-label-out');
+        
+        if (isWaxToSkate) {
+            labelIn.innerHTML = 'WAX <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" style="height: 20px;">';
+            labelIn.style.color = "var(--accent-gold)";
+            labelOut.innerHTML = '$SKATE <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 20px;">';
+            labelOut.style.color = "var(--accent-cyan)";
+            document.getElementById('swap-out').style.color = "var(--accent-cyan)";
+        } else {
+            labelIn.innerHTML = '$SKATE <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 20px;">';
+            labelIn.style.color = "var(--accent-cyan)";
+            labelOut.innerHTML = 'WAX <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" style="height: 20px;">';
+            labelOut.style.color = "var(--accent-gold)";
+            document.getElementById('swap-out').style.color = "var(--accent-gold)";
+        }
+        
+        document.getElementById('swap-in').value = "";
+        document.getElementById('swap-out').value = "";
+    };
+
     window.calcNativeSwap = () => {
-        const waxIn = parseFloat(document.getElementById('swap-wax-in').value);
-        const skateOutField = document.getElementById('swap-skate-out');
-        if (!waxIn || isNaN(waxIn)) {
-            skateOutField.value = "";
+        const amtIn = parseFloat(document.getElementById('swap-in').value);
+        const outField = document.getElementById('swap-out');
+        if (!amtIn || isNaN(amtIn)) {
+            outField.value = "";
             return;
         }
-        // Apply generic 0.3% LP fee estimate visually
-        const estOut = (waxIn * skatePerWax) * 0.997;
-        skateOutField.value = estOut.toFixed(4);
+        
+        let estOut = 0;
+        if (isWaxToSkate) {
+            estOut = (amtIn * skatePerWax) * 0.997; // Deduct est LP fee
+        } else {
+            estOut = (amtIn * sWax) * 0.997; // Deduct est LP fee
+        }
+        outField.value = estOut.toFixed(4);
     };
 
     window.executeNativeSwap = async () => {
         if (!currentSession) return toggleAuthModal();
-        const waxIn = parseFloat(document.getElementById('swap-wax-in').value);
-        if (!waxIn || waxIn <= 0) {
-            alert("⚠️ Please enter a valid WAX amount to swap.");
+        const amtIn = parseFloat(document.getElementById('swap-in').value);
+        if (!amtIn || amtIn <= 0) {
+            alert("⚠️ Please enter a valid amount to swap.");
             return;
         }
         
-        const formattedWax = Number(waxIn).toFixed(8) + " WAX";
+        // Fetch Alcor Pool ID dynamically if not cached
+        if (!cachedPoolId) {
+            try {
+                const res = await fetch('https://wax.alcor.exchange/api/v2/swap/pools');
+                const pools = await res.json();
+                // Find SKATE / WAX Pair
+                const targetPool = pools.find(p => 
+                    (p.tokenA.symbol === 'SKATE' && p.tokenA.contract === 'skatecoinwax' && p.tokenB.symbol === 'WAX') ||
+                    (p.tokenB.symbol === 'SKATE' && p.tokenB.contract === 'skatecoinwax' && p.tokenA.symbol === 'WAX')
+                );
+                
+                if (targetPool) {
+                    cachedPoolId = targetPool.id;
+                } else {
+                    alert("⚠️ Critical Error: SKATE Liquidity Pool not found on Alcor.");
+                    return;
+                }
+            } catch(e) {
+                console.error("Alcor API Link Failed:", e);
+                alert("⚠️ Network Error: Could not connect to Alcor Oracle to fetch Pool Routing ID.");
+                return;
+            }
+        }
+        
+        // Dynamically build payload based on toggle state
+        let tokenContract, formattedAmt;
+        if (isWaxToSkate) {
+            tokenContract = 'eosio.token';
+            formattedAmt = Number(amtIn).toFixed(8) + " WAX";
+        } else {
+            tokenContract = 'skatecoinwax';
+            formattedAmt = Number(amtIn).toFixed(4) + " SKATE";
+        }
         
         try {
             const actions = [{
-                account: 'eosio.token',
+                account: tokenContract,
                 name: 'transfer',
                 authorization: [currentSession.permissionLevel],
                 data: {
                     from: currentSession.actor.toString(),
                     to: 'swap.alcor',
-                    quantity: formattedWax,
-                    memo: "swap,0,SKATE-skatecoinwax"
+                    quantity: formattedAmt,
+                    memo: `swap,0,${cachedPoolId}`
                 }
             }];
             
             await currentSession.transact({ actions });
             alert("🔥 DECENTRALIZED SWAP EXECUTED DIRECTLY ON WAX BLOCKCHAIN! 🔥");
-            document.getElementById('swap-wax-in').value = "";
-            document.getElementById('swap-skate-out').value = "";
+            document.getElementById('swap-in').value = "";
+            document.getElementById('swap-out').value = "";
             updateBalances(currentSession.actor.toString());
             
         } catch(e) {
