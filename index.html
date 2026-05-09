@@ -283,6 +283,67 @@
             background: repeating-linear-gradient(45deg, #000, #000 15px, var(--accent-gold) 15px, var(--accent-gold) 30px);
         }
 
+        /* DEFI SPECIFIC STYLES */
+        .sk8swap-terminal {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto 50px auto;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+            position: relative;
+        }
+        
+        .swap-input-group {
+            background: #050a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .swap-input-group input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Orbitron';
+            font-weight: 900;
+            font-size: 1.8rem;
+            width: 60%;
+            outline: none;
+        }
+        
+        .swap-currency {
+            font-family: 'Orbitron';
+            font-weight: 900;
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-pill {
+            background: rgba(0,240,255,0.05);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-family: 'Orbitron';
+            font-weight: 900;
+            font-size: 0.8rem;
+            color: #888;
+            display: inline-block;
+            margin: 5px;
+        }
+        .hud-pill span {
+            color: #fff;
+            margin-left: 10px;
+        }
+
         /* MOBILE OPTIMIZATION */
         @media (max-width: 768px) {
             .header-inner { flex-direction: column; gap: 15px; }
@@ -294,6 +355,8 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             h2 { font-size: 2.2rem !important; }
             #dapp-back-btn { top: auto; bottom: 20px; left: 20px; z-index: 2000; }
+            .sk8swap-terminal { padding: 20px; }
+            .swap-input-group input { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -449,9 +512,84 @@
 </div>
 
 <div class="dashboard-wrapper" id="defi-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// REWARDS</span></h2>
-    <div class="expansion-vault">
-        [ YIELD & SWAP INTEGRATION PENDING ]
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">DEFI <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// THE REBEL BASE</span></h2>
+    
+    <div style="background: rgba(0,0,0,0.6); border: 1px solid #ff3366; border-radius: 8px; padding: 40px; max-width: 900px; margin: 0 auto 50px auto; text-align: center; box-shadow: 0 5px 25px rgba(255,51,102,0.15);">
+        <h3 style="color: #ff3366; font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px; margin-top: 0;">SMASH THE MEGA-CORPS</h3>
+        <p style="color: #ccc; line-height: 1.8; font-size: 0.95rem; margin-bottom: 0;">
+            The streets have been gentrified. The game has been sterilized. The corporate suits took the soul out of skateboarding and packaged it for profit. 
+            <strong style="color: #fff;">NOT ANYMORE.</strong> <br><br>
+            Welcome to the underground. Here, you have absolute financial control. Bypass the gatekeepers. Trade native assets, supply the treasury, and rise from a scraping street grommit to a sovereign, legendary ripper. Defi x SK8COIN is the ultimate weapon to take back the culture.
+        </p>
+    </div>
+
+    <div class="sk8swap-terminal">
+        <h3 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px; margin-top: 0; text-align: center; font-size: 1.8rem; text-shadow: 0 0 10px var(--accent-cyan);">SK8SWAP // ALCOR TERMINAL</h3>
+        
+        <div style="text-align: center; margin-bottom: 25px;">
+            <div style="display: inline-block; padding: 10px 15px; background: rgba(0,0,0,0.5); border: 1px dashed var(--accent-gold); border-radius: 4px; font-family: 'Orbitron'; font-size: 0.75rem; color: #888;">
+                LIVE ORACLE ESTIMATE: <span style="color: #fff; font-weight: 900;" id="oracle-price">1 WAX ≈ 7.6897 $SKATE</span>
+            </div>
+        </div>
+
+        <div class="swap-input-group">
+            <input type="number" id="swap-wax-in" placeholder="0.00" oninput="calcNativeSwap()">
+            <div class="swap-currency">WAX <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" style="height: 20px;"></div>
+        </div>
+        
+        <div style="text-align: center; color: var(--accent-cyan); font-size: 1.5rem; margin-bottom: 15px;">⬇️</div>
+
+        <div class="swap-input-group">
+            <input type="text" id="swap-skate-out" placeholder="0.00" readonly style="color: var(--accent-gold);">
+            <div class="swap-currency" style="color: var(--accent-gold);">$SKATE <img src="https://i.postimg.cc/VSvxfXsr/sk8coin-logo-biig.png" style="height: 20px;"></div>
+        </div>
+
+        <button class="wallet-btn" onclick="executeNativeSwap()" style="width: 100%; padding: 20px; font-size: 1.2rem; margin-top: 10px;">EXECUTE DECENTRALIZED SWAP</button>
+
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #333; text-align: center;">
+            <div style="color: #ff3366; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; margin-bottom: 10px; letter-spacing: 1px;">SURVIVAL GUIDE</div>
+            <div style="color: #888; font-size: 0.75rem; font-family: 'Inter';">1. CONNECT WALLET. &nbsp; 2. ENTER WAX PAYLOAD. &nbsp; 3. SIGN TO RIP.</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <div style="background: rgba(0,0,0,0.7); border: 1px solid var(--accent-gold); border-radius: 8px; position: relative; overflow: hidden; text-align: center; padding-bottom: 20px;">
+            <div class="caution-tape"></div>
+            <div style="padding: 30px 20px;">
+                <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; margin-top: 0;">STAKE YOUR BOARD</h3>
+                <p style="color: #888; font-size: 0.8rem; line-height: 1.5; margin-bottom: 20px;">Lock up your 1-of-1 fabricated skateboard to secure the network and generate passive protocol yield.</p>
+                <div class="hud-pill">PROJECTED APY: <span>[ STANDBY ]</span></div>
+                <div class="hud-pill">TOTAL LOCKED: <span>0 SK8s</span></div>
+            </div>
+            <button class="wallet-btn" disabled style="background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); width: 80%;">CONSTRUCTION PENDING</button>
+            <div class="caution-tape" style="position: absolute; bottom: 0;"></div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.7); border: 1px solid var(--accent-cyan); border-radius: 8px; position: relative; overflow: hidden; text-align: center; padding-bottom: 20px;">
+            <div class="caution-tape" style="background: repeating-linear-gradient(45deg, #000, #000 15px, var(--accent-cyan) 15px, var(--accent-cyan) 30px);"></div>
+            <div style="padding: 30px 20px;">
+                <h3 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; margin-top: 0;">LEND OUT DECK</h3>
+                <p style="color: #888; font-size: 0.8rem; line-height: 1.5; margin-bottom: 20px;">Peer-to-peer rentals. Supply a board to an incoming street grommit who needs a ride. You set the daily fee.</p>
+                <div class="hud-pill" style="border-color: var(--accent-cyan);">LENDING RATE: <span>[ STANDBY ]</span></div>
+                <div class="hud-pill" style="border-color: var(--accent-cyan);">ACTIVE RENTALS: <span>0</span></div>
+            </div>
+            <button class="wallet-btn" disabled style="background: transparent; color: var(--accent-cyan); border: 1px solid var(--accent-cyan); width: 80%;">CONSTRUCTION PENDING</button>
+            <div class="caution-tape" style="position: absolute; bottom: 0; background: repeating-linear-gradient(45deg, #000, #000 15px, var(--accent-cyan) 15px, var(--accent-cyan) 30px);"></div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.7); border: 1px solid #ff3366; border-radius: 8px; position: relative; overflow: hidden; text-align: center; padding-bottom: 20px;">
+            <div class="caution-tape" style="background: repeating-linear-gradient(45deg, #000, #000 15px, #ff3366 15px, #ff3366 30px);"></div>
+            <div style="padding: 30px 20px;">
+                <h3 style="color: #ff3366; font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; margin-top: 0;">BURN FOR $SKATE</h3>
+                <p style="color: #888; font-size: 0.8rem; line-height: 1.5; margin-bottom: 20px;">Scrap unneeded wheels, trucks, or raw footage. Destroy the NFT permanently to extract its core $SKATE value.</p>
+                <div class="hud-pill" style="border-color: #ff3366;">BURN VALUE: <span>[ STANDBY ]</span></div>
+                <div class="hud-pill" style="border-color: #ff3366;">SCRAP YIELD: <span>0 $SKATE</span></div>
+            </div>
+            <button class="wallet-btn" disabled style="background: transparent; color: #ff3366; border: 1px solid #ff3366; width: 80%;">CONSTRUCTION PENDING</button>
+            <div class="caution-tape" style="position: absolute; bottom: 0; background: repeating-linear-gradient(45deg, #000, #000 15px, #ff3366 15px, #ff3366 30px);"></div>
+        </div>
+
     </div>
 </div>
 
@@ -508,6 +646,21 @@
         <button class="wallet-btn" onclick="window.open('https://www.mycloudwallet.com/', '_blank')" style="width: 100%; background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 0.75rem; padding: 10px; margin-bottom: 5px;">GET OFFICIAL WAX WALLET</button>
 
         <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.65rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
+    </div>
+</div>
+
+<div id="defi-warning-modal" class="modal-overlay">
+    <div class="modal-content" style="border-color: #ff3366; box-shadow: 0 0 30px rgba(255, 51, 102, 0.2); max-width: 450px;">
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:#ff3366; margin-bottom: 15px; font-size: 1.6rem;">⚠️ ENTERING THE DEFI ZONE</h2>
+        <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
+            <p>You are entering the decentralized financial district of the SK8DAO.</p>
+            <p><strong>GIVE TO GET STANDARDS:</strong> All actions here are immutable. We believe in providing value to the ecosystem to extract yield. Operate with respect for the protocol.</p>
+            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 10px; margin-top: 15px;">
+                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.75rem;">NOT FINANCIAL ADVICE</span><br>
+                This protocol is an experiment in decentralized skateboarding. Trade, stake, and burn responsibly. Do not risk assets you cannot afford to lose.
+            </div>
+        </div>
+        <button class="wallet-btn" onclick="document.getElementById('defi-warning-modal').style.display='none';" style="width: 100%; background: #ff3366; color: #000;">I UNDERSTAND. LET ME IN.</button>
     </div>
 </div>
 
@@ -581,17 +734,69 @@
     });
     
     let currentSession = null, currentSchema = null, currentInventoryPage = 1;
-    let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0;
+    let calculatedWaxFee = 0, selectedAssetIds = [], sWax = 0, skatePerWax = 7.6897;
     
     // STATE & HISTORY VARIABLES
     let historyStack = [];
     let isProgrammaticHashChange = false;
+    let defiWarningShown = false;
     
     async function syncPrices() {
-        const skatePerWax = 7.6897; 
+        // In a live environment, this could ping the Alcor API for exact pair ratios
         sWax = 1 / skatePerWax;
+        if(document.getElementById('oracle-price')) {
+            document.getElementById('oracle-price').innerText = `1 WAX ≈ ${skatePerWax.toFixed(4)} $SKATE`;
+        }
     }
     syncPrices();
+
+    // SK8SWAP LOGIC
+    window.calcNativeSwap = () => {
+        const waxIn = parseFloat(document.getElementById('swap-wax-in').value);
+        const skateOutField = document.getElementById('swap-skate-out');
+        if (!waxIn || isNaN(waxIn)) {
+            skateOutField.value = "";
+            return;
+        }
+        // Apply generic 0.3% LP fee estimate visually
+        const estOut = (waxIn * skatePerWax) * 0.997;
+        skateOutField.value = estOut.toFixed(4);
+    };
+
+    window.executeNativeSwap = async () => {
+        if (!currentSession) return toggleAuthModal();
+        const waxIn = parseFloat(document.getElementById('swap-wax-in').value);
+        if (!waxIn || waxIn <= 0) {
+            alert("⚠️ Please enter a valid WAX amount to swap.");
+            return;
+        }
+        
+        const formattedWax = Number(waxIn).toFixed(8) + " WAX";
+        
+        try {
+            const actions = [{
+                account: 'eosio.token',
+                name: 'transfer',
+                authorization: [currentSession.permissionLevel],
+                data: {
+                    from: currentSession.actor.toString(),
+                    to: 'alcordexmain',
+                    quantity: formattedWax,
+                    memo: "swap,0,SKATE-skatecoinwax"
+                }
+            }];
+            
+            await currentSession.transact({ actions });
+            alert("🔥 DECENTRALIZED SWAP EXECUTED DIRECTLY ON WAX BLOCKCHAIN! 🔥");
+            document.getElementById('swap-wax-in').value = "";
+            document.getElementById('swap-skate-out').value = "";
+            updateBalances(currentSession.actor.toString());
+            
+        } catch(e) {
+            console.error(e);
+            alert("⚠️ Swap Transaction Failed or Cancelled by User.");
+        }
+    };
 
     // INITIALIZATION & STATE RECOVERY
     sessionKit.restore().then(s => { 
@@ -653,7 +858,16 @@
         } else if (schema === 'leaderboard') {
             document.getElementById('leaderboard-container').style.display = 'block';
             fetchLeaderboard();
-        } else if (['clips', 'defi', 'treasury', 'dao'].includes(schema)) {
+        } else if (schema === 'clips') {
+            document.getElementById('clips-wrapper').style.display = 'block';
+        } else if (schema === 'defi') {
+            document.getElementById('defi-wrapper').style.display = 'block';
+            syncPrices(); // Fresh pull for the oracle on entry
+            if(!defiWarningShown) {
+                document.getElementById('defi-warning-modal').style.display = 'flex';
+                defiWarningShown = true;
+            }
+        } else if (['treasury', 'dao'].includes(schema)) {
             const expWrap = document.getElementById(`${schema}-wrapper`);
             if(expWrap) expWrap.style.display = 'block';
         } else {
@@ -678,8 +892,6 @@
         }
         const hashSchema = window.location.hash.replace('#', '') || 'home';
         if (hashSchema !== currentSchema) {
-            // Rough stack synchronization for native back clicks
-            if (historyStack.length > 0) historyStack.pop(); 
             switchCategory(hashSchema, true);
         }
     });
