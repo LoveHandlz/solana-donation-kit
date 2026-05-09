@@ -1392,7 +1392,7 @@
         } catch (e) {}
     }
 
-    async function fetchLeaderboard() {
+async function fetchLeaderboard() {
         const list = document.getElementById('leaderboard-list');
         list.innerHTML = `<div style="padding:40px; text-align:center; color:var(--accent-cyan); font-family:'Orbitron';">SCANNING WAX BLOCKCHAIN...</div>`;
         try {
@@ -1417,7 +1417,7 @@
         } catch (e) { list.innerHTML = `<div style="padding:40px; text-align:center; color:#ff3366; font-family:'Orbitron';">BLOCKCHAIN CONNECTION FAILED</div>`; }
     }
 
-const renderStat = (label, value, cssClass, max) => {
+    const renderStat = (label, value, cssClass, max) => {
         const num = parseInt(value) || 0, pct = Math.min((num / max) * 100, 100); 
         return `<div style="margin-bottom: 8px;"><div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; font-size: 0.55rem; color: #888;">${label} <span style="color: #fff;">${num}/${max}</span></div><div class="stat-bar-container"><div class="stat-bar ${cssClass}" style="width: ${pct}%"></div></div></div>`;
     };
