@@ -611,87 +611,90 @@
 </footer>
 
 <div id="vip-ticket-modal" class="modal-overlay">
-    <div class="modal-content" style="width: 90%; max-width: 320px; padding: 25px; border-color: var(--accent-cyan); background: #050a1a; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 240, 255, 0.03) 10px, rgba(0, 240, 255, 0.03) 20px);">
-        <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0 0 15px 0; font-size: 1.3rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 1px; font-weight: 900;">ENTER THE SENATE</h2>
+    <div class="modal-content" style="width: 90%; max-width: 350px; padding: 30px; border-color: var(--accent-pink); background: #050a1a; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 0, 85, 0.03) 10px, rgba(255, 0, 85, 0.03) 20px); box-shadow: 0 0 40px rgba(255,0,85,0.2);">
+        <h2 style="font-family:'Orbitron'; color:var(--accent-pink); margin: 0 0 15px 0; font-size: 1.5rem; text-shadow: 0 0 10px var(--accent-pink); letter-spacing: 2px; font-weight: 900;">🛑 THE ANTI-CORPORATE ZONE</h2>
         <div style="text-align: left;">
-            <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE CULTURE</div>
-            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">We operate on the DeFi principle of "giving to get." Bless raw talent on the Clips feed, fund the community treasury, and power the ecosystem. Treat everyone with respect—we are here to build.</p>
-            <div style="color: var(--accent-pink); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE RULES</div>
-            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">This is a gamified peer-to-peer sponsorship network. This is NOT an investment platform. This is NOT financial advice.</p>
-            <div style="color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE TOKEN</div>
-            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 20px;">$SKATE is strictly a Utility Token. It is designed to unlock Clips, vote in the Senate, and distribute real-world blessings. There are no expectations of profit. Treat this as a game with real-world applications.</p>
+            <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900; margin-bottom: 5px;">THE CULTURE WAR</div>
+            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">You've been spoon-fed sanitized, corporate bullshit your whole life. The suits stole the culture, gentrified the streets, and sold it back to you. We are taking it back. If you have paper hands, go back to the mall. This is for diamond-handed rippers who want to own the game.</p>
+            
+            <div style="color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900; margin-bottom: 5px;">THE ZERO-SUM TRENCHES</div>
+            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">This is a gamified peer-to-peer bloodbath, not a 401k. Expect raw footy, high-stakes GameFi mechanics, and financial anarchy. Skaters get paid first. If you get rekt trying to hoard liquidity, it's your own damn fault. No safety nets.</p>
+            
+            <div style="color: #00ffaa; font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900; margin-bottom: 5px;">THE WEAPON ($SKATE)</div>
+            <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 20px;">$SKATE is your ammunition. Hold it, burn it, or bless raw talent with it to climb the ranks. We are healing the culture by starving the middlemen. Don't be a poser.</p>
         </div>
-        <div style="margin-bottom: 20px; text-align: left; display: flex; align-items: flex-start; gap: 10px; background: rgba(0,240,255,0.05); padding: 12px; border: 1px solid var(--accent-cyan); border-radius: 4px;">
-            <input type="checkbox" id="vip-agree-checkbox" onchange="document.getElementById('login-trigger-vip').disabled = !this.checked" style="margin-top: 2px; transform: scale(1.2); cursor: pointer; accent-color: var(--accent-cyan);">
-            <label for="vip-agree-checkbox" style="color: #fff; font-size: 0.75rem; font-family: 'Inter'; font-weight: 900; cursor: pointer; line-height: 1.4;">I UNDERSTAND THE RULES.<br>GRANT ME ACCESS.</label>
+        <div style="margin-bottom: 20px; text-align: left; display: flex; align-items: flex-start; gap: 10px; background: rgba(255,0,85,0.05); padding: 12px; border: 1px solid var(--accent-pink); border-radius: 4px;">
+            <input type="checkbox" id="vip-agree-checkbox" onchange="document.getElementById('login-trigger-vip').disabled = !this.checked" style="margin-top: 2px; transform: scale(1.2); cursor: pointer; accent-color: var(--accent-pink);">
+            <label for="vip-agree-checkbox" style="color: #fff; font-size: 0.75rem; font-family: 'Inter'; font-weight: 900; cursor: pointer; line-height: 1.4; text-transform: uppercase;">I'M NOT A CORPORATE GOON.<br>GIVE ME THE KEYS.</label>
         </div>
-        <button class="wallet-btn" id="login-trigger-vip" disabled style="width: 100%; background: var(--accent-cyan); color: #000; font-size: 1rem; padding: 12px; margin-bottom: 10px;">DROP IN (CONNECT WALLET)</button>
-        <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.65rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
+        <button class="wallet-btn" id="login-trigger-vip" disabled style="width: 100%; background: var(--accent-gold); color: #000; font-size: 1rem; padding: 15px; margin-bottom: 10px;">PUT ON BIG BOY PANTS (CONNECT)</button>
+        <button onclick="continueAsGuest()" style="background:transparent; color:#555; border:none; margin-top:10px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.7rem; transition: 0.2s;">[ RUN AWAY & LURK ]</button>
     </div>
 </div>
 
 <div id="defi-warning-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-pink); box-shadow: 0 0 30px rgba(255, 0, 85, 0.2); max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-pink); margin-bottom: 15px; font-size: 1.6rem;">⚠️ ENTERING THE DEFI ZONE</h2>
+    <div class="modal-content" style="border-color: #ffaa00; box-shadow: 0 0 30px rgba(255, 170, 0, 0.2); max-width: 450px;">
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:#ffaa00; margin-bottom: 15px; font-size: 1.6rem;">☠️ WELCOME TO THE TRENCHES</h2>
         <div style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">
-            <p>You are entering the decentralized financial district.</p>
-            <p><strong>GIVE TO GET STANDARDS:</strong> All actions here are immutable. We believe in providing value to the ecosystem to extract yield. Operate with respect for the protocol.</p>
+            <p>You are stepping into the decentralized financial district. There is no customer service here to save you.</p>
+            <p><strong>RULE 1:</strong> Respect the protocol. We operate on the "give to get" ethos. Bring liquidity, back the skaters, or get your bags slashed by the Poser Tax. Don't complain if you get rug-pulled by your own stupidity.</p>
         </div>
-        <button class="wallet-btn" onclick="document.getElementById('defi-warning-modal').style.display='none';" style="width: 100%; background: var(--accent-pink); color: #000;">I UNDERSTAND. LET ME IN.</button>
+        <button class="wallet-btn" onclick="document.getElementById('defi-warning-modal').style.display='none';" style="width: 100%; background: #ffaa00; color: #000;">I SURVIVE THE STREETS. LET ME IN.</button>
     </div>
 </div>
 
 <div id="craft-confirm-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-gold); max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-gold); margin-bottom: 15px;">INITIATE FABRICATION</h2>
-        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">You are about to securely send your 7 selected components to the platform treasury to mint a complete, 1-of-1 skateboard.</p>
-        <div style="background: rgba(0,0,0,0.6); padding: 15px; border: 1px solid var(--accent-gold); border-radius: 6px; margin-bottom: 25px;">
-            <div style="font-family:'Orbitron'; font-size: 0.65rem; color: #888; margin-bottom: 5px;">REQUIRED FABRICATION FEE</div>
+    <div class="modal-content" style="border-color: var(--accent-cyan); max-width: 450px;">
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-cyan); margin-bottom: 15px;">INITIATE FABRICATION</h2>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">You are about to burn WAX and permanently fuse 7 assets to mint a 1-of-1 skateboard on the chain. This action is irreversible. Make sure your setup isn't trash.</p>
+        <div style="background: rgba(0,0,0,0.6); padding: 15px; border: 1px solid var(--accent-cyan); border-radius: 6px; margin-bottom: 25px;">
+            <div style="font-family:'Orbitron'; font-size: 0.65rem; color: #888; margin-bottom: 5px;">REQUIRED NETWORK GAS</div>
             <div id="modal-wax-fee" style="font-family:'Orbitron'; font-weight: 900; font-size: 2rem; color: #fff;">0 WAX</div>
         </div>
-        <button class="wallet-btn" onclick="executeBlend()" style="width: 100%; background: var(--accent-gold); color: #000;">CONFIRM & TRANSACT</button>
-        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.7rem;">[ CANCEL ]</button>
+        <button class="wallet-btn" onclick="executeBlend()" style="width: 100%; background: var(--accent-cyan); color: #000;">SIGN & FORGE ASSET</button>
+        <button onclick="closeModals()" style="background:transparent; color:#555; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.7rem;">[ CANCEL OUT ]</button>
     </div>
 </div>
 
 <div id="disconnect-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-pink); max-width: 450px;">
-        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-pink); margin-bottom: 15px;">LEAVING THE SENATE?</h2>
-        <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,0,85,0.2); border: 1px solid var(--accent-pink); color: var(--accent-pink);">🔌 DISCONNECT WALLET</button>
-        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; margin-top:20px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.7rem;">[ STAY & KEEP RIPPING ]</button>
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-pink); margin-bottom: 15px; font-size: 1.8rem;">📉 FOLDING YOUR HAND?</h2>
+        <p style="color: #ccc; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; text-align: left;">Really? You're gonna paper-hand your way out of the Senate and go back to corporate daddy? The culture doesn't sleep. If you walk, someone else takes your crown and farms your yield.</p>
+        <button class="wallet-btn" id="logout-trigger" style="width: 100%; background: rgba(255,0,85,0.1); border: 1px solid var(--accent-pink); color: var(--accent-pink); margin-bottom: 15px;">🏃‍♂️ I HAVE PAPER HANDS (DISCONNECT)</button>
+        <button onclick="closeModals()" style="background:transparent; color:var(--accent-cyan); border:none; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.85rem; text-shadow: 0 0 10px rgba(0,240,255,0.5);">[ 💎 I AIN'T LEAVING. DIAMOND HANDS. ]</button>
     </div>
 </div>
 
 <div id="donation-tier-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-gold); max-width: 450px; background-image: radial-gradient(circle at 50% 0%, #3a3200 0%, var(--bg-panel) 60%);">
-        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-gold); margin-bottom: 10px; font-size: 1.8rem; text-shadow: 0 0 15px rgba(255,215,0,0.4);">BLESS THE PROTOCOL</h2>
-        <p style="color: #ccc; font-size: 0.85rem; margin-bottom: 25px;">Select your blessing tier for <span id="donation-currency-label" style="color:var(--accent-gold); font-weight:900;">WAX</span>. Posers give 0.</p>
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-gold); margin-bottom: 10px; font-size: 1.8rem; text-shadow: 0 0 15px rgba(255,215,0,0.4);">FUEL THE SYMBIOSIS</h2>
+        <p style="color: #ccc; font-size: 0.85rem; margin-bottom: 25px;">Provide liquidity. Starve the suits. Select your blessing tier for <span id="donation-currency-label" style="color:var(--accent-gold); font-weight:900;">WAX</span>. Posers give 0.</p>
         <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
-            <button id="tier-btn-flow" class="wallet-btn" style="background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.5); color: var(--accent-gold); padding: 15px;">[ FLOW ]</button>
-            <button id="tier-btn-amateur" class="wallet-btn" style="background: rgba(255,215,0,0.2); border: 1px solid var(--accent-gold); color: #fff; padding: 15px;">[ AMATEUR ]</button>
-            <button id="tier-btn-pro" class="wallet-btn" style="background: var(--accent-gold); color: #000; padding: 15px;">[ PRO ]</button>
+            <button id="tier-btn-flow" class="wallet-btn" style="background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.5); color: var(--accent-gold); padding: 15px; font-size: 1rem;">[ FLOW TIER ]</button>
+            <button id="tier-btn-amateur" class="wallet-btn" style="background: rgba(255,215,0,0.2); border: 1px solid var(--accent-gold); color: #fff; padding: 15px; font-size: 1rem;">[ AMATEUR TIER ]</button>
+            <button id="tier-btn-pro" class="wallet-btn" style="background: var(--accent-gold); color: #000; padding: 15px; font-size: 1rem;">[ PRO TIER - WHALE ALERT ]</button>
         </div>
         <div style="display: flex; gap: 10px; align-items: stretch; margin-bottom: 25px;">
-            <input type="number" id="custom-donate-amt" placeholder="CUSTOM AMOUNT" style="flex: 1; padding: 15px; background: rgba(0,0,0,0.8); border: 1px solid #333; color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 1rem; outline: none; border-radius: 4px;">
-            <button class="wallet-btn" onclick="executeCustomDonation()" style="background: var(--accent-cyan); color: #000; border-radius: 4px;">SIGN</button>
+            <input type="number" id="custom-donate-amt" placeholder="CUSTOM BAG AMOUNT" style="flex: 1; padding: 15px; background: rgba(0,0,0,0.8); border: 1px solid #333; color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 1rem; outline: none; border-radius: 4px;">
+            <button class="wallet-btn" onclick="executeCustomDonation()" style="background: var(--accent-cyan); color: #000; border-radius: 4px;">DROP BAGS</button>
         </div>
-        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.75rem; transition: 0.2s;">[ CANCEL & RETREAT ]</button>
+        <button onclick="closeModals()" style="background:transparent; color:#888; border:none; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.75rem; transition: 0.2s;">[ RETREAT WITH YOUR LIQUIDITY ]</button>
     </div>
 </div>
 
 <div id="success-modal" class="modal-overlay">
-    <div class="modal-content" style="border-color: var(--accent-cyan); max-width: 450px; box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);">
-        <h2 id="success-modal-title" style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-cyan); margin-bottom: 15px; font-size: 1.8rem;">🔥 SUCCESS 🔥</h2>
-        <p id="success-modal-msg" style="color: #fff; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6;">Your transaction has been recorded on-chain.</p>
-        <button class="wallet-btn" onclick="closeModals()" style="width: 100%; background: var(--accent-cyan); color: #000; padding: 15px; font-size: 1.1rem;">ACKNOWLEDGE</button>
+    <div class="modal-content" style="border-color: #00ffaa; max-width: 450px; box-shadow: 0 0 40px rgba(0, 255, 170, 0.2);">
+        <h2 id="success-modal-title" style="font-family:'Orbitron'; font-weight: 900; color:#00ffaa; margin-bottom: 15px; font-size: 1.8rem;">🔥 ON-CHAIN GLORY 🔥</h2>
+        <p id="success-modal-msg" style="color: #fff; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6;">The ledger never lies. Your transaction is immutable.</p>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%; background: #00ffaa; color: #000; padding: 15px; font-size: 1.1rem;">ACKNOWLEDGE GREATNESS</button>
     </div>
 </div>
 
 <div id="error-modal" class="modal-overlay">
     <div class="modal-content" style="border-color: var(--accent-pink); max-width: 450px; box-shadow: 0 0 40px rgba(255, 0, 85, 0.2);">
-        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-pink); margin-bottom: 15px; font-size: 1.8rem;">⚠️ SYSTEM OVERRIDE</h2>
+        <h2 style="font-family:'Orbitron'; font-weight: 900; color:var(--accent-pink); margin-bottom: 15px; font-size: 1.8rem;">⚠️ REKT</h2>
         <p id="error-modal-msg" style="color: #ccc; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6;"></p>
-        <button class="wallet-btn" onclick="closeModals()" style="width: 100%; background: var(--accent-pink); color: #000; padding: 15px; font-size: 1.1rem;">ACKNOWLEDGE</button>
+        <button class="wallet-btn" onclick="closeModals()" style="width: 100%; background: var(--accent-pink); color: #000; padding: 15px; font-size: 1.1rem;">SWALLOW PRIDE & CONTINUE</button>
     </div>
 </div>
 
