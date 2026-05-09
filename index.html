@@ -163,6 +163,30 @@
             background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); font-weight: 900; font-size: 0.75rem; border-bottom: 2px solid var(--accent-cyan); 
         }
 
+        /* Micro-badge Styling */
+        .badge-pill-container {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .micro-badge-pill {
+            font-family: 'Orbitron';
+            font-size: 0.5rem;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        .m-badge-flow { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
+        .m-badge-amateur { background: rgba(0, 255, 170, 0.1); border: 1px solid #00ffaa; color: #00ffaa; }
+        .m-badge-pro { background: rgba(217, 70, 239, 0.1); border: 1px solid #d946ef; color: #d946ef; }
+        .m-badge-whale { background: rgba(255, 215, 0, 0.1); border: 1px solid var(--accent-gold); color: var(--accent-gold); }
+        .m-badge-early { background: rgba(33, 150, 243, 0.1); border: 1px solid #2196f3; color: #2196f3; }
+        .m-badge-founder { background: rgba(168, 85, 247, 0.1); border: 1px solid #a855f7; color: #a855f7; }
+
         footer { 
             background: rgba(0, 0, 0, 0.95); padding: 40px 40px; margin-top: auto; border-top: 2px solid var(--accent-cyan); display: flex; justify-content: center; backdrop-filter: blur(10px);
         }
@@ -223,7 +247,6 @@
             box-shadow: 0 0 15px var(--accent-gold);
         }
 
-        /* BEEFED UP BACK BUTTON */
         #dapp-back-btn {
             display: none; 
             position: fixed; 
@@ -250,7 +273,6 @@
             box-shadow: 0 0 25px var(--accent-cyan);
         }
 
-        /* EXPANSION PLACEHOLDER BOXES */
         .expansion-vault {
             background: rgba(0,0,0,0.6); 
             border: 1px dashed var(--accent-cyan); 
@@ -263,14 +285,12 @@
             box-shadow: inset 0 0 20px rgba(0,240,255,0.05);
         }
 
-        /* CONSTRUCTION VAULT TAPE */
         .caution-tape {
             height: 15px; 
             width: 100%;
             background: repeating-linear-gradient(45deg, #000, #000 15px, var(--accent-gold) 15px, var(--accent-gold) 30px);
         }
 
-        /* DEFI SPECIFIC STYLES */
         .sk8swap-terminal {
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid var(--accent-cyan);
@@ -385,7 +405,6 @@
             margin-left: 10px;
         }
 
-        /* MOBILE OPTIMIZATION */
         @media (max-width: 768px) {
             .header-inner { flex-direction: column; gap: 15px; }
             nav ul { flex-wrap: wrap; justify-content: center; gap: 10px; }
@@ -516,16 +535,13 @@
 </div>
 
 <div class="dashboard-wrapper" id="clips-wrapper" style="display: none;">
-    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYOTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
+    <h2 style="text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 3.5rem; letter-spacing: 3px; margin-top: 0; text-shadow: 0 0 20px rgba(0,240,255,0.3);">CRYPTO CLIPS <span style="font-size: 1.5rem; font-family:'Orbitron'; color:var(--accent-gold);">// RAW FOOTY</span></h2>
     
     <div style="background: rgba(0,0,0,0.7); border: 2px solid var(--accent-gold); border-radius: 8px; position: relative; overflow: hidden; max-width: 900px; margin: 30px auto 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);">
         <div class="caution-tape"></div>
-        
         <div style="padding: 50px 40px; text-align: center;">
             <h3 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; font-size: 2.2rem; letter-spacing: 2px; margin-top: 0;">🚧 UNDER CONSTRUCTION 🚧</h3>
-            
             <h4 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 1px; margin-bottom: 25px; font-size: 1.2rem;">THE FUTURE OF TOKENIZED SKATEBOARDING</h4>
-            
             <p style="color: #ccc; font-size: 1rem; line-height: 1.8; text-align: left; margin-bottom: 20px;">
                 The traditional skate industry is gatekept by corporate sponsors. The <strong>CRYPTO CLIPS</strong> feed is being engineered to shatter that model. We are building the first true peer-to-peer decentralized sponsorship network. 
             </p>
@@ -548,7 +564,6 @@
                 <img src="https://cryptologos.cc/logos/wax-waxp-logo.png" alt="WAX" style="height: 55px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));">
             </div>
         </div>
-
         <div class="caution-tape"></div>
     </div>
 </div>
@@ -614,7 +629,6 @@
     </div>
 
     <div class="dashboard-grid">
-        
         <div style="background: rgba(0,0,0,0.7); border: 1px solid var(--accent-gold); border-radius: 8px; position: relative; overflow: hidden; text-align: center; padding-bottom: 20px;">
             <div class="caution-tape"></div>
             <div style="padding: 30px 20px;">
@@ -650,7 +664,6 @@
             <button class="wallet-btn" disabled style="background: transparent; color: #ff3366; border: 1px solid #ff3366; width: 80%;">CONSTRUCTION PENDING</button>
             <div class="caution-tape" style="position: absolute; bottom: 0; background: repeating-linear-gradient(45deg, #000, #000 15px, #ff3366 15px, #ff3366 30px);"></div>
         </div>
-
     </div>
 </div>
 
@@ -692,11 +705,26 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 50px; padding-bottom: 40px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
                 <button class="wallet-btn" onclick="openDonationModal('WAX')" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE WAX</button>
                 <button class="wallet-btn" onclick="openDonationModal('SKATE')" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE $SKATE</button>
                 <button class="wallet-btn" onclick="showErrorModal('Solana Bridge expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">BRIDGE SOLANA</button>
                 <button class="wallet-btn" onclick="showErrorModal('LP Staking expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">STAKE LP TOKENS</button>
+            </div>
+
+            <div id="godmode-profile-container" style="background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(5,10,26,0.8) 100%); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px rgba(255,215,0,0.1);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="background: #000; border: 2px solid var(--accent-gold); padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; text-shadow: 0 0 5px var(--accent-gold);">⚡</div>
+                    <div>
+                        <div style="font-family:'Orbitron'; font-weight:900; color:#fff; font-size: 1.1rem; letter-spacing: 1px;">UFUAU.WAM <span style="font-size:0.6rem; background:#ff3366; color:#fff; padding:2px 6px; border-radius:3px; margin-left: 8px; font-family:'Inter'; vertical-align: middle;">GODMODE CREATOR</span></div>
+                        <div style="font-size: 0.75rem; color: #888; font-family:'Inter'; margin-top:2px;">Protocol Designer, Developer, and Supreme Skate Leader</div>
+                    </div>
+                </div>
+                <div class="badge-pill-container" style="gap: 6px;">
+                    <span class="micro-badge-pill m-badge-founder">FOUNDER</span>
+                    <span class="micro-badge-pill m-badge-pro">DEV</span>
+                    <span class="micro-badge-pill m-badge-whale">CREATOR</span>
+                </div>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
@@ -704,7 +732,7 @@
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(255,215,0,0.05);">
                     <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-gold); padding-bottom: 15px; letter-spacing: 1px;">🏆 THE WHALE BOARD</h4>
                     <div style="font-family: 'Inter'; font-size: 0.7rem; color: #888; text-align: center; margin-bottom: 15px;">TOP ALL-TIME CONTRIBUTORS TO SKATECOINWAX</div>
-                    <div id="treasury-whales-list" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
+                    <div id="treasury-whales-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                         <div style="padding: 20px; text-align: center; color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">[ SCANNING CHAIN DATA... ]</div>
                     </div>
                 </div>
@@ -712,7 +740,7 @@
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,240,255,0.05);">
                     <h4 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px; letter-spacing: 1px;">⚡ LIVE PULSE FEED</h4>
                     <div style="font-family: 'Inter'; font-size: 0.7rem; color: #888; text-align: center; margin-bottom: 15px;">REAL-TIME PROTOCOL FUNDING INTERCEPTS</div>
-                    <div id="treasury-pulse-list" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
+                    <div id="treasury-pulse-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                         <div style="padding: 20px; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">[ INTERCEPTING TRANSACTIONS... ]</div>
                     </div>
                 </div>
@@ -746,28 +774,21 @@
 
 <div id="vip-ticket-modal" class="modal-overlay">
     <div class="modal-content" style="width: 90%; max-width: 320px; padding: 25px; border-color: var(--accent-cyan); background: #050a1a; background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 240, 255, 0.03) 10px, rgba(0, 240, 255, 0.03) 20px);">
-        
         <h2 style="font-family:'Orbitron'; color:var(--accent-cyan); margin: 0 0 15px 0; font-size: 1.3rem; text-shadow: 0 0 10px var(--accent-cyan); letter-spacing: 1px; font-weight: 900;">WELCOME TO SK8DAO</h2>
-
         <div style="text-align: left;">
             <div style="color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE CULTURE</div>
             <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">We operate on the DeFi principle of "giving to get." Sponsor raw talent, fund the community treasury, and power the ecosystem. Treat everyone with respect—we are here to build.</p>
-
             <div style="color: #ff3366; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE RULES</div>
             <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 15px;">This is a gamified peer-to-peer sponsorship network. This is NOT an investment platform. This is NOT financial advice.</p>
-
             <div style="color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 900; margin-bottom: 5px;">THE TOKEN</div>
             <p style="color: #ccc; font-size: 0.75rem; line-height: 1.5; margin-top: 0; margin-bottom: 20px;">$SKATE is strictly a Utility Token. It is designed to unlock footage, vote in the DAO, and distribute real-world sponsorships. There are no expectations of profit. Treat this as a game with real-world applications.</p>
         </div>
-
         <div style="margin-bottom: 20px; text-align: left; display: flex; align-items: flex-start; gap: 10px; background: rgba(0,240,255,0.05); padding: 12px; border: 1px solid var(--accent-cyan); border-radius: 4px;">
             <input type="checkbox" id="vip-agree-checkbox" onchange="document.getElementById('login-trigger-vip').disabled = !this.checked" style="margin-top: 2px; transform: scale(1.2); cursor: pointer; accent-color: var(--accent-cyan);">
             <label for="vip-agree-checkbox" style="color: #fff; font-size: 0.75rem; font-family: 'Inter'; font-weight: 900; cursor: pointer; line-height: 1.4;">I UNDERSTAND THE RULES.<br>GRANT ME ACCESS.</label>
         </div>
-
         <button class="wallet-btn" id="login-trigger-vip" disabled style="width: 100%; background: var(--accent-cyan); color: #000; font-size: 1rem; padding: 12px; margin-bottom: 10px;">DROP IN (CONNECT WALLET)</button>
         <button class="wallet-btn" onclick="window.open('https://www.mycloudwallet.com/', '_blank')" style="width: 100%; background: transparent; color: var(--accent-gold); border: 1px solid var(--accent-gold); font-size: 0.75rem; padding: 10px; margin-bottom: 5px;">GET OFFICIAL WAX WALLET</button>
-
         <button onclick="continueAsGuest()" style="background:transparent; color:#888; border:none; margin-top:10px; cursor:pointer; font-family:'Orbitron'; font-weight: 900; font-size: 0.65rem; transition: 0.2s;">[ CONTINUE AS GUEST ]</button>
     </div>
 </div>
@@ -848,7 +869,7 @@
     </div>
 </div>
 
-<script type="module">
+    <script type="module">
     import { SessionKit } from 'https://esm.sh/@wharfkit/session?bundle';
     import { WebRenderer } from 'https://esm.sh/@wharfkit/web-renderer?bundle';
     import { WalletPluginCloudWallet } from 'https://esm.sh/@wharfkit/wallet-plugin-cloudwallet?bundle';
@@ -882,19 +903,17 @@
     let currentSession = null, currentSchema = null, currentInventoryPage = 1;
     let calculatedWaxFee = 0, selectedAssetIds = [];
     
-    // STATE & HISTORY VARIABLES
     let historyStack = [];
     let isProgrammaticHashChange = false;
     let defiWarningShown = false;
     
-    // SK8SWAP ORACLE STATE
     let isWaxToSkate = true;
-    let currentSlippage = 0.05; // Default 5% for safety
-    let waxUsdPrice = 0.045; // Fallback
-    let skatePerWax = 7.6897; // Fallback
+    let currentSlippage = 0.05; 
+    let waxUsdPrice = 0.045; 
+    let skatePerWax = 7.6897; 
     let sWax = 1 / skatePerWax;
     
-    // GLOBAL MODAL CONTROLLERS
+    // GLOBAL CUSTOM MODAL ROUTERS
     window.showErrorModal = (msg) => {
         closeModals();
         document.getElementById('error-modal-msg').innerText = msg;
@@ -910,12 +929,10 @@
 
     async function syncPrices() {
         try {
-            // THE FIAT ORACLE: Fetch Live WAX to USD Price
             const usdRes = await fetch('https://alcor.exchange/api/v2/tokens/wax-eosio.token');
             const usdData = await usdRes.json();
             if(usdData && usdData.usd_price) waxUsdPrice = usdData.usd_price;
 
-            // THE DEX ORACLE: Fetch Live SKATE/WAX Pool Price
             const tickerRes = await fetch('https://alcor.exchange/api/v2/tickers/skate-skatecoinwax_wax-eosio.token');
             const tickerData = await tickerRes.json();
             if(tickerData && tickerData.last_price) {
@@ -929,9 +946,8 @@
         }
     }
 
-    // COMMUNITY TREASURY GAMEFI DATA FETCHER
+    // COMMUNITY TREASURY: HYPERION LIVE ON-CHAIN SCRAPER & AGGREGATOR
     async function fetchTreasuryData() {
-        // First ensure prices are synced for accurate USD calculation
         await syncPrices();
         
         const whaleList = document.getElementById('treasury-whales-list');
@@ -941,15 +957,14 @@
         const waxUsdDOM = document.getElementById('treasury-wax-usd');
         const skateResDOM = document.getElementById('treasury-skate-res');
         const skateUsdDOM = document.getElementById('treasury-skate-usd');
-        
         const fdvWaxDOM = document.getElementById('treasury-fdv-wax');
         const fdvUsdDOM = document.getElementById('treasury-fdv-usd');
 
-        whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">SYNCING PROTOCOL DATA...</div>`;
-        pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">INTERCEPTING TRANSACTIONS...</div>`;
+        whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">SCANNING BLOCKCHAIN...</div>`;
+        pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">INTERCEPTING MEMOS...</div>`;
 
         try {
-            // THE LIVE RESERVES (WAX CHAIN PING)
+            // Live Reserve Extraction
             const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "eosio.token", account: "skatecoinwax", symbol: "WAX" }) });
             const waxBalArr = await waxRes.json(); 
             const waxBal = waxBalArr[0] ? parseFloat(waxBalArr[0].split(' ')[0]) : 0;
@@ -958,13 +973,11 @@
             const skateBalArr = await skateRes.json();
             const skateBal = skateBalArr[0] ? parseFloat(skateBalArr[0].split(' ')[0]) : 0;
 
-            // THE PROJECTED VALUE ENGINE (MATH)
-            const skatePriceUSD = sWax * waxUsdPrice; // Live USD price per $SKATE
-            const total_supply = 1000000000; // 1 Billion
-            const fdvWax = total_supply * sWax; // FDV in WAX
-            const fdvUsd = total_supply * skatePriceUSD; // FDV in USD
+            const skatePriceUSD = sWax * waxUsdPrice;
+            const total_supply = 1000000000; 
+            const fdvWax = total_supply * sWax; 
+            const fdvUsd = total_supply * skatePriceUSD; 
             
-            // HUD UPDATES
             waxResDOM.innerText = waxBal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' WAX';
             waxUsdDOM.innerText = `≈ $${(waxBal * waxUsdPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
             
@@ -974,57 +987,116 @@
             fdvWaxDOM.innerText = fdvWax.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' WAX';
             fdvUsdDOM.innerText = `≈ $${fdvUsd.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} USD`;
 
+            // Hyperion Historical Scraper Logic
+            const historyUrl = `${WAX_RPC}/v2/history/get_actions?account=skatecoinwax&filter=eosio.token:transfer,skatecoinwax:transfer&limit=100`;
+            const hRes = await fetch(historyUrl);
+            const hJson = await hRes.json();
+
+            const blacklist = ['ufuau.wam', 'eosio.token', 'skatecoinwax'];
+            let sponsors = {};
+            let pulseItems = [];
+
+            if (hJson && hJson.actions) {
+                hJson.actions.forEach(action => {
+                    const data = action.act.data;
+                    const contract = action.act.account;
+                    
+                    if (data && data.to === 'skatecoinwax' && data.quantity) {
+                        const fromAcc = data.from;
+                        const memo = data.memo || "";
+                        const quantityStr = data.quantity;
+                        const [amtVal, symbol] = quantityStr.split(' ');
+                        const amount = parseFloat(amtVal) || 0;
+                        const blockTime = new Date(action.timestamp);
+
+                        // Strict Filtering & Memo Verification
+                        if (!blacklist.includes(fromAcc) && amount > 0) {
+                            // Aggregate totals for the Whale Board
+                            const valueInWax = symbol === 'WAX' ? amount : amount * sWax;
+                            if (!sponsors[fromAcc]) {
+                                sponsors[fromAcc] = { waxTotal: 0, skateTotal: 0, powerValue: 0 };
+                            }
+                            if (symbol === 'WAX') {
+                                sponsors[fromAcc].waxTotal += amount;
+                            } else {
+                                sponsors[fromAcc].skateTotal += amount;
+                            }
+                            sponsors[fromAcc].powerValue += valueInWax;
+
+                            // Formulate Live Pulse Feed entries
+                            const displayMemo = memo.length > 25 ? memo.substring(0, 22) + "..." : memo;
+                            const timeString = blockTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            
+                            pulseItems.push({
+                                account: fromAcc,
+                                amountStr: `${amount.toLocaleString(undefined, {maximumFractionDigits: 2})} ${symbol}`,
+                                memo: displayMemo || "Sponsorship",
+                                time: timeString,
+                                timestamp: blockTime.getTime()
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Render Whale Board
+            const sortedSponsors = Object.keys(sponsors).map(acc => ({
+                account: acc,
+                ...sponsors[acc]
+            })).sort((a, b) => b.powerValue - a.powerValue).slice(0, 15);
+
+            if (sortedSponsors.length === 0) {
+                whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">THE WHALE BOARD IS OPEN</div>`;
+            } else {
+                whaleList.innerHTML = sortedSponsors.map((sp, idx) => {
+                    let rankColor = idx === 0 ? "color: #ffd700;" : (idx === 1 ? "color: #c0c0c0;" : (idx === 2 ? "color: #cd7f32;" : "color: var(--accent-cyan);"));
+                    
+                    // Dynamic Badge Logic based on aggregate contribution levels
+                    let badgesHtml = `<div class="badge-pill-container">`;
+                    if (sp.powerValue >= 100) badgesHtml += `<span class="micro-badge-pill m-badge-flow">FLOW</span>`;
+                    if (sp.powerValue >= 1000) badgesHtml += `<span class="micro-badge-pill m-badge-amateur">AMAT</span>`;
+                    if (sp.powerValue >= 10000) badgesHtml += `<span class="micro-badge-pill m-badge-pro">PRO</span>`;
+                    if (sp.powerValue >= 50000) badgesHtml += `<span class="micro-badge-pill m-badge-whale">WHALE</span>`;
+                    badgesHtml += `</div>`;
+
+                    return `
+                        <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px solid #112; align-items: center;">
+                            <div style="font-family:'Orbitron'; font-weight:900; ${rankColor} font-size: 0.9rem;">
+                                ${idx + 1}. ${sp.account} ${badgesHtml}
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color:#fff; font-family:'Orbitron'; font-weight:900; font-size: 0.85rem;">${sp.waxTotal.toLocaleString(undefined, {maximumFractionDigits: 0})} WAX</div>
+                                <div style="color:var(--accent-cyan); font-size: 0.7rem; font-family:'Orbitron'; font-weight:900;">${sp.skateTotal.toLocaleString(undefined, {maximumFractionDigits: 0})} SKATE</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render Live Pulse Feed
+            pulseItems.sort((a, b) => b.timestamp - a.timestamp);
+            const activePulse = pulseItems.slice(0, 15);
+
+            if (activePulse.length === 0) {
+                pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: #888; font-family: 'Orbitron'; font-size: 0.8rem;">INTERCEPT RECORD EMPTY</div>`;
+            } else {
+                pulseList.innerHTML = activePulse.map(item => `
+                    <div style="display:flex; justify-content:space-between; padding: 12px 10px; border-bottom: 1px dashed #112; font-size: 0.85rem; align-items: center;">
+                        <div style="color:var(--accent-cyan); font-family:'Orbitron'; font-weight: 900;">${item.account}</div>
+                        <div style="text-align: center;">
+                            <div style="color:#fff; font-weight: 900;">${item.amountStr}</div>
+                            <div style="font-size:0.65rem; color:#888;">"${item.memo}"</div>
+                        </div>
+                        <div style="color:#555; font-size: 0.7rem; font-family:'Orbitron';">${item.time}</div>
+                    </div>
+                `).join('');
+            }
+
         } catch (e) {
-            console.error("Treasury fetch error:", e);
+            console.error(e);
+            whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff3366; font-family: 'Orbitron'; font-size: 0.8rem;">ERROR QUERYING LEDGER</div>`;
+            pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: #ff3366; font-family: 'Orbitron'; font-size: 0.8rem;">ERROR INTERCEPTING MEMOS</div>`;
         }
-
-        // NOTE: In production, this will hit WAX Hyperion History API
-        const blacklist = ['ufuau.wam', 'eosio.token', 'skatecoinwax'];
-        
-        setTimeout(() => {
-            // GameFi Mockup Data injected natively to hold architecture while Hyperion node syncs
-            whaleList.innerHTML = `
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px solid #333; align-items: center; background: rgba(255,215,0,0.05);">
-                    <div style="font-family:'Orbitron'; font-weight:900; color:var(--accent-gold); font-size: 1rem;">1. sk8erboi.wam <br><span style="font-size:0.6rem; background:var(--accent-gold); color:#000; padding:2px 6px; border-radius:3px; letter-spacing: 1px;">WHALE BADGE</span></div>
-                    <div style="color:#fff; font-family:'Orbitron'; font-weight:900;">50,000 WAX</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px solid #333; align-items: center;">
-                    <div style="font-family:'Orbitron'; font-weight:900; color:#c0c0c0; font-size: 0.9rem;">2. cryptokid111</div>
-                    <div style="color:#fff; font-family:'Orbitron'; font-weight:900;">25,000 WAX</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px solid #333; align-items: center;">
-                    <div style="font-family:'Orbitron'; font-weight:900; color:#cd7f32; font-size: 0.9rem;">3. gnarly.wam</div>
-                    <div style="color:#fff; font-family:'Orbitron'; font-weight:900;">10,000 WAX</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px solid #333; align-items: center;">
-                    <div style="font-family:'Orbitron'; font-weight:900; color:var(--accent-cyan); font-size: 0.9rem;">4. deckripper99</div>
-                    <div style="color:#fff; font-family:'Orbitron'; font-weight:900;">5,500 WAX</div>
-                </div>
-            `;
-
-            pulseList.innerHTML = `
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px dashed #333; font-size: 0.85rem; align-items: center;">
-                    <div style="color:var(--accent-cyan); font-family:'Orbitron'; font-weight: 900;">cryptokid111</div>
-                    <div style="color:#fff; font-weight: 900;">Sent 500 WAX</div>
-                    <div style="color:#555; font-size: 0.7rem; font-family:'Orbitron';">JUST NOW</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px dashed #333; font-size: 0.85rem; align-items: center;">
-                    <div style="color:var(--accent-cyan); font-family:'Orbitron'; font-weight: 900;">gnarly.wam</div>
-                    <div style="color:#fff; font-weight: 900;">Sent 150 WAX</div>
-                    <div style="color:#555; font-size: 0.7rem; font-family:'Orbitron';">2 MINS AGO</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px dashed #333; font-size: 0.85rem; align-items: center;">
-                    <div style="color:var(--accent-cyan); font-family:'Orbitron'; font-weight: 900;">sk8erboi.wam</div>
-                    <div style="color:var(--accent-gold); font-weight: 900;">Sent 10,000 $SKATE</div>
-                    <div style="color:#555; font-size: 0.7rem; font-family:'Orbitron';">1 HR AGO</div>
-                </div>
-                <div style="display:flex; justify-content:space-between; padding: 15px 10px; border-bottom: 1px dashed #333; font-size: 0.85rem; align-items: center;">
-                    <div style="color:var(--accent-cyan); font-family:'Orbitron'; font-weight: 900;">kickflipking</div>
-                    <div style="color:#fff; font-weight: 900;">Sent 50 WAX</div>
-                    <div style="color:#555; font-size: 0.7rem; font-family:'Orbitron';">4 HRS AGO</div>
-                </div>
-            `;
-        }, 1000);
     }
 
     // THE LIVE DONATION PIPES (POPUP FREE)
@@ -1095,7 +1167,7 @@
             }];
             await currentSession.transact({ actions });
             showSuccessModal("🔥 SPONSORSHIP CONFIRMED 🔥", "The culture thanks you. Your transaction has been recorded on-chain. Welcome to the ranks.");
-            fetchTreasuryData(); // Instantly sync new reserves
+            fetchTreasuryData(); 
             updateBalances(recipient);
         } catch(e) {
             console.error(e);
@@ -1103,7 +1175,7 @@
         }
     };
 
-    // SK8SWAP LOGIC: THE BI-DIRECTIONAL TOGGLE
+    // SK8SWAP LOGIC: BI-DIRECTIONAL DECENTRALIZED CALCULATORS
     window.flipSwapDirection = () => {
         isWaxToSkate = !isWaxToSkate;
         
@@ -1137,7 +1209,6 @@
         calcNativeSwap();
     };
 
-    // LOCAL UI ESTIMATOR (Real-time as user types)
     window.calcNativeSwap = () => {
         const amtIn = parseFloat(document.getElementById('swap-in').value);
         const outField = document.getElementById('swap-out');
@@ -1155,17 +1226,16 @@
         let usdVal = 0;
         
         if (isWaxToSkate) {
-            estOut = (amtIn * skatePerWax) * 0.997; // Deduct est LP fee
-            usdVal = amtIn * waxUsdPrice; // Value of WAX put in
+            estOut = (amtIn * skatePerWax) * 0.997; 
+            usdVal = amtIn * waxUsdPrice; 
         } else {
-            estOut = (amtIn * sWax) * 0.997; // Deduct est LP fee
-            usdVal = estOut * waxUsdPrice; // Value of WAX coming out
+            estOut = (amtIn * sWax) * 0.997; 
+            usdVal = estOut * waxUsdPrice; 
         }
         
         outField.value = estOut.toFixed(4);
         usdDisplay.innerText = `(≈ $${usdVal.toFixed(2)} USD)`;
         
-        // SLIPPAGE CALCULATION FOR UI
         const minOut = estOut * (1 - currentSlippage);
         if (isWaxToSkate) {
             minOutDisplay.innerText = minOut.toFixed(4) + " SKATE";
@@ -1174,7 +1244,7 @@
         }
     };
 
-    // THE HOLY GRAIL: ALCOR API ROUTER EXECUTION
+    // ALCOR API ROUTER swaps
     window.executeNativeSwap = async () => {
         if (!currentSession) return toggleAuthModal();
         const amtIn = parseFloat(document.getElementById('swap-in').value);
@@ -1189,7 +1259,6 @@
         const recipient = currentSession.actor.toString();
 
         try {
-            // PING ALCOR ROUTER
             const routeUrl = `https://wax.alcor.exchange/api/v2/swapRouter/getRoute?trade_type=EXACT_INPUT&input=${tokenIn}&output=${tokenOut}&amount=${formattedAmtIn}&slippage=${currentSlippage}&receiver=${recipient}&maxHops=2`;
             const res = await fetch(routeUrl);
             const routeData = await res.json();
@@ -1199,7 +1268,6 @@
                 return showErrorModal("Routing Error: Liquidity pool may be too shallow for this exact trade size.");
             }
 
-            // LIQUIDITY SHIELD
             if (parseFloat(routeData.priceImpact) > 5) {
                 const proceed = confirm(`⚠️ HIGH PRICE IMPACT DETECTED (${routeData.priceImpact}%).\\nThe pool liquidity is low. You will suffer heavy slippage. Proceed?`);
                 if(!proceed) {
@@ -1208,7 +1276,6 @@
                 }
             }
 
-            // CONSTRUCT SMART CONTRACT ACTION
             const tokenContract = isWaxToSkate ? 'eosio.token' : 'skatecoinwax';
             const quantity = isWaxToSkate ? `${formattedAmtIn} WAX` : `${formattedAmtIn} SKATE`;
 
@@ -1220,7 +1287,7 @@
                     from: recipient,
                     to: 'swap.alcor',
                     quantity: quantity,
-                    memo: routeData.memo // FLAWLESS PRE-FORMATTED API MEMO
+                    memo: routeData.memo 
                 }
             }];
             
@@ -1255,7 +1322,6 @@
     window.switchCategory = (schema, fromBack = false) => {
         if (currentSchema === schema) return;
 
-        // Manage History Stack
         if (!fromBack && currentSchema !== null) {
             historyStack.push(currentSchema);
         }
@@ -1265,44 +1331,39 @@
         
         document.getElementById('load-more-container').style.display = 'none';
 
-        // Secure URL Hash Update
         isProgrammaticHashChange = true;
         window.location.hash = schema;
 
-        // Back Button Visibility Matrix
         const backBtn = document.getElementById('dapp-back-btn');
         if (backBtn) {
             backBtn.style.display = historyStack.length > 0 ? 'block' : 'none';
         }
 
-        // Header Navigation State Reset & Highlight
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         if(document.getElementById(`nav-${schema}`)) {
             document.getElementById(`nav-${schema}`).classList.add('active');
         }
         
-        // Hide all wrappers
         const wrappers = ['home-wrapper', 'inventory-wrapper', 'builder-wrapper', 'leaderboard-container', 'clips-wrapper', 'defi-wrapper', 'treasury-wrapper', 'dao-wrapper'];
         wrappers.forEach(w => {
             const el = document.getElementById(w);
             if(el) el.style.display = 'none';
         });
 
-        // Route to Component
         if (schema === 'home') {
             document.getElementById('home-wrapper').style.display = 'block';
         } else if (schema === 'builder') {
             document.getElementById('builder-wrapper').style.display = 'block';
             resetBuilderStats();
             if (currentSession) loadCraftingData(currentSession.actor.toString());
-        } else if (schema === 'leaderboard') {} else if (schema === 'leaderboard') {
+        } else if (schema === 'leaderboard') {
             document.getElementById('leaderboard-container').style.display = 'block';
             fetchLeaderboard();
         } else if (schema === 'clips') {
             document.getElementById('clips-wrapper').style.display = 'block';
         } else if (schema === 'defi') {
             document.getElementById('defi-wrapper').style.display = 'block';
-            syncPrices(); // Fresh pull for the oracle on entry
+            syncPrices(); 
             if(!defiWarningShown) {
                 document.getElementById('defi-warning-modal').style.display = 'flex';
                 defiWarningShown = true;
@@ -1318,7 +1379,6 @@
         }
     };
 
-    // HISTORY POP ENGINE
     window.goBack = () => {
         if (historyStack.length > 0) {
             const prevSchema = historyStack.pop();
@@ -1326,7 +1386,6 @@
         }
     };
 
-    // NATIVE BROWSER NAVIGATION LISTENER
     window.addEventListener('hashchange', () => {
         if (isProgrammaticHashChange) {
             isProgrammaticHashChange = false;
@@ -1405,7 +1464,6 @@
         const w1 = document.getElementById('craft-wheel1-select').selectedOptions[0], w2 = document.getElementById('craft-wheel2-select').selectedOptions[0], w3 = document.getElementById('craft-wheel3-select').selectedOptions[0], w4 = document.getElementById('craft-wheel4-select').selectedOptions[0];
 
         if (d.value && t1.value && t2.value && w1.value && w2.value && w3.value && w4.value) {
-            
             const getGroupScore = (attr) => {
                 const deck = parseInt(d.dataset[attr]) || 0;
                 const truckSet = Math.round(((parseInt(t1.dataset[attr]) || 0) + (parseInt(t2.dataset[attr]) || 0)) / 2);
@@ -1641,3 +1699,4 @@
 </script>
 </body>
 </html>
+    
