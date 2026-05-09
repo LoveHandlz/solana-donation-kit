@@ -818,9 +818,9 @@
         <p style="color: #ccc; font-size: 0.85rem; margin-bottom: 25px;">Select your sponsorship tier for <span id="donation-currency-label" style="color:var(--accent-gold); font-weight:900;">WAX</span>. Posers give 0.</p>
         
         <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
-            <button class="wallet-btn" onclick="selectTier(100)" style="background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.5); color: var(--accent-gold); padding: 15px;">[ FLOW ] - 100</button>
-            <button class="wallet-btn" onclick="selectTier(1000)" style="background: rgba(255,215,0,0.2); border: 1px solid var(--accent-gold); color: #fff; padding: 15px;">[ AMATEUR ] - 1,000</button>
-            <button class="wallet-btn" onclick="selectTier(10000)" style="background: var(--accent-gold); color: #000; padding: 15px;">[ PRO ] - 10,000</button>
+            <button id="tier-btn-flow" class="wallet-btn" style="background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.5); color: var(--accent-gold); padding: 15px;">[ FLOW ]</button>
+            <button id="tier-btn-amateur" class="wallet-btn" style="background: rgba(255,215,0,0.2); border: 1px solid var(--accent-gold); color: #fff; padding: 15px;">[ AMATEUR ]</button>
+            <button id="tier-btn-pro" class="wallet-btn" style="background: var(--accent-gold); color: #000; padding: 15px;">[ PRO ]</button>
         </div>
         
         <div style="display: flex; gap: 10px; align-items: stretch; margin-bottom: 25px;">
@@ -1033,7 +1033,34 @@
     window.openDonationModal = (currency) => {
         if (!currentSession) return toggleAuthModal();
         activeDonationCurrency = currency;
+        
         document.getElementById('donation-currency-label').innerText = currency;
+        
+        const btnFlow = document.getElementById('tier-btn-flow');
+        const btnAmateur = document.getElementById('tier-btn-amateur');
+        const btnPro = document.getElementById('tier-btn-pro');
+        
+        // 10x Scaling for $SKATE Token
+        if (currency === 'SKATE') {
+            btnFlow.innerText = '[ FLOW ] - 1,000';
+            btnFlow.onclick = () => selectTier(1000);
+            
+            btnAmateur.innerText = '[ AMATEUR ] - 10,000';
+            btnAmateur.onclick = () => selectTier(10000);
+            
+            btnPro.innerText = '[ PRO ] - 100,000';
+            btnPro.onclick = () => selectTier(100000);
+        } else {
+            btnFlow.innerText = '[ FLOW ] - 100';
+            btnFlow.onclick = () => selectTier(100);
+            
+            btnAmateur.innerText = '[ AMATEUR ] - 1,000';
+            btnAmateur.onclick = () => selectTier(1000);
+            
+            btnPro.innerText = '[ PRO ] - 10,000';
+            btnPro.onclick = () => selectTier(10000);
+        }
+
         document.getElementById('donation-tier-modal').style.display = 'flex';
         document.getElementById('custom-donate-amt').value = '';
     };
@@ -1268,7 +1295,7 @@
             document.getElementById('builder-wrapper').style.display = 'block';
             resetBuilderStats();
             if (currentSession) loadCraftingData(currentSession.actor.toString());
-        } else if (schema === 'leaderboard') {
+        } else if (schema === 'leaderboard') {} else if (schema === 'leaderboard') {
             document.getElementById('leaderboard-container').style.display = 'block';
             fetchLeaderboard();
         } else if (schema === 'clips') {
