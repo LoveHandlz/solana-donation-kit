@@ -687,6 +687,29 @@
                 <span style="color: #ccc; font-size: 0.95rem; line-height: 1.6; font-family: 'Inter';">The math is transparent. The community treasury backs the projected value. Investors lock value, sponsors build the physical streets, and users ride the protocol. Posers give 0.</span>
             </div>
 
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 20px; background: rgba(0,0,0,0.8); border: 1px solid #333; border-radius: 8px; padding: 20px;">
+                <div style="flex: 1; min-width: 150px; text-align: center; border-right: 1px dashed #333; padding: 10px;">
+                    <div style="font-family:'Orbitron'; font-size:0.6rem; color:#888; margin-bottom: 5px;">CIRCULATING SUPPLY</div>
+                    <div style="font-family:'Orbitron'; font-weight:900; font-size:1.2rem; color:#fff;">1,000,000</div>
+                    <div style="font-size:0.6rem; color:var(--accent-cyan);">$SKATE</div>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center; border-right: 1px dashed #333; padding: 10px;">
+                    <div style="font-family:'Orbitron'; font-size:0.6rem; color:#888; margin-bottom: 5px;">MAX SUPPLY</div>
+                    <div style="font-family:'Orbitron'; font-weight:900; font-size:1.2rem; color:#fff;">1,000,000,000</div>
+                    <div style="font-size:0.6rem; color:var(--accent-cyan);">$SKATE</div>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center; border-right: 1px dashed #333; padding: 10px;">
+                    <div style="font-family:'Orbitron'; font-size:0.6rem; color:#888; margin-bottom: 5px;">CIRCULATING M-CAP</div>
+                    <div id="cg-circ-mcap" style="font-family:'Orbitron'; font-weight:900; font-size:1.2rem; color:#00ffaa;">$0.00</div>
+                    <div style="font-size:0.6rem; color:#888;">USD</div>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center; padding: 10px;">
+                    <div style="font-family:'Orbitron'; font-size:0.6rem; color:#888; margin-bottom: 5px;">FULLY DILUTED VALUATION (FDV)</div>
+                    <div id="cg-fdv" style="font-family:'Orbitron'; font-weight:900; font-size:1.2rem; color:var(--accent-gold);">$0.00</div>
+                    <div style="font-size:0.6rem; color:#888;">USD</div>
+                </div>
+            </div>
+
             <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 40px;">
                 <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
                     <div style="font-family:'Orbitron'; font-size:0.65rem; color:#888;">TREASURY WAX RESERVE</div>
@@ -697,11 +720,6 @@
                     <div style="font-family:'Orbitron'; font-size:0.65rem; color:#888;">TREASURY $SKATE RESERVE</div>
                     <div id="treasury-skate-res" style="font-family:'Orbitron'; font-weight:900; font-size:1.5rem; color:var(--accent-cyan);">0.00 SKATE</div>
                     <div id="treasury-skate-usd" style="font-size:0.75rem; color:#00ffaa; font-weight:900;">≈ $0.00 USD</div>
-                </div>
-                <div style="background: rgba(0,0,0,0.6); border: 1px solid #a855f7; border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
-                    <div style="font-family:'Orbitron'; font-size:0.65rem; color:#888;">PROJECTED VALUE (1B FDV)</div>
-                    <div id="treasury-fdv-wax" style="font-family:'Orbitron'; font-weight:900; font-size:1.5rem; color:#a855f7;">0.00 WAX</div>
-                    <div id="treasury-fdv-usd" style="font-size:0.75rem; color:#00ffaa; font-weight:900;">≈ $0.00 USD</div>
                 </div>
             </div>
 
@@ -716,13 +734,13 @@
                 
                 <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(255,215,0,0.05);">
                     <h4 style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-gold); padding-bottom: 15px; letter-spacing: 1px;">🏆 THE WHALE BOARD</h4>
-                    <div style="font-family: 'Inter'; font-size: 0.7rem; color: #888; text-align: center; margin-bottom: 15px;">TOP ALL-TIME CONTRIBUTORS TO SKATECOINWAX</div>
+                    <div style="font-family: 'Inter'; font-size: 0.7rem; color: #888; text -align: center; margin-bottom: 15px;">TOP ALL-TIME CONTRIBUTORS TO SKATECOINWAX</div>
                     <div id="treasury-whales-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                         <div style="padding: 20px; text-align: center; color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">[ SCANNING CHAIN DATA... ]</div>
                     </div>
                 </div>
 
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,240,255,0.35);">
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,240,255,0.05);">
                     <h4 style="color: var(--accent-cyan); font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: 0; text-align: center; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 15px; letter-spacing: 1px;">⚡ LIVE PULSE FEED</h4>
                     <div style="font-family: 'Inter'; font-size: 0.7rem; color: #888; text-align: center; margin-bottom: 15px;">REAL-TIME PROTOCOL FUNDING INTERCEPTS</div>
                     <div id="treasury-pulse-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
@@ -932,7 +950,7 @@
         }
     }
 
-    // COMMUNITY TREASURY: HYPERION LIVE ON-CHAIN SCRAPER & AGGREGATOR (100 LIMIT)
+    // COMMUNITY TREASURY: HYPERION LIVE ON-CHAIN SCRAPER & AGGREGATOR
     async function fetchTreasuryData() {
         await syncPrices();
         
@@ -943,8 +961,10 @@
         const waxUsdDOM = document.getElementById('treasury-wax-usd');
         const skateResDOM = document.getElementById('treasury-skate-res');
         const skateUsdDOM = document.getElementById('treasury-skate-usd');
-        const fdvWaxDOM = document.getElementById('treasury-fdv-wax');
-        const fdvUsdDOM = document.getElementById('treasury-fdv-usd');
+        
+        // CoinGecko HUD elements
+        const circMcapDOM = document.getElementById('cg-circ-mcap');
+        const fdvDOM = document.getElementById('cg-fdv');
 
         whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">SCANNING BLOCKCHAIN...</div>`;
         pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">INTERCEPTING MEMOS...</div>`;
@@ -960,18 +980,23 @@
             const skateBal = skateBalArr[0] ? parseFloat(skateBalArr[0].split(' ')[0]) : 0;
 
             const skatePriceUSD = sWax * waxUsdPrice;
+            
+            // True Mathematical Aggregations
+            const circulating_supply = 1000000;
             const total_supply = 1000000000; 
-            const fdvWax = total_supply * sWax; 
+            
+            const circMcapUsd = circulating_supply * skatePriceUSD;
             const fdvUsd = total_supply * skatePriceUSD; 
+            
+            // Populate HUD
+            circMcapDOM.innerText = `$${circMcapUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            fdvDOM.innerText = `$${fdvUsd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             
             waxResDOM.innerText = waxBal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' WAX';
             waxUsdDOM.innerText = `≈ $${(waxBal * waxUsdPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
             
             skateResDOM.innerText = skateBal.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4}) + ' SKATE';
             skateUsdDOM.innerText = `≈ $${(skateBal * skatePriceUSD).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
-
-            fdvWaxDOM.innerText = fdvWax.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' WAX';
-            fdvUsdDOM.innerText = `≈ $${fdvUsd.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} USD`;
 
             // Hyperion Historical Scraper Logic (100 LIMIT)
             const historyUrl = `${HISTORY_RPC}/v2/history/get_actions?account=skatecoinwax&filter=eosio.token:transfer,skatecoinwax:transfer&limit=100`;
@@ -1684,3 +1709,6 @@
 </script>
 </body>
 </html>
+
+
+    
