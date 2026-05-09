@@ -665,15 +665,38 @@
             <p style="color: #ccc; font-size: 1.05rem; line-height: 1.8; text-align: center; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
                 WAX is the lifeblood of this platform, and <strong>$SKATE</strong> powers its engine. A well-funded protocol allows us to bridge the gap between digital ownership and physical reality—building real-world skate projects in cities globally and fueling the creators who keep the culture alive.
             </p>
-            <p style="color: #ccc; font-size: 1.05rem; line-height: 1.8; text-align: center; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto;">
+            <p style="color: #ccc; font-size: 1.05rem; line-height: 1.8; text-align: center; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
                 We humbly ask for your support. Give what you can to the community treasury. This is GameFi meeting DeFi on a whole new level of cross-chain finance. True contributors will be rewarded with exclusive platform privileges, DAO voting power, and placement in our prestige ranking system. Top supporters will permanently receive the legendary <span style="color: var(--accent-gold); font-family: 'Orbitron'; font-weight: 900;">WHALE BADGE</span>.
             </p>
 
+            <div style="background: rgba(255, 51, 102, 0.1); border-left: 3px solid #ff3366; padding: 15px; margin: 20px auto 40px auto; max-width: 800px; text-align: left;">
+                <span style="color: #ff3366; font-weight: 900; font-family: 'Orbitron'; font-size: 0.85rem; letter-spacing: 1px;">THE MANIFESTO</span><br>
+                <span style="color: #ccc; font-size: 0.95rem; line-height: 1.6; font-family: 'Inter';">The math is transparent. The community treasury backs the projected value. Investors lock value, sponsors build the physical streets, and users ride the protocol. Posers give 0.</span>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 40px;">
+                <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-gold); border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
+                    <div style="font-family:'Orbitron'; font-size:0.65rem; color:#888;">TREASURY WAX RESERVE</div>
+                    <div id="treasury-wax-res" style="font-family:'Orbitron'; font-weight:900; font-size:1.5rem; color:var(--accent-gold);">0.00 WAX</div>
+                    <div id="treasury-wax-usd" style="font-size:0.75rem; color:#00ffaa; font-weight:900;">≈ $0.00 USD</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.6); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
+                    <div style="font-family:'Orbitron'; font-size:0.65rem; color:#888;">TREASURY $SKATE RESERVE</div>
+                    <div id="treasury-skate-res" style="font-family:'Orbitron'; font-weight:900; font-size:1.5rem; color:var(--accent-cyan);">0.00 SKATE</div>
+                    <div id="treasury-skate-usd" style="font-size:0.75rem; color:#00ffaa; font-weight:900;">≈ $0.00 USD</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.6); border: 1px solid #a855f7; border-radius: 8px; padding: 20px; text-align: center; flex: 1; min-width: 250px;">
+                    <div style="font-family:'Orbitron'; font-size:0.65rem; color:#888;">PROJECTED VALUE (1B FDV)</div>
+                    <div id="treasury-fdv-wax" style="font-family:'Orbitron'; font-weight:900; font-size:1.5rem; color:#a855f7;">0.00 WAX</div>
+                    <div id="treasury-fdv-usd" style="font-size:0.75rem; color:#00ffaa; font-weight:900;">≈ $0.00 USD</div>
+                </div>
+            </div>
+
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 50px; padding-bottom: 40px; border-bottom: 1px dashed rgba(255,255,255,0.2);">
-                <button class="wallet-btn" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE WAX</button>
-                <button class="wallet-btn" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE $SKATE</button>
-                <button class="wallet-btn" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">BRIDGE SOLANA</button>
-                <button class="wallet-btn" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">STAKE LP TOKENS</button>
+                <button class="wallet-btn" onclick="donateWax()" style="background: var(--accent-gold); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE WAX</button>
+                <button class="wallet-btn" onclick="donateSkate()" style="background: var(--accent-cyan); color: #000; font-size: 0.9rem; padding: 12px 25px;">DONATE $SKATE</button>
+                <button class="wallet-btn" onclick="alert('Solana Bridge expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">BRIDGE SOLANA</button>
+                <button class="wallet-btn" onclick="alert('LP Staking expanding in next update.')" style="background: transparent; color: #fff; border: 1px solid #fff; font-size: 0.9rem; padding: 12px 25px;">STAKE LP TOKENS</button>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
@@ -859,7 +882,6 @@
             const tickerRes = await fetch('https://alcor.exchange/api/v2/tickers/skate-skatecoinwax_wax-eosio.token');
             const tickerData = await tickerRes.json();
             if(tickerData && tickerData.last_price) {
-                // last_price is WAX per SKATE. Invert for SKATE per WAX if needed.
                 sWax = tickerData.last_price;
                 skatePerWax = 1 / sWax;
             }
@@ -872,11 +894,52 @@
 
     // COMMUNITY TREASURY GAMEFI DATA FETCHER
     async function fetchTreasuryData() {
+        // First ensure prices are synced for accurate USD calculation
+        await syncPrices();
+        
         const whaleList = document.getElementById('treasury-whales-list');
         const pulseList = document.getElementById('treasury-pulse-list');
         
+        const waxResDOM = document.getElementById('treasury-wax-res');
+        const waxUsdDOM = document.getElementById('treasury-wax-usd');
+        const skateResDOM = document.getElementById('treasury-skate-res');
+        const skateUsdDOM = document.getElementById('treasury-skate-usd');
+        
+        const fdvWaxDOM = document.getElementById('treasury-fdv-wax');
+        const fdvUsdDOM = document.getElementById('treasury-fdv-usd');
+
         whaleList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-gold); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">SYNCING PROTOCOL DATA...</div>`;
         pulseList.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--accent-cyan); font-family: 'Orbitron'; font-size: 0.8rem; font-weight: 900;">INTERCEPTING TRANSACTIONS...</div>`;
+
+        try {
+            // THE LIVE RESERVES (WAX CHAIN PING)
+            const waxRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "eosio.token", account: "skatecoinwax", symbol: "WAX" }) });
+            const waxBalArr = await waxRes.json(); 
+            const waxBal = waxBalArr[0] ? parseFloat(waxBalArr[0].split(' ')[0]) : 0;
+            
+            const skateRes = await fetch(`${WAX_RPC}/v1/chain/get_currency_balance`, { method: 'POST', body: JSON.stringify({ code: "skatecoinwax", account: "skatecoinwax", symbol: "SKATE" }) });
+            const skateBalArr = await skateRes.json();
+            const skateBal = skateBalArr[0] ? parseFloat(skateBalArr[0].split(' ')[0]) : 0;
+
+            // THE PROJECTED VALUE ENGINE (MATH)
+            const skatePriceUSD = sWax * waxUsdPrice; // Live USD price per $SKATE
+            const total_supply = 1000000000; // 1 Billion
+            const fdvWax = total_supply * sWax; // FDV in WAX
+            const fdvUsd = total_supply * skatePriceUSD; // FDV in USD
+            
+            // HUD UPDATES
+            waxResDOM.innerText = waxBal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' WAX';
+            waxUsdDOM.innerText = `≈ $${(waxBal * waxUsdPrice).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+            
+            skateResDOM.innerText = skateBal.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4}) + ' SKATE';
+            skateUsdDOM.innerText = `≈ $${(skateBal * skatePriceUSD).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+
+            fdvWaxDOM.innerText = fdvWax.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' WAX';
+            fdvUsdDOM.innerText = `≈ $${fdvUsd.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} USD`;
+
+        } catch (e) {
+            console.error("Treasury fetch error:", e);
+        }
 
         // NOTE: In production, this will hit WAX Hyperion History API
         // Example: fetch('https://wax.greymass.com/v2/history/get_actions?account=skatecoinwax&filter=eosio.token%3Atransfer')
@@ -928,6 +991,67 @@
             `;
         }, 1000);
     }
+
+    // THE LIVE DONATION PIPES
+    window.donateSkate = async () => {
+        if (!currentSession) return toggleAuthModal();
+        const amtIn = prompt("ENTER AMOUNT OF $SKATE TO DONATE TO THE PROTOCOL TREASURY:\\n\\n*Posers give 0.*");
+        if (!amtIn || isNaN(parseFloat(amtIn)) || parseFloat(amtIn) <= 0) return;
+        
+        const formattedAmt = parseFloat(amtIn).toFixed(4) + " SKATE";
+        const recipient = currentSession.actor.toString();
+        
+        try {
+            const actions = [{
+                account: 'skatecoinwax',
+                name: 'transfer',
+                authorization: [currentSession.permissionLevel],
+                data: {
+                    from: recipient,
+                    to: 'skatecoinwax',
+                    quantity: formattedAmt,
+                    memo: "PROTOCOL SPONSORSHIP"
+                }
+            }];
+            await currentSession.transact({ actions });
+            alert("🔥 SPONSORSHIP CONFIRMED. THE CULTURE THANKS YOU. 🔥");
+            fetchTreasuryData(); // Instantly sync new reserves
+            updateBalances(recipient);
+        } catch(e) {
+            console.error(e);
+            alert("⚠️ Transaction Cancelled or Failed.");
+        }
+    };
+
+    window.donateWax = async () => {
+        if (!currentSession) return toggleAuthModal();
+        const amtIn = prompt("ENTER AMOUNT OF WAX TO DONATE TO THE PROTOCOL TREASURY:\\n\\n*Posers give 0.*");
+        if (!amtIn || isNaN(parseFloat(amtIn)) || parseFloat(amtIn) <= 0) return;
+        
+        const formattedAmt = parseFloat(amtIn).toFixed(8) + " WAX";
+        const recipient = currentSession.actor.toString();
+        
+        try {
+            const actions = [{
+                account: 'eosio.token',
+                name: 'transfer',
+                authorization: [currentSession.permissionLevel],
+                data: {
+                    from: recipient,
+                    to: 'skatecoinwax',
+                    quantity: formattedAmt,
+                    memo: "PROTOCOL SPONSORSHIP"
+                }
+            }];
+            await currentSession.transact({ actions });
+            alert("🔥 SPONSORSHIP CONFIRMED. THE CULTURE THANKS YOU. 🔥");
+            fetchTreasuryData(); // Instantly sync new reserves
+            updateBalances(recipient);
+        } catch(e) {
+            console.error(e);
+            alert("⚠️ Transaction Cancelled or Failed.");
+        }
+    };
 
     // SK8SWAP LOGIC: THE BI-DIRECTIONAL TOGGLE
     window.flipSwapDirection = () => {
@@ -1027,7 +1151,7 @@
 
             // LIQUIDITY SHIELD
             if (parseFloat(routeData.priceImpact) > 5) {
-                const proceed = confirm(`⚠️ HIGH PRICE IMPACT DETECTED (${routeData.priceImpact}%).\nThe pool liquidity is low. You will suffer heavy slippage. Proceed?`);
+                const proceed = confirm(`⚠️ HIGH PRICE IMPACT DETECTED (${routeData.priceImpact}%).\\nThe pool liquidity is low. You will suffer heavy slippage. Proceed?`);
                 if(!proceed) {
                     btn.innerText = "EXECUTE DECENTRALIZED SWAP";
                     return;
