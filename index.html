@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DUAL PIPELINE ENGINE | Universal Media Factory</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <title>DUAL PIPELINE COCKPIT | HUD Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         :root {
-            --bg-deep: #050a1a;
-            --bg-panel: rgba(15, 26, 71, 0.95);
+            --bg-deep: #030712;
+            --bg-panel: rgba(11, 19, 43, 0.95);
             --accent-cyan: #00f0ff;
             --accent-pink: #ff0055;
             --accent-gold: #ffd700;
             --accent-cyber-yellow: #ffea00;
             --accent-solana-purple: #9945FF;
-            --card-border: rgba(0, 240, 255, 0.15);
+            --card-border: rgba(0, 240, 255, 0.2);
+            --hud-glow: rgba(0, 240, 255, 0.05);
 
-            /* Rarity / Boost Tiers */
             --rarity-common: #94a3b8;
             --rarity-epic: #d946ef;
             --rarity-legendary: #ffd700;
@@ -28,323 +28,390 @@
         html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-deep); color: #fff; font-family: 'Orbitron', sans-serif; }
         
         body {
-            background-image: radial-gradient(circle at 50% 50%, #162a5e 0%, #050a1a 100%);
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, #0d1b3e 0%, #030712 100%);
+            background-size: 40px 40px, 40px 40px, auto;
             background-attachment: fixed;
             min-height: 100vh;
-            padding: 20px;
+            padding: 25px;
+        }
+
+        /* --- SCANLINE SCREEN EFFECT --- */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 99999;
+            opacity: 0.4;
+            pointer-events: none;
+            background-size: 100% 4px, 6px 100%;
         }
 
         header {
             background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-bottom: 2px solid var(--accent-cyber-yellow);
-            box-shadow: 0 5px 20px rgba(255, 234, 0, 0.1);
+            padding: 25px;
+            border: 2px solid var(--accent-cyber-yellow);
+            box-shadow: 0 0 25px rgba(255, 234, 0, 0.15), inset 0 0 15px rgba(255, 234, 0, 0.05);
             margin-bottom: 40px;
-            border-radius: 8px;
-            text-align: center;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "SYSTEM LIVE // DATA SYNCHRONIZATION RUNNING";
+            position: absolute;
+            top: 4px; left: 8px;
+            font-size: 0.55rem;
+            font-family: 'Orbitron';
+            color: var(--accent-cyber-yellow);
+            opacity: 0.7;
+            letter-spacing: 2px;
         }
 
         .header-title {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-size: clamp(1.8rem, 5vw, 3rem);
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             color: var(--accent-cyber-yellow);
             text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
         }
-        .header-title span { color: var(--accent-solana-purple); }
+        .header-title span { color: var(--accent-solana-purple); text-shadow: 0 0 15px var(--accent-solana-purple); }
 
-        /* --- CONTROLS / FORM TERMINAL --- */
+        /* --- HIGH-TECH TERMINAL CONSOLE --- */
         .factory-terminal {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             border: 1px solid var(--accent-cyan);
-            border-radius: 12px;
-            padding: 25px;
-            max-width: 800px;
+            border-radius: 4px;
+            padding: 30px;
+            max-width: 900px;
             margin: 0 auto 40px auto;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 30px var(--hud-glow);
+            position: relative;
         }
 
-        .terminal-header {
+        .factory-terminal::before {
+            content: "📥 INPUT PORT";
+            position: absolute;
+            top: -9px; left: 15px;
+            background: var(--bg-deep);
+            padding: 0 8px;
+            font-size: 0.65rem;
             color: var(--accent-cyan);
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed rgba(0, 240, 255, 0.3);
-            padding-bottom: 8px;
-            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .input-group {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
         }
 
         .url-input {
             flex: 1;
             min-width: 280px;
-            padding: 15px;
-            background: #000;
-            border: 1px solid #333;
+            padding: 15px 20px;
+            background: rgba(5, 10, 26, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
             color: #fff;
             font-family: 'Inter', sans-serif;
             font-size: 0.95rem;
-            border-radius: 6px;
+            border-radius: 2px;
             outline: none;
+            transition: 0.3s;
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);
         }
-        .url-input:focus { border-color: var(--accent-cyber-yellow); }
+        .url-input:focus { border-color: var(--accent-cyber-yellow); box-shadow: 0 0 15px rgba(255, 234, 0, 0.1); }
 
         .factory-btn {
             background: var(--accent-cyan);
             color: #000;
             border: none;
-            padding: 15px 30px;
+            padding: 15px 35px;
             font-family: 'Orbitron';
             font-weight: 900;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 2px;
             transition: 0.2s;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .factory-btn:hover { background: #fff; box-shadow: 0 0 15px var(--accent-cyan); }
+        .factory-btn:hover { background: #fff; box-shadow: 0 0 20px var(--accent-cyan); }
 
         /* --- SPLIT COCKPIT LAYOUT --- */
         .cockpit-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 550px), 1fr));
-            gap: 30px;
-            max-width: 1600px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 650px), 1fr));
+            gap: 35px;
+            max-width: 1700px;
             margin: auto;
         }
 
         .pipeline-pipe {
-            background: rgba(5, 10, 26, 0.65);
-            border-radius: 12px;
-            padding: 25px;
+            background: var(--bg-panel);
+            border-radius: 4px;
+            padding: 30px;
             box-sizing: border-box;
+            position: relative;
         }
 
         /* Pipe 1 Rail Style (WAX) */
         .pipe-wax {
             border: 2px solid var(--accent-cyber-yellow);
-            box-shadow: 0 0 25px rgba(255, 234, 0, 0.05);
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.03);
         }
         .pipe-wax .pipe-header { color: var(--accent-cyber-yellow); border-color: rgba(255, 234, 0, 0.2); }
 
         /* Pipe 2 Rail Style (Solana) */
         .pipe-solana {
             border: 2px solid var(--accent-solana-purple);
-            box-shadow: 0 0 25px rgba(153, 69, 255, 0.05);
+            box-shadow: 0 0 30px rgba(153, 69, 255, 0.03);
         }
         .pipe-solana .pipe-header { color: var(--accent-solana-purple); border-color: rgba(153, 69, 255, 0.2); }
 
         .pipe-header {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 900;
-            letter-spacing: 1px;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            padding-bottom: 12px;
             border-bottom: 2px dashed;
             text-transform: uppercase;
         }
 
-        /* --- UNIVERSAL VIDEO CARD COMPONENTS --- */
+        /* --- SLICK HUD PROFILE LAYOUT --- */
+        .profile-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 234, 0, 0.2);
+            border-radius: 4px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .profile-card::before {
+            content: "REGISTRY DATA LOG";
+            position: absolute;
+            top: -8px; left: 12px;
+            font-size: 0.55rem;
+            color: var(--accent-cyber-yellow);
+            background: #080f26;
+            padding: 0 5px;
+            letter-spacing: 1px;
+        }
+        .profile-field { margin-bottom: 20px; }
+        .profile-field label {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--accent-cyber-yellow);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .profile-input {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 1px solid #222;
+            color: #fff;
+            font-family: 'Inter';
+            font-size: 0.9rem;
+            border-radius: 2px;
+        }
+
+        /* --- PERFECTLY FRAMED VIDEO CARDS WITH HUD METRICS --- */
         .video-feed-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
         }
 
         .video-card {
-            background: var(--bg-panel);
+            background: #000;
             border: 1px solid var(--card-border);
-            border-radius: 12px;
+            border-radius: 4px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
+        .video-card:hover { border-color: var(--accent-cyan); transform: translateY(-2px); }
 
+        /* Tactical HUD Brackets for Video Card */
+        .video-card::before, .video-card::after {
+            content: "";
+            position: absolute;
+            width: 10px; height: 10px;
+            pointer-events: none;
+            z-index: 30;
+            transition: 0.3s;
+        }
+        .video-card::before { top: 5px; left: 5px; border-top: 2px solid rgba(0,240,255,0.4); border-left: 2px solid rgba(0,240,255,0.4); }
+        .video-card::after { bottom: 5px; right: 5px; border-bottom: 2px solid rgba(0,240,255,0.4); border-right: 2px solid rgba(0,240,255,0.4); }
+
+        /* Perfect Framing Engine Box */
         .video-wrapper {
             position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
+            width: 100%;
+            aspect-ratio: 16 / 9; /* Perfect wide fallback anchoring */
             background: #000;
-            flex-shrink: 0;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
         }
+        .video-wrapper.portrait-frame { aspect-ratio: 4 / 5; } /* Adaptive compression rail for vertical content */
+
         .video-wrapper iframe {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             border: none;
             z-index: 1;
+            object-fit: cover;
         }
 
         /* Anti-Poser Encryption Mask */
         .video-mask {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, rgba(5,10,26,0.98), rgba(15,26,71,0.95));
+            background: radial-gradient(circle at 50% 50%, rgba(10, 20, 50, 0.98) 0%, rgba(3, 7, 18, 1) 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10;
-            transition: 0.4s ease;
+            transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .video-mask i { font-size: 2rem; color: var(--accent-gold); margin-bottom: 10px; }
-        .video-mask p { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
+        .video-mask i { font-size: 2.2rem; color: var(--accent-pink); margin-bottom: 12px; text-shadow: 0 0 10px rgba(255,0,85,0.5); }
+        .video-mask p { font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 900; color: #fff; }
 
-        .unlocked .video-mask { opacity: 0; pointer-events: none; visibility: hidden; }
+        .unlocked .video-mask { opacity: 0; pointer-events: none; visibility: hidden; transform: scale(1.05); }
 
-        .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
-        .card-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1rem; margin-bottom: 12px; text-transform: uppercase; color: #fff; }
+        /* Card Information Panels */
+        .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; background: rgba(5, 10, 26, 0.4); }
+        .card-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; color: #fff; letter-spacing: 1px; line-height: 1.2; }
         
-        .meta-pill {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid #222;
-            padding: 6px 10px;
-            border-radius: 4px;
+        /* Tactical HUD Pillar Component */
+        .hud-telemetry-pill {
+            background: rgba(0,0,0,0.8);
+            border-left: 3px solid var(--accent-cyan);
+            padding: 10px 12px;
             font-size: 0.65rem;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            font-family: 'Inter', sans-serif;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-family: 'Orbitron';
+            letter-spacing: 1px;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
         }
+        .hud-telemetry-pill div span { color: var(--accent-cyan); font-weight: bold; }
 
-        /* --- REACTION SYSTEM --- */
+        /* --- HIGH-ENGAGEMENT BOOSTER MATRIX --- */
         .reaction-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            background: rgba(0,0,0,0.3);
-            padding: 8px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            gap: 8px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .reaction-btn {
-            background: none;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 4px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 2px;
             cursor: pointer;
             color: #fff;
-            padding: 6px;
-            font-size: 0.7rem;
+            padding: 8px;
+            font-size: 0.75rem;
             font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            transition: 0.2s;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
-        .reaction-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-cyan); }
-        .reaction-btn.triggered { border-color: var(--accent-gold); background: rgba(255,215,0,0.05); }
+        .reaction-btn:hover { background: rgba(0, 240, 255, 0.05); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .reaction-btn.triggered { border-color: var(--accent-gold); background: rgba(255,215,0,0.05); color: var(--accent-gold); }
 
+        /* Unified Ticking Trigger Configurations */
         .action-btn {
             background: transparent;
-            border: 1px solid var(--accent-gold);
-            color: var(--accent-gold);
-            padding: 10px;
-            border-radius: 6px;
+            border: 1px solid var(--accent-solana-purple);
+            color: #fff;
+            padding: 14px;
             font-family: 'Orbitron';
             font-weight: 900;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             cursor: pointer;
             width: 100%;
             text-transform: uppercase;
             margin-top: auto;
-            transition: 0.2s;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            letter-spacing: 2px;
+            position: relative;
         }
-        .action-btn:hover { background: var(--accent-gold); color: #000; }
+        .action-btn:hover { background: var(--accent-solana-purple); color: #fff; box-shadow: 0 0 20px var(--accent-solana-purple); }
 
-        /* --- EXTREME OVERLAY ANIMATIONS (10 CLICK CATALYSTS) --- */
-        .viral-fire { border-color: #ff4500 !important; animation: firePulse 1s infinite alternate; }
-        @keyframes firePulse {
-            0% { box-shadow: 0 0 10px rgba(255,69,0,0.4); }
-            100% { box-shadow: 0 0 25px rgba(255,140,0,0.8); border-color: #ff8c00 !important; }
-        }
-        .viral-fire .video-wrapper::after { content: "ON FIRE"; position: absolute; bottom: 10px; right: 10px; font-family: 'Bangers'; font-size: 2rem; color: #ff4500; text-shadow: 2px 2px #000; z-index: 20; }
+        .btn-wax-style { border-color: var(--accent-cyber-yellow); }
+        .btn-wax-style:hover { background: var(--accent-cyber-yellow); color: #000; box-shadow: 0 0 20px var(--accent-cyber-yellow); }
 
-        .sketchy { border-color: #39ff14 !important; box-shadow: 0 0 15px rgba(57,255,20,0.4); }
-        .sketchy .video-wrapper::after { content: "SKETCHY"; position: absolute; bottom: 10px; right: 10px; font-family: 'Bangers'; font-size: 2rem; color: #39ff14; text-shadow: 2px 2px #000; z-index: 20; }
+        /* --- EXTREME OVERLAY MATRIX MODES (10 CLICK MATRIX) --- */
+        .viral-fire { border-color: #ff4500 !important; }
+        .viral-fire::before { border-top-color: #ff4500; border-left-color: #ff4500; }
+        .viral-fire::after { border-bottom-color: #ff4500; border-right-color: #ff4500; }
+        .viral-fire .video-wrapper::after { content: "SYS // ON FIRE"; position: absolute; bottom: 8px; right: 12px; font-family: 'Bangers'; font-size: 1.8rem; color: #ff4500; text-shadow: 2px 2px #000; z-index: 20; letter-spacing: 1px; }
 
-        .hall-of-meat { border-color: #8b0000 !important; box-shadow: 0 0 20px rgba(139,0,0,0.7); }
-        .hall-of-meat .video-wrapper::after { content: "GROUND BEEF"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-family: 'Bangers'; font-size: 3rem; color: rgba(255,0,0,0.9); z-index: 20; text-shadow: 2px 2px #000; text-align: center; width: 100%; }
-        .hall-of-meat .video-wrapper::before { content: ""; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,0,0,0.25); z-index: 15; }
+        .sketchy { border-color: #39ff14 !important; }
+        .sketchy::before { border-top-color: #39ff14; border-left-color: #39ff14; }
+        .sketchy::after { border-bottom-color: #39ff14; border-right-color: #39ff14; }
+        .sketchy .video-wrapper::after { content: "SYS // SKETCHY"; position: absolute; bottom: 8px; right: 12px; font-family: 'Bangers'; font-size: 1.8rem; color: #39ff14; text-shadow: 2px 2px #000; z-index: 20; letter-spacing: 1px; }
 
-        .god-tier { border: 2px solid transparent !important; background-clip: padding-box, border-box !important; background-origin: padding-box, border-box !important; background-image: linear-gradient(var(--bg-panel), var(--bg-panel)), linear-gradient(45deg, #ffd700, #fff, #ffd700, #b9f2ff, #ffd700) !important; background-size: 300% 300% !important; animation: godShimmer 3s infinite linear; }
-        @keyframes godShimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .hall-of-meat { border-color: #ff0055 !important; }
+        .hall-of-meat::before { border-top-color: #ff0055; border-left-color: #ff0055; }
+        .hall-of-meat::after { border-bottom-color: #ff0055; border-right-color: #ff0055; }
+        .hall-of-meat .video-wrapper::after { content: "GROUND BEEF"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg); font-family: 'Bangers'; font-size: 2.8rem; color: #ff0055; z-index: 20; text-shadow: 3px 3px #000; text-align: center; width: 100%; }
+        .hall-of-meat .video-wrapper::before { content: ""; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,0,85,0.25); z-index: 15; }
 
-        /* --- PROFILE CONFIG PANEL --- */
-        .profile-card {
-            background: var(--bg-panel);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .profile-field {
-            margin-bottom: 15px;
-        }
-        .profile-field label {
-            display: block;
-            font-size: 0.65rem;
-            color: var(--accent-cyan);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .profile-input {
-            width: 100%;
-            padding: 10px;
-            background: #000;
-            border: 1px solid #222;
-            color: #fff;
-            font-family: 'Inter';
-            font-size: 0.85rem;
-            border-radius: 4px;
-        }
+        .god-tier { border: 2px solid transparent !important; background-clip: padding-box, border-box !important; background-origin: padding-box, border-box !important; background-image: linear-gradient(#000, #000), linear-gradient(45deg, #ffd700, #fff, #ffd700, #b9f2ff, #ffd700) !important; background-size: 300% 300% !important; animation: godShimmer 3s infinite linear; }
+        .god-tier::before, .god-tier::after { display: none; }
 
-        /* --- REBEL SYSTEM UTILITIES --- */
+        /* --- SYSTEM ALERTS --- */
         .toast-notify {
             position: fixed;
-            bottom: 20px; right: 20px;
+            bottom: 25px; right: 25px;
             background: #000;
-            border: 1px solid var(--accent-cyan);
-            padding: 15px 25px;
-            border-radius: 6px;
-            z-index: 9999;
+            border: 2px solid var(--accent-cyan);
+            padding: 18px 30px;
+            border-radius: 4px;
+            z-index: 99999;
             font-size: 0.8rem;
-            box-shadow: 0 5px 15px rgba(0,240,255,0.2);
+            box-shadow: 0 0 30px rgba(0,240,255,0.3);
             display: none;
+            font-weight: 700;
         }
-
-        .platform-badge {
-            font-size: 0.6rem;
-            font-weight: 900;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-        .badge-yt { background: #ff2d55; color: #fff; }
-        .badge-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #fff; }
-        .badge-tt { background: #000; color: #fff; border: 1px solid var(--accent-cyan); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1 class="header-title">sk8dao <span>//</span> Cross-Chain Cockpit</h1>
+    <h1 class="header-title">sk8dao <span>//</span> Profile Cockpit v2.0</h1>
 </header>
 
 <div class="factory-terminal">
     <div class="terminal-header">Universal Media Link Indexer</div>
     <div class="input-group">
-        <input type="text" id="target-link-input" class="url-input" placeholder="Paste raw URL here (YouTube, Instagram, or TikTok)...">
+        <input type="text" id="target-link-input" class="url-input" placeholder="Paste URL source (YouTube, Instagram, or TikTok)...">
         <button class="factory-btn" onclick="processIncomingLink()">Index Payload</button>
-    </div>
-    <div style="font-size: 0.7rem; color: #888; font-family: 'Inter'; line-height: 1.4;">
-        * Engine normalizes paths instantly to Pure Embed targets without invoking resource-heavy external platform script layers.
     </div>
 </div>
 
@@ -354,7 +421,6 @@
         <div class="pipe-header">Pipe 1 // WAX Identity Bench</div>
         
         <div class="profile-card">
-            <div style="font-size: 0.8rem; color: var(--accent-cyber-yellow); font-weight: 900; margin-bottom: 15px; text-transform: uppercase;">Cryptographic Profile Data</div>
             <div class="profile-field">
                 <label>Rider Handle</label>
                 <input type="text" id="prof-name" class="profile-input" value="GREG VALENCIA">
@@ -367,12 +433,12 @@
                 <label>Setup Fabrications</label>
                 <input type="text" id="prof-setup" class="profile-input" value="8.25 FA DECK // INDY 149 TRUCKS">
             </div>
-            <button class="action-btn" onclick="simulateProfileSave()" style="border-color: var(--accent-cyber-yellow); color: var(--accent-cyber-yellow);">Broadcast Profile Memo</button>
+            <button class="action-btn btn-wax-style" onclick="simulateProfileSave()">Broadcast Profile Memo</button>
         </div>
 
-        <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 6px; border: 1px solid rgba(255,234,0,0.1); font-size: 0.75rem; line-height: 1.6; color: #ccc;">
-            <div style="font-weight: 900; color: var(--accent-cyber-yellow); margin-bottom: 5px;">RAIL STATUS: ACTIVE</div>
-            WAX ledger acts as the primary data persistence network. Asset state rules, component inventory counts, and profile configurations are queried automatically from local tracking loops.
+        <div style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 4px; border: 1px solid rgba(255,234,0,0.1); font-size: 0.75rem; line-height: 1.6; color: #aaa;">
+            <div style="font-weight: 900; color: var(--accent-cyber-yellow); margin-bottom: 6px; letter-spacing: 1px;">RAIL STATUS // ACTIVE</div>
+            WAX ledger handles primary profile configurations. State parameters, inventory tracking indices, and decentralized metrics sync immediately to local memory spaces.
         </div>
     </div>
 
@@ -390,10 +456,11 @@
                     <iframe id="frame-payload-01" data-src="https://www.youtube.com/embed/TkiDuln_Q28" src=""></iframe>
                 </div>
                 <div class="card-body">
-                    <div class="card-title">GREG VALENCIA // STREET LINE</div>
-                    <div class="meta-pill">
-                        <div>PLATFORM: <span class="platform-badge badge-yt">YOUTUBE</span></div>
-                        <div>STATUS: <span id="status-text-01" style="color:var(--accent-pink); font-weight:900;">LOCKED</span></div>
+                    <div class="card-title">GREG VALENCIA // LA REBEL PART</div>
+                    
+                    <div class="hud-telemetry-pill">
+                        <div>SOURCE: <span style="color:#ff2d55;">YOUTUBE</span></div>
+                        <div>SIGNAL: <span id="status-text-01" style="color:var(--accent-pink);">SECURE LOCK</span></div>
                     </div>
                     
                     <div class="reaction-container">
@@ -402,7 +469,7 @@
                         <button class="reaction-btn" onclick="registerReaction('card-payload-01', 'meat')">🥩 <span id="card-payload-01-meat">0</span></button>
                     </div>
                     
-                    <button class="action-btn" id="lock-btn-01" onclick="toggleSimulatedLock('card-payload-01', 'frame-payload-01', 'mask-payload-01', 'status-text-01', 'lock-btn-01')">FLOW DONATION 0.01</button>
+                    <button class="action-btn" id="lock-btn-01" onclick="toggleSimulatedLock('card-payload-01', 'frame-payload-01', 'status-text-01', 'lock-btn-01')">flow donation 0.01</button>
                 </div>
             </div>
 
@@ -411,10 +478,11 @@
                     <iframe id="frame-payload-02" src="https://www.instagram.com/p/C12345/embed"></iframe>
                 </div>
                 <div class="card-body">
-                    <div class="card-title">LOCAL PARK SLAM</div>
-                    <div class="meta-pill">
-                        <div>PLATFORM: <span class="platform-badge badge-ig">INSTAGRAM</span></div>
-                        <div>STATUS: <span style="color:var(--accent-cyan); font-weight:900;">FREE ACCESS</span></div>
+                    <div class="card-title">MACBA EDGE CRUISE</div>
+                    
+                    <div class="hud-telemetry-pill">
+                        <div>SOURCE: <span style="color:#dc2743;">INSTAGRAM</span></div>
+                        <div>SIGNAL: <span style="color:var(--accent-cyan);">FREE ACCESS</span></div>
                     </div>
                     
                     <div class="reaction-container">
@@ -423,7 +491,7 @@
                         <button class="reaction-btn" onclick="registerReaction('card-payload-02', 'meat')">🥩 <span id="card-payload-02-meat">0</span></button>
                     </div>
                     
-                    <button class="action-btn" onclick="triggerToast('AMATEUR DONATION 0.05 processed on simulated rail.')">AMATEUR DONATION 0.05</button>
+                    <button class="action-btn" onclick="triggerToast('AMATEUR DONATION tier validation broadcasted.')">amateur donation 0.05</button>
                 </div>
             </div>
 
@@ -435,90 +503,90 @@
 <div class="toast-notify" id="system-toast">Notification Broadcast Secured</div>
 
 <script>
-    // Local memory stack for testing without wallet injections
     let internalReactionState = {
         'card-payload-01': { fire: 0, sketchy: 0, meat: 0 },
         'card-payload-02': { fire: 0, sketchy: 0, meat: 0 }
     };
 
-    // ========== UNIVERSAL IDENTIFICATION ROUTER ==========
+    // ========== UNIVERSAL PLATFORM ROUTING ENGINE ==========
     function parseUniversalVideoUrl(url) {
-        if (!url) return { platform: null, id: null };
+        if (!url) return { platform: null, id: null, isVertical: false };
         
-        // YouTube Core Regex
-        const ytMatch = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-        if (ytMatch && ytMatch[2].length === 11) {
-            return { platform: 'yt', id: ytMatch[2] };
+        // YouTube Regular & Shorts Matching
+        if (url.includes('youtube.com/shorts/') || url.includes('youtu.be/')) {
+            const shortMatch = url.match(/shorts\/([a-zA-Z0-9_-]{11})/);
+            if(shortMatch) return { platform: 'yt', id: shortMatch[1], isVertical: true };
+            
+            const regMatch = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            if (regMatch && regMatch[2].length === 11) return { platform: 'yt', id: regMatch[2], isVertical: false };
         }
         
-        // Instagram Core Regex
+        // Instagram Post & Reels Matching
         const igMatch = url.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
-        if (igMatch) {
-            return { platform: 'ig', id: igMatch[1] };
-        }
+        if (igMatch) return { platform: 'ig', id: igMatch[1], isVertical: true };
         
-        // TikTok Core Regex
+        // TikTok Videos Matching
         const ttMatch = url.match(/(?:tiktok\.com\/)(?:@[\w.-]+\/video\/)(\d+)/i);
-        if (ttMatch) {
-            return { platform: 'tt', id: ttMatch[1] };
-        }
+        if (ttMatch) return { platform: 'tt', id: ttMatch[1], isVertical: true };
         
-        return { platform: null, id: null };
+        return { platform: null, id: null, isVertical: false };
     }
 
     function getUniversalEmbedUrl(platform, id) {
         if (!platform || !id) return "";
         switch(platform.toLowerCase()) {
-            case 'yt': return `https://www.youtube.com/embed/${id}?autoplay=0`;
+            case 'yt': return `https://www.youtube.com/embed/${id}?autoplay=0&controls=1`;
             case 'ig': return `https://www.instagram.com/p/${id}/embed`;
             case 'tt': return `https://www.tiktok.com/embed/v2/${id}`;
             default: return "";
         }
     }
 
-    // ========== ACTION CONTROLLERS ==========
+    // ========== CONTROLLER ACTIONS ==========
     function processIncomingLink() {
         const inputField = document.getElementById('target-link-input');
         const rawUrl = inputField.value.trim();
-        if(!rawUrl) return alert("Payload string input empty.");
+        if(!rawUrl) return alert("Payload input tracking string is empty.");
 
         const targetData = parseUniversalVideoUrl(rawUrl);
         if(!targetData.platform) {
-            return alert("Unrecognized media signature. Ensure link matches standardized formatting paradigms.");
+            return alert("Unrecognized payload link signatures. System requires valid YouTube, Instagram, or TikTok paths.");
         }
 
         const normalizedEmbedPath = getUniversalEmbedUrl(targetData.platform, targetData.id);
         const dynamicId = 'generated-' + Date.now();
         internalReactionState[dynamicId] = { fire: 0, sketchy: 0, meat: 0 };
 
-        // Generate card layout dynamically adhering to style metrics
+        // Apply portrait framing structural container if asset is vertical
+        const frameClass = targetData.isVertical ? 'video-wrapper portrait-frame' : 'video-wrapper';
+        const colorLabel = targetData.platform === 'yt' ? '#ff2d55' : (targetData.platform === 'ig' ? '#dc2743' : '#00f0ff');
+
         const cardTemplate = `
         <div class="video-card unlocked" id="${dynamicId}">
-            <div class="video-wrapper">
+            <div class="${frameClass}">
                 <iframe id="frame-${dynamicId}" src="${normalizedEmbedPath}"></iframe>
             </div>
             <div class="card-body">
                 <div class="card-title">INDEXED CLIP CLASSIFIED</div>
-                <div class="meta-pill">
-                    <div>PLATFORM: <span class="platform-badge badge-${targetData.platform}">${targetData.platform.toUpperCase()}</span></div>
-                    <div>STATUS: <span style="color:var(--accent-cyan); font-weight:900;">UNLOCKED</span></div>
+                <div class="hud-telemetry-pill">
+                    <div>SOURCE: <span style="color:${colorLabel}">${targetData.platform.toUpperCase()}</span></div>
+                    <div>SIGNAL: <span style="color:var(--accent-cyan);">FREE ACCESS</span></div>
                 </div>
                 <div class="reaction-container">
                     <button class="reaction-btn" onclick="registerReaction('${dynamicId}', 'fire')">🔥 <span id="${dynamicId}-fire">0</span></button>
                     <button class="reaction-btn" onclick="registerReaction('${dynamicId}', 'sketchy')">🤮 <span id="${dynamicId}-sketchy">0</span></button>
                     <button class="reaction-btn" onclick="registerReaction('${dynamicId}', 'meat')">🥩 <span id="${dynamicId}-meat">0</span></button>
                 </div>
-                <button class="action-btn" onclick="triggerToast('PRO DONATION 0.1 processed on simulated rail.')">PRO DONATION 0.1</button>
+                <button class="action-btn" onclick="triggerToast('PRO DONATION transaction tracking recorded.')">pro donation 0.1</button>
             </div>
         </div>`;
 
         document.getElementById('universal-media-target-grid').insertAdjacentHTML('afterbegin', cardTemplate);
         inputField.value = "";
-        triggerToast(`Asset ${targetData.id} payload parsing complete.`);
+        triggerToast(`Asset ${targetData.id} integrated perfectly to HUD matrix.`);
     }
 
-    // Gating state switcher
-    function toggleSimulatedLock(cardId, frameId, maskId, statusId, btnId) {
+    function toggleSimulatedLock(cardId, frameId, statusId, btnId) {
         const card = document.getElementById(cardId);
         const frame = document.getElementById(frameId);
         const status = document.getElementById(statusId);
@@ -527,20 +595,19 @@
         if(card.classList.contains('unlocked')) {
             card.classList.remove('unlocked');
             frame.src = "";
-            status.innerText = "LOCKED";
+            status.innerText = "SECURE LOCK";
             status.style.color = "var(--accent-pink)";
-            btn.innerText = "FLOW DONATION 0.01";
+            btn.innerText = "flow donation 0.01";
         } else {
             card.classList.add('unlocked');
             frame.src = frame.dataset.src;
-            status.innerText = "UNLOCKED";
+            status.innerText = "LIVE UNLOCKED";
             status.style.color = "var(--accent-cyan)";
-            btn.innerText = "REVOKE SECURITY CLEARANCE";
-            triggerToast("FLOW DONATION 0.01 validated.");
+            btn.innerText = "REVOKE SECURITY ACCESS";
+            triggerToast("flow donation 0.01 verified.");
         }
     }
 
-    // Reaction click accumulator tracking 10 click distortion thresholds
     function registerReaction(cardId, reactionType) {
         if(!internalReactionState[cardId]) return;
         
@@ -550,19 +617,19 @@
         const targetCard = document.getElementById(cardId);
         const count = internalReactionState[cardId][reactionType];
 
-        // Trigger extreme graphic styles immediately once limit threshold matches 10
+        // Trigger dynamic graphic changes once the count reaches exactly 10 clicks
         if(count === 10) {
             targetCard.classList.remove('viral-fire', 'sketchy', 'hall-of-meat');
             if(reactionType === 'fire') targetCard.classList.add('viral-fire');
             if(reactionType === 'sketchy') targetCard.classList.add('sketchy');
             if(reactionType === 'meat') targetCard.classList.add('hall-of-meat');
-            triggerToast(`Extreme style parameters injected on instance ${cardId}`);
+            triggerToast(`HUD Mutation triggered on instance ${cardId}`);
         }
     }
 
     function simulateProfileSave() {
         const handle = document.getElementById('prof-name').value;
-        triggerToast(`Memo signature packed for handle: ${handle.toUpperCase()}`);
+        triggerToast(`Config save packed for handle: ${handle.toUpperCase()}`);
     }
 
     function triggerToast(message) {
