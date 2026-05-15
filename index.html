@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DUAL PIPELINE COCKPIT | HUD Edition</title>
+    <title>DUAL PIPELINE COCKPIT | Uncropped HUD Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Bangers&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -38,13 +38,13 @@
             padding: 25px;
         }
 
-        /* --- SCANLINE SCREEN EFFECT --- */
+        /* --- CRT SCANLINE SCREEN EFFECT --- */
         body::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
             z-index: 99999;
             opacity: 0.4;
             pointer-events: none;
@@ -63,11 +63,10 @@
         }
 
         header::before {
-            content: "SYSTEM LIVE // DATA SYNCHRONIZATION RUNNING";
+            content: "SYSTEM LIVE // NATIVE VIDEO FRAMING INTERACTION RUNNING";
             position: absolute;
             top: 4px; left: 8px;
             font-size: 0.55rem;
-            font-family: 'Orbitron';
             color: var(--accent-cyber-yellow);
             opacity: 0.7;
             letter-spacing: 2px;
@@ -79,11 +78,10 @@
             letter-spacing: 4px;
             color: var(--accent-cyber-yellow);
             text-transform: uppercase;
-            text-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
         }
         .header-title span { color: var(--accent-solana-purple); text-shadow: 0 0 15px var(--accent-solana-purple); }
 
-        /* --- HIGH-TECH TERMINAL CONSOLE --- */
+        /* --- FACTORY INPUT TERMINAL --- */
         .factory-terminal {
             background: rgba(0, 0, 0, 0.9);
             border: 1px solid var(--accent-cyan);
@@ -96,7 +94,7 @@
         }
 
         .factory-terminal::before {
-            content: "📥 INPUT PORT";
+            content: "📥 INPUT SOURCE URL";
             position: absolute;
             top: -9px; left: 15px;
             background: var(--bg-deep);
@@ -123,10 +121,9 @@
             font-size: 0.95rem;
             border-radius: 2px;
             outline: none;
-            transition: 0.3s;
             box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);
         }
-        .url-input:focus { border-color: var(--accent-cyber-yellow); box-shadow: 0 0 15px rgba(255, 234, 0, 0.1); }
+        .url-input:focus { border-color: var(--accent-cyber-yellow); }
 
         .factory-btn {
             background: var(--accent-cyan);
@@ -137,13 +134,12 @@
             font-weight: 900;
             cursor: pointer;
             border-radius: 2px;
-            transition: 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         .factory-btn:hover { background: #fff; box-shadow: 0 0 20px var(--accent-cyan); }
 
-        /* --- SPLIT COCKPIT LAYOUT --- */
+        /* --- COCKPIT LAYOUT BLOCKS --- */
         .cockpit-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, 650px), 1fr));
@@ -157,21 +153,12 @@
             border-radius: 4px;
             padding: 30px;
             box-sizing: border-box;
-            position: relative;
         }
 
-        /* Pipe 1 Rail Style (WAX) */
-        .pipe-wax {
-            border: 2px solid var(--accent-cyber-yellow);
-            box-shadow: 0 0 30px rgba(255, 234, 0, 0.03);
-        }
+        .pipe-wax { border: 2px solid var(--accent-cyber-yellow); }
         .pipe-wax .pipe-header { color: var(--accent-cyber-yellow); border-color: rgba(255, 234, 0, 0.2); }
 
-        /* Pipe 2 Rail Style (Solana) */
-        .pipe-solana {
-            border: 2px solid var(--accent-solana-purple);
-            box-shadow: 0 0 30px rgba(153, 69, 255, 0.03);
-        }
+        .pipe-solana { border: 2px solid var(--accent-solana-purple); }
         .pipe-solana .pipe-header { color: var(--accent-solana-purple); border-color: rgba(153, 69, 255, 0.2); }
 
         .pipe-header {
@@ -184,24 +171,12 @@
             text-transform: uppercase;
         }
 
-        /* --- SLICK HUD PROFILE LAYOUT --- */
         .profile-card {
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 234, 0, 0.2);
             border-radius: 4px;
             padding: 25px;
             margin-bottom: 25px;
-            position: relative;
-        }
-        .profile-card::before {
-            content: "REGISTRY DATA LOG";
-            position: absolute;
-            top: -8px; left: 12px;
-            font-size: 0.55rem;
-            color: var(--accent-cyber-yellow);
-            background: #080f26;
-            padding: 0 5px;
-            letter-spacing: 1px;
         }
         .profile-field { margin-bottom: 20px; }
         .profile-field label {
@@ -210,7 +185,6 @@
             color: var(--accent-cyber-yellow);
             margin-bottom: 6px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .profile-input {
             width: 100%;
@@ -220,14 +194,15 @@
             color: #fff;
             font-family: 'Inter';
             font-size: 0.9rem;
-            border-radius: 2px;
         }
 
-        /* --- PERFECTLY FRAMED VIDEO CARDS WITH HUD METRICS --- */
+        /* --- UNCROPPED PLATFORM HOME GRID --- */
         .video-feed-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
+            /* Prevents tall elements from pulling or warping shorter widescreen cards */
+            align-items: start; 
         }
 
         .video-card {
@@ -237,34 +212,23 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
-        .video-card:hover { border-color: var(--accent-cyan); transform: translateY(-2px); }
 
-        /* Tactical HUD Brackets for Video Card */
-        .video-card::before, .video-card::after {
-            content: "";
-            position: absolute;
-            width: 10px; height: 10px;
-            pointer-events: none;
-            z-index: 30;
-            transition: 0.3s;
-        }
-        .video-card::before { top: 5px; left: 5px; border-top: 2px solid rgba(0,240,255,0.4); border-left: 2px solid rgba(0,240,255,0.4); }
-        .video-card::after { bottom: 5px; right: 5px; border-bottom: 2px solid rgba(0,240,255,0.4); border-right: 2px solid rgba(0,240,255,0.4); }
-
-        /* Perfect Framing Engine Box */
+        /* --- DYNAMIC PACKED RATIO WIRES --- */
         .video-wrapper {
             position: relative;
             width: 100%;
-            aspect-ratio: 16 / 9; /* Perfect wide fallback anchoring */
             background: #000;
             overflow: hidden;
             border-bottom: 1px solid rgba(0, 240, 255, 0.1);
         }
-        .video-wrapper.portrait-frame { aspect-ratio: 4 / 5; } /* Adaptive compression rail for vertical content */
+
+        /* Universal standard sizes adjusted to allow content to live naturally uncropped */
+        .video-wrapper.yt-rail { aspect-ratio: 16 / 9; }
+        .video-wrapper.ig-rail { aspect-ratio: 4 / 5; }
+        .video-wrapper.tt-rail { aspect-ratio: 9 / 16; max-height: 580px; }
 
         .video-wrapper iframe {
             position: absolute;
@@ -272,10 +236,9 @@
             width: 100%; height: 100%;
             border: none;
             z-index: 1;
-            object-fit: cover;
         }
 
-        /* Anti-Poser Encryption Mask */
+        /* Anti-Poser Mask Overlay */
         .video-mask {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -285,18 +248,15 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
-            transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .video-mask i { font-size: 2.2rem; color: var(--accent-pink); margin-bottom: 12px; text-shadow: 0 0 10px rgba(255,0,85,0.5); }
-        .video-mask p { font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 900; color: #fff; }
+        .video-mask i { font-size: 2.2rem; color: var(--accent-pink); margin-bottom: 12px; }
+        .video-mask p { font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 900; }
 
-        .unlocked .video-mask { opacity: 0; pointer-events: none; visibility: hidden; transform: scale(1.05); }
+        .unlocked .video-mask { opacity: 0; pointer-events: none; visibility: hidden; }
 
-        /* Card Information Panels */
         .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; background: rgba(5, 10, 26, 0.4); }
-        .card-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; color: #fff; letter-spacing: 1px; line-height: 1.2; }
+        .card-title { font-family: 'Orbitron'; font-weight: 900; font-size: 1.05rem; margin-bottom: 15px; text-transform: uppercase; color: #fff; letter-spacing: 1px; }
         
-        /* Tactical HUD Pillar Component */
         .hud-telemetry-pill {
             background: rgba(0,0,0,0.8);
             border-left: 3px solid var(--accent-cyan);
@@ -306,21 +266,16 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            font-family: 'Orbitron';
             letter-spacing: 1px;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
         }
         .hud-telemetry-pill div span { color: var(--accent-cyan); font-weight: bold; }
 
-        /* --- HIGH-ENGAGEMENT BOOSTER MATRIX --- */
         .reaction-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             background: rgba(0,0,0,0.6);
             padding: 10px;
-            border-radius: 4px;
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.05);
         }
@@ -328,7 +283,6 @@
         .reaction-btn {
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 2px;
             cursor: pointer;
             color: #fff;
             padding: 8px;
@@ -338,12 +292,9 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s ease;
         }
         .reaction-btn:hover { background: rgba(0, 240, 255, 0.05); border-color: var(--accent-cyan); color: var(--accent-cyan); }
-        .reaction-btn.triggered { border-color: var(--accent-gold); background: rgba(255,215,0,0.05); color: var(--accent-gold); }
 
-        /* Unified Ticking Trigger Configurations */
         .action-btn {
             background: transparent;
             border: 1px solid var(--accent-solana-purple);
@@ -356,36 +307,25 @@
             width: 100%;
             text-transform: uppercase;
             margin-top: auto;
-            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             letter-spacing: 2px;
-            position: relative;
         }
-        .action-btn:hover { background: var(--accent-solana-purple); color: #fff; box-shadow: 0 0 20px var(--accent-solana-purple); }
-
+        .action-btn:hover { background: var(--accent-solana-purple); box-shadow: 0 0 20px var(--accent-solana-purple); }
         .btn-wax-style { border-color: var(--accent-cyber-yellow); }
         .btn-wax-style:hover { background: var(--accent-cyber-yellow); color: #000; box-shadow: 0 0 20px var(--accent-cyber-yellow); }
 
-        /* --- EXTREME OVERLAY MATRIX MODES (10 CLICK MATRIX) --- */
+        /* --- EXTREME EFFECT STRAPS --- */
         .viral-fire { border-color: #ff4500 !important; }
-        .viral-fire::before { border-top-color: #ff4500; border-left-color: #ff4500; }
-        .viral-fire::after { border-bottom-color: #ff4500; border-right-color: #ff4500; }
-        .viral-fire .video-wrapper::after { content: "SYS // ON FIRE"; position: absolute; bottom: 8px; right: 12px; font-family: 'Bangers'; font-size: 1.8rem; color: #ff4500; text-shadow: 2px 2px #000; z-index: 20; letter-spacing: 1px; }
+        .viral-fire .video-wrapper::after { content: "SYS // ON FIRE"; position: absolute; bottom: 8px; right: 12px; font-family: 'Bangers'; font-size: 1.8rem; color: #ff4500; text-shadow: 2px 2px #000; z-index: 20; }
 
         .sketchy { border-color: #39ff14 !important; }
-        .sketchy::before { border-top-color: #39ff14; border-left-color: #39ff14; }
-        .sketchy::after { border-bottom-color: #39ff14; border-right-color: #39ff14; }
-        .sketchy .video-wrapper::after { content: "SYS // SKETCHY"; position: absolute; bottom: 8px; right: 12px; font-family: 'Bangers'; font-size: 1.8rem; color: #39ff14; text-shadow: 2px 2px #000; z-index: 20; letter-spacing: 1px; }
+        .sketchy .video-wrapper::after { content: "SYS // SKETCHY"; position: absolute; bottom: 8px; right: 12px; font-family: 'Bangers'; font-size: 1.8rem; color: #39ff14; text-shadow: 2px 2px #000; z-index: 20; }
 
         .hall-of-meat { border-color: #ff0055 !important; }
-        .hall-of-meat::before { border-top-color: #ff0055; border-left-color: #ff0055; }
-        .hall-of-meat::after { border-bottom-color: #ff0055; border-right-color: #ff0055; }
         .hall-of-meat .video-wrapper::after { content: "GROUND BEEF"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg); font-family: 'Bangers'; font-size: 2.8rem; color: #ff0055; z-index: 20; text-shadow: 3px 3px #000; text-align: center; width: 100%; }
         .hall-of-meat .video-wrapper::before { content: ""; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,0,85,0.25); z-index: 15; }
 
         .god-tier { border: 2px solid transparent !important; background-clip: padding-box, border-box !important; background-origin: padding-box, border-box !important; background-image: linear-gradient(#000, #000), linear-gradient(45deg, #ffd700, #fff, #ffd700, #b9f2ff, #ffd700) !important; background-size: 300% 300% !important; animation: godShimmer 3s infinite linear; }
-        .god-tier::before, .god-tier::after { display: none; }
 
-        /* --- SYSTEM ALERTS --- */
         .toast-notify {
             position: fixed;
             bottom: 25px; right: 25px;
@@ -395,22 +335,26 @@
             border-radius: 4px;
             z-index: 99999;
             font-size: 0.8rem;
-            box-shadow: 0 0 30px rgba(0,240,255,0.3);
             display: none;
             font-weight: 700;
         }
+
+        .platform-badge { font-size: 0.6rem; font-weight: 900; padding: 2px 6px; border-radius: 3px; }
+        .badge-yt { background: #ff2d55; }
+        .badge-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .badge-tt { background: #000; border: 1px solid var(--accent-cyan); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1 class="header-title">sk8dao <span>//</span> Profile Cockpit v2.0</h1>
+    <h1 class="header-title">sk8dao <span>//</span> Profile Cockpit v2.1</h1>
 </header>
 
 <div class="factory-terminal">
     <div class="terminal-header">Universal Media Link Indexer</div>
     <div class="input-group">
-        <input type="text" id="target-link-input" class="url-input" placeholder="Paste URL source (YouTube, Instagram, or TikTok)...">
+        <input type="text" id="target-link-input" class="url-input" placeholder="Paste URL source (YouTube standard/shorts, Instagram Post/Reel, or TikTok)...">
         <button class="factory-btn" onclick="processIncomingLink()">Index Payload</button>
     </div>
 </div>
@@ -435,11 +379,6 @@
             </div>
             <button class="action-btn btn-wax-style" onclick="simulateProfileSave()">Broadcast Profile Memo</button>
         </div>
-
-        <div style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 4px; border: 1px solid rgba(255,234,0,0.1); font-size: 0.75rem; line-height: 1.6; color: #aaa;">
-            <div style="font-weight: 900; color: var(--accent-cyber-yellow); margin-bottom: 6px; letter-spacing: 1px;">RAIL STATUS // ACTIVE</div>
-            WAX ledger handles primary profile configurations. State parameters, inventory tracking indices, and decentralized metrics sync immediately to local memory spaces.
-        </div>
     </div>
 
     <div class="pipeline-pipe pipe-solana">
@@ -448,7 +387,7 @@
         <div class="video-feed-grid" id="universal-media-target-grid">
             
             <div class="video-card" id="card-payload-01">
-                <div class="video-wrapper">
+                <div class="video-wrapper yt-rail">
                     <div class="video-mask" id="mask-payload-01">
                         <i class="fas fa-lock"></i>
                         <p>Sponsor to Unlock Footage</p>
@@ -456,41 +395,35 @@
                     <iframe id="frame-payload-01" data-src="https://www.youtube.com/embed/TkiDuln_Q28" src=""></iframe>
                 </div>
                 <div class="card-body">
-                    <div class="card-title">GREG VALENCIA // LA REBEL PART</div>
-                    
+                    <div class="card-title">GREG VALENCIA // LA COCKPIT RIG</div>
                     <div class="hud-telemetry-pill">
                         <div>SOURCE: <span style="color:#ff2d55;">YOUTUBE</span></div>
                         <div>SIGNAL: <span id="status-text-01" style="color:var(--accent-pink);">SECURE LOCK</span></div>
                     </div>
-                    
                     <div class="reaction-container">
                         <button class="reaction-btn" onclick="registerReaction('card-payload-01', 'fire')">🔥 <span id="card-payload-01-fire">0</span></button>
                         <button class="reaction-btn" onclick="registerReaction('card-payload-01', 'sketchy')">🤮 <span id="card-payload-01-sketchy">0</span></button>
                         <button class="reaction-btn" onclick="registerReaction('card-payload-01', 'meat')">🥩 <span id="card-payload-01-meat">0</span></button>
                     </div>
-                    
                     <button class="action-btn" id="lock-btn-01" onclick="toggleSimulatedLock('card-payload-01', 'frame-payload-01', 'status-text-01', 'lock-btn-01')">flow donation 0.01</button>
                 </div>
             </div>
 
             <div class="video-card unlocked" id="card-payload-02">
-                <div class="video-wrapper">
+                <div class="video-wrapper ig-rail">
                     <iframe id="frame-payload-02" src="https://www.instagram.com/p/C12345/embed"></iframe>
                 </div>
                 <div class="card-body">
                     <div class="card-title">MACBA EDGE CRUISE</div>
-                    
                     <div class="hud-telemetry-pill">
                         <div>SOURCE: <span style="color:#dc2743;">INSTAGRAM</span></div>
                         <div>SIGNAL: <span style="color:var(--accent-cyan);">FREE ACCESS</span></div>
                     </div>
-                    
                     <div class="reaction-container">
                         <button class="reaction-btn" onclick="registerReaction('card-payload-02', 'fire')">🔥 <span id="card-payload-02-fire">0</span></button>
                         <button class="reaction-btn" onclick="registerReaction('card-payload-02', 'sketchy')">🤮 <span id="card-payload-02-sketchy">0</span></button>
                         <button class="reaction-btn" onclick="registerReaction('card-payload-02', 'meat')">🥩 <span id="card-payload-02-meat">0</span></button>
                     </div>
-                    
                     <button class="action-btn" onclick="triggerToast('AMATEUR DONATION tier validation broadcasted.')">amateur donation 0.05</button>
                 </div>
             </div>
@@ -508,28 +441,28 @@
         'card-payload-02': { fire: 0, sketchy: 0, meat: 0 }
     };
 
-    // ========== UNIVERSAL PLATFORM ROUTING ENGINE ==========
+    // ========== UNIVERSAL DETECTION LAYER ==========
     function parseUniversalVideoUrl(url) {
-        if (!url) return { platform: null, id: null, isVertical: false };
+        if (!url) return { platform: null, id: null, railClass: 'yt-rail' };
         
-        // YouTube Regular & Shorts Matching
+        // YouTube Standards or Shorts
         if (url.includes('youtube.com/shorts/') || url.includes('youtu.be/')) {
             const shortMatch = url.match(/shorts\/([a-zA-Z0-9_-]{11})/);
-            if(shortMatch) return { platform: 'yt', id: shortMatch[1], isVertical: true };
+            if(shortMatch) return { platform: 'yt', id: shortMatch[1], railClass: 'tt-rail' }; // Maps to 9:16 vertical footprint
             
             const regMatch = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-            if (regMatch && regMatch[2].length === 11) return { platform: 'yt', id: regMatch[2], isVertical: false };
+            if (regMatch && regMatch[2].length === 11) return { platform: 'yt', id: regMatch[2], railClass: 'yt-rail' };
         }
         
-        // Instagram Post & Reels Matching
+        // Instagram Standard & Reels
         const igMatch = url.match(/(?:instagram\.com\/)(?:p|reel)\/([a-zA-Z0-9_-]+)/i);
-        if (igMatch) return { platform: 'ig', id: igMatch[1], isVertical: true };
+        if (igMatch) return { platform: 'ig', id: igMatch[1], railClass: 'ig-rail' }; // Maps to 4:5 native portrait
         
-        // TikTok Videos Matching
+        // TikTok Standard
         const ttMatch = url.match(/(?:tiktok\.com\/)(?:@[\w.-]+\/video\/)(\d+)/i);
-        if (ttMatch) return { platform: 'tt', id: ttMatch[1], isVertical: true };
+        if (ttMatch) return { platform: 'tt', id: ttMatch[1], railClass: 'tt-rail' }; // Maps to 9:16 vertical footprint
         
-        return { platform: null, id: null, isVertical: false };
+        return { platform: null, id: null, railClass: 'yt-rail' };
     }
 
     function getUniversalEmbedUrl(platform, id) {
@@ -542,32 +475,28 @@
         }
     }
 
-    // ========== CONTROLLER ACTIONS ==========
+    // ========== ASSET INJECTION ENGINE ==========
     function processIncomingLink() {
         const inputField = document.getElementById('target-link-input');
         const rawUrl = inputField.value.trim();
-        if(!rawUrl) return alert("Payload input tracking string is empty.");
+        if(!rawUrl) return alert("URL string field clear.");
 
         const targetData = parseUniversalVideoUrl(rawUrl);
-        if(!targetData.platform) {
-            return alert("Unrecognized payload link signatures. System requires valid YouTube, Instagram, or TikTok paths.");
-        }
+        if(!targetData.platform) return alert("Unrecognized media path signatures.");
 
         const normalizedEmbedPath = getUniversalEmbedUrl(targetData.platform, targetData.id);
         const dynamicId = 'generated-' + Date.now();
         internalReactionState[dynamicId] = { fire: 0, sketchy: 0, meat: 0 };
 
-        // Apply portrait framing structural container if asset is vertical
-        const frameClass = targetData.isVertical ? 'video-wrapper portrait-frame' : 'video-wrapper';
         const colorLabel = targetData.platform === 'yt' ? '#ff2d55' : (targetData.platform === 'ig' ? '#dc2743' : '#00f0ff');
 
         const cardTemplate = `
         <div class="video-card unlocked" id="${dynamicId}">
-            <div class="${frameClass}">
+            <div class="video-wrapper ${targetData.railClass}">
                 <iframe id="frame-${dynamicId}" src="${normalizedEmbedPath}"></iframe>
             </div>
             <div class="card-body">
-                <div class="card-title">INDEXED CLIP CLASSIFIED</div>
+                <div class="card-title">INDEXED HOOD MEDIA UNLOCKED</div>
                 <div class="hud-telemetry-pill">
                     <div>SOURCE: <span style="color:${colorLabel}">${targetData.platform.toUpperCase()}</span></div>
                     <div>SIGNAL: <span style="color:var(--accent-cyan);">FREE ACCESS</span></div>
@@ -577,13 +506,13 @@
                     <button class="reaction-btn" onclick="registerReaction('${dynamicId}', 'sketchy')">🤮 <span id="${dynamicId}-sketchy">0</span></button>
                     <button class="reaction-btn" onclick="registerReaction('${dynamicId}', 'meat')">🥩 <span id="${dynamicId}-meat">0</span></button>
                 </div>
-                <button class="action-btn" onclick="triggerToast('PRO DONATION transaction tracking recorded.')">pro donation 0.1</button>
+                <button class="action-btn" onclick="triggerToast('PRO COMPENSATE tracking confirmed.')">pro donation 0.1</button>
             </div>
         </div>`;
 
         document.getElementById('universal-media-target-grid').insertAdjacentHTML('afterbegin', cardTemplate);
         inputField.value = "";
-        triggerToast(`Asset ${targetData.id} integrated perfectly to HUD matrix.`);
+        triggerToast(`Asset ${targetData.id} packed without content clipping.`);
     }
 
     function toggleSimulatedLock(cardId, frameId, statusId, btnId) {
@@ -604,7 +533,7 @@
             status.innerText = "LIVE UNLOCKED";
             status.style.color = "var(--accent-cyan)";
             btn.innerText = "REVOKE SECURITY ACCESS";
-            triggerToast("flow donation 0.01 verified.");
+            triggerToast("Simulated micro-donation validated.");
         }
     }
 
@@ -617,19 +546,17 @@
         const targetCard = document.getElementById(cardId);
         const count = internalReactionState[cardId][reactionType];
 
-        // Trigger dynamic graphic changes once the count reaches exactly 10 clicks
         if(count === 10) {
             targetCard.classList.remove('viral-fire', 'sketchy', 'hall-of-meat');
             if(reactionType === 'fire') targetCard.classList.add('viral-fire');
             if(reactionType === 'sketchy') targetCard.classList.add('sketchy');
             if(reactionType === 'meat') targetCard.classList.add('hall-of-meat');
-            triggerToast(`HUD Mutation triggered on instance ${cardId}`);
+            triggerToast(`HUD Distortion activated on target frame.`);
         }
     }
 
     function simulateProfileSave() {
-        const handle = document.getElementById('prof-name').value;
-        triggerToast(`Config save packed for handle: ${handle.toUpperCase()}`);
+        triggerToast(`Config updates broadcasted.`);
     }
 
     function triggerToast(message) {
