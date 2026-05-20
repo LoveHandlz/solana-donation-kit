@@ -1078,14 +1078,40 @@ function editVideo(btnEl) {
     }
 }
 
-function deleteVideo(btnEl) {
-    if(confirm("Are you sure you want to remove this video from your feed?")) {
-        const card = btnEl.closest('.video-card');
-        if(card) {
-            card.style.display = 'none';
-        }
+async function deleteVideo(btnEl) {
+    if(!publicKey) { triggerOnboarding(); return; }
+    if(!confirm("Are you sure you want to permanently remove this video from the global public feed?")) return;
+    
+    const card = btnEl.closest('.video-card');
+    if(!card) return;
+    const videoId = card.id; // e.g., 'vid-1'
+    
+    btnEl.innerText = "DELETING...";
+    
+    try {
+        const pData = JSON.stringify({ sk8del: "v1", post: videoId });
+        const encoded = new TextEncoder().encode(pData); 
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; 
+        tx.feePayer = from;
+        
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert("Global video removed from chain!"); 
+        
+        // Hide it instantly for a snappy UI
+        card.style.display = 'none'; 
+        if (!globalVideoState[videoId]) globalVideoState[videoId] = {};
+        globalVideoState[videoId].deleted = true; 
+    } catch (err) { 
+        console.error(err);
+        alert("Deletion failed."); 
+        btnEl.innerText = "DELETE";
     }
 }
+  
 // ========== UI TOGGLES & MODALS ==========
 function triggerOnboarding() { document.getElementById("onboarding-modal").style.display = "flex"; }
 function closeOnboardingModal() { document.getElementById("onboarding-modal").style.display = "none"; }
@@ -1737,6 +1763,11 @@ async function syncGlobalVideos(wallets) {
                         const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
                         if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
                         globalVideoState[d.post].totalSOL += parseFloat(d.amt || 0);
+                   }
+                  else if (s.memo.includes('"sk8del":"v1"')) {
+                        const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                        if (!globalVideoState[d.post]) globalVideoState[d.post] = { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+                        globalVideoState[d.post].deleted = true;
                     }
                 }
             }
@@ -1807,6 +1838,12 @@ async function checkPersistence() {
 
         let postId = card.id;
         let vState = globalVideoState[postId] || { locked: true, reactions: {'🔥':0, '🤮':0, '⭐':0, '🧈':0, '🥩':0, '💪':0}, totalSOL: 0 };
+      if (vState.deleted) {
+            card.style.display = 'none';
+            continue;
+        } else {
+            card.style.display = 'flex'; // Reset display if not deleted
+        }
         let isFree = !vState.locked;
         
         // STAGE 4: EXTREME OVERLAY RESET & 10-CLICK THRESHOLDS
