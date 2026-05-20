@@ -2195,6 +2195,8 @@ async function attemptFeedAccess() {
 async function fetchSkaterFeed(wallet, isBlurred) {
     const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
     currentSkaterPosts = [];
+    let deletedPosts = []; // Track which posts the skater has deleted
+    
     try {
         const sigs = await rpcMethodWithRetry(() => conn.getSignaturesForAddress(new solanaWeb3.PublicKey(wallet), { limit: 1000 }));
         for (let s of sigs) { 
@@ -2202,10 +2204,17 @@ async function fetchSkaterFeed(wallet, isBlurred) {
                 if(s.memo.includes('"sk8post":"v1"')) { 
                     const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
                     currentSkaterPosts.push({ id: s.signature, text: d.text, yt: d.yt, ig: d.ig, time: s.blockTime, totalDonated: 0 });
+                } else if (s.memo.includes('"sk8del":"v1"')) {
+                    // Log the tombstone
+                    const d = JSON.parse(s.memo.replace(/^\[\d+\]\s*/, ''));
+                    if (d.post) deletedPosts.push(d.post);
                 }
             }
         }
     } catch(e) {}
+    
+    // Filter out any post that has a matching delete memo
+    currentSkaterPosts = currentSkaterPosts.filter(p => !deletedPosts.includes(p.id));
     
     currentSkaterPosts.sort((a,b) => b.time - a.time);
     await syncGlobalVideos([wallet]);
@@ -2241,7 +2250,9 @@ function renderFeedGrid(isBlurred) {
             mediaHtml = `<div class="feed-grid-media" style="background: linear-gradient(45deg, #0a132f, #0f1a47); display:flex; align-items:center; justify-content:center;"><i class="fas fa-skating" style="font-size:3rem; color:rgba(0,240,255,0.1);"></i></div>`;
         }
 
-        let blessBtn = isOwner ? "" : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
+        let actionBtn = isOwner 
+            ? `<button class="feed-bless-btn" style="color:var(--accent-red); border-color:var(--accent-red);" onclick="deleteFeedPost('${p.id}')"><i class="fas fa-trash"></i> DELETE POST</button>` 
+            : `<button class="feed-bless-btn" onclick="openSponsorshipModalFromFeed('${p.id}')">BLESS CLIP</button>`;
         let universalReactions = getReactionHtml(p.id, activeFeedWallet, false);
 
         // STAGE 4: EXTREME FEED OVERLAY THRESHOLDS (10 CLICKS)
@@ -2262,7 +2273,7 @@ function renderFeedGrid(isBlurred) {
                         <div class="feed-grid-text">${p.text || ""}</div>
                         <div class="feed-grid-date" style="margin-bottom: 10px;">${dateStr}</div>
                         ${universalReactions}
-                        ${blessBtn}
+                        ${actionBtn}
                     </div>
                  </div>`;
     });
@@ -2311,7 +2322,31 @@ async function publishToFeed() {
         setTimeout(() => btn.innerText = "SIGN & POST TO CHAIN", 3000);
     }
 }
+  
+async function deleteFeedPost(postId) {
+    if(!publicKey) { triggerOnboarding(); return; }
+    if(!confirm("Are you sure you want to permanently delete this post from your feed?")) return;
+    
+    try {
+        const pData = JSON.stringify({ sk8del: "v1", post: postId });
+        const encoded = new TextEncoder().encode(pData); 
+        
+        const conn = new solanaWeb3.Connection(RPC_URL, "confirmed");
+        const from = new solanaWeb3.PublicKey(publicKey);
+        const tx = new solanaWeb3.Transaction().add(PRIORITY_FEE_IX).add(new solanaWeb3.TransactionInstruction({ keys: [{ pubkey: from, isSigner: true, isWritable: true }], programId: MEMO_PROGRAM_ID, data: encoded }));
+        tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash; 
+        tx.feePayer = from;
+        
+        await conn.sendRawTransaction((await provider.signTransaction(tx)).serialize());
+        alert("Video removed from chain!"); 
+        attemptFeedAccess(); // Instantly reload the feed
+    } catch (err) { 
+        console.error(err);
+        alert("Deletion failed."); 
+    }
+}
 
+  
 // ========== INITIALIZATION ==========
 window.addEventListener('load', async () => {
     // PARK PASS GATEKEEPER: Always show during test phase
